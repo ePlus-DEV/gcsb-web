@@ -116,6 +116,7 @@ export default function DownloadPage() {
                 <Button
                   size="lg"
                   className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white"
+                  onClick={() => document.getElementById("download")?.scrollIntoView({ behavior: "smooth" })}
                 >
                   Download Now <Download className="ml-2 h-4 w-4" />
                 </Button>
@@ -426,6 +427,7 @@ export default function DownloadPage() {
             <Button
               size="lg"
               className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white"
+              onClick={() => document.getElementById("download")?.scrollIntoView({ behavior: "smooth" })}
             >
               Download Now <Download className="ml-2 h-4 w-4" />
             </Button>
