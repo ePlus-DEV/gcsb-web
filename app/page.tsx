@@ -27,6 +27,11 @@ export default function DownloadPage() {
   const [scrolled, setScrolled] = useState(false)
   const [activeTab, setActiveTab] = useState("chrome")
 
+  const chrome = "https://chromewebstore.google.com/detail/lmbhjioadhcoebhgapaidogodllonbgg?utm_source=web"
+  const firefox = "https://addons.mozilla.org/addon/cloud-skills-boost-helper?utm_source=web"
+  const edge = "https://github.com/ePlus-DEV/google-cloud-skills-boost-helper/releases/?utm_source=github"
+  const opera = "https://github.com/ePlus-DEV/google-cloud-skills-boost-helper/releases/?utm_source=github"
+
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50)
@@ -53,18 +58,34 @@ export default function DownloadPage() {
             <span className="font-semibold text-lg sm:hidden">GC Helper</span>
           </div>
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" className="hidden md:flex">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="hidden md:flex"
+              onClick={() => document.getElementById("features")?.scrollIntoView({ behavior: "smooth" })}
+            >
               Features
             </Button>
-            <Button variant="ghost" size="sm" className="hidden md:flex">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="hidden md:flex"
+              onClick={() => document.getElementById("download")?.scrollIntoView({ behavior: "smooth" })}
+            >
               Installation
             </Button>
-            <Button variant="ghost" size="sm" className="hidden md:flex">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="hidden md:flex"
+              onClick={() => document.getElementById("screenshots")?.scrollIntoView({ behavior: "smooth" })}
+            >
               Screenshots
             </Button>
             <Button
               size="sm"
               className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white"
+              onClick={() => document.getElementById("download")?.scrollIntoView({ behavior: "smooth" })}
             >
               Download
             </Button>
@@ -130,7 +151,7 @@ export default function DownloadPage() {
                   <div className="ml-4 text-xs text-slate-500 dark:text-slate-400">Google Cloud Skills Boost</div>
                 </div>
                 <Image
-                  src="https://private-user-images.githubusercontent.com/11882322/423196188-a01c7592-8c29-4002-9f27-3375df34bbdd.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NDM0OTc5MjEsIm5iZiI6MTc0MzQ5NzYyMSwicGF0aCI6Ii8xMTg4MjMyMi80MjMxOTYxODgtYTAxYzc1OTItOGMyOS00MDAyLTlmMjctMzM3NWRmMzRiYmRkLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTA0MDElMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUwNDAxVDA4NTM0MVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTZlYjBmYjkyNjIzYTRmODU2ODZhNWNiNWFlNmEyOTY4NGM2MWM1MDRmNmQxNTdmODUxMjMwMDUzYjQ5Y2YzZGYmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.p7K2WELhOgpS95cXzZuy80kdRFr60BO8bruanHcdo8U"
+                  src="/head.png"
                   alt="Extension screenshot"
                   width={300}
                   height={300}
@@ -144,7 +165,7 @@ export default function DownloadPage() {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 px-4">
+      <section id="features" className="py-20 px-4">
         <div className="container mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <Badge className="mb-4 px-3 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100 hover:bg-blue-100 dark:hover:bg-blue-900">
@@ -183,7 +204,7 @@ export default function DownloadPage() {
       </section>
 
       {/* Screenshots Section */}
-      <section className="py-20 px-4 bg-slate-50 dark:bg-slate-900/50">
+      <section id="screenshots" className="py-20 px-4 bg-slate-50 dark:bg-slate-900/50">
         <div className="container mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <Badge className="mb-4 px-3 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100 hover:bg-blue-100 dark:hover:bg-blue-900">
@@ -300,7 +321,7 @@ export default function DownloadPage() {
                       "Select the google-cloud-helper folder you extracted",
                     ]}
                     image="/chrome.jpg"
-                    downloadUrl="https://chromewebstore.google.com/detail/lmbhjioadhcoebhgapaidogodllonbgg?utm_source=web"
+                    downloadUrl={chrome}
                   />
                 </TabsContent>
 
@@ -314,7 +335,7 @@ export default function DownloadPage() {
                       "The extension will appear in your toolbar",
                     ]}
                     image="/firefox.jpg"
-                    downloadUrl="https://addons.mozilla.org/addon/cloud-skills-boost-helper?utm_source=web"
+                    downloadUrl={firefox}
                   />
                 </TabsContent>
 
@@ -328,7 +349,7 @@ export default function DownloadPage() {
                       "The extension will appear in your toolbar",
                     ]}
                     image="/edge-browser.jpg"
-                    downloadUrl="https://github.com/ePlus-DEV/google-cloud-skills-boost-helper/releases/?utm_source=github"
+                    downloadUrl={edge}
                   />
                 </TabsContent>
 
@@ -342,7 +363,23 @@ export default function DownloadPage() {
                       "The extension will appear in your toolbar",
                     ]}
                     image="/opera-browser.jpg"
-                    downloadUrl="https://github.com/ePlus-DEV/google-cloud-skills-boost-helper/releases/?utm_source=github"
+                    downloadUrl={opera}
+                  />
+                </TabsContent>
+
+                <TabsContent value="other" className="m-0">
+                  <BrowserTab
+                    title="Manual Installation"
+                    steps={[
+                      "Download and unzip google-cloud-skills-boost-helper-{version}-chrome.zip",
+                      "Rename the extracted folder to google-cloud-helper",
+                      "Open Chrome and go to Extensions",
+                      "Enable Developer mode",
+                      "Click 'Load unpacked extension...'",
+                      "Select the google-cloud-helper folder you extracted",
+                    ]}
+                    image="/chrome.jpg"
+                    downloadUrl={chrome}
                   />
                 </TabsContent>
               </div>
@@ -537,22 +574,22 @@ export default function DownloadPage() {
               <h3 className="font-semibold text-white mb-4">Browsers</h3>
               <ul className="space-y-2">
                 <li>
-                  <a href="#" className="text-slate-400 hover:text-white transition-colors">
+                  <a href={chrome} className="text-slate-400 hover:text-white transition-colors">
                     Chrome
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-slate-400 hover:text-white transition-colors">
+                  <a href={firefox} className="text-slate-400 hover:text-white transition-colors">
                     Firefox
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-slate-400 hover:text-white transition-colors">
+                  <a href={edge} className="text-slate-400 hover:text-white transition-colors">
                     Edge
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-slate-400 hover:text-white transition-colors">
+                  <a href={opera} className="text-slate-400 hover:text-white transition-colors">
                     Opera
                   </a>
                 </li>
