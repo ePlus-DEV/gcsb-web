@@ -130,10 +130,10 @@ export default function DownloadPage() {
                   <div className="ml-4 text-xs text-slate-500 dark:text-slate-400">Google Cloud Skills Boost</div>
                 </div>
                 <Image
-                  src="/placeholder.svg?height=600&width=800&text=Google+Cloud+Skills+Boost+Helper"
+                  src="https://private-user-images.githubusercontent.com/11882322/423196188-a01c7592-8c29-4002-9f27-3375df34bbdd.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NDM0OTc5MjEsIm5iZiI6MTc0MzQ5NzYyMSwicGF0aCI6Ii8xMTg4MjMyMi80MjMxOTYxODgtYTAxYzc1OTItOGMyOS00MDAyLTlmMjctMzM3NWRmMzRiYmRkLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTA0MDElMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUwNDAxVDA4NTM0MVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTZlYjBmYjkyNjIzYTRmODU2ODZhNWNiNWFlNmEyOTY4NGM2MWM1MDRmNmQxNTdmODUxMjMwMDUzYjQ5Y2YzZGYmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.p7K2WELhOgpS95cXzZuy80kdRFr60BO8bruanHcdo8U"
                   alt="Extension screenshot"
-                  width={800}
-                  height={600}
+                  width={300}
+                  height={300}
                   className="w-full h-auto"
                 />
               </div>
@@ -299,8 +299,8 @@ export default function DownloadPage() {
                       "Click 'Load unpacked extension...'",
                       "Select the google-cloud-helper folder you extracted",
                     ]}
-                    image="/placeholder.svg?height=300&width=500&text=Chrome+Installation"
-                    downloadUrl="#"
+                    image="/chrome.jpg"
+                    downloadUrl="https://chromewebstore.google.com/detail/lmbhjioadhcoebhgapaidogodllonbgg?utm_source=web"
                   />
                 </TabsContent>
 
@@ -313,8 +313,8 @@ export default function DownloadPage() {
                       "Confirm the installation when prompted",
                       "The extension will appear in your toolbar",
                     ]}
-                    image="/placeholder.svg?height=300&width=500&text=Firefox+Installation"
-                    downloadUrl="#"
+                    image="/firefox.jpg"
+                    downloadUrl="https://addons.mozilla.org/addon/cloud-skills-boost-helper?utm_source=web"
                   />
                 </TabsContent>
 
@@ -327,8 +327,8 @@ export default function DownloadPage() {
                       "Confirm the installation when prompted",
                       "The extension will appear in your toolbar",
                     ]}
-                    image="/placeholder.svg?height=300&width=500&text=Edge+Installation"
-                    downloadUrl="#"
+                    image="/edge-browser.jpg"
+                    downloadUrl="https://github.com/ePlus-DEV/google-cloud-skills-boost-helper/releases/?utm_source=github"
                   />
                 </TabsContent>
 
@@ -341,8 +341,8 @@ export default function DownloadPage() {
                       "Confirm the installation when prompted",
                       "The extension will appear in your toolbar",
                     ]}
-                    image="/placeholder.svg?height=300&width=500&text=Opera+Installation"
-                    downloadUrl="#"
+                    image="/opera-browser.jpg"
+                    downloadUrl="https://github.com/ePlus-DEV/google-cloud-skills-boost-helper/releases/?utm_source=github"
                   />
                 </TabsContent>
               </div>
