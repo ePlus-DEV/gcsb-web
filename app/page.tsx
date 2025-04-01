@@ -448,10 +448,10 @@ export default function DownloadPage() {
                     level.
                   </p>
                   <div className="flex flex-wrap gap-4">
-                    <Button size="lg" className="bg-white text-blue-600 hover:bg-blue-50">
+                    <Button size="lg" className="bg-white text-blue-600 hover:bg-blue-50" onClick={() => document.getElementById("download")?.scrollIntoView({ behavior: "smooth" })}>
                       Download Now <Download className="ml-2 h-4 w-4" />
                     </Button>
-                    <Button variant="outline" size="lg" className="text-white border-white hover:bg-white/10">
+                    <Button variant="outline" size="lg" className="text-blue-600 border-white hover:bg-white/10">
                       Learn More <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </div>
@@ -512,7 +512,7 @@ export default function DownloadPage() {
               </p>
               <div className="flex gap-3">
                 <a
-                  href="#"
+                  href="https://facebook.com/hoangsvit"
                   className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:bg-blue-600 transition-colors"
                 >
                   <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -524,7 +524,7 @@ export default function DownloadPage() {
                   </svg>
                 </a>
                 <a
-                  href="#"
+                  href="https://twitter.com/david_nguyen94"
                   className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:bg-blue-400 transition-colors"
                 >
                   <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -532,7 +532,7 @@ export default function DownloadPage() {
                   </svg>
                 </a>
                 <a
-                  href="#"
+                  href="http://github.com/hoangsvit"
                   className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:bg-slate-700 transition-colors"
                 >
                   <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
