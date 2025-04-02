@@ -1,7 +1,6 @@
 {
   "name": "gcsb-web",
   "version": "1.0.0",
-  "private": true,
   "author": "dev@eplus.dev",
   "homepage_url": "https://eplus.dev",
   "scripts": {
