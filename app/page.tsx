@@ -141,6 +141,21 @@ export default function DownloadPage() {
                 </div>
                 <span className="text-sm text-slate-500 dark:text-slate-400">Available for all major browsers</span>
               </div>
+              <div className="pt-4">
+                <a
+                  href="https://www.producthunt.com/posts/google-cloud-skills-boost-helper?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-google&#0045;cloud&#0045;skills&#0045;boost&#0045;helper"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <img
+                    src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=947339&theme=light&t=1743747200801"
+                    alt="Google&#0032;Cloud&#0032;Skills&#0032;Boost&#0032;&#0045;&#0032;Helper - Optimize&#0032;Google&#0032;Cloud&#0032;learning&#0032;with&#0032;smart&#0032;tracking&#0032;tools&#0046; | Product Hunt"
+                    style={{ width: "250px", height: "54px" }}
+                    width="250"
+                    height="54"
+                  />
+                </a>
+              </div>
             </div>
             <div className="relative">
               <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl blur opacity-30 dark:opacity-40"></div>
