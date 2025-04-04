@@ -27,7 +27,7 @@ export default function DownloadPage() {
   const [scrolled, setScrolled] = useState(false)
   const [activeTab, setActiveTab] = useState("chrome")
 
-  const chrome = "https://chromewebstore.google.com/detail/lmbhjioadhcoebhgapaidogodllonbgg?utm_source=web"
+  const chrome = "https://chromewebstore.google.com/detail/google-cloud-skills-boost/lmbhjioadhcoebhgapaidogodllonbgg/?utm_source=web"
   const firefox = "https://addons.mozilla.org/addon/cloud-skills-boost-helper?utm_source=web"
   const edge = "https://github.com/ePlus-DEV/google-cloud-skills-boost-helper/releases/?utm_source=github"
   const opera = "https://github.com/ePlus-DEV/google-cloud-skills-boost-helper/releases/?utm_source=github"
