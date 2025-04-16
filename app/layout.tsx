@@ -1,6 +1,10 @@
 import type { Metadata } from 'next'
 import { GoogleAnalytics } from '@next/third-parties/google'
+import { ThemeProvider } from "@/components/theme-provider"
+import { Inter } from "next/font/google"
 import './globals.css'
+
+const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: 'Google Cloud Skills Boost - Helper',
@@ -15,8 +19,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
-      <GoogleAnalytics gaId="G-41VM0C9NGM" />
+      <body className={inter.className}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          {children}
+        </ThemeProvider>
+        <GoogleAnalytics gaId="G-41VM0C9NGM" />
+      </body>
     </html>
   )
 }

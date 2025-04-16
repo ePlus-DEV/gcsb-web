@@ -616,14 +616,14 @@ export default function DownloadPage() {
               <h3 className="font-semibold text-white mb-4">Legal</h3>
               <ul className="space-y-2">
                 <li>
-                  <a href="#" className="text-slate-400 hover:text-white transition-colors">
+                  <Link href="/privacy" className="text-slate-400 hover:text-white transition-colors">
                     Privacy Policy
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="text-slate-400 hover:text-white transition-colors">
+                  <Link href="/terms" className="text-slate-400 hover:text-white transition-colors">
                     Terms of Service
-                  </a>
+                  </Link>
                 </li>
                 <li>
                   <a href="#" className="text-slate-400 hover:text-white transition-colors">
@@ -638,12 +638,12 @@ export default function DownloadPage() {
               © {new Date().getFullYear()} Google Cloud Skills Boost - Helper. All rights reserved.
             </p>
             <div className="flex items-center gap-4 mt-4 md:mt-0">
-              <a href="#" className="text-sm text-slate-400 hover:text-white transition-colors">
+              <Link href="/privacy" className="text-sm text-slate-400 hover:text-white transition-colors">
                 Privacy
-              </a>
-              <a href="#" className="text-sm text-slate-400 hover:text-white transition-colors">
+              </Link>
+              <Link href="/terms" className="text-sm text-slate-400 hover:text-white transition-colors">
                 Terms
-              </a>
+              </Link>
               <a href="#" className="text-sm text-slate-400 hover:text-white transition-colors">
                 Contact
               </a>
