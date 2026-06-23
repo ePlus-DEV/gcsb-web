@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
+import { useEffect, useMemo, useState } from "react"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
@@ -11,295 +11,324 @@ import {
   CheckCircle2,
   Code,
   Download,
-  FileText,
+  ExternalLink,
   Github,
   Home,
+  PackageCheck,
   Plus,
   Search,
+  ShieldCheck,
+  Sparkles,
   Zap,
-  ChevronDown,
 } from "lucide-react"
 import Link from "next/link"
+
+type ChangeType = "feature" | "improvement" | "fix"
+
+type Change = {
+  type: ChangeType
+  title: string
+  description: string
+  pullRequest?: string
+}
+
+type Release = {
+  version: string
+  date: string
+  status?: "Latest"
+  summary: string
+  changes: Change[]
+}
+
+const repositoryUrl = "https://github.com/ePlus-DEV/google-cloud-skills-boost-helper"
+const releasesUrl = `${repositoryUrl}/releases`
+
+const changelogData: Release[] = [
+  {
+    version: "1.2.9",
+    date: "March 23, 2026",
+    status: "Latest",
+    summary: "Search matching refinements plus automated dependency and GitHub Actions maintenance.",
+    changes: [
+      {
+        type: "feature",
+        title: "Smarter search tokenization",
+        description: "Improves word tokenization and matching for hyphenated or compound terms in search results.",
+        pullRequest: "#100",
+      },
+      {
+        type: "improvement",
+        title: "Release automation maintenance",
+        description: "Updates GitHub Actions upload, checkout, and setup-node workflows to newer major versions.",
+        pullRequest: "#95–#97",
+      },
+      {
+        type: "improvement",
+        title: "Dependency refresh",
+        description: "Refreshes production and development dependencies to keep the extension build current.",
+        pullRequest: "#98–#99",
+      },
+    ],
+  },
+  {
+    version: "1.2.8",
+    date: "March 13, 2026",
+    summary: "Stability release focused on dependency updates and release packaging.",
+    changes: [
+      {
+        type: "improvement",
+        title: "Dependency upgrades",
+        description: "Updates dependabot/fetch-metadata, axios, and rollup for more reliable development and release workflows.",
+        pullRequest: "#90–#92",
+      },
+      {
+        type: "fix",
+        title: "Versioned release package",
+        description: "Publishes the v1.2.8 release package for supported browser builds.",
+        pullRequest: "#93",
+      },
+    ],
+  },
+  {
+    version: "1.2.7",
+    date: "January 11, 2026",
+    summary: "Small release package update for the browser extension.",
+    changes: [
+      {
+        type: "fix",
+        title: "Release package update",
+        description: "Ships the v1.2.7 extension package and related release artifacts.",
+        pullRequest: "#89",
+      },
+    ],
+  },
+  {
+    version: "1.2.6",
+    date: "January 10, 2026",
+    summary: "Development-to-release handoff for v1.2.6.",
+    changes: [
+      {
+        type: "improvement",
+        title: "Development build finalized",
+        description: "Promotes the v1.2.6 development work into a public release.",
+        pullRequest: "#87–#88",
+      },
+    ],
+  },
+  {
+    version: "1.2.5",
+    date: "December 29, 2025",
+    summary: "Security hardening and dependency maintenance.",
+    changes: [
+      {
+        type: "fix",
+        title: "Code scanning follow-up",
+        description: "Addresses workflow permission and insecure randomness code scanning alerts.",
+        pullRequest: "#76–#77",
+      },
+      {
+        type: "improvement",
+        title: "Maintenance updates",
+        description: "Includes dependency and release hygiene improvements from the public changelog.",
+      },
+    ],
+  },
+]
+
+const typeConfig = {
+  feature: {
+    label: "Features",
+    singular: "Feature",
+    icon: Plus,
+    badge: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200",
+    iconWrap: "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-300",
+  },
+  improvement: {
+    label: "Improvements",
+    singular: "Improvement",
+    icon: Zap,
+    badge: "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200",
+    iconWrap: "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300",
+  },
+  fix: {
+    label: "Fixes",
+    singular: "Fix",
+    icon: CheckCircle2,
+    badge: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200",
+    iconWrap: "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-300",
+  },
+}
 
 export default function ChangelogPage() {
   const [scrolled, setScrolled] = useState(false)
   const [activeTab, setActiveTab] = useState("all")
+  const [query, setQuery] = useState("")
+
+  const latestRelease = changelogData[0]
+  const totalChanges = changelogData.reduce((total, release) => total + release.changes.length, 0)
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50)
-    }
+    const handleScroll = () => setScrolled(window.scrollY > 50)
 
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900">
-      {/* Navbar */}
+    <div className="min-h-screen overflow-hidden bg-slate-950 text-slate-950 dark:text-white">
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          scrolled ? "bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm" : "bg-transparent"
+        className={`fixed left-0 right-0 top-0 z-50 transition-all duration-300 ${
+          scrolled ? "border-b border-white/10 bg-slate-950/85 shadow-2xl shadow-blue-950/20 backdrop-blur-xl" : "bg-transparent"
         }`}
       >
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-white font-bold text-xl">
+        <div className="container mx-auto flex items-center justify-between px-4 py-4">
+          <Link href="/" className="flex items-center gap-3 text-white">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-400 text-xl font-bold shadow-lg shadow-cyan-500/20">
               GC
             </div>
-            <span className="font-semibold text-lg hidden sm:inline-block">Google Cloud Skills Boost - Helper</span>
-            <span className="font-semibold text-lg sm:hidden">GC Helper</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" asChild className="hidden md:flex">
+            <div>
+              <span className="hidden font-semibold sm:block">Google Cloud Skills Boost - Helper</span>
+              <span className="font-semibold sm:hidden">GC Helper</span>
+              <p className="hidden text-xs text-slate-400 md:block">Release notes & product updates</p>
+            </div>
+          </Link>
+          <div className="flex items-center gap-2 sm:gap-4">
+            <Button variant="ghost" size="sm" asChild className="hidden text-slate-200 hover:bg-white/10 hover:text-white md:flex">
               <Link href="/">
-                <Home className="h-4 w-4 mr-2" /> Home
+                <Home className="mr-2 h-4 w-4" /> Home
               </Link>
             </Button>
-            <Button variant="ghost" size="sm" className="hidden md:flex">
-              <FileText className="h-4 w-4 mr-2" /> Documentation
+            <Button variant="ghost" size="sm" asChild className="hidden text-slate-200 hover:bg-white/10 hover:text-white md:flex">
+              <a href={releasesUrl} target="_blank" rel="noopener noreferrer">
+                <Github className="mr-2 h-4 w-4" /> GitHub
+              </a>
             </Button>
-            <Button variant="ghost" size="sm" className="hidden md:flex">
-              <Github className="h-4 w-4 mr-2" /> GitHub
-            </Button>
-            <Button
-              size="sm"
-              className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white"
-              asChild
-            >
+            <Button size="sm" className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white hover:from-blue-700 hover:to-cyan-600" asChild>
               <Link href="/#download">
-                <Download className="h-4 w-4 mr-2" /> Download
+                <Download className="mr-2 h-4 w-4" /> Download
               </Link>
             </Button>
           </div>
         </div>
       </nav>
 
-      {/* Header Section */}
-      <section className="pt-32 pb-16 px-4 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 -z-10"></div>
-        <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-200 dark:bg-blue-900/20 rounded-full blur-3xl opacity-50 -z-10"></div>
-        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-cyan-200 dark:bg-cyan-900/20 rounded-full blur-3xl opacity-50 -z-10"></div>
-
-        <div className="container mx-auto max-w-4xl">
-          <div className="flex items-center gap-2 mb-4">
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/">
-                <ArrowLeft className="h-4 w-4 mr-2" /> Back to Home
-              </Link>
-            </Button>
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Changelog</h1>
-          <p className="text-lg text-slate-600 dark:text-slate-300 mb-8">
-            Track the evolution of Google Cloud Skills Boost - Helper with our detailed changelog. See new features,
-            improvements, and bug fixes for each version.
-          </p>
-
-          <div className="flex flex-wrap gap-3 mb-8">
-            <Badge className="px-3 py-1.5 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100 hover:bg-blue-100 dark:hover:bg-blue-900">
-              Latest: v2.1.0
-            </Badge>
-            <Badge className="px-3 py-1.5 bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800">
-              <Calendar className="h-3.5 w-3.5 mr-1.5" /> Last updated: April 15, 2025
-            </Badge>
-            <Badge className="px-3 py-1.5 bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800">
-              <Code className="h-3.5 w-3.5 mr-1.5" /> 15 releases
-            </Badge>
-          </div>
-
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md border border-slate-200 dark:border-slate-700 p-4 mb-8">
-            <div className="flex items-center gap-3">
-              <Search className="h-5 w-5 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Search changelog..."
-                className="flex-1 bg-transparent border-none outline-none text-slate-600 dark:text-slate-300 placeholder:text-slate-400"
-              />
-            </div>
-          </div>
-
-          <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid grid-cols-4 mb-8">
-              <TabsTrigger
-                value="all"
-                className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-800 dark:data-[state=active]:bg-blue-900/50 dark:data-[state=active]:text-blue-100"
-              >
-                All
-              </TabsTrigger>
-              <TabsTrigger
-                value="features"
-                className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-800 dark:data-[state=active]:bg-blue-900/50 dark:data-[state=active]:text-blue-100"
-              >
-                <Plus className="h-4 w-4 mr-2" /> Features
-              </TabsTrigger>
-              <TabsTrigger
-                value="improvements"
-                className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-800 dark:data-[state=active]:bg-blue-900/50 dark:data-[state=active]:text-blue-100"
-              >
-                <Zap className="h-4 w-4 mr-2" /> Improvements
-              </TabsTrigger>
-              <TabsTrigger
-                value="fixes"
-                className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-800 dark:data-[state=active]:bg-blue-900/50 dark:data-[state=active]:text-blue-100"
-              >
-                <CheckCircle2 className="h-4 w-4 mr-2" /> Fixes
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="all" className="mt-0">
-              <ChangelogList />
-            </TabsContent>
-
-            <TabsContent value="features" className="mt-0">
-              <ChangelogList filter="feature" />
-            </TabsContent>
-
-            <TabsContent value="improvements" className="mt-0">
-              <ChangelogList filter="improvement" />
-            </TabsContent>
-
-            <TabsContent value="fixes" className="mt-0">
-              <ChangelogList filter="fix" />
-            </TabsContent>
-          </Tabs>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-slate-900 text-slate-300 py-12 px-4">
-        <div className="container mx-auto">
-          <div className="grid md:grid-cols-4 gap-8">
+      <main className="relative bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.34),_transparent_35%),radial-gradient(circle_at_top_right,_rgba(34,211,238,0.24),_transparent_35%),linear-gradient(180deg,_#020617_0%,_#0f172a_42%,_#f8fafc_42%,_#ffffff_100%)] dark:bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.34),_transparent_35%),radial-gradient(circle_at_top_right,_rgba(34,211,238,0.24),_transparent_35%),linear-gradient(180deg,_#020617_0%,_#0f172a_48%,_#020617_48%,_#020617_100%)]">
+        <section className="container mx-auto px-4 pb-12 pt-32 text-white lg:pb-20">
+          <div className="grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
             <div>
-              <div className="flex items-center gap-2 mb-4">
-                <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-white font-bold text-xl">
-                  GC
-                </div>
-                <span className="font-semibold text-white">Google Cloud Skills Boost - Helper</span>
-              </div>
-              <p className="text-sm text-slate-400 mb-4">
-                A browser extension designed to optimize your learning experience on Google Cloud Skills Boost.
+              <Button variant="outline" size="sm" asChild className="mb-6 border-white/20 bg-white/10 text-white backdrop-blur hover:bg-white/20 hover:text-white">
+                <Link href="/">
+                  <ArrowLeft className="mr-2 h-4 w-4" /> Back to Home
+                </Link>
+              </Button>
+              <Badge className="mb-5 border border-cyan-300/30 bg-cyan-400/10 px-3 py-1.5 text-cyan-100 hover:bg-cyan-400/10">
+                <Sparkles className="mr-1.5 h-3.5 w-3.5" /> Synced from GitHub releases
+              </Badge>
+              <h1 className="max-w-4xl text-4xl font-bold tracking-tight md:text-6xl">
+                Changelog được thiết kế lại chuyên nghiệp hơn
+              </h1>
+              <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300">
+                Theo dõi các bản phát hành mới nhất của Google Cloud Skills Boost - Helper: tính năng mới, cải tiến,
+                sửa lỗi và các gói cài đặt từ GitHub release chính thức.
               </p>
-              <div className="flex gap-3">
-                <a
-                  href="#"
-                  className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:bg-blue-600 transition-colors"
-                >
-                  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path
-                      fillRule="evenodd"
-                      d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </a>
-                <a
-                  href="#"
-                  className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:bg-blue-400 transition-colors"
-                >
-                  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
-                  </svg>
-                </a>
-                <a
-                  href="#"
-                  className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:bg-slate-700 transition-colors"
-                >
-                  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path
-                      fillRule="evenodd"
-                      d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </a>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Button className="bg-white text-slate-950 hover:bg-slate-100" asChild>
+                  <a href={`${releasesUrl}/latest`} target="_blank" rel="noopener noreferrer">
+                    View latest release <ExternalLink className="ml-2 h-4 w-4" />
+                  </a>
+                </Button>
+                <Button variant="outline" className="border-white/20 bg-white/10 text-white hover:bg-white/20 hover:text-white" asChild>
+                  <Link href="/#download">
+                    Download extension <Download className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
               </div>
             </div>
-            <div>
-              <h3 className="font-semibold text-white mb-4">Resources</h3>
-              <ul className="space-y-2">
-                <li>
-                  <a href="#" className="text-slate-400 hover:text-white transition-colors">
-                    Documentation
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-slate-400 hover:text-white transition-colors">
-                    Tutorials
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-slate-400 hover:text-white transition-colors">
-                    FAQs
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-slate-400 hover:text-white transition-colors">
-                    Support
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-semibold text-white mb-4">Browsers</h3>
-              <ul className="space-y-2">
-                <li>
-                  <a href="#" className="text-slate-400 hover:text-white transition-colors">
-                    Chrome
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-slate-400 hover:text-white transition-colors">
-                    Firefox
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-slate-400 hover:text-white transition-colors">
-                    Edge
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-slate-400 hover:text-white transition-colors">
-                    Opera
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-semibold text-white mb-4">Legal</h3>
-              <ul className="space-y-2">
-                <li>
-                  <a href="#" className="text-slate-400 hover:text-white transition-colors">
-                    Privacy Policy
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-slate-400 hover:text-white transition-colors">
-                    Terms of Service
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-slate-400 hover:text-white transition-colors">
-                    Cookie Policy
-                  </a>
-                </li>
-              </ul>
-            </div>
+
+            <Card className="border-white/10 bg-white/10 text-white shadow-2xl shadow-blue-950/40 backdrop-blur-xl">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-sm uppercase tracking-[0.24em] text-cyan-200">Latest stable</p>
+                    <h2 className="mt-2 text-4xl font-bold">v{latestRelease.version}</h2>
+                  </div>
+                  <PackageCheck className="h-12 w-12 text-cyan-300" />
+                </div>
+                <p className="mt-4 text-slate-300">{latestRelease.summary}</p>
+                <div className="mt-6 grid grid-cols-3 gap-3 text-center">
+                  <StatCard label="Releases" value={changelogData.length.toString()} />
+                  <StatCard label="Changes" value={totalChanges.toString()} />
+                  <StatCard label="Latest" value="2026" />
+                </div>
+              </CardContent>
+            </Card>
           </div>
-          <div className="border-t border-slate-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
-            <p className="text-sm text-slate-400">
-              © {new Date().getFullYear()} Google Cloud Skills Boost - Helper. All rights reserved.
-            </p>
-            <div className="flex items-center gap-4 mt-4 md:mt-0">
-              <a href="/privacy" className="text-sm text-slate-400 hover:text-white transition-colors">
-                Privacy
-              </a>
-              <a href="/terms" className="text-sm text-slate-400 hover:text-white transition-colors">
-                Terms
-              </a>
-              <a href="#" className="text-sm text-slate-400 hover:text-white transition-colors">
-                Contact
-              </a>
-            </div>
+        </section>
+
+        <section className="container mx-auto px-4 pb-20">
+          <Card className="border-slate-200/80 bg-white/95 shadow-2xl shadow-slate-900/10 backdrop-blur dark:border-white/10 dark:bg-slate-900/90">
+            <CardContent className="p-4 md:p-8">
+              <div className="mb-8 grid gap-4 lg:grid-cols-[1fr_auto] lg:items-center">
+                <div className="relative">
+                  <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="search"
+                    value={query}
+                    onChange={(event) => setQuery(event.target.value)}
+                    placeholder="Tìm theo version, pull request, feature, dependency..."
+                    className="h-12 w-full rounded-2xl border border-slate-200 bg-white pl-12 pr-4 text-slate-700 outline-none ring-blue-500/20 transition focus:border-blue-400 focus:ring-4 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
+                  />
+                </div>
+                <div className="flex flex-wrap gap-2 text-sm text-slate-500 dark:text-slate-400">
+                  <Badge variant="outline" className="px-3 py-1.5">
+                    <Calendar className="mr-1.5 h-3.5 w-3.5" /> Updated from releases
+                  </Badge>
+                  <Badge variant="outline" className="px-3 py-1.5">
+                    <Code className="mr-1.5 h-3.5 w-3.5" /> v{latestRelease.version}
+                  </Badge>
+                </div>
+              </div>
+
+              <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className="mb-8 grid h-auto grid-cols-2 rounded-2xl bg-slate-100 p-1 dark:bg-slate-950 md:grid-cols-4">
+                  <TabsTrigger value="all" className="rounded-xl py-2.5 data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm dark:data-[state=active]:bg-slate-800 dark:data-[state=active]:text-cyan-200">
+                    All updates
+                  </TabsTrigger>
+                  {Object.entries(typeConfig).map(([type, config]) => {
+                    const Icon = config.icon
+                    return (
+                      <TabsTrigger key={type} value={type} className="rounded-xl py-2.5 data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm dark:data-[state=active]:bg-slate-800 dark:data-[state=active]:text-cyan-200">
+                        <Icon className="mr-2 h-4 w-4" /> {config.label}
+                      </TabsTrigger>
+                    )
+                  })}
+                </TabsList>
+
+                <TabsContent value="all" className="mt-0">
+                  <ChangelogList query={query} />
+                </TabsContent>
+                <TabsContent value="feature" className="mt-0">
+                  <ChangelogList filter="feature" query={query} />
+                </TabsContent>
+                <TabsContent value="improvement" className="mt-0">
+                  <ChangelogList filter="improvement" query={query} />
+                </TabsContent>
+                <TabsContent value="fix" className="mt-0">
+                  <ChangelogList filter="fix" query={query} />
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+        </section>
+      </main>
+
+      <footer className="bg-slate-950 px-4 py-10 text-slate-400">
+        <div className="container mx-auto flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <p className="text-sm">© {new Date().getFullYear()} Google Cloud Skills Boost - Helper.</p>
+          <div className="flex gap-4 text-sm">
+            <Link href="/privacy" className="hover:text-white">Privacy</Link>
+            <Link href="/terms" className="hover:text-white">Terms</Link>
+            <a href={repositoryUrl} target="_blank" rel="noopener noreferrer" className="hover:text-white">GitHub</a>
           </div>
         </div>
       </footer>
@@ -307,215 +336,118 @@ export default function ChangelogPage() {
   )
 }
 
-interface ChangelogListProps {
-  filter?: "feature" | "improvement" | "fix"
+function StatCard({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/10 p-3">
+      <div className="text-2xl font-bold">{value}</div>
+      <div className="text-xs uppercase tracking-wider text-slate-300">{label}</div>
+    </div>
+  )
 }
 
-function ChangelogList({ filter }: ChangelogListProps) {
-  // Sample changelog data
-  const changelogData = [
-    {
-      version: "2.1.0",
-      date: "April 15, 2025",
-      changes: [
-        {
-          type: "feature",
-          title: "Added dark mode support",
-          description: "Users can now toggle between light and dark themes.",
-        },
-        {
-          type: "improvement",
-          title: "Enhanced Arcade points calculation",
-          description: "Improved algorithm for more accurate point calculations.",
-        },
-        {
-          type: "fix",
-          title: "Fixed leaderboard display issue",
-          description: "Resolved an issue where the leaderboard would sometimes not display correctly.",
-        },
-      ],
-    },
-    {
-      version: "2.0.0",
-      date: "March 22, 2025",
-      changes: [
-        {
-          type: "feature",
-          title: "Complete UI redesign",
-          description: "Completely redesigned the user interface for better usability and aesthetics.",
-        },
-        {
-          type: "feature",
-          title: "Added export functionality",
-          description: "Users can now export their scores and progress as CSV or PDF.",
-        },
-        {
-          type: "improvement",
-          title: "Performance optimization",
-          description: "Reduced memory usage and improved overall performance.",
-        },
-        {
-          type: "fix",
-          title: "Fixed compatibility issues with latest Chrome version",
-          description: "Resolved compatibility issues with Chrome v120.",
-        },
-      ],
-    },
-    {
-      version: "1.5.2",
-      date: "February 10, 2025",
-      changes: [
-        {
-          type: "improvement",
-          title: "Updated API endpoints",
-          description: "Updated to use the latest Google Cloud Skills Boost API endpoints.",
-        },
-        {
-          type: "fix",
-          title: "Fixed login persistence issue",
-          description: "Resolved an issue where login state would not persist after browser restart.",
-        },
-      ],
-    },
-    {
-      version: "1.5.1",
-      date: "January 15, 2025",
-      changes: [
-        {
-          type: "fix",
-          title: "Fixed scoring bug",
-          description: "Fixed a bug that caused incorrect score calculations in certain scenarios.",
-        },
-        {
-          type: "fix",
-          title: "Addressed Firefox-specific issues",
-          description: "Fixed several issues that were specific to Firefox users.",
-        },
-      ],
-    },
-    {
-      version: "1.5.0",
-      date: "December 5, 2024",
-      changes: [
-        {
-          type: "feature",
-          title: "Added notification system",
-          description: "Users now receive notifications for important events and updates.",
-        },
-        {
-          type: "improvement",
-          title: "Enhanced data visualization",
-          description: "Improved charts and graphs for better data visualization.",
-        },
-        {
-          type: "improvement",
-          title: "Updated documentation",
-          description: "Comprehensive update to user documentation and help resources.",
-        },
-      ],
-    },
-  ]
+function ChangelogList({ filter, query }: { filter?: ChangeType; query: string }) {
+  const normalizedQuery = query.trim().toLowerCase()
 
-  // Filter changes if a filter is provided
-  const filteredData = filter
-    ? changelogData
-        .map((release) => ({
-          ...release,
-          changes: release.changes.filter((change) => change.type === filter),
-        }))
-        .filter((release) => release.changes.length > 0)
-    : changelogData
+  const filteredData = useMemo(() => {
+    return changelogData
+      .map((release) => {
+        const changes = release.changes.filter((change) => {
+          const matchesType = filter ? change.type === filter : true
+          const searchable = [release.version, release.date, release.summary, change.type, change.title, change.description, change.pullRequest]
+            .filter(Boolean)
+            .join(" ")
+            .toLowerCase()
+          const matchesQuery = normalizedQuery ? searchable.includes(normalizedQuery) : true
+
+          return matchesType && matchesQuery
+        })
+
+        return { ...release, changes }
+      })
+      .filter((release) => release.changes.length > 0)
+  }, [filter, normalizedQuery])
+
+  if (filteredData.length === 0) {
+    return (
+      <div className="rounded-3xl border border-dashed border-slate-300 p-10 text-center dark:border-slate-700">
+        <Search className="mx-auto mb-4 h-10 w-10 text-slate-400" />
+        <h3 className="text-xl font-semibold text-slate-900 dark:text-white">Không tìm thấy cập nhật phù hợp</h3>
+        <p className="mt-2 text-slate-500 dark:text-slate-400">Thử đổi từ khóa hoặc chuyển sang tab All updates.</p>
+      </div>
+    )
+  }
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-8">
       {filteredData.map((release, index) => (
-        <div key={index} className="relative">
-          {/* Timeline connector */}
-          {index < filteredData.length - 1 && (
-            <div className="absolute left-6 top-16 bottom-0 w-0.5 bg-slate-200 dark:bg-slate-700"></div>
-          )}
-
-          <div className="flex gap-6">
-            {/* Version badge */}
-            <div className="relative z-10">
-              <div className="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 dark:text-blue-300 text-sm font-semibold">
-                v{release.version.split(".")[0]}
-              </div>
-            </div>
-
-            {/* Release content */}
-            <div className="flex-1">
-              <div className="flex flex-wrap items-center gap-3 mb-4">
-                <h3 className="text-2xl font-bold">Version {release.version}</h3>
-                <Badge className="bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-200">
-                  <Calendar className="h-3.5 w-3.5 mr-1.5" /> {release.date}
-                </Badge>
-              </div>
-
-              <Card className="mb-6 border-slate-200 dark:border-slate-700">
-                <CardContent className="p-0">
-                  <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                    {release.changes.map((change, changeIndex) => (
-                      <div key={changeIndex} className="p-4">
-                        <div className="flex items-start gap-3">
-                          <div
-                            className={`mt-1 h-6 w-6 rounded-full flex items-center justify-center ${
-                              change.type === "feature"
-                                ? "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
-                                : change.type === "improvement"
-                                  ? "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
-                                  : "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400"
-                            }`}
-                          >
-                            {change.type === "feature" ? (
-                              <Plus className="h-3.5 w-3.5" />
-                            ) : change.type === "improvement" ? (
-                              <Zap className="h-3.5 w-3.5" />
-                            ) : (
-                              <CheckCircle2 className="h-3.5 w-3.5" />
-                            )}
-                          </div>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <h4 className="font-medium">{change.title}</h4>
-                              <Badge
-                                className={`text-xs ${
-                                  change.type === "feature"
-                                    ? "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-200"
-                                    : change.type === "improvement"
-                                      ? "bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200"
-                                      : "bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-200"
-                                }`}
-                              >
-                                {change.type}
-                              </Badge>
-                            </div>
-                            <p className="text-slate-600 dark:text-slate-300 mt-1">{change.description}</p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              <div className="flex gap-3">
-                <Button variant="outline" size="sm" className="text-xs">
-                  <Github className="h-3.5 w-3.5 mr-1.5" /> View on GitHub
-                </Button>
-                <Button variant="outline" size="sm" className="text-xs">
-                  <Download className="h-3.5 w-3.5 mr-1.5" /> Download v{release.version}
-                </Button>
-              </div>
+        <article key={release.version} className="relative grid gap-5 md:grid-cols-[150px_1fr]">
+          <div className="md:text-right">
+            <div className="sticky top-24 inline-flex flex-col items-start gap-2 md:items-end">
+              <Badge className="bg-slate-950 px-3 py-1.5 text-white hover:bg-slate-950 dark:bg-white dark:text-slate-950">
+                v{release.version}
+              </Badge>
+              {release.status && <Badge className="bg-cyan-100 text-cyan-800 dark:bg-cyan-900/50 dark:text-cyan-100">{release.status}</Badge>}
+              <span className="text-sm text-slate-500 dark:text-slate-400">{release.date}</span>
             </div>
           </div>
-        </div>
+
+          <div className="relative rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-xl dark:border-slate-800 dark:bg-slate-950 md:p-6">
+            {index < filteredData.length - 1 && <div className="absolute -bottom-8 left-8 h-8 w-px bg-slate-200 dark:bg-slate-800" />}
+            <div className="mb-5 flex flex-col gap-3 border-b border-slate-100 pb-5 dark:border-slate-800 md:flex-row md:items-start md:justify-between">
+              <div>
+                <h3 className="text-2xl font-bold text-slate-950 dark:text-white">Version {release.version}</h3>
+                <p className="mt-2 text-slate-600 dark:text-slate-300">{release.summary}</p>
+              </div>
+              <Button variant="outline" size="sm" asChild className="shrink-0">
+                <a href={`${releasesUrl}/tag/v.${release.version}`} target="_blank" rel="noopener noreferrer">
+                  <Github className="mr-2 h-4 w-4" /> Release
+                </a>
+              </Button>
+            </div>
+
+            <div className="space-y-3">
+              {release.changes.map((change) => {
+                const config = typeConfig[change.type]
+                const Icon = config.icon
+
+                return (
+                  <div key={`${release.version}-${change.title}`} className="flex gap-4 rounded-2xl bg-slate-50 p-4 dark:bg-slate-900/70">
+                    <div className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${config.iconWrap}`}>
+                      <Icon className="h-4 w-4" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h4 className="font-semibold text-slate-950 dark:text-white">{change.title}</h4>
+                        <Badge className={`text-xs ${config.badge}`}>{config.singular}</Badge>
+                        {change.pullRequest && <span className="text-xs font-medium text-slate-400">{change.pullRequest}</span>}
+                      </div>
+                      <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-300">{change.description}</p>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </article>
       ))}
 
-      <div className="flex justify-center pt-8">
-        <Button variant="outline">
-          Load More Versions <ChevronDown className="ml-2 h-4 w-4" />
-        </Button>
+      <div className="rounded-3xl border border-blue-100 bg-gradient-to-r from-blue-50 to-cyan-50 p-6 dark:border-blue-900/40 dark:from-blue-950/30 dark:to-cyan-950/20">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex gap-3">
+            <ShieldCheck className="mt-1 h-6 w-6 text-blue-600 dark:text-cyan-300" />
+            <div>
+              <h3 className="font-semibold text-slate-950 dark:text-white">Nguồn dữ liệu changelog</h3>
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                Nội dung được biên tập lại từ GitHub Releases để dễ đọc hơn trên website.
+              </p>
+            </div>
+          </div>
+          <Button asChild>
+            <a href={releasesUrl} target="_blank" rel="noopener noreferrer">
+              Open all releases <ExternalLink className="ml-2 h-4 w-4" />
+            </a>
+          </Button>
+        </div>
       </div>
     </div>
   )
