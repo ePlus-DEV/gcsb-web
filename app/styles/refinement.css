@@ -1,0 +1,17 @@
+@media (min-width: 901px) {
+  .hero-copy {
+    width: min(760px, 54%);
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(3.3rem, 4.7vw, 4.45rem);
+  }
+
+  .trail-map-wrap {
+    bottom: 75px;
+  }
+
+  .trail-stats {
+    bottom: 72px;
+  }
+}
