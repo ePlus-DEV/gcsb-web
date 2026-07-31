@@ -10,6 +10,7 @@ import "./styles/responsive.css"
 import "./styles/refinement.css"
 import "./styles/manual-entry-state.css"
 import "./styles/option3-background.css"
+import "./styles/mobile-hero-redesign.css"
 
 const siteUrl = "https://eplus-dev.github.io/gcsb-web/"
 
