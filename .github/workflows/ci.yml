@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   apply-arcade-tiers:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/fix/manual-entry-overlap'
+    if: github.event_name == 'pull_request' && github.head_ref == 'fix/manual-entry-overlap'
     runs-on: ubuntu-latest
     permissions:
       contents: write
