@@ -1,1 +1,18 @@
-/* Visual refinements are consolidated in base.css, trail.css and responsive.css. */
+/* Final visual alignment. */
+.trail-svg {
+  transform: translateY(-44px);
+}
+
+.trail-svg .finish-flag {
+  transform: translateY(44px);
+}
+
+@media (max-width: 620px) {
+  .hero-actions .text-button {
+    font-size: 0;
+  }
+
+  .hero-actions .text-button::after {
+    font-size: .95rem;
+  }
+}
