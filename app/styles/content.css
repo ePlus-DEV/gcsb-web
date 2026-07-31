@@ -72,6 +72,79 @@
   line-height: 1.65;
 }
 
+
+.tier-section {
+  margin-bottom: 90px;
+}
+
+.tier-data-source {
+  flex: none;
+  margin: 0;
+  padding: 8px 12px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--soft-ink);
+  font-family: Arial, sans-serif;
+  font-size: .75rem;
+  font-weight: 800;
+}
+
+.tier-data-source.is-live {
+  background: var(--mint);
+  color: var(--ink);
+}
+
+.tier-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.tier-card {
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  padding: 22px;
+  border: 3px solid var(--ink);
+  border-radius: 18px;
+  background: var(--paper);
+  box-shadow: 5px 6px 0 rgba(7, 29, 73, .18);
+}
+
+.tier-card:nth-child(1) { background: var(--lime); }
+.tier-card:nth-child(2) { background: #ffd0ca; }
+.tier-card:nth-child(3) { background: #d9d1ff; }
+.tier-card:nth-child(4) { background: var(--mint); }
+
+.tier-card small {
+  font-size: .74rem;
+  font-weight: 1000;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.tier-card strong {
+  font-size: 1.28rem;
+  line-height: 1.15;
+}
+
+.tier-card span,
+.tier-card b {
+  font-family: Arial, sans-serif;
+  font-size: .82rem;
+}
+
+.tier-card b {
+  width: fit-content;
+  padding: 5px 9px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--paper);
+}
+
 .badge-filter {
   display: flex;
   flex-wrap: wrap;

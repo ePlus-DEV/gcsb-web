@@ -1,0 +1,312 @@
+.option3-stage {
+  position: relative;
+  width: min(1440px, 100%);
+  aspect-ratio: 1440 / 900;
+  margin: 0 auto 34px;
+  overflow: hidden;
+  background: #fbf6e9;
+  isolation: isolate;
+}
+
+.option3-background {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center top;
+  pointer-events: none;
+  user-select: none;
+}
+
+.option3-profile-form {
+  position: absolute;
+  z-index: 4;
+  inset: 0;
+}
+
+.option3-profile-form input {
+  position: absolute;
+  left: 8.15%;
+  top: 46.15%;
+  width: 33.55%;
+  height: 5.95%;
+  padding: 0 10px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--ink);
+  font-family: "Nunito Sans", Arial, sans-serif;
+  font-size: clamp(.76rem, 1.23vw, 1.08rem);
+  font-weight: 800;
+}
+
+.option3-profile-form input::placeholder {
+  color: #8791a8;
+  opacity: 1;
+}
+
+.option3-profile-form input:focus-visible {
+  border-radius: 10px;
+  outline: 3px solid var(--coral);
+  outline-offset: 3px;
+}
+
+.option3-analyze-hitbox {
+  position: absolute;
+  left: 4.25%;
+  top: 54.9%;
+  width: 19.8%;
+  height: 7.5%;
+  padding: 0;
+  border: 0;
+  border-radius: 17px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.option3-analyze-hitbox:hover {
+  background: rgb(255 255 255 / 10%);
+}
+
+.option3-analyze-hitbox:disabled {
+  cursor: wait;
+  background: rgb(251 246 233 / 55%);
+}
+
+.option3-analyze-hitbox:focus-visible {
+  outline: 4px solid var(--coral);
+  outline-offset: 3px;
+}
+
+.option3-manual-button {
+  position: absolute;
+  left: 25.62%;
+  top: 55.28%;
+  width: 14.5%;
+  height: 6.55%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  border: 3px solid var(--ink);
+  border-radius: 14px;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 3px 4px 0 var(--ink);
+  font-family: "Baloo 2", sans-serif;
+  font-size: clamp(.72rem, 1.25vw, 1.08rem);
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.option3-manual-button:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 2px 0 var(--ink);
+}
+
+.option3-form-error {
+  position: absolute;
+  left: 4.25%;
+  top: 52.85%;
+  width: 37.5%;
+  margin: 0;
+  padding: 5px 10px;
+  border: 2px solid var(--coral);
+  border-radius: 9px;
+  background: rgb(255 253 246 / 95%);
+  color: #9c211a;
+  font-size: clamp(.58rem, .78vw, .75rem);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.option3-next-tier {
+  position: absolute;
+  z-index: 3;
+  left: 68.35%;
+  top: 24.75%;
+  width: 17.5%;
+  height: 15.2%;
+  color: var(--ink);
+  pointer-events: none;
+}
+
+.option3-next-tier strong,
+.option3-next-tier b,
+.option3-next-tier span {
+  position: absolute;
+  display: block;
+  white-space: nowrap;
+}
+
+.option3-next-tier strong {
+  left: 0;
+  top: 0;
+  color: #83c70c;
+  font-family: "Baloo 2", sans-serif;
+  font-size: clamp(.95rem, 2.08vw, 1.9rem);
+  font-weight: 800;
+  line-height: 1;
+}
+
+.option3-next-tier b {
+  left: .25%;
+  top: 39.5%;
+  width: 49%;
+  color: var(--ink);
+  font-family: "Baloo 2", sans-serif;
+  font-size: clamp(.72rem, 1.43vw, 1.28rem);
+  font-weight: 800;
+  line-height: 1;
+  text-align: center;
+}
+
+.option3-next-tier span {
+  left: 0;
+  top: 72.5%;
+  font-family: "Nunito Sans", Arial, sans-serif;
+  font-size: clamp(.68rem, 1.32vw, 1.08rem);
+  font-weight: 900;
+}
+
+.option3-finish-point,
+.option3-current-point,
+.option3-stat {
+  position: absolute;
+  z-index: 3;
+  display: block;
+  color: var(--ink);
+  font-family: "Baloo 2", "Arial Rounded MT Bold", sans-serif;
+  font-weight: 800;
+  line-height: 1;
+  text-align: center;
+  pointer-events: none;
+}
+
+.option3-finish-point {
+  left: 82.05%;
+  top: 38.05%;
+  width: 5.2%;
+  font-size: clamp(1.25rem, 2.62vw, 2.42rem);
+}
+
+.option3-current-point {
+  left: 59.8%;
+  top: 56.45%;
+  width: 5.55%;
+  font-size: clamp(1.35rem, 2.7vw, 2.5rem);
+}
+
+.option3-stat {
+  top: 83.25%;
+  font-size: clamp(1.55rem, 3.15vw, 2.95rem);
+}
+
+.option3-stat-points {
+  left: 58.8%;
+  width: 7.5%;
+}
+
+.option3-stat-game {
+  left: 74.18%;
+  width: 6.5%;
+}
+
+.option3-stat-skill {
+  left: 89.55%;
+  width: 6.5%;
+}
+
+.option3-reset {
+  position: absolute;
+  z-index: 5;
+  right: 1.25%;
+  bottom: 1.2%;
+  padding: 5px 10px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: .7rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.option3-stage.is-manual-open {
+  margin-bottom: 235px;
+  overflow: visible;
+}
+
+.option3-manual-panel {
+  position: absolute;
+  z-index: 8;
+  top: calc(100% + 18px);
+  left: 4.1%;
+  width: 91.8%;
+  min-height: 170px;
+  display: grid;
+  grid-template-columns: 1.4fr repeat(4, minmax(125px, 1fr));
+  gap: 16px;
+  align-items: end;
+  padding: 22px;
+  border: 3px solid var(--ink);
+  border-radius: 20px;
+  background: var(--paper);
+  box-shadow: 6px 7px 0 var(--ink);
+}
+
+.option3-manual-copy {
+  align-self: center;
+  display: grid;
+  gap: 7px;
+}
+
+.option3-manual-copy strong {
+  font-family: "Baloo 2", sans-serif;
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.option3-manual-copy span {
+  max-width: 260px;
+  color: var(--soft-ink);
+  font-size: .8rem;
+  line-height: 1.4;
+}
+
+.option3-manual-panel label {
+  display: grid;
+  gap: 7px;
+  color: var(--ink);
+  font-size: .72rem;
+  font-weight: 900;
+}
+
+.option3-manual-panel input {
+  width: 100%;
+  height: 48px;
+  padding: 0 11px;
+  border: 2px solid var(--ink);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+@media (min-width: 901px) {
+  .site-header,
+  .trail-stage {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .option3-stage {
+    display: none;
+  }
+}

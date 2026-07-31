@@ -48,6 +48,14 @@ export type ArcadeApiResponse = {
   }
 }
 
+export type ArcadeMilestone = {
+  points: number
+  maxPoints: number | null
+  league: string
+  slots: number
+  spotsLeft: number | null
+}
+
 export type CalculatorSnapshot = {
   profileUrl: string
   currentPoints: number
@@ -68,37 +76,35 @@ export const API_URL =
   process.env.NEXT_PUBLIC_ARCADE_API_URL ??
   "https://hub.eplus.dev/api/arcade-public"
 
-export const STORAGE_KEY = "eplus-arcade-calculator-v1"
+export const ARCADE_MILESTONES_URL =
+  process.env.NEXT_PUBLIC_ARCADE_MILESTONES_URL ??
+  "https://raw.githubusercontent.com/hoangsvit/arcade-crawler/main/data/arcade_milestones.json"
+
+export const STORAGE_KEY = "eplus-arcade-calculator-v2"
+export const LEGACY_STORAGE_KEY = "eplus-arcade-calculator-v1"
 export const PROFILE_URL_PATTERN =
   /^https:\/\/(?:www\.)?(?:skills\.google|cloudskillsboost\.google)\/public_profiles\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/?$/i
 
-export const TIERS = [
-  { points: 0, name: "Arcade Explorer" },
-  { points: 50, name: "Arcade Trooper" },
-  { points: 75, name: "Arcade Ranger" },
-  { points: 95, name: "Arcade Champion" },
-  { points: 120, name: "Arcade Legend" },
+export const OFFICIAL_MILESTONES: ArcadeMilestone[] = [
+  { points: 50, maxPoints: 74, league: "Arcade Trooper", slots: 6000, spotsLeft: null },
+  { points: 75, maxPoints: 94, league: "Arcade Ranger", slots: 4000, spotsLeft: null },
+  { points: 95, maxPoints: 119, league: "Arcade Champion", slots: 3000, spotsLeft: null },
+  { points: 120, maxPoints: null, league: "Arcade Legend", slots: 2500, spotsLeft: null },
 ]
 
-export const DEMO_SNAPSHOT: CalculatorSnapshot = {
+export const EMPTY_SNAPSHOT: CalculatorSnapshot = {
   profileUrl: "",
-  currentPoints: 37,
-  gameBadges: 6,
-  triviaBadges: 12,
-  skillBadges: 38,
-  targetPoints: 50,
-  userName: "Demo learner",
-  milestone: "Arcade Explorer",
-  scoreComplete: true,
+  currentPoints: 0,
+  gameBadges: 0,
+  triviaBadges: 0,
+  skillBadges: 0,
+  targetPoints: 120,
+  userName: "",
+  milestone: "",
+  scoreComplete: false,
   unknownBadgeCount: 0,
   updatedAt: "",
 }
-
-export const SAMPLE_BADGES: ArcadeBadge[] = [
-  { title: "Arcade Base Camp", points: 1, dateEarned: "Demo" },
-  { title: "Arcade Adventure", points: 1, dateEarned: "Demo" },
-  { title: "Manage Kubernetes in Google Cloud", points: 0.5, dateEarned: "Demo" },
-]
 
 export function numeric(value: unknown): number {
   const parsed = Number(value)
@@ -113,16 +119,29 @@ export function formatNumber(value: number): string {
   return Number.isInteger(value) ? String(value) : value.toFixed(1)
 }
 
-export function getTier(points: number) {
-  return [...TIERS].reverse().find((tier) => points >= tier.points) ?? TIERS[0]
+export function formatInteger(value: number): string {
+  return new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(value)
 }
 
-export function getNextTier(points: number, target: number) {
-  const officialNext = TIERS.find((tier) => tier.points > points)
-  if (officialNext) return officialNext
+export function getTier(points: number) {
+  const milestone = [...OFFICIAL_MILESTONES]
+    .reverse()
+    .find((tier) => points >= tier.points)
 
-  return {
-    points: Math.max(target, Math.floor(points / 25) * 25 + 25),
-    name: "Next personal goal",
-  }
+  return milestone
+    ? { points: milestone.points, name: milestone.league }
+    : { points: 0, name: "No tier yet" }
+}
+
+export function getNextTier(points: number) {
+  return (
+    OFFICIAL_MILESTONES.find((tier) => tier.points > points) ??
+    OFFICIAL_MILESTONES[OFFICIAL_MILESTONES.length - 1]
+  )
+}
+
+export function tierRangeLabel(milestone: ArcadeMilestone): string {
+  return milestone.maxPoints === null
+    ? `${milestone.points}+ points`
+    : `${milestone.points}–${milestone.maxPoints} points`
 }

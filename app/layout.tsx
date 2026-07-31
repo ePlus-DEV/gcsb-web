@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { GoogleAnalytics } from "@next/third-parties/google"
+import { ManualEntryStageSync } from "@/components/arcade/manual-entry-stage-sync"
 import { ThemeProvider } from "@/components/theme-provider"
 import "./globals.css"
 import "./styles/base.css"
@@ -7,6 +8,8 @@ import "./styles/trail.css"
 import "./styles/content.css"
 import "./styles/responsive.css"
 import "./styles/refinement.css"
+import "./styles/manual-entry-state.css"
+import "./styles/option3-background.css"
 
 const siteUrl = "https://eplus-dev.github.io/gcsb-web/"
 
@@ -45,6 +48,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en" suppressHydrationWarning>
       <body>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <ManualEntryStageSync />
           {children}
         </ThemeProvider>
         <GoogleAnalytics gaId="G-41VM0C9NGM" />
