@@ -1,0 +1,264 @@
+/* Mobile hero redesign: keep the calculator readable and make the journey art support the data. */
+@media (max-width: 900px) {
+  .trail-stage {
+    min-height: 1050px;
+    overflow: hidden;
+    isolation: isolate;
+    background:
+      radial-gradient(circle at 10% 23%, rgb(217 247 67 / 24%) 0 7%, transparent 24%),
+      radial-gradient(circle at 100% 45%, rgb(143 120 255 / 9%) 0 11%, transparent 31%),
+      linear-gradient(180deg, #fbf7ea 0%, #fffdf7 37%, #f2e7ca 100%);
+  }
+
+  .trail-stage::before {
+    content: "";
+    position: absolute;
+    z-index: 1;
+    top: 470px;
+    left: 50%;
+    width: min(100%, 620px);
+    height: 480px;
+    background: url("/design/mobile-hero-journey.svg") center top / 100% auto no-repeat;
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+
+  .trail-stage::after {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    inset: 300px 0 0;
+    background-image: radial-gradient(circle, rgb(7 29 73 / 14%) 1.25px, transparent 1.25px);
+    background-size: 24px 24px;
+    opacity: .3;
+    mask-image: linear-gradient(to bottom, transparent, #000 18%, #000 68%, transparent 92%);
+    pointer-events: none;
+  }
+
+  .hero-copy {
+    z-index: 6;
+  }
+
+  .trail-map-wrap {
+    display: none;
+  }
+
+  .next-tier-card {
+    z-index: 7;
+    top: 410px;
+    right: 50%;
+    width: min(390px, calc(100% - 40px));
+    min-height: 0;
+    padding: 22px 24px 20px;
+    overflow: hidden;
+    border-radius: 24px;
+    background:
+      radial-gradient(circle at 94% 10%, rgb(217 247 67 / 30%) 0 18%, transparent 38%),
+      linear-gradient(145deg, #fffdf7 0%, #fffaf0 100%);
+    box-shadow: 0 14px 0 rgb(7 29 73 / 9%), 0 23px 42px rgb(7 29 73 / 12%);
+    transform: translateX(50%);
+    transform-origin: center top;
+  }
+
+  .next-tier-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 25px;
+    width: 88px;
+    height: 7px;
+    border-radius: 0 0 999px 999px;
+    background: var(--lime);
+  }
+
+  .next-tier-card::after {
+    display: none;
+  }
+
+  .next-tier-card > span {
+    color: var(--soft-ink);
+    font-size: .86rem;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+
+  .next-tier-card > strong {
+    max-width: calc(100% - 58px);
+    margin-top: 5px;
+    font-size: clamp(1.9rem, 6vw, 2.35rem);
+    line-height: .98;
+  }
+
+  .next-tier-card > b {
+    margin-top: 13px;
+    padding: 5px 14px;
+    border-radius: 999px;
+    box-shadow: 2px 3px 0 var(--ink);
+  }
+
+  .next-tier-card p {
+    margin-top: 13px;
+  }
+
+  .next-tier-card .slot-summary {
+    margin-bottom: 12px;
+  }
+
+  .mini-progress {
+    display: block;
+  }
+
+  .trail-stats {
+    z-index: 8;
+    top: 775px;
+    right: 50%;
+    bottom: auto;
+    width: min(620px, calc(100% - 40px));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 11px;
+    transform: translateX(50%);
+  }
+
+  .trail-stat-card {
+    min-height: 92px;
+    gap: 11px;
+    padding: 13px 12px;
+    border-radius: 18px;
+    box-shadow: 0 7px 0 rgb(7 29 73 / 11%);
+  }
+
+  .stat-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .stat-icon svg {
+    width: 25px;
+    height: 25px;
+  }
+
+  .stat-copy strong {
+    font-size: clamp(1.85rem, 5vw, 2.45rem);
+  }
+
+  .stat-copy small {
+    margin-top: 7px;
+    font-size: .68rem;
+  }
+
+  .trail-stage.is-manual-open {
+    min-height: 1190px;
+  }
+
+  .trail-stage.is-manual-open::before {
+    top: 625px;
+  }
+
+  .trail-stage.is-manual-open .next-tier-card {
+    top: 565px;
+  }
+
+  .trail-stage.is-manual-open .trail-stats {
+    top: 930px;
+  }
+}
+
+@media (max-width: 620px) {
+  .trail-stage {
+    min-height: 1060px;
+  }
+
+  .trail-stage::before {
+    top: 525px;
+    width: 100%;
+    height: 450px;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(2.85rem, 13.8vw, 3.45rem);
+    line-height: .92;
+  }
+
+  .hero-description {
+    margin-top: 13px;
+    margin-bottom: 11px;
+  }
+
+  .hero-actions {
+    margin-top: 14px;
+  }
+
+  .next-tier-card {
+    top: 455px;
+    width: calc(100% - 30px);
+    padding: 20px 21px 18px;
+    border-radius: 22px;
+  }
+
+  .next-tier-card > strong {
+    font-size: clamp(1.75rem, 8vw, 2.12rem);
+  }
+
+  .trail-stats {
+    top: 800px;
+    width: calc(100% - 30px);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+  }
+
+  .trail-stat-card {
+    min-height: 88px;
+    gap: 8px;
+    padding: 11px 9px;
+  }
+
+  .stat-icon {
+    width: 43px;
+    height: 43px;
+    border-width: 2.5px;
+  }
+
+  .stat-copy strong {
+    font-size: clamp(1.55rem, 8vw, 2rem);
+  }
+
+  .stat-copy small {
+    font-size: .61rem;
+  }
+
+  .stat-sparkle {
+    width: 14px;
+    top: 9px;
+    right: 8px;
+  }
+
+  .trail-stage.is-manual-open {
+    min-height: 1280px;
+  }
+
+  .trail-stage.is-manual-open::before {
+    top: 790px;
+  }
+
+  .trail-stage.is-manual-open .next-tier-card {
+    top: 700px;
+  }
+
+  .trail-stage.is-manual-open .trail-stats {
+    top: 1030px;
+  }
+}
+
+@media (max-width: 390px) {
+  .next-tier-card {
+    top: 475px;
+  }
+
+  .trail-stage::before {
+    top: 545px;
+  }
+
+  .trail-stats {
+    top: 820px;
+  }
+}
