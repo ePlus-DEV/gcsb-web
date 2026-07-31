@@ -28,11 +28,11 @@ function checkpointsFor(target: number): number[] {
   if (target <= 50) return [0, 10, 25, 50]
   if (target <= 75) return [0, 25, 50, 75]
   if (target <= 95) return [0, 25, 50, 95]
-  return [0, 25, 75, 120]
+  return [0, 25, 75, target]
 }
 
 function pointOnTrail(progress: number) {
-  const safeProgress = clamp(progress, 0, 1)
+  const safeProgress = Number.isFinite(progress) ? clamp(progress, 0, 1) : 0
   const scaled = safeProgress * (TRAIL_POINTS.length - 1)
   const index = Math.min(Math.floor(scaled), TRAIL_POINTS.length - 2)
   const localProgress = scaled - index
@@ -83,15 +83,16 @@ function TrailCheckpoint({ x, y, label }: { x: number; y: number; label: number 
 }
 
 export function TrailMap({ snapshot }: { snapshot: CalculatorSnapshot }) {
-  const target = Math.max(snapshot.targetPoints, 1)
-  const progress = clamp(snapshot.currentPoints / target, 0, 1)
+  const currentPoints = Number.isFinite(snapshot.currentPoints) ? snapshot.currentPoints : 0
+  const target = Number.isFinite(snapshot.targetPoints) ? Math.max(snapshot.targetPoints, 1) : 1
+  const progress = clamp(currentPoints / target, 0, 1)
   const pin = pointOnTrail(progress)
   const checkpoints = checkpointsFor(target)
   const positions = [TRAIL_POINTS[0], TRAIL_POINTS[2], TRAIL_POINTS[4], TRAIL_POINTS[9]]
   const path = "M80 438C230 470 275 390 360 385c115-7 172 65 320-70 80-73 152 46 270-48 88-70 154-36 235-102 62-51 70-56 100-49"
 
   return (
-    <svg className="trail-svg" viewBox="0 0 1440 520" role="img" aria-label={`Learning trail showing ${formatNumber(snapshot.currentPoints)} of ${target} points`}>
+    <svg className="trail-svg" viewBox="0 0 1440 520" role="img" aria-label={`Learning trail showing ${formatNumber(currentPoints)} of ${target} points`}>
       <path d="M14 477c107-118 198-17 305-87 105-69 206 4 310-81 100-82 184-15 273-80 114-83 178-32 273-130 81-83 171-85 251-47l-8 468H15Z" fill="#f2e6c9" opacity=".78" />
       <path d="M24 468c55-35 86-40 126-20 33 17 62 6 96-13M1124 189c42-18 72-12 111-46 34-30 70-38 107-28" fill="none" stroke="#e1d3b4" strokeWidth="14" strokeLinecap="round" />
       <g className="trail-decoration" stroke="#071d49" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
@@ -111,14 +112,14 @@ export function TrailMap({ snapshot }: { snapshot: CalculatorSnapshot }) {
       <path d={path} fill="none" stroke="#fff8e6" strokeWidth="78" strokeLinecap="round" />
       <path d={path} fill="none" stroke="#071d49" strokeWidth="4" strokeDasharray="13 14" strokeLinecap="round" />
       <path d={path} fill="none" stroke="#ff6657" strokeWidth="5" strokeDasharray={`${progress * 100} 100`} pathLength="100" strokeLinecap="round" />
-      {checkpoints.map((label, index) => <TrailCheckpoint key={label} x={positions[index].x} y={positions[index].y} label={label} />)}
+      {checkpoints.map((label, index) => <TrailCheckpoint key={`${label}-${index}`} x={positions[index].x} y={positions[index].y} label={label} />)}
       <g transform={`translate(${pin.x} ${pin.y - 12})`} className="current-pin">
         <path d="M0 31c-30-28-48-48-48-75 0-30 21-51 48-51s48 21 48 51C48-17 30 3 0 31Z" fill="#ff6657" stroke="#071d49" strokeWidth="4" />
         <circle cx="0" cy="-45" r="31" fill="#fffdf6" stroke="#071d49" strokeWidth="3" />
-        <text x="0" y="-34" textAnchor="middle" className="pin-label">{formatNumber(snapshot.currentPoints)}</text>
+        <text x="0" y="-34" textAnchor="middle" className="pin-label">{formatNumber(currentPoints)}</text>
         <ellipse cx="0" cy="38" rx="32" ry="10" fill="#fffdf6" stroke="#071d49" strokeWidth="4" />
       </g>
-      <g transform={`translate(${clamp(pin.x - 76, 650, 1025)} ${clamp(pin.y - 160, 30, 300)})`}>
+      <g transform={`translate(${clamp(pin.x - 76, 20, 1260)} ${clamp(pin.y - 160, 16, 300)})`}>
         <path d="M12 0h136a12 12 0 0 1 12 12v36a12 12 0 0 1-12 12H86L68 79 59 60H12A12 12 0 0 1 0 48V12A12 12 0 0 1 12 0Z" fill="#fffdf6" stroke="#ff6657" strokeWidth="3" />
         <text x="80" y="38" textAnchor="middle" className="you-are-here">You are here!</text>
       </g>
