@@ -1,12 +1,3 @@
-.insight-strip,
-.extension-score {
-  background: #5f49c6;
-}
-
-.badge-card span {
-  color: #b8322a;
-}
-
 @media (min-width: 901px) {
   .hero-copy {
     width: min(760px, 54%);
