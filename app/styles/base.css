@@ -1,0 +1,160 @@
+:root {
+  --cream: #f8f3e7;
+  --paper: #fffdf6;
+  --ink: #071d49;
+  --lime: #d9f743;
+  --coral: #ff6657;
+  --mint: #dff5dc;
+  --purple: #8f78ff;
+  --sand: #f2e6c9;
+  --soft-ink: #405071;
+  --hard-shadow: 5px 6px 0 var(--ink);
+  --radius: 18px;
+  --background: 43 48% 94%;
+  --foreground: 219 82% 16%;
+  --card: 46 100% 98%;
+  --card-foreground: 219 82% 16%;
+  --popover: 46 100% 98%;
+  --popover-foreground: 219 82% 16%;
+  --primary: 219 82% 16%;
+  --primary-foreground: 46 100% 98%;
+  --secondary: 69 91% 62%;
+  --secondary-foreground: 219 82% 16%;
+  --muted: 41 46% 88%;
+  --muted-foreground: 219 28% 35%;
+  --accent: 5 100% 67%;
+  --accent-foreground: 219 82% 16%;
+  --destructive: 0 74% 48%;
+  --destructive-foreground: 46 100% 98%;
+  --border: 219 82% 16%;
+  --input: 219 82% 16%;
+  --ring: 69 91% 62%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--cream);
+}
+
+body {
+  margin: 0;
+  background: var(--cream);
+  color: var(--ink);
+  font-family: ui-rounded, "Arial Rounded MT Bold", "Trebuchet MS", Arial, sans-serif;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 4px solid rgba(143, 120, 255, .38);
+  outline-offset: 3px;
+}
+
+.arcade-page {
+  min-height: 100vh;
+  overflow: hidden;
+  background: var(--cream);
+}
+
+.site-header {
+  width: min(1360px, calc(100% - 48px));
+  min-height: 108px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 36px;
+  position: relative;
+  z-index: 20;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--ink);
+  text-decoration: none;
+  min-width: max-content;
+}
+
+.brand-mark {
+  width: 67px;
+  height: 67px;
+  color: var(--ink);
+  overflow: visible;
+}
+
+.brand-name {
+  font-size: clamp(1.65rem, 2.7vw, 2.7rem);
+  font-weight: 1000;
+  letter-spacing: -1.6px;
+  line-height: 1;
+}
+
+.season-pill {
+  margin-left: 12px;
+  padding: 8px 19px 7px;
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  background: var(--lime);
+  font-size: 1rem;
+  font-weight: 1000;
+  box-shadow: 3px 4px 0 var(--ink);
+  transform: rotate(-1deg);
+}
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.site-nav a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 13px;
+  color: var(--ink);
+  text-decoration: none;
+  font-size: .94rem;
+  font-weight: 900;
+  border-bottom: 4px solid transparent;
+}
+
+.site-nav a svg {
+  width: 22px;
+  height: 22px;
+  stroke-width: 2.5;
+}
+
+.site-nav a:hover,
+.site-nav a.active {
+  border-bottom-color: var(--lime);
+}
+
+.mobile-menu-button {
+  display: none;
+  border: 3px solid var(--ink);
+  border-radius: 10px;
+  background: var(--lime);
+  color: var(--ink);
+  padding: 9px 14px;
+  font-weight: 1000;
+  box-shadow: 3px 4px 0 var(--ink);
+}
