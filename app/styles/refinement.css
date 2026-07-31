@@ -21,6 +21,10 @@
     position: relative;
     z-index: 12;
     padding: 4px 0;
+    border-bottom: 0;
     background: var(--cream);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
   }
 }
