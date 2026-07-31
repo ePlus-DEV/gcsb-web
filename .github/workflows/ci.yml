@@ -30,12 +30,15 @@ jobs:
         run: |
           python <<'PY'
           from pathlib import Path
-          import textwrap
 
           workflow = Path('.github/workflows/apply-arcade-2026-tiers.yml').read_text(encoding='utf-8')
           marker = "python <<'PY'\n"
           script = workflow.split(marker, 1)[1].rsplit('\n          PY\n', 1)[0]
-          exec(compile(textwrap.dedent(script), 'apply-arcade-2026-tiers.py', 'exec'))
+          script = '\n'.join(
+              line[10:] if line.startswith('          ') else line
+              for line in script.splitlines()
+          )
+          exec(compile(script, 'apply-arcade-2026-tiers.py', 'exec'))
           PY
 
       - name: Validate migrated site
