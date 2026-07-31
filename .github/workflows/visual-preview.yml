@@ -36,8 +36,11 @@ jobs:
       - name: Build
         run: yarn build
 
+      - name: Install Playwright runtime
+        run: npm install --no-save --ignore-scripts playwright@1.55.0
+
       - name: Install Chromium
-        run: npx --yes playwright@1.55.0 install --with-deps chromium
+        run: npx playwright install --with-deps chromium
 
       - name: Start production server
         run: |
@@ -47,7 +50,7 @@ jobs:
       - name: Capture empty, manual and mobile states
         run: |
           mkdir -p screenshots
-          npx --yes -p playwright@1.55.0 node <<'NODE'
+          node <<'NODE'
           const { chromium } = require('playwright')
 
           ;(async () => {
