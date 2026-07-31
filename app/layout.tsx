@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { GoogleAnalytics } from "@next/third-parties/google"
+import { ThemeProvider } from "@/components/theme-provider"
 import "./globals.css"
 import "./styles/base.css"
 import "./styles/trail.css"
@@ -29,9 +30,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body>
-        {children}
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          {children}
+        </ThemeProvider>
         <GoogleAnalytics gaId="G-41VM0C9NGM" />
       </body>
     </html>
