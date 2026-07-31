@@ -44,11 +44,41 @@ jobs:
           yarn start --hostname 127.0.0.1 --port 3000 > /tmp/gcsb-web.log 2>&1 &
           npx --yes wait-on@8 http://127.0.0.1:3000
 
-      - name: Capture desktop and mobile
+      - name: Capture empty, manual and mobile states
         run: |
           mkdir -p screenshots
-          npx --yes playwright@1.55.0 screenshot --browser=chromium --viewport-size="1440,900" --wait-for-timeout=1500 http://127.0.0.1:3000 screenshots/arcade-desktop-1440x900.png
-          npx --yes playwright@1.55.0 screenshot --browser=chromium --viewport-size="390,844" --wait-for-timeout=1500 http://127.0.0.1:3000 screenshots/arcade-mobile-390x844.png
+          npx --yes -p playwright@1.55.0 node <<'NODE'
+          const { chromium } = require('playwright')
+
+          ;(async () => {
+            const browser = await chromium.launch({ headless: true })
+            const page = await browser.newPage({ viewport: { width: 1440, height: 900 } })
+
+            await page.goto('http://127.0.0.1:3000', { waitUntil: 'networkidle' })
+            await page.screenshot({
+              path: 'screenshots/arcade-desktop-empty-1440x900.png',
+              fullPage: false,
+            })
+
+            await page.getByRole('button', { name: 'Enter points manually' }).click()
+            await page.screenshot({
+              path: 'screenshots/arcade-desktop-manual-1440x900.png',
+              fullPage: false,
+            })
+
+            await page.setViewportSize({ width: 390, height: 844 })
+            await page.goto('http://127.0.0.1:3000', { waitUntil: 'networkidle' })
+            await page.screenshot({
+              path: 'screenshots/arcade-mobile-empty-390x844.png',
+              fullPage: false,
+            })
+
+            await browser.close()
+          })().catch((error) => {
+            console.error(error)
+            process.exit(1)
+          })
+          NODE
 
       - name: Upload screenshots
         uses: actions/upload-artifact@v4
