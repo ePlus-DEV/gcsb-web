@@ -68,11 +68,11 @@ export function JoystickLogo() {
 function FlagIcon() {
   return (
     <g className="finish-flag">
-      <path d="M1215 26v190" stroke="#071d49" strokeWidth="5" strokeLinecap="round" />
-      <path d="M1220 42c54-26 78 18 136-4-14 30-12 58 4 83-61 24-87-19-140 6V42Z" fill="#d9f743" stroke="#071d49" strokeWidth="4" strokeLinejoin="round" />
-      <path d="m1271 55 31 13v36l-31 15-31-15V68l31-13Z" fill="#071d49" stroke="#071d49" strokeWidth="3" />
-      <path d="m1271 67 8 17 19 3-14 13 4 19-17-9-18 9 4-19-14-13 19-3 9-17Z" fill="#d9f743" />
-      <path d="m1371 30 11-13M1380 55h18M1371 82l15 9" fill="none" stroke="#071d49" strokeWidth="4" strokeLinecap="round" />
+      <path d="M1215-126v342" stroke="#071d49" strokeWidth="5" strokeLinecap="round" />
+      <path d="M1220-108c54-26 78 18 136-4-14 30-12 58 4 83-61 24-87-19-140 6v-85Z" fill="#d9f743" stroke="#071d49" strokeWidth="4" strokeLinejoin="round" />
+      <path d="m1271-95 31 13v36l-31 15-31-15v-36l31-13Z" fill="#071d49" stroke="#071d49" strokeWidth="3" />
+      <path d="m1271-83 8 17 19 3-14 13 4 19-17-9-18 9 4-19-14-13 19-3 9-17Z" fill="#d9f743" />
+      <path d="m1371-120 11-13M1380-95h18M1371-68l15 9" fill="none" stroke="#071d49" strokeWidth="4" strokeLinecap="round" />
     </g>
   )
 }
@@ -142,7 +142,7 @@ function TrailDecorations() {
         <path d="M0 36c8-24 29-29 44-10 11-21 39-18 48 7 15-11 32-3 34 17H-3c-1-5 0-10 3-14Z" fill="#a9df45" />
       </g>
 
-      <g transform="translate(1308 135)" strokeWidth="3">
+      <g transform="translate(1308 -5)" strokeWidth="3">
         <path d="M0 31c5-16 19-21 31-11 8-20 34-21 44-2 19-10 39 1 39 21H-4c0-3 1-6 4-8Z" fill="#fffdf6" />
       </g>
 
@@ -167,23 +167,25 @@ export function TrailMap({ snapshot }: { snapshot: CalculatorSnapshot }) {
     <svg className="trail-svg" viewBox="0 0 1440 640" role="img" aria-label={`Learning trail showing ${formatNumber(currentPoints)} of ${target} points`}>
       <path d="M5 621c97-108 190-63 296-104 91-35 180-20 267-86 113-85 184-29 291-90 120-69 166-59 245-154 81-98 186-102 321-44l10 497H5Z" fill="#f2e6c9" opacity=".82" />
       <path d="M12 610c58-43 108-51 151-30 40 20 83 15 121-3M1090 251c67-39 116-77 177-104 47-21 102-18 148 5" fill="none" stroke="#e0d2b3" strokeWidth="13" strokeLinecap="round" />
-      <TrailDecorations />
-
-      <path d={path} fill="none" stroke="#071d49" strokeWidth="96" strokeLinecap="round" strokeLinejoin="round" />
-      <path d={path} fill="none" stroke="#fff8e6" strokeWidth="86" strokeLinecap="round" strokeLinejoin="round" />
+      <path d={path} fill="none" stroke="#071d49" strokeWidth="84" strokeLinecap="round" strokeLinejoin="round" />
+      <path d={path} fill="none" stroke="#fff8e6" strokeWidth="74" strokeLinecap="round" strokeLinejoin="round" />
       <path d={path} fill="none" stroke="#071d49" strokeWidth="4" strokeDasharray="13 15" strokeLinecap="round" />
       <path d={path} fill="none" stroke="#ff6657" strokeWidth="5" strokeDasharray={`${progress * 100} 100`} pathLength="100" strokeLinecap="round" />
+
+      <TrailDecorations />
 
       {CHECKPOINTS.map((checkpoint) => (
         <TrailCheckpoint key={checkpoint.label} {...checkpoint} />
       ))}
 
-      <g transform={`translate(${pin.x} ${pin.y - 5})`} className="current-pin">
-        <path d="M0 38c-34-31-52-55-52-83 0-31 23-55 52-55s52 24 52 55C52-17 34 7 0 38Z" fill="#ff6657" stroke="#071d49" strokeWidth="4" />
-        <circle cx="0" cy="-47" r="34" fill="#fffdf6" stroke="#071d49" strokeWidth="3" />
-        <text x="0" y="-35" textAnchor="middle" className="pin-label">{formatNumber(currentPoints)}</text>
-        <ellipse cx="0" cy="46" rx="35" ry="11" fill="#fffdf6" stroke="#071d49" strokeWidth="4" />
-      </g>
+      {currentPoints > 0 && (
+        <g transform={`translate(${pin.x} ${pin.y - 5})`} className="current-pin">
+          <path d="M0 38c-34-31-52-55-52-83 0-31 23-55 52-55s52 24 52 55C52-17 34 7 0 38Z" fill="#ff6657" stroke="#071d49" strokeWidth="4" />
+          <circle cx="0" cy="-47" r="34" fill="#fffdf6" stroke="#071d49" strokeWidth="3" />
+          <text x="0" y="-35" textAnchor="middle" className="pin-label">{formatNumber(currentPoints)}</text>
+          <ellipse cx="0" cy="46" rx="35" ry="11" fill="#fffdf6" stroke="#071d49" strokeWidth="4" />
+        </g>
+      )}
 
       {currentPoints > 0 && (
         <g transform={`translate(${bubbleX} ${bubbleY})`} className="pin-callout">
