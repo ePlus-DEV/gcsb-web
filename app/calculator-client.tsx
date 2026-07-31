@@ -40,6 +40,66 @@ import {
   TrailStats,
 } from "@/components/arcade/visuals"
 
+const REQUEST_TIMEOUT_MS = 20_000
+
+function readStorage(key: string): string | null {
+  try {
+    return window.localStorage.getItem(key)
+  } catch {
+    return null
+  }
+}
+
+function writeStorage(key: string, value: string): void {
+  try {
+    window.localStorage.setItem(key, value)
+  } catch {
+    // Persistence is optional; calculator state must continue to work without it.
+  }
+}
+
+function removeStorage(key: string): void {
+  try {
+    window.localStorage.removeItem(key)
+  } catch {
+    // Reset the in-memory state even when browser storage is unavailable.
+  }
+}
+
+function isArcadeBadge(value: unknown): value is ArcadeBadge {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    typeof (value as { title?: unknown }).title === "string"
+  )
+}
+
+function restoreSnapshot(value: unknown): CalculatorSnapshot | null {
+  if (typeof value !== "object" || value === null) return null
+
+  const candidate = value as Partial<CalculatorSnapshot>
+  const targetPoints = numeric(candidate.targetPoints)
+
+  return {
+    profileUrl: typeof candidate.profileUrl === "string" ? candidate.profileUrl : "",
+    currentPoints: Math.max(0, numeric(candidate.currentPoints)),
+    gameBadges: Math.max(0, numeric(candidate.gameBadges)),
+    triviaBadges: Math.max(0, numeric(candidate.triviaBadges)),
+    skillBadges: Math.max(0, numeric(candidate.skillBadges)),
+    targetPoints: targetPoints > 0 ? targetPoints : DEMO_SNAPSHOT.targetPoints,
+    userName:
+      typeof candidate.userName === "string" ? candidate.userName : DEMO_SNAPSHOT.userName,
+    milestone:
+      typeof candidate.milestone === "string" ? candidate.milestone : DEMO_SNAPSHOT.milestone,
+    scoreComplete:
+      typeof candidate.scoreComplete === "boolean"
+        ? candidate.scoreComplete
+        : DEMO_SNAPSHOT.scoreComplete,
+    unknownBadgeCount: Math.max(0, numeric(candidate.unknownBadgeCount)),
+    updatedAt: typeof candidate.updatedAt === "string" ? candidate.updatedAt : "",
+  }
+}
+
 export default function ArcadeCalculatorClient() {
   const [profileUrl, setProfileUrl] = useState("")
   const [snapshot, setSnapshot] = useState<CalculatorSnapshot>(DEMO_SNAPSHOT)
@@ -53,25 +113,30 @@ export default function ArcadeCalculatorClient() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
   useEffect(() => {
+    const stored = readStorage(STORAGE_KEY)
+    if (!stored) return
+
     try {
-      const stored = window.localStorage.getItem(STORAGE_KEY)
-      if (!stored) return
-
       const parsed = JSON.parse(stored) as {
-        snapshot?: CalculatorSnapshot
-        response?: ArcadeApiResponse | null
-        badges?: ArcadeBadge[]
+        snapshot?: unknown
+        response?: unknown
+        badges?: unknown
       }
+      const restoredSnapshot = restoreSnapshot(parsed.snapshot)
 
-      if (parsed.snapshot) {
-        setSnapshot(parsed.snapshot)
-        setProfileUrl(parsed.snapshot.profileUrl ?? "")
+      if (restoredSnapshot) {
+        setSnapshot(restoredSnapshot)
+        setProfileUrl(restoredSnapshot.profileUrl)
         setIsDemo(false)
       }
-      if (parsed.response) setResponse(parsed.response)
-      if (Array.isArray(parsed.badges)) setBadges(parsed.badges)
+      if (typeof parsed.response === "object" && parsed.response !== null) {
+        setResponse(parsed.response as ArcadeApiResponse)
+      }
+      if (Array.isArray(parsed.badges)) {
+        setBadges(parsed.badges.filter(isArcadeBadge))
+      }
     } catch {
-      window.localStorage.removeItem(STORAGE_KEY)
+      removeStorage(STORAGE_KEY)
     }
   }, [])
 
@@ -102,7 +167,7 @@ export default function ArcadeCalculatorClient() {
     nextResponse: ArcadeApiResponse | null,
     nextBadges: ArcadeBadge[],
   ) {
-    window.localStorage.setItem(
+    writeStorage(
       STORAGE_KEY,
       JSON.stringify({ snapshot: nextSnapshot, response: nextResponse, badges: nextBadges }),
     )
@@ -153,27 +218,41 @@ export default function ArcadeCalculatorClient() {
     setLoading(true)
     setError("")
 
+    const controller = new AbortController()
+    const timeoutId = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
+
     try {
       const request = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: normalized, season: "2026" }),
+        signal: controller.signal,
       })
-      const result = (await request.json()) as ArcadeApiResponse
+      let result: ArcadeApiResponse | null = null
 
-      if (!request.ok || !result.success) {
-        throw new Error(result.message || "The profile could not be analyzed right now.")
+      try {
+        result = (await request.json()) as ArcadeApiResponse
+      } catch {
+        // Gateways can return HTML or an empty body; use the stable fallback below.
+      }
+
+      if (!request.ok || !result?.success) {
+        throw new Error(result?.message || "The profile could not be analyzed right now.")
       }
 
       applyApiResult(result, normalized)
     } catch (caught) {
-      setError(
-        caught instanceof Error
-          ? `${caught.message} You can use manual entry while the crawler is unavailable.`
-          : "The profile could not be analyzed. You can use manual entry instead.",
-      )
+      const message =
+        caught instanceof DOMException && caught.name === "AbortError"
+          ? "The profile request timed out after 20 seconds."
+          : caught instanceof Error
+            ? caught.message
+            : "The profile could not be analyzed."
+
+      setError(`${message} You can use manual entry while the crawler is unavailable.`)
       setManualMode(true)
     } finally {
+      window.clearTimeout(timeoutId)
       setLoading(false)
     }
   }
@@ -202,7 +281,7 @@ export default function ArcadeCalculatorClient() {
     setError("")
     setManualMode(false)
     setIsDemo(true)
-    window.localStorage.removeItem(STORAGE_KEY)
+    removeStorage(STORAGE_KEY)
   }
 
   return (
@@ -291,7 +370,7 @@ export default function ArcadeCalculatorClient() {
             </article>
           )) : <div className="empty-state"><BookOpen /><strong>No badges in this category yet.</strong><span>Analyze a profile or choose another filter.</span></div>}
         </div>
-        {badges.length > 12 && <p className="badge-note">Showing the first 12 of {badges.length} returned badges to keep this page fast.</p>}
+        {filteredBadges.length > 12 && <p className="badge-note">Showing the first 12 of {filteredBadges.length} returned badges to keep this page fast.</p>}
       </section>
 
       <section id="extension" className="extension-section">
