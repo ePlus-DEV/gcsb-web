@@ -48,7 +48,7 @@ export function Option3Hero({
     >
       <img
         className="option3-background"
-        src="design/option3-background.webp"
+        src="design/option3-background.avif"
         alt=""
         aria-hidden="true"
       />
