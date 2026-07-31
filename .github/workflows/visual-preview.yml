@@ -1,0 +1,55 @@
+name: Visual Preview
+
+on:
+  pull_request:
+    paths:
+      - "app/**"
+      - "components/arcade/**"
+      - "package.json"
+      - "next.config.mjs"
+      - ".github/workflows/visual-preview.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  screenshots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --non-interactive
+
+      - name: Build
+        run: yarn build
+
+      - name: Install Chromium
+        run: npx --yes playwright@1.55.0 install --with-deps chromium
+
+      - name: Start production server
+        run: |
+          yarn start --hostname 127.0.0.1 --port 3000 > /tmp/gcsb-web.log 2>&1 &
+          npx --yes wait-on@8 http://127.0.0.1:3000
+
+      - name: Capture desktop and mobile
+        run: |
+          mkdir -p screenshots
+          npx --yes playwright@1.55.0 screenshot --browser=chromium --viewport-size="1440,900" --wait-for-timeout=1500 http://127.0.0.1:3000 screenshots/arcade-desktop-1440x900.png
+          npx --yes playwright@1.55.0 screenshot --browser=chromium --viewport-size="390,844" --wait-for-timeout=1500 http://127.0.0.1:3000 screenshots/arcade-mobile-390x844.png
+
+      - name: Upload screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: arcade-visual-preview
+          path: screenshots/*.png
+          retention-days: 14
