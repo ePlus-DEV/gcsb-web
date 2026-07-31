@@ -1,0 +1,610 @@
+name: Apply Arcade 2026 tier data
+
+on:
+  push:
+    branches:
+      - fix/manual-entry-overlap
+    paths:
+      - .github/workflows/apply-arcade-2026-tiers.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: fix/manual-entry-overlap
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: yarn
+
+      - name: Apply tier and empty-state changes
+        shell: bash
+        run: |
+          python <<'PY'
+          from pathlib import Path
+
+          model = '''export type ArcadeBadge = {
+            title: string
+            dateEarned?: string
+            imageURL?: string
+            badgeURL?: string
+            points?: number | string
+          }
+
+          export type ArcadeApiResponse = {
+            success: boolean
+            message?: string
+            userDetails?: Array<{
+              url?: string
+              profileImage?: string
+              userName?: string
+              memberSince?: string
+              league?: string
+              points?: string
+            }>
+            badges?: ArcadeBadge[]
+            game?: ArcadeBadge[]
+            trivia?: ArcadeBadge[]
+            skill?: ArcadeBadge[]
+            completion?: ArcadeBadge[]
+            special?: ArcadeBadge[]
+            arcadePoints?: {
+              totalPoints?: number
+              gamePoints?: number
+              triviaPoints?: number
+              skillPoints?: number
+              specialPoints?: number
+              completionPoints?: number
+            }
+            milestone?: string
+            faciCounts?: {
+              faciGame?: number
+              faciTrivia?: number
+              faciSkill?: number
+              faciCompletion?: number
+            }
+            beta?: {
+              scoreComplete?: boolean
+              unknownBadgeCount?: number
+              unknownBadges?: string[]
+              profileBadgeCount?: number
+              eligibleBadgeCount?: number
+              tier?: string
+            }
+          }
+
+          export type ArcadeMilestone = {
+            points: number
+            maxPoints: number | null
+            league: string
+            slots: number
+            spotsLeft: number | null
+          }
+
+          export type CalculatorSnapshot = {
+            profileUrl: string
+            currentPoints: number
+            gameBadges: number
+            triviaBadges: number
+            skillBadges: number
+            targetPoints: number
+            userName: string
+            milestone: string
+            scoreComplete: boolean
+            unknownBadgeCount: number
+            updatedAt: string
+          }
+
+          export type BadgeFilter = "all" | "game" | "trivia" | "skill" | "special"
+
+          export const API_URL =
+            process.env.NEXT_PUBLIC_ARCADE_API_URL ??
+            "https://hub.eplus.dev/api/arcade-public"
+
+          export const ARCADE_MILESTONES_URL =
+            process.env.NEXT_PUBLIC_ARCADE_MILESTONES_URL ??
+            "https://raw.githubusercontent.com/hoangsvit/arcade-crawler/main/data/arcade_milestones.json"
+
+          export const STORAGE_KEY = "eplus-arcade-calculator-v2"
+          export const LEGACY_STORAGE_KEY = "eplus-arcade-calculator-v1"
+          export const PROFILE_URL_PATTERN =
+            /^https:\/\/(?:www\.)?(?:skills\.google|cloudskillsboost\.google)\/public_profiles\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/?$/i
+
+          export const OFFICIAL_MILESTONES: ArcadeMilestone[] = [
+            { points: 50, maxPoints: 74, league: "Arcade Trooper", slots: 6000, spotsLeft: null },
+            { points: 75, maxPoints: 94, league: "Arcade Ranger", slots: 4000, spotsLeft: null },
+            { points: 95, maxPoints: 119, league: "Arcade Champion", slots: 3000, spotsLeft: null },
+            { points: 120, maxPoints: null, league: "Arcade Legend", slots: 2500, spotsLeft: null },
+          ]
+
+          export const EMPTY_SNAPSHOT: CalculatorSnapshot = {
+            profileUrl: "",
+            currentPoints: 0,
+            gameBadges: 0,
+            triviaBadges: 0,
+            skillBadges: 0,
+            targetPoints: 120,
+            userName: "",
+            milestone: "",
+            scoreComplete: false,
+            unknownBadgeCount: 0,
+            updatedAt: "",
+          }
+
+          export function numeric(value: unknown): number {
+            const parsed = Number(value)
+            return Number.isFinite(parsed) ? parsed : 0
+          }
+
+          export function clamp(value: number, minimum: number, maximum: number): number {
+            return Math.min(Math.max(value, minimum), maximum)
+          }
+
+          export function formatNumber(value: number): string {
+            return Number.isInteger(value) ? String(value) : value.toFixed(1)
+          }
+
+          export function formatInteger(value: number): string {
+            return new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(value)
+          }
+
+          export function getTier(points: number) {
+            const milestone = [...OFFICIAL_MILESTONES]
+              .reverse()
+              .find((tier) => points >= tier.points)
+
+            return milestone
+              ? { points: milestone.points, name: milestone.league }
+              : { points: 0, name: "No tier yet" }
+          }
+
+          export function getNextTier(points: number) {
+            return (
+              OFFICIAL_MILESTONES.find((tier) => tier.points > points) ??
+              OFFICIAL_MILESTONES[OFFICIAL_MILESTONES.length - 1]
+            )
+          }
+
+          export function tierRangeLabel(milestone: ArcadeMilestone): string {
+            return milestone.maxPoints === null
+              ? `${milestone.points}+ points`
+              : `${milestone.points}–${milestone.maxPoints} points`
+          }
+          '''
+          Path('components/arcade/model.ts').write_text(model, encoding='utf-8')
+
+          def replace_once(path: str, old: str, new: str) -> None:
+            file = Path(path)
+            text = file.read_text(encoding='utf-8')
+            if old not in text:
+              raise SystemExit(f'Missing expected text in {path}: {old[:100]!r}')
+            file.write_text(text.replace(old, new, 1), encoding='utf-8')
+
+          # The map now shows all official 2026 milestones on one 0–120 trail.
+          replace_once(
+            'components/arcade/visuals.tsx',
+            '''const CHECKPOINT_POSITIONS = [
+            TRAIL_POINTS[0],
+            TRAIL_POINTS[2],
+            TRAIL_POINTS[4],
+            TRAIL_POINTS[9],
+          ]
+
+          function checkpointsFor(target: number): number[] {
+            if (target <= 50) return [0, 10, 25, 50]
+            if (target <= 75) return [0, 25, 50, 75]
+            if (target <= 95) return [0, 25, 50, 95]
+            return [0, 25, 75, target]
+          }''',
+            '''const CHECKPOINT_POSITIONS = [
+            TRAIL_POINTS[0],
+            TRAIL_POINTS[4],
+            TRAIL_POINTS[6],
+            TRAIL_POINTS[8],
+            TRAIL_POINTS[9],
+          ]
+
+          function checkpointsFor(): number[] {
+            return [0, 50, 75, 95, 120]
+          }''',
+          )
+          replace_once(
+            'components/arcade/visuals.tsx',
+            '''  const target = Number.isFinite(snapshot.targetPoints) ? Math.max(snapshot.targetPoints, 1) : 1
+            const progress = clamp(currentPoints / target, 0, 1)
+            const pin = pointOnTrail(progress)
+            const checkpoints = checkpointsFor(target)''',
+            '''  const target = 120
+            const progress = clamp(currentPoints / target, 0, 1)
+            const pin = pointOnTrail(progress)
+            const checkpoints = checkpointsFor()''',
+          )
+
+          client = Path('app/calculator-client.tsx')
+          text = client.read_text(encoding='utf-8')
+
+          replacements = [
+            ('''  API_URL,
+            DEMO_SNAPSHOT,
+            PROFILE_URL_PATTERN,
+            SAMPLE_BADGES,
+            STORAGE_KEY,
+            formatNumber,
+            getNextTier,
+            getTier,
+            numeric,
+            clamp,
+          } from "@/components/arcade/model"''', '''  API_URL,
+            ARCADE_MILESTONES_URL,
+            EMPTY_SNAPSHOT,
+            LEGACY_STORAGE_KEY,
+            OFFICIAL_MILESTONES,
+            PROFILE_URL_PATTERN,
+            STORAGE_KEY,
+            clamp,
+            formatInteger,
+            formatNumber,
+            getNextTier,
+            getTier,
+            numeric,
+            tierRangeLabel,
+          } from "@/components/arcade/model"'''),
+            ('''  ArcadeApiResponse,
+            ArcadeBadge,
+            BadgeFilter,
+            CalculatorSnapshot,''', '''  ArcadeApiResponse,
+            ArcadeBadge,
+            ArcadeMilestone,
+            BadgeFilter,
+            CalculatorSnapshot,'''),
+            ('targetPoints: targetPoints > 0 ? targetPoints : DEMO_SNAPSHOT.targetPoints,', 'targetPoints: targetPoints > 0 ? targetPoints : EMPTY_SNAPSHOT.targetPoints,'),
+            ('typeof candidate.userName === "string" ? candidate.userName : DEMO_SNAPSHOT.userName,', 'typeof candidate.userName === "string" ? candidate.userName : EMPTY_SNAPSHOT.userName,'),
+            ('typeof candidate.milestone === "string" ? candidate.milestone : DEMO_SNAPSHOT.milestone,', 'typeof candidate.milestone === "string" ? candidate.milestone : EMPTY_SNAPSHOT.milestone,'),
+            ('''      typeof candidate.scoreComplete === "boolean"
+                ? candidate.scoreComplete
+                : DEMO_SNAPSHOT.scoreComplete,''', '''      typeof candidate.scoreComplete === "boolean"
+                ? candidate.scoreComplete
+                : EMPTY_SNAPSHOT.scoreComplete,'''),
+            ('const [snapshot, setSnapshot] = useState<CalculatorSnapshot>(DEMO_SNAPSHOT)', 'const [snapshot, setSnapshot] = useState<CalculatorSnapshot>(EMPTY_SNAPSHOT)'),
+            ('const [badges, setBadges] = useState<ArcadeBadge[]>(SAMPLE_BADGES)', 'const [badges, setBadges] = useState<ArcadeBadge[]>([])'),
+            ('const [isDemo, setIsDemo] = useState(true)', '''const [hasResult, setHasResult] = useState(false)
+            const [milestones, setMilestones] = useState<ArcadeMilestone[]>(OFFICIAL_MILESTONES)
+            const [milestonesLive, setMilestonesLive] = useState(false)'''),
+            ('''  useEffect(() => {
+            const stored = readStorage(STORAGE_KEY)''', '''  useEffect(() => {
+            removeStorage(LEGACY_STORAGE_KEY)
+            const stored = readStorage(STORAGE_KEY)'''),
+            ('setIsDemo(false)', 'setHasResult(true)'),
+            ('''  useEffect(() => {
+            if (isDemo) return
+
+            const timeoutId = window.setTimeout(
+              () => persistCalculatorState(snapshot, response, badges),
+              STORAGE_DEBOUNCE_MS,
+            )
+
+            return () => window.clearTimeout(timeoutId)
+          }, [badges, isDemo, response, snapshot])''', '''  useEffect(() => {
+            if (!hasResult) return
+
+            const timeoutId = window.setTimeout(
+              () => persistCalculatorState(snapshot, response, badges),
+              STORAGE_DEBOUNCE_MS,
+            )
+
+            return () => window.clearTimeout(timeoutId)
+          }, [badges, hasResult, response, snapshot])
+
+          useEffect(() => {
+            let active = true
+
+            async function loadMilestones() {
+              try {
+                const request = await fetch(ARCADE_MILESTONES_URL, { cache: "no-store" })
+                if (!request.ok) return
+
+                const payload: unknown = await request.json()
+                if (!Array.isArray(payload)) return
+
+                const liveMilestones = OFFICIAL_MILESTONES.map((fallback) => {
+                  const candidate = payload.find(
+                    (item) =>
+                      typeof item === "object" &&
+                      item !== null &&
+                      numeric((item as { points?: unknown }).points) === fallback.points,
+                  ) as Record<string, unknown> | undefined
+
+                  if (!candidate) return fallback
+
+                  const slots = numeric(candidate.slots)
+                  const spotsLeft = numeric(candidate.spotsLeft)
+                  if (slots <= 0 || spotsLeft < 0 || spotsLeft > slots) return fallback
+
+                  return {
+                    ...fallback,
+                    league:
+                      typeof candidate.league === "string" ? candidate.league : fallback.league,
+                    slots,
+                    spotsLeft,
+                  }
+                })
+
+                if (active) {
+                  setMilestones(liveMilestones)
+                  setMilestonesLive(true)
+                }
+              } catch {
+                // Keep the verified slot totals when the crawler JSON is temporarily unavailable.
+              }
+            }
+
+            void loadMilestones()
+            return () => {
+              active = false
+            }
+          }, [])'''),
+            ('''  const nextTier = useMemo(
+            () => getNextTier(snapshot.currentPoints, snapshot.targetPoints),
+            [snapshot.currentPoints, snapshot.targetPoints],
+          )''', '''  const nextTier = useMemo(
+            () => getNextTier(snapshot.currentPoints),
+            [snapshot.currentPoints],
+          )
+          const nextMilestone =
+            milestones.find((milestone) => milestone.points === nextTier.points) ?? milestones.at(-1)'''),
+            ('targetPoints: officialNext.points,', 'targetPoints: 120,'),
+            ('const officialNext = getNextTier(totalPoints, 50)\n', ''),
+            ('''  function loadDemo() {
+            setSnapshot(DEMO_SNAPSHOT)
+            setProfileUrl("")
+            setResponse(null)
+            setBadges(SAMPLE_BADGES)
+            setError("")
+            setManualMode(false)
+            setIsDemo(true)
+            removeStorage(STORAGE_KEY)
+          }''', '''  function resetCalculator() {
+            setSnapshot(EMPTY_SNAPSHOT)
+            setProfileUrl("")
+            setResponse(null)
+            setBadges([])
+            setError("")
+            setManualMode(false)
+            setHasResult(false)
+            removeStorage(STORAGE_KEY)
+            removeStorage(LEGACY_STORAGE_KEY)
+          }'''),
+            ('''              <button className="secondary-button" type="button" onClick={loadDemo}><Gamepad2 /> Try demo</button>
+              <button className="text-button" type="button" onClick={() => setManualMode((open) => !open)}>{manualMode ? "Close manual entry" : "Enter points manually"}</button>''', '''              <button className="text-button" type="button" onClick={() => setManualMode((open) => !open)}>{manualMode ? "Close manual entry" : "Enter points manually"}</button>'''),
+            ('''              <label>Skill badges<input type="number" min="0" value={snapshot.skillBadges} onChange={(event: ChangeEvent<HTMLInputElement>) => updateManual("skillBadges", event.target.value)} /></label>
+              <label>Target<select value={snapshot.targetPoints} onChange={(event: ChangeEvent<HTMLSelectElement>) => updateManual("targetPoints", event.target.value)}><option value="25">25 points</option><option value="50">50 points</option><option value="75">75 points</option><option value="95">95 points</option><option value="120">120 points</option></select></label>''', '''              <label>Skill badges<input type="number" min="0" value={snapshot.skillBadges} onChange={(event: ChangeEvent<HTMLInputElement>) => updateManual("skillBadges", event.target.value)} /></label>'''),
+            ('''        <aside className="next-tier-card" aria-label="Next Arcade tier">
+          <span>Next tier</span><strong>{nextTier.name}</strong><b>{nextTier.points} points</b><p>{formatNumber(pointsRemaining)} points remaining</p>
+          <div className="mini-progress" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(completion)} aria-label="Progress to next tier"><span style={{ width: `${completion}%` }} /></div>
+        </aside>''', '''        <aside className="next-tier-card" aria-label="Next Arcade tier">
+          <span>{snapshot.currentPoints >= 120 ? "Top tier" : "Next tier"}</span>
+          <strong>{nextTier.league}</strong>
+          <b>{nextTier.points === 120 ? "120+ points" : `${nextTier.points} points`}</b>
+          <p>{pointsRemaining > 0 ? `${formatNumber(pointsRemaining)} points remaining` : "Top 2026 tier reached"}</p>
+          {nextMilestone && (
+            <p className="slot-summary">
+              {nextMilestone.spotsLeft === null
+                ? `${formatInteger(nextMilestone.slots)} total slots`
+                : `${formatInteger(nextMilestone.spotsLeft)} of ${formatInteger(nextMilestone.slots)} slots left`}
+            </p>
+          )}
+          <div className="mini-progress" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(completion)} aria-label="Progress to next tier"><span style={{ width: `${completion}%` }} /></div>
+        </aside>'''),
+            ('''        <div className="stage-status">
+          <span className={isDemo ? "status-dot demo" : "status-dot"} />
+          {isDemo ? "Demo preview — analyze a profile for live results" : `Showing ${snapshot.userName}'s latest saved result`}
+          {!isDemo && <button type="button" onClick={loadDemo}><RotateCcw /> Reset</button>}
+        </div>''', '''        <div className="stage-status">
+          <span className={hasResult ? "status-dot" : "status-dot idle"} />
+          {hasResult
+            ? `Showing ${snapshot.userName || "manual entry"}'s latest saved result`
+            : "No demo data — analyze a public profile or use manual entry"}
+          {hasResult && <button type="button" onClick={resetCalculator}><RotateCcw /> Reset</button>}
+        </div>'''),
+            ('''        <div><small>Current tier</small><strong>{currentTier.name}</strong></div>
+        <div><small>Next goal</small><strong>{formatNumber(pointsRemaining)} points away</strong></div>
+        <div><small>Estimated work</small><strong>About {estimatedActivities} more 1-point activities</strong></div>
+        <div><small>Score confidence</small><strong>{snapshot.scoreComplete ? "All eligible badges classified" : `${snapshot.unknownBadgeCount} badge(s) need review`}</strong></div>''', '''        <div><small>Current tier</small><strong>{hasResult ? currentTier.name : "Awaiting profile"}</strong></div>
+        <div><small>Next goal</small><strong>{hasResult ? `${formatNumber(pointsRemaining)} points away` : "Trooper starts at 50"}</strong></div>
+        <div><small>Estimated work</small><strong>{hasResult ? `About ${estimatedActivities} more 1-point activities` : "Analyze a profile first"}</strong></div>
+        <div><small>Score confidence</small><strong>{hasResult ? (snapshot.scoreComplete ? "All eligible badges classified" : `${snapshot.unknownBadgeCount} badge(s) need review`) : "No result loaded"}</strong></div>'''),
+            ('<strong>{formatNumber(snapshot.currentPoints)}</strong><small>Synced while you learn</small>', '<strong>{hasResult ? formatNumber(snapshot.currentPoints) : "—"}</strong><small>Synced while you learn</small>'),
+          ]
+
+          for old, new in replacements:
+            if old not in text:
+              raise SystemExit(f'Missing expected calculator text: {old[:120]!r}')
+            text = text.replace(old, new, 1)
+
+          tier_section = '''
+
+          <section className="content-section tier-section" aria-labelledby="tier-heading">
+            <div className="section-heading">
+              <div>
+                <p className="eyebrow"><Trophy /> Arcade 2026 tiers</p>
+                <h2 id="tier-heading">Every official milestone and prize slot.</h2>
+                <p>The point ranges and total slots are fixed for the 2026 season. Remaining slots are loaded from the automated arcade-crawler repository.</p>
+              </div>
+              <p className={milestonesLive ? "tier-data-source is-live" : "tier-data-source"}>
+                {milestonesLive ? "Live crawler data" : "Live availability unavailable"}
+              </p>
+            </div>
+            <div className="tier-grid">
+              {[...milestones].reverse().map((milestone) => (
+                <article className="tier-card" key={milestone.points}>
+                  <small>{milestone.league.replace("Arcade ", "")}</small>
+                  <strong>{tierRangeLabel(milestone)}</strong>
+                  <span>{formatInteger(milestone.slots)} slots</span>
+                  <b>
+                    {milestone.spotsLeft === null
+                      ? "Remaining slots unavailable"
+                      : `${formatInteger(milestone.spotsLeft)} spots left`}
+                  </b>
+                </article>
+              ))}
+            </div>
+          </section>'''
+          marker = '''      </section>
+
+          <section id="badges" className="content-section badge-section">'''
+          if marker not in text:
+            raise SystemExit('Missing badge section insertion marker')
+          text = text.replace(marker, f'''      </section>{tier_section}
+
+          <section id="badges" className="content-section badge-section">''', 1)
+          client.write_text(text, encoding='utf-8')
+
+          # Layout and tier cards.
+          trail = Path('app/styles/trail.css')
+          css = trail.read_text(encoding='utf-8')
+          css = css.replace('grid-template-columns: 1.7fr repeat(5, minmax(95px, 1fr));', 'grid-template-columns: 1.7fr repeat(4, minmax(105px, 1fr));', 1)
+          css = css.replace('.status-dot.demo {', '.status-dot.idle {', 1)
+          slot_css = '''
+
+          .next-tier-card .slot-summary {
+            margin: 0 0 9px;
+            color: var(--soft-ink);
+            font-family: Arial, sans-serif;
+            font-size: .72rem;
+            font-weight: 700;
+          }
+          '''
+          anchor = '\n.mini-progress {\n'
+          if anchor not in css:
+            raise SystemExit('Missing mini-progress CSS marker')
+          css = css.replace(anchor, slot_css + anchor, 1)
+          trail.write_text(css, encoding='utf-8')
+
+          content = Path('app/styles/content.css')
+          css = content.read_text(encoding='utf-8')
+          tier_css = '''
+
+          .tier-section {
+            margin-bottom: 90px;
+          }
+
+          .tier-data-source {
+            flex: none;
+            margin: 0;
+            padding: 8px 12px;
+            border: 2px solid var(--ink);
+            border-radius: 999px;
+            background: var(--paper);
+            color: var(--soft-ink);
+            font-family: Arial, sans-serif;
+            font-size: .75rem;
+            font-weight: 800;
+          }
+
+          .tier-data-source.is-live {
+            background: var(--mint);
+            color: var(--ink);
+          }
+
+          .tier-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+          }
+
+          .tier-card {
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 8px;
+            padding: 22px;
+            border: 3px solid var(--ink);
+            border-radius: 18px;
+            background: var(--paper);
+            box-shadow: 5px 6px 0 rgba(7, 29, 73, .18);
+          }
+
+          .tier-card:nth-child(1) { background: var(--lime); }
+          .tier-card:nth-child(2) { background: #ffd0ca; }
+          .tier-card:nth-child(3) { background: #d9d1ff; }
+          .tier-card:nth-child(4) { background: var(--mint); }
+
+          .tier-card small {
+            font-size: .74rem;
+            font-weight: 1000;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+          }
+
+          .tier-card strong {
+            font-size: 1.28rem;
+            line-height: 1.15;
+          }
+
+          .tier-card span,
+          .tier-card b {
+            font-family: Arial, sans-serif;
+            font-size: .82rem;
+          }
+
+          .tier-card b {
+            width: fit-content;
+            padding: 5px 9px;
+            border: 2px solid var(--ink);
+            border-radius: 999px;
+            background: var(--paper);
+          }
+          '''
+          marker = '\n.badge-filter {\n'
+          if marker not in css:
+            raise SystemExit('Missing badge-filter CSS marker')
+          css = css.replace(marker, tier_css + marker, 1)
+          content.write_text(css, encoding='utf-8')
+
+          responsive = Path('app/styles/responsive.css')
+          css = responsive.read_text(encoding='utf-8')
+          css = css.replace('''  .badge-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }''', '''  .tier-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+
+          .badge-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }''', 1)
+          css = css.replace('''  .badge-grid {
+            grid-template-columns: 1fr;
+          }''', '''  .tier-grid,
+          .badge-grid {
+            grid-template-columns: 1fr;
+          }''', 1)
+          responsive.write_text(css, encoding='utf-8')
+          PY
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --non-interactive
+
+      - name: Validate
+        run: |
+          yarn typecheck
+          yarn lint
+          yarn build
+
+      - name: Commit changes and remove temporary workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/apply-arcade-2026-tiers.yml
+          git add app components
+          git commit -m "feat: use live Arcade 2026 tiers and remove demo data"
+          git push origin HEAD:fix/manual-entry-overlap
