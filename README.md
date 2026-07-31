@@ -36,12 +36,14 @@ Never expose `ARCADE_BETA_KEY` or another server secret through a `NEXT_PUBLIC_*
 ## Development
 
 ```bash
-yarn install
+yarn install --frozen-lockfile
 yarn dev
 yarn typecheck
 yarn lint
 yarn build
 ```
+
+Use plain `yarn install` only when intentionally updating dependencies and commit the resulting `yarn.lock` changes.
 
 ## Related project
 
