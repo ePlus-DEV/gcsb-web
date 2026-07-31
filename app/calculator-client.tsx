@@ -44,6 +44,7 @@ import {
   TrailMap,
   TrailStats,
 } from "@/components/arcade/visuals"
+import { Option3Hero } from "@/components/arcade/option3-hero"
 
 const REQUEST_TIMEOUT_MS = 20_000
 const STORAGE_DEBOUNCE_MS = 350
@@ -378,6 +379,21 @@ export default function ArcadeCalculatorClient() {
 
   return (
     <main className="arcade-page">
+      <Option3Hero
+        profileUrl={profileUrl}
+        setProfileUrl={setProfileUrl}
+        analyzeProfile={analyzeProfile}
+        loading={loading}
+        error={error}
+        manualMode={manualMode}
+        setManualMode={setManualMode}
+        snapshot={snapshot}
+        updateManual={updateManual}
+        nextTier={nextTier}
+        pointsRemaining={pointsRemaining}
+        hasResult={hasResult}
+        resetCalculator={resetCalculator}
+      />
       <header className="site-header" ref={headerRef}>
         <a className="brand" href="#calculator" aria-label="Arcade Points home" onClick={closeMobileNavigation}>
           <JoystickLogo />
