@@ -167,19 +167,10 @@ select:focus-visible {
   color: var(--ink);
   text-decoration: none;
   font-family: "Baloo 2", sans-serif;
-  font-size: 0;
+  font-size: 1.03rem;
   font-weight: 700;
   border-bottom: 4px solid transparent;
 }
-
-.site-nav a::after {
-  font-size: 1.03rem;
-}
-
-.site-nav a:nth-child(1)::after { content: "Dashboard"; }
-.site-nav a:nth-child(2)::after { content: "Calculator"; }
-.site-nav a:nth-child(3)::after { content: "Badge Tracker"; }
-.site-nav a:nth-child(4)::after { content: "Resources"; }
 
 .site-nav a + a::before {
   content: "";

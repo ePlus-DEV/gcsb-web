@@ -1,5 +1,6 @@
 import {
   BookOpen,
+  CircleHelp,
   Chrome,
   ExternalLink,
   Gamepad2,
@@ -11,19 +12,6 @@ import type { ReactNode } from "react"
 import type { CalculatorSnapshot } from "./model"
 import { clamp, formatNumber } from "./model"
 
-const TRAIL_POINTS = [
-  { x: 92, y: 566 },
-  { x: 210, y: 570 },
-  { x: 350, y: 515 },
-  { x: 505, y: 520 },
-  { x: 655, y: 451 },
-  { x: 805, y: 435 },
-  { x: 950, y: 360 },
-  { x: 1084, y: 316 },
-  { x: 1170, y: 246 },
-  { x: 1268, y: 160 },
-]
-
 const CHECKPOINTS = [
   { label: 0, x: 104, y: 560 },
   { label: 50, x: 548, y: 493 },
@@ -32,13 +20,18 @@ const CHECKPOINTS = [
   { label: 120, x: 1216, y: 207 },
 ]
 
-function pointOnTrail(progress: number) {
-  const safeProgress = Number.isFinite(progress) ? clamp(progress, 0, 1) : 0
-  const scaled = safeProgress * (TRAIL_POINTS.length - 1)
-  const index = Math.min(Math.floor(scaled), TRAIL_POINTS.length - 2)
-  const localProgress = scaled - index
-  const start = TRAIL_POINTS[index]
-  const end = TRAIL_POINTS[index + 1]
+function pointOnTrail(points: number) {
+  const safePoints = Number.isFinite(points) ? clamp(points, 0, 120) : 0
+  const endIndex = CHECKPOINTS.findIndex((checkpoint) => safePoints <= checkpoint.label)
+
+  if (endIndex <= 0) {
+    return { x: CHECKPOINTS[0].x, y: CHECKPOINTS[0].y }
+  }
+
+  const start = CHECKPOINTS[endIndex - 1]
+  const end = CHECKPOINTS[endIndex]
+  const segmentLength = end.label - start.label
+  const localProgress = segmentLength > 0 ? (safePoints - start.label) / segmentLength : 0
 
   return {
     x: start.x + (end.x - start.x) * localProgress,
@@ -158,7 +151,7 @@ export function TrailMap({ snapshot }: { snapshot: CalculatorSnapshot }) {
   const currentPoints = Number.isFinite(snapshot.currentPoints) ? Math.max(snapshot.currentPoints, 0) : 0
   const target = 120
   const progress = clamp(currentPoints / target, 0, 1)
-  const pin = pointOnTrail(progress)
+  const pin = pointOnTrail(currentPoints)
   const path = "M92 566C210 590 265 535 350 515c118-29 178 61 305-64 85-84 165 55 295-91 73-82 141-21 220-114 45-54 67-76 98-86"
   const bubbleX = clamp(pin.x - 80, 30, 1240)
   const bubbleY = clamp(pin.y - 168, 120, 420)
@@ -200,7 +193,7 @@ export function TrailMap({ snapshot }: { snapshot: CalculatorSnapshot }) {
   )
 }
 
-export function StatCard({ icon, value, label, tone }: { icon: ReactNode; value: string; label: string; tone: "lime" | "coral" | "mint" }) {
+export function StatCard({ icon, value, label, tone }: { icon: ReactNode; value: string; label: string; tone: "lime" | "coral" | "purple" | "mint" }) {
   return (
     <article className="trail-stat-card">
       <span className={`stat-icon stat-icon--${tone}`}>{icon}</span>
@@ -215,6 +208,7 @@ export function TrailStats({ snapshot }: { snapshot: CalculatorSnapshot }) {
     <div className="trail-stats" role="group" aria-label="Arcade statistics">
       <StatCard icon={<Trophy />} value={formatNumber(snapshot.currentPoints)} label="total points" tone="lime" />
       <StatCard icon={<Gamepad2 />} value={String(snapshot.gameBadges)} label="game badges" tone="coral" />
+      <StatCard icon={<CircleHelp />} value={String(snapshot.triviaBadges)} label="trivia badges" tone="purple" />
       <StatCard icon={<BookOpen />} value={String(snapshot.skillBadges)} label="skill badges" tone="mint" />
     </div>
   )

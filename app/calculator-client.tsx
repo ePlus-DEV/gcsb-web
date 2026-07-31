@@ -172,10 +172,15 @@ export default function ArcadeCalculatorClient() {
 
   useEffect(() => {
     let active = true
+    const controller = new AbortController()
+    const timeoutId = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
 
     async function loadMilestones() {
       try {
-        const request = await fetch(ARCADE_MILESTONES_URL, { cache: "no-store" })
+        const request = await fetch(ARCADE_MILESTONES_URL, {
+          cache: "no-store",
+          signal: controller.signal,
+        })
         if (!request.ok) return
 
         const payload: unknown = await request.json()
@@ -210,12 +215,16 @@ export default function ArcadeCalculatorClient() {
         }
       } catch {
         // Keep verified total slots if live crawler data is temporarily unavailable.
+      } finally {
+        window.clearTimeout(timeoutId)
       }
     }
 
     void loadMilestones()
     return () => {
       active = false
+      window.clearTimeout(timeoutId)
+      controller.abort()
     }
   }, [])
 
@@ -402,10 +411,10 @@ export default function ArcadeCalculatorClient() {
         </a>
         <button className="mobile-menu-button" type="button" aria-expanded={mobileNavOpen} aria-controls="primary-navigation" onClick={() => setMobileNavOpen((open) => !open)}>Menu</button>
         <nav id="primary-navigation" className={mobileNavOpen ? "site-nav is-open" : "site-nav"}>
-          <a className="active" href="#calculator" onClick={closeMobileNavigation}><Trophy />Calculator</a>
-          <a href="#badges" onClick={closeMobileNavigation}><BadgeCheck />Badges</a>
-          <a href="#extension" onClick={closeMobileNavigation}><ShieldCheck />Extension</a>
-          <a href="https://github.com/ePlus-DEV/google-cloud-skills-boost-helper" target="_blank" rel="noreferrer" onClick={closeMobileNavigation}><Github />GitHub</a>
+          <a className="active" href="#calculator-option3" onClick={closeMobileNavigation}><Trophy />Dashboard</a>
+          <a href="#calculator" onClick={closeMobileNavigation}><BadgeCheck />Calculator</a>
+          <a href="#badges" onClick={closeMobileNavigation}><ShieldCheck />Badge Tracker</a>
+          <a href="#extension" onClick={closeMobileNavigation}><Github />Resources</a>
         </nav>
       </header>
 

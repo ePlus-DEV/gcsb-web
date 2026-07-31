@@ -85,7 +85,7 @@
   width: 1px;
   height: 1px;
   overflow: hidden;
-  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
   white-space: nowrap;
 }
 
@@ -198,8 +198,7 @@
   font-size: 1.1rem;
 }
 
-.trail-stage.is-manual-open .hero-actions .text-button::after,
-.trail-stage:has(.manual-panel) .hero-actions .text-button::after {
+.trail-stage.is-manual-open .hero-actions .text-button::after {
   content: "Close manual entry";
 }
 
@@ -418,9 +417,9 @@
   right: 2.7%;
   bottom: 36px;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
-  width: min(640px, 47%);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  width: min(820px, 59%);
 }
 
 .trail-stat-card {
@@ -448,6 +447,7 @@
 
 .stat-icon--lime { background: var(--lime); }
 .stat-icon--coral { background: #ff8a7e; }
+.stat-icon--purple { background: #d9d1ff; }
 .stat-icon--mint { background: var(--mint); }
 
 .stat-icon svg {
@@ -489,18 +489,15 @@
 }
 
 /* Opening manual entry expands the stage and moves the map below the form. */
-.trail-stage.is-manual-open,
-.trail-stage:has(.manual-panel) {
+.trail-stage.is-manual-open {
   min-height: 1020px;
 }
 
-.trail-stage.is-manual-open .hero-copy,
-.trail-stage:has(.manual-panel) .hero-copy {
+.trail-stage.is-manual-open .hero-copy {
   z-index: 12;
 }
 
-.trail-stage.is-manual-open .manual-panel,
-.trail-stage:has(.manual-panel) .manual-panel {
+.trail-stage.is-manual-open .manual-panel {
   position: relative;
   z-index: 1;
 }
