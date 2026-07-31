@@ -24,6 +24,13 @@ const TRAIL_POINTS = [
   { x: 1285, y: 116 },
 ]
 
+const CHECKPOINT_POSITIONS = [
+  TRAIL_POINTS[0],
+  TRAIL_POINTS[2],
+  TRAIL_POINTS[4],
+  TRAIL_POINTS[9],
+]
+
 function checkpointsFor(target: number): number[] {
   if (target <= 50) return [0, 10, 25, 50]
   if (target <= 75) return [0, 25, 50, 75]
@@ -88,7 +95,8 @@ export function TrailMap({ snapshot }: { snapshot: CalculatorSnapshot }) {
   const progress = clamp(currentPoints / target, 0, 1)
   const pin = pointOnTrail(progress)
   const checkpoints = checkpointsFor(target)
-  const positions = [TRAIL_POINTS[0], TRAIL_POINTS[2], TRAIL_POINTS[4], TRAIL_POINTS[9]]
+    .slice(0, CHECKPOINT_POSITIONS.length)
+    .map((label, index) => ({ label, position: CHECKPOINT_POSITIONS[index] }))
   const path = "M80 438C230 470 275 390 360 385c115-7 172 65 320-70 80-73 152 46 270-48 88-70 154-36 235-102 62-51 70-56 100-49"
 
   return (
@@ -112,7 +120,14 @@ export function TrailMap({ snapshot }: { snapshot: CalculatorSnapshot }) {
       <path d={path} fill="none" stroke="#fff8e6" strokeWidth="78" strokeLinecap="round" />
       <path d={path} fill="none" stroke="#071d49" strokeWidth="4" strokeDasharray="13 14" strokeLinecap="round" />
       <path d={path} fill="none" stroke="#ff6657" strokeWidth="5" strokeDasharray={`${progress * 100} 100`} pathLength="100" strokeLinecap="round" />
-      {checkpoints.map((label, index) => <TrailCheckpoint key={`${label}-${index}`} x={positions[index].x} y={positions[index].y} label={label} />)}
+      {checkpoints.map(({ label, position }, index) => (
+        <TrailCheckpoint
+          key={`${label}-${index}`}
+          x={position.x}
+          y={position.y}
+          label={label}
+        />
+      ))}
       <g transform={`translate(${pin.x} ${pin.y - 12})`} className="current-pin">
         <path d="M0 31c-30-28-48-48-48-75 0-30 21-51 48-51s48 21 48 51C48-17 30 3 0 31Z" fill="#ff6657" stroke="#071d49" strokeWidth="4" />
         <circle cx="0" cy="-45" r="31" fill="#fffdf6" stroke="#071d49" strokeWidth="3" />
@@ -140,7 +155,7 @@ export function StatCard({ icon, value, label, tone }: { icon: ReactNode; value:
 
 export function TrailStats({ snapshot }: { snapshot: CalculatorSnapshot }) {
   return (
-    <div className="trail-stats" aria-label="Arcade statistics">
+    <div className="trail-stats" role="group" aria-label="Arcade statistics">
       <StatCard icon={<Trophy />} value={formatNumber(snapshot.currentPoints)} label="total points" tone="lime" />
       <StatCard icon={<Gamepad2 />} value={String(snapshot.gameBadges + snapshot.triviaBadges)} label="game & trivia badges" tone="coral" />
       <StatCard icon={<BookOpen />} value={String(snapshot.skillBadges)} label="skill badges" tone="mint" />
