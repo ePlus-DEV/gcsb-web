@@ -5,6 +5,7 @@ import "./styles/base.css"
 import "./styles/trail.css"
 import "./styles/content.css"
 import "./styles/responsive.css"
+import "./styles/refinement.css"
 
 export const metadata: Metadata = {
   title: "Arcade Points Calculator 2026 | ePlus.DEV",
