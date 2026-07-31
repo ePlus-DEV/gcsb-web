@@ -1,0 +1,63 @@
+name: Apply Option 3 AVIF
+
+on:
+  push:
+    branches:
+      - fix/manual-entry-overlap
+    paths:
+      - .github/workflows/apply-option3-avif.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: fix/manual-entry-overlap
+
+      - name: Decode exact Option 3 artwork
+        run: |
+          cat .option3-assets/p01 .option3-assets/p02 .option3-assets/p03 \
+              .option3-assets/p04 .option3-assets/p05 .option3-assets/p06 \
+              .option3-assets/p07 | base64 --decode > public/design/option3-background.avif
+          test "$(stat -c%s public/design/option3-background.avif)" -eq 28301
+          python <<'PY'
+          from pathlib import Path
+
+          component = Path("components/arcade/option3-hero.tsx")
+          text = component.read_text(encoding="utf-8")
+          old = 'src="design/option3-background.webp"'
+          new = 'src="design/option3-background.avif"'
+          if old not in text:
+              raise SystemExit("Could not find the previous Option 3 image source")
+          component.write_text(text.replace(old, new, 1), encoding="utf-8")
+          PY
+          rm -f public/design/option3-background.webp
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: yarn
+
+      - name: Validate
+        run: |
+          yarn install --frozen-lockfile --non-interactive
+          yarn typecheck
+          yarn lint
+          yarn build
+
+      - name: Commit exact artwork
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/apply-option3-avif.yml
+          git rm -r .option3-assets
+          git add -A
+          git commit -m "fix: use the exact Option 3 artwork as the hero background"
+          git push origin HEAD:fix/manual-entry-overlap
