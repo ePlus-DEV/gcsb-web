@@ -8,7 +8,10 @@ import "./styles/content.css"
 import "./styles/responsive.css"
 import "./styles/refinement.css"
 
+const siteUrl = "https://eplus-dev.github.io/gcsb-web/"
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: "Arcade Points Calculator 2026 | ePlus.DEV",
   description:
     "Calculate Google Skills Arcade points from a public profile, review badges, track tier progress and install the open-source Google Cloud Skills Boost Helper extension.",
@@ -25,6 +28,15 @@ export const metadata: Metadata = {
     title: "Arcade Points Calculator 2026 | ePlus.DEV",
     description: "Calculate points on the web and track automatically with the ePlus.DEV browser extension.",
     type: "website",
+    url: siteUrl,
+    images: [
+      {
+        url: "head.png",
+        width: 1280,
+        height: 800,
+        alt: "Arcade Points Calculator and Google Cloud Skills Boost Helper",
+      },
+    ],
   },
 }
 
