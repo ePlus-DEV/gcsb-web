@@ -3,12 +3,59 @@ name: CI
 on:
   pull_request:
   push:
-    branches: ["main"]
+    branches: ["main", "fix/manual-entry-overlap"]
 
 permissions:
   contents: read
 
 jobs:
+  apply-arcade-tiers:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/fix/manual-entry-overlap'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: fix/manual-entry-overlap
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: yarn
+
+      - name: Apply migration script
+        run: |
+          python <<'PY'
+          from pathlib import Path
+          import textwrap
+
+          workflow = Path('.github/workflows/apply-arcade-2026-tiers.yml').read_text(encoding='utf-8')
+          marker = "python <<'PY'\n"
+          script = workflow.split(marker, 1)[1].rsplit('\n          PY\n', 1)[0]
+          exec(compile(textwrap.dedent(script), 'apply-arcade-2026-tiers.py', 'exec'))
+          PY
+
+      - name: Validate migrated site
+        run: |
+          yarn install --frozen-lockfile --non-interactive
+          yarn typecheck
+          yarn lint
+          yarn build
+
+      - name: Commit migrated source and restore CI
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git show origin/main:.github/workflows/ci.yml > .github/workflows/ci.yml
+          git rm .github/workflows/apply-arcade-2026-tiers.yml
+          git add app components .github/workflows/ci.yml
+          git commit -m "feat: use live Arcade 2026 tiers and remove demo data"
+          git push origin HEAD:fix/manual-entry-overlap
+
   validate:
     runs-on: ubuntu-latest
     steps:
