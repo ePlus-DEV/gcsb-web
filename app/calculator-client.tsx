@@ -14,7 +14,7 @@ import {
   Trophy,
 } from "lucide-react"
 import type { ChangeEvent, FormEvent } from "react"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import {
   API_URL,
   DEMO_SNAPSHOT,
@@ -41,6 +41,7 @@ import {
 } from "@/components/arcade/visuals"
 
 const REQUEST_TIMEOUT_MS = 20_000
+const STORAGE_DEBOUNCE_MS = 350
 
 function readStorage(key: string): string | null {
   try {
@@ -64,6 +65,14 @@ function removeStorage(key: string): void {
   } catch {
     // Reset the in-memory state even when browser storage is unavailable.
   }
+}
+
+function persistCalculatorState(
+  snapshot: CalculatorSnapshot,
+  response: ArcadeApiResponse | null,
+  badges: ArcadeBadge[],
+): void {
+  writeStorage(STORAGE_KEY, JSON.stringify({ snapshot, response, badges }))
 }
 
 function isArcadeBadge(value: unknown): value is ArcadeBadge {
@@ -111,6 +120,7 @@ export default function ArcadeCalculatorClient() {
   const [isDemo, setIsDemo] = useState(true)
   const [manualMode, setManualMode] = useState(false)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  const headerRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
     const stored = readStorage(STORAGE_KEY)
@@ -140,6 +150,39 @@ export default function ArcadeCalculatorClient() {
     }
   }, [])
 
+  useEffect(() => {
+    if (isDemo) return
+
+    const timeoutId = window.setTimeout(
+      () => persistCalculatorState(snapshot, response, badges),
+      STORAGE_DEBOUNCE_MS,
+    )
+
+    return () => window.clearTimeout(timeoutId)
+  }, [badges, isDemo, response, snapshot])
+
+  useEffect(() => {
+    if (!mobileNavOpen) return
+
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMobileNavOpen(false)
+    }
+    const closeOnOutsidePointer = (event: PointerEvent) => {
+      const target = event.target
+      if (target instanceof Node && !headerRef.current?.contains(target)) {
+        setMobileNavOpen(false)
+      }
+    }
+
+    document.addEventListener("keydown", closeOnEscape)
+    document.addEventListener("pointerdown", closeOnOutsidePointer)
+
+    return () => {
+      document.removeEventListener("keydown", closeOnEscape)
+      document.removeEventListener("pointerdown", closeOnOutsidePointer)
+    }
+  }, [mobileNavOpen])
+
   const currentTier = useMemo(() => getTier(snapshot.currentPoints), [snapshot.currentPoints])
   const nextTier = useMemo(
     () => getNextTier(snapshot.currentPoints, snapshot.targetPoints),
@@ -161,17 +204,6 @@ export default function ArcadeCalculatorClient() {
 
     return byFilter[filter]
   }, [badges, filter, response])
-
-  function persist(
-    nextSnapshot: CalculatorSnapshot,
-    nextResponse: ArcadeApiResponse | null,
-    nextBadges: ArcadeBadge[],
-  ) {
-    writeStorage(
-      STORAGE_KEY,
-      JSON.stringify({ snapshot: nextSnapshot, response: nextResponse, badges: nextBadges }),
-    )
-  }
 
   function applyApiResult(result: ArcadeApiResponse, url: string) {
     const totalPoints = numeric(result.arcadePoints?.totalPoints)
@@ -203,7 +235,6 @@ export default function ArcadeCalculatorClient() {
     setResponse(result)
     setBadges(nextBadges)
     setIsDemo(false)
-    persist(nextSnapshot, result, nextBadges)
   }
 
   async function analyzeProfile(event: FormEvent<HTMLFormElement>) {
@@ -270,7 +301,6 @@ export default function ArcadeCalculatorClient() {
 
     setSnapshot(nextSnapshot)
     setIsDemo(false)
-    persist(nextSnapshot, response, badges)
   }
 
   function loadDemo() {
@@ -284,20 +314,22 @@ export default function ArcadeCalculatorClient() {
     removeStorage(STORAGE_KEY)
   }
 
+  const closeMobileNavigation = () => setMobileNavOpen(false)
+
   return (
     <main className="arcade-page">
-      <header className="site-header">
-        <a className="brand" href="#calculator" aria-label="Arcade Points home">
+      <header className="site-header" ref={headerRef}>
+        <a className="brand" href="#calculator" aria-label="Arcade Points home" onClick={closeMobileNavigation}>
           <JoystickLogo />
           <span className="brand-name">Arcade Points</span>
           <span className="season-pill">2026 Season</span>
         </a>
         <button className="mobile-menu-button" type="button" aria-expanded={mobileNavOpen} aria-controls="primary-navigation" onClick={() => setMobileNavOpen((open) => !open)}>Menu</button>
         <nav id="primary-navigation" className={mobileNavOpen ? "site-nav is-open" : "site-nav"}>
-          <a className="active" href="#calculator"><Trophy />Calculator</a>
-          <a href="#badges"><BadgeCheck />Badges</a>
-          <a href="#extension"><ShieldCheck />Extension</a>
-          <a href="https://github.com/ePlus-DEV/google-cloud-skills-boost-helper" target="_blank" rel="noreferrer"><Github />GitHub</a>
+          <a className="active" href="#calculator" onClick={closeMobileNavigation}><Trophy />Calculator</a>
+          <a href="#badges" onClick={closeMobileNavigation}><BadgeCheck />Badges</a>
+          <a href="#extension" onClick={closeMobileNavigation}><ShieldCheck />Extension</a>
+          <a href="https://github.com/ePlus-DEV/google-cloud-skills-boost-helper" target="_blank" rel="noreferrer" onClick={closeMobileNavigation}><Github />GitHub</a>
         </nav>
       </header>
 
@@ -336,7 +368,7 @@ export default function ArcadeCalculatorClient() {
 
         <aside className="next-tier-card" aria-label="Next Arcade tier">
           <span>Next tier</span><strong>{nextTier.name}</strong><b>{nextTier.points} points</b><p>{formatNumber(pointsRemaining)} points remaining</p>
-          <div className="mini-progress" aria-label={`${Math.round(completion)} percent complete`}><span style={{ width: `${completion}%` }} /></div>
+          <div className="mini-progress" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(completion)} aria-label="Progress to next tier"><span style={{ width: `${completion}%` }} /></div>
         </aside>
         <div className="trail-map-wrap"><TrailMap snapshot={snapshot} /></div>
         <TrailStats snapshot={snapshot} />
@@ -358,7 +390,7 @@ export default function ArcadeCalculatorClient() {
         <div className="section-heading">
           <div><p className="eyebrow"><BadgeCheck /> Badge explorer</p><h2>See exactly what built your score.</h2><p>Review game, trivia, skill and special badges returned by the ePlus Arcade crawler.</p></div>
           <div className="badge-filter" role="group" aria-label="Filter badges">
-            {(["all", "game", "trivia", "skill", "special"] as BadgeFilter[]).map((item) => <button key={item} type="button" className={filter === item ? "active" : ""} onClick={() => setFilter(item)}>{item}</button>)}
+            {(["all", "game", "trivia", "skill", "special"] as BadgeFilter[]).map((item) => <button key={item} type="button" className={filter === item ? "active" : ""} aria-pressed={filter === item} onClick={() => setFilter(item)}>{item}</button>)}
           </div>
         </div>
         <div className="badge-grid">
