@@ -1,754 +1,747 @@
 "use client"
 
-import type React from "react"
-
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
 import {
+  BadgeCheck,
+  BookOpen,
   Chrome,
-  ChromeIcon as Firefox,
-  Globe,
-  ArrowRight,
-  ChevronDown,
-  BarChart2,
-  PieChart,
-  Eye,
-  Download,
-  CheckCircle2,
   ExternalLink,
+  Firefox,
+  Gamepad2,
+  Github,
+  LoaderCircle,
+  RotateCcw,
+  Search,
+  ShieldCheck,
+  Sparkles,
+  Trophy,
 } from "lucide-react"
-import Link from "next/link"
-import Image from "next/image"
+import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react"
 
-export default function DownloadPage() {
-  const [scrolled, setScrolled] = useState(false)
-  const [activeTab, setActiveTab] = useState("chrome")
+type ArcadeBadge = {
+  title: string
+  dateEarned?: string
+  imageURL?: string
+  badgeURL?: string
+  points?: number | string
+}
 
-  const chrome = "https://chromewebstore.google.com/detail/google-cloud-skills-boost/lmbhjioadhcoebhgapaidogodllonbgg/?utm_source=web"
-  const firefox = "https://addons.mozilla.org/addon/cloud-skills-boost-helper?utm_source=web"
-  const edge = "https://github.com/ePlus-DEV/google-cloud-skills-boost-helper/releases/?utm_source=github"
-  const opera = "https://github.com/ePlus-DEV/google-cloud-skills-boost-helper/releases/?utm_source=github"
+type ArcadeApiResponse = {
+  success: boolean
+  message?: string
+  userDetails?: Array<{
+    url?: string
+    profileImage?: string
+    userName?: string
+    memberSince?: string
+    league?: string
+    points?: string
+  }>
+  badges?: ArcadeBadge[]
+  game?: ArcadeBadge[]
+  trivia?: ArcadeBadge[]
+  skill?: ArcadeBadge[]
+  completion?: ArcadeBadge[]
+  special?: ArcadeBadge[]
+  arcadePoints?: {
+    totalPoints?: number
+    gamePoints?: number
+    triviaPoints?: number
+    skillPoints?: number
+    specialPoints?: number
+    completionPoints?: number
+  }
+  milestone?: string
+  faciCounts?: {
+    faciGame?: number
+    faciTrivia?: number
+    faciSkill?: number
+    faciCompletion?: number
+  }
+  beta?: {
+    scoreComplete?: boolean
+    unknownBadgeCount?: number
+    unknownBadges?: string[]
+    profileBadgeCount?: number
+    eligibleBadgeCount?: number
+    tier?: string
+  }
+}
+
+type CalculatorSnapshot = {
+  profileUrl: string
+  currentPoints: number
+  gameBadges: number
+  triviaBadges: number
+  skillBadges: number
+  targetPoints: number
+  userName: string
+  milestone: string
+  scoreComplete: boolean
+  unknownBadgeCount: number
+  updatedAt: string
+}
+
+type BadgeFilter = "all" | "game" | "trivia" | "skill" | "special"
+
+const API_URL =
+  process.env.NEXT_PUBLIC_ARCADE_API_URL ??
+  "https://hub.eplus.dev/api/arcade-public"
+
+const STORAGE_KEY = "eplus-arcade-calculator-v1"
+const PROFILE_URL_PATTERN =
+  /^https:\/\/(?:www\.)?(?:skills\.google|cloudskillsboost\.google)\/public_profiles\/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\/?$/i
+
+const TIERS = [
+  { points: 0, name: "Arcade Explorer" },
+  { points: 50, name: "Arcade Trooper" },
+  { points: 75, name: "Arcade Ranger" },
+  { points: 95, name: "Arcade Champion" },
+  { points: 120, name: "Arcade Legend" },
+]
+
+const DEMO_SNAPSHOT: CalculatorSnapshot = {
+  profileUrl: "",
+  currentPoints: 37,
+  gameBadges: 6,
+  triviaBadges: 12,
+  skillBadges: 38,
+  targetPoints: 50,
+  userName: "Demo learner",
+  milestone: "Arcade Explorer",
+  scoreComplete: true,
+  unknownBadgeCount: 0,
+  updatedAt: "",
+}
+
+const SAMPLE_BADGES: ArcadeBadge[] = [
+  { title: "Arcade Base Camp", points: 1, dateEarned: "Demo" },
+  { title: "Arcade Adventure", points: 1, dateEarned: "Demo" },
+  { title: "Manage Kubernetes in Google Cloud", points: 0.5, dateEarned: "Demo" },
+]
+
+function numeric(value: unknown): number {
+  const parsed = Number(value)
+  return Number.isFinite(parsed) ? parsed : 0
+}
+
+function clamp(value: number, minimum: number, maximum: number): number {
+  return Math.min(Math.max(value, minimum), maximum)
+}
+
+function formatNumber(value: number): string {
+  return Number.isInteger(value) ? String(value) : value.toFixed(1)
+}
+
+function getTier(points: number) {
+  return [...TIERS].reverse().find((tier) => points >= tier.points) ?? TIERS[0]
+}
+
+function getNextTier(points: number, target: number) {
+  const officialNext = TIERS.find((tier) => tier.points > points)
+
+  if (officialNext) {
+    return officialNext
+  }
+
+  return {
+    points: Math.max(target, Math.ceil(points / 25) * 25 + 25),
+    name: "Next personal goal",
+  }
+}
+
+function checkpointsFor(target: number): number[] {
+  if (target <= 50) return [0, 10, 25, 50]
+  if (target <= 75) return [0, 25, 50, 75]
+  if (target <= 95) return [0, 25, 50, 95]
+  return [0, 25, 75, 120]
+}
+
+const TRAIL_POINTS = [
+  { x: 80, y: 438 },
+  { x: 220, y: 430 },
+  { x: 360, y: 385 },
+  { x: 520, y: 390 },
+  { x: 680, y: 315 },
+  { x: 835, y: 330 },
+  { x: 950, y: 267 },
+  { x: 1085, y: 228 },
+  { x: 1185, y: 165 },
+  { x: 1285, y: 116 },
+]
+
+function pointOnTrail(progress: number) {
+  const safeProgress = clamp(progress, 0, 1)
+  const scaled = safeProgress * (TRAIL_POINTS.length - 1)
+  const index = Math.min(Math.floor(scaled), TRAIL_POINTS.length - 2)
+  const localProgress = scaled - index
+  const start = TRAIL_POINTS[index]
+  const end = TRAIL_POINTS[index + 1]
+
+  return {
+    x: start.x + (end.x - start.x) * localProgress,
+    y: start.y + (end.y - start.y) * localProgress,
+  }
+}
+
+function JoystickLogo() {
+  return (
+    <svg viewBox="0 0 72 72" aria-hidden="true" className="brand-mark">
+      <path d="M16 48h43l5 13H10l6-13Z" fill="#fffdf6" stroke="currentColor" strokeWidth="3" />
+      <path d="M21 43h33l5 9H16l5-9Z" fill="#d9f743" stroke="currentColor" strokeWidth="3" />
+      <path d="M37 41V20" stroke="currentColor" strokeWidth="5" strokeLinecap="round" />
+      <circle cx="37" cy="15" r="11" fill="#d9f743" stroke="currentColor" strokeWidth="3" />
+      <path d="M31 12c2-4 6-6 10-5" fill="none" stroke="#fffdf6" strokeWidth="3" strokeLinecap="round" />
+      <circle cx="50" cy="47" r="3" fill="#ff6657" stroke="currentColor" strokeWidth="2" />
+      <circle cx="26" cy="47" r="3" fill="#8f78ff" stroke="currentColor" strokeWidth="2" />
+    </svg>
+  )
+}
+
+function FlagIcon() {
+  return (
+    <g transform="translate(1190 14)">
+      <path d="M28 8v130" stroke="#071d49" strokeWidth="5" strokeLinecap="round" />
+      <path d="M30 18c50-22 65 17 119-2-10 27-10 46 2 70-53 21-75-17-121 3V18Z" fill="#d9f743" stroke="#071d49" strokeWidth="4" strokeLinejoin="round" />
+      <path d="M82 28 112 41v32L82 87 52 72V41l30-13Z" fill="#071d49" stroke="#071d49" strokeWidth="3" />
+      <path d="m82 39 8 16 17 3-12 12 3 17-16-8-16 8 3-17-12-12 17-3 8-16Z" fill="#d9f743" />
+      <path d="m158 12 10-11M165 34l16-1M157 58l13 8" stroke="#071d49" strokeWidth="4" strokeLinecap="round" />
+    </g>
+  )
+}
+
+function TrailCheckpoint({ x, y, label }: { x: number; y: number; label: number }) {
+  return (
+    <g transform={`translate(${x} ${y})`}>
+      <ellipse cx="0" cy="22" rx="34" ry="12" fill="#fffdf6" stroke="#071d49" strokeWidth="4" />
+      <path d="M0 17v-44" stroke="#071d49" strokeWidth="5" strokeLinecap="round" />
+      <circle cx="0" cy="-48" r="34" fill="#fffdf6" stroke="#071d49" strokeWidth="4" />
+      <text x="0" y="-37" textAnchor="middle" className="checkpoint-label">
+        {label}
+      </text>
+    </g>
+  )
+}
+
+function TrailMap({ snapshot }: { snapshot: CalculatorSnapshot }) {
+  const target = Math.max(snapshot.targetPoints, 1)
+  const progress = clamp(snapshot.currentPoints / target, 0, 1)
+  const pin = pointOnTrail(progress)
+  const checkpoints = checkpointsFor(target)
+  const positions = [TRAIL_POINTS[0], TRAIL_POINTS[2], TRAIL_POINTS[4], TRAIL_POINTS[9]]
+
+  return (
+    <svg
+      className="trail-svg"
+      viewBox="0 0 1440 520"
+      role="img"
+      aria-label={`Learning trail showing ${formatNumber(snapshot.currentPoints)} of ${target} points`}
+    >
+      <path
+        d="M14 477c107-118 198-17 305-87 105-69 206 4 310-81 100-82 184-15 273-80 114-83 178-32 273-130 81-83 171-85 251-47l-8 468H15Z"
+        fill="#f2e6c9"
+        opacity=".78"
+      />
+      <path
+        d="M24 468c55-35 86-40 126-20 33 17 62 6 96-13M1124 189c42-18 72-12 111-46 34-30 70-38 107-28"
+        fill="none"
+        stroke="#e1d3b4"
+        strokeWidth="14"
+        strokeLinecap="round"
+      />
+
+      <g className="trail-decoration" stroke="#071d49" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M270 415c-9-25-4-41 10-51 15 11 18 27 9 51Z" fill="#d9f743" />
+        <path d="M280 414v-38M260 396l20-9M300 392l-20-7" />
+        <path d="M520 363h67l-10 45h-53Z" fill="#fffdf6" />
+        <path d="M553 361v47M528 372c12-8 22-7 25-5M558 367c10-4 18-2 25 4" />
+        <path d="M710 335c0-21 14-38 31-38s31 17 31 38v50h-62Z" fill="#d9f743" />
+        <path d="M722 314h38M727 333h27M728 352h26M741 296v-15" />
+        <path d="M955 265l18-38 18 38h-12l17 29h-48l17-29Z" fill="#9dde6a" />
+        <path d="M972 294v22" />
+        <path d="M1117 199c7-21 30-21 38-3 18-10 36 2 34 20h-78c-2-8 0-13 6-17Z" fill="#d9f743" />
+        <path d="M1042 284c7-17 23-20 33-7 15-10 31-1 31 14h-69c-1-3 1-5 5-7Z" fill="#9dde6a" />
+        <path d="M166 470 182 445l17 25M418 430l15-20 18 20M875 349l12-17 19 17" fill="#fffdf6" />
+      </g>
+
+      <path
+        d="M80 438C230 470 275 390 360 385c115-7 172 65 320-70 80-73 152 46 270-48 88-70 154-36 235-102 62-51 70-56 100-49"
+        fill="none"
+        stroke="#071d49"
+        strokeWidth="88"
+        strokeLinecap="round"
+      />
+      <path
+        d="M80 438C230 470 275 390 360 385c115-7 172 65 320-70 80-73 152 46 270-48 88-70 154-36 235-102 62-51 70-56 100-49"
+        fill="none"
+        stroke="#fff8e6"
+        strokeWidth="78"
+        strokeLinecap="round"
+      />
+      <path
+        d="M80 438C230 470 275 390 360 385c115-7 172 65 320-70 80-73 152 46 270-48 88-70 154-36 235-102 62-51 70-56 100-49"
+        fill="none"
+        stroke="#071d49"
+        strokeWidth="4"
+        strokeDasharray="13 14"
+        strokeLinecap="round"
+      />
+      <path
+        d="M80 438C230 470 275 390 360 385c115-7 172 65 320-70 80-73 152 46 270-48 88-70 154-36 235-102 62-51 70-56 100-49"
+        fill="none"
+        stroke="#ff6657"
+        strokeWidth="5"
+        strokeDasharray={`${progress * 100} 100`}
+        pathLength="100"
+        strokeLinecap="round"
+      />
+
+      {checkpoints.map((label, index) => (
+        <TrailCheckpoint key={label} x={positions[index].x} y={positions[index].y} label={label} />
+      ))}
+
+      <g transform={`translate(${pin.x} ${pin.y - 12})`} className="current-pin">
+        <path d="M0 31c-30-28-48-48-48-75 0-30 21-51 48-51s48 21 48 51C48-17 30 3 0 31Z" fill="#ff6657" stroke="#071d49" strokeWidth="4" />
+        <circle cx="0" cy="-45" r="31" fill="#fffdf6" stroke="#071d49" strokeWidth="3" />
+        <text x="0" y="-34" textAnchor="middle" className="pin-label">
+          {formatNumber(snapshot.currentPoints)}
+        </text>
+        <ellipse cx="0" cy="38" rx="32" ry="10" fill="#fffdf6" stroke="#071d49" strokeWidth="4" />
+      </g>
+
+      <g transform={`translate(${clamp(pin.x - 76, 650, 1025)} ${clamp(pin.y - 160, 30, 300)})`}>
+        <path d="M12 0h136a12 12 0 0 1 12 12v36a12 12 0 0 1-12 12H86L68 79 59 60H12A12 12 0 0 1 0 48V12A12 12 0 0 1 12 0Z" fill="#fffdf6" stroke="#ff6657" strokeWidth="3" />
+        <text x="80" y="38" textAnchor="middle" className="you-are-here">
+          You are here!
+        </text>
+      </g>
+
+      <FlagIcon />
+    </svg>
+  )
+}
+
+function StatCard({
+  icon,
+  value,
+  label,
+  tone,
+}: {
+  icon: React.ReactNode
+  value: string
+  label: string
+  tone: "lime" | "coral" | "mint"
+}) {
+  return (
+    <article className="trail-stat-card">
+      <span className={`stat-icon stat-icon--${tone}`}>{icon}</span>
+      <span className="stat-copy">
+        <strong>{value}</strong>
+        <small>{label}</small>
+      </span>
+      <Sparkles className="stat-sparkle" aria-hidden="true" />
+    </article>
+  )
+}
+
+function ExtensionStoreLinks({ compact = false }: { compact?: boolean }) {
+  return (
+    <div className={compact ? "store-links store-links--compact" : "store-links"}>
+      <a
+        className="store-button store-button--chrome"
+        href="https://chromewebstore.google.com/detail/google-cloud-skills-boost/lmbhjioadhcoebhgapaidogodllonbgg/?utm_source=gcsb-web&utm_medium=website&utm_campaign=arcade-calculator"
+        target="_blank"
+        rel="noreferrer"
+      >
+        <Chrome aria-hidden="true" />
+        <span><small>Available on</small>Chrome Web Store</span>
+        <ExternalLink aria-hidden="true" />
+      </a>
+      <a
+        className="store-button"
+        href="https://addons.mozilla.org/addon/cloud-skills-boost-helper?utm_source=gcsb-web&utm_medium=website&utm_campaign=arcade-calculator"
+        target="_blank"
+        rel="noreferrer"
+      >
+        <Firefox aria-hidden="true" />
+        <span><small>Get it for</small>Firefox</span>
+        <ExternalLink aria-hidden="true" />
+      </a>
+    </div>
+  )
+}
+
+export default function ArcadePointsPage() {
+  const [profileUrl, setProfileUrl] = useState("")
+  const [snapshot, setSnapshot] = useState<CalculatorSnapshot>(DEMO_SNAPSHOT)
+  const [response, setResponse] = useState<ArcadeApiResponse | null>(null)
+  const [badges, setBadges] = useState<ArcadeBadge[]>(SAMPLE_BADGES)
+  const [filter, setFilter] = useState<BadgeFilter>("all")
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
+  const [isDemo, setIsDemo] = useState(true)
+  const [manualMode, setManualMode] = useState(false)
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50)
-    }
+    try {
+      const stored = window.localStorage.getItem(STORAGE_KEY)
+      if (!stored) return
 
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
+      const parsed = JSON.parse(stored) as {
+        snapshot?: CalculatorSnapshot
+        response?: ArcadeApiResponse | null
+        badges?: ArcadeBadge[]
+      }
+
+      if (parsed.snapshot) {
+        setSnapshot(parsed.snapshot)
+        setProfileUrl(parsed.snapshot.profileUrl ?? "")
+        setIsDemo(false)
+      }
+      if (parsed.response) setResponse(parsed.response)
+      if (Array.isArray(parsed.badges)) setBadges(parsed.badges)
+    } catch {
+      window.localStorage.removeItem(STORAGE_KEY)
+    }
   }, [])
 
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900">
-      {/* Navbar */}
-      <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          scrolled ? "bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm" : "bg-transparent"
-        }`}
-      >
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-white font-bold text-xl">
-              GC
-            </div>
-            <span className="font-semibold text-lg hidden sm:inline-block">Google Cloud Skills Boost - Helper</span>
-            <span className="font-semibold text-lg sm:hidden">GC Helper</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="hidden md:flex"
-              onClick={() => document.getElementById("features")?.scrollIntoView({ behavior: "smooth" })}
-            >
-              Features
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="hidden md:flex"
-              onClick={() => document.getElementById("download")?.scrollIntoView({ behavior: "smooth" })}
-            >
-              Installation
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="hidden md:flex"
-              onClick={() => document.getElementById("screenshots")?.scrollIntoView({ behavior: "smooth" })}
-            >
-              Screenshots
-            </Button>
-            <Button
-              size="sm"
-              className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white"
-              onClick={() => document.getElementById("download")?.scrollIntoView({ behavior: "smooth" })}
-            >
-              Download
-            </Button>
-          </div>
-        </div>
-      </nav>
-
-      {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 -z-10"></div>
-        <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-200 dark:bg-blue-900/20 rounded-full blur-3xl opacity-50 -z-10"></div>
-        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-cyan-200 dark:bg-cyan-900/20 rounded-full blur-3xl opacity-50 -z-10"></div>
-
-        <div className="container mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6">
-              <Badge className="px-3 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100 hover:bg-blue-100 dark:hover:bg-blue-900">
-                Browser Extension
-              </Badge>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-cyan-500">
-                Google Cloud Skills Boost - Helper
-              </h1>
-              <p className="text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
-                Optimize your learning experience on Google Cloud Skills Boost with our powerful browser extension.
-                Track progress, calculate Arcade points, and manage leaderboards efficiently!
-              </p>
-              <div className="flex flex-wrap gap-4 pt-4">
-                <Button
-                  size="lg"
-                  className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white"
-                  onClick={() => document.getElementById("download")?.scrollIntoView({ behavior: "smooth" })}
-                >
-                  Download Now <Download className="ml-2 h-4 w-4" />
-                </Button>
-                <Button variant="outline" size="lg">
-                  Learn More <ChevronDown className="ml-2 h-4 w-4" />
-                </Button>
-              </div>
-              <div className="flex items-center gap-3 pt-2">
-                <div className="flex -space-x-2">
-                  <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center ring-2 ring-white dark:ring-slate-900">
-                    <Chrome className="h-4 w-4 text-blue-600" />
-                  </div>
-                  <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center ring-2 ring-white dark:ring-slate-900">
-                    <Firefox className="h-4 w-4 text-orange-600" />
-                  </div>
-                  <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center ring-2 ring-white dark:ring-slate-900">
-                    <Globe className="h-4 w-4 text-blue-600" />
-                  </div>
-                  <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center ring-2 ring-white dark:ring-slate-900">
-                    <Globe className="h-4 w-4 text-red-600" />
-                  </div>
-                </div>
-                <span className="text-sm text-slate-500 dark:text-slate-400">Available for all major browsers</span>
-              </div>
-              <div className="pt-4">
-                <a
-                  href="https://www.producthunt.com/posts/google-cloud-skills-boost-helper?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-google&#0045;cloud&#0045;skills&#0045;boost&#0045;helper"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <img
-                    src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=947339&theme=light&t=1743747200801"
-                    alt="Google&#0032;Cloud&#0032;Skills&#0032;Boost&#0032;&#0045;&#0032;Helper - Optimize&#0032;Google&#0032;Cloud&#0032;learning&#0032;with&#0032;smart&#0032;tracking&#0032;tools&#0046; | Product Hunt"
-                    style={{ width: "250px", height: "54px" }}
-                    width="250"
-                    height="54"
-                  />
-                </a>
-              </div>
-            </div>
-            <div className="relative">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl blur opacity-30 dark:opacity-40"></div>
-              <div className="relative bg-white dark:bg-slate-800 rounded-xl shadow-xl overflow-hidden border border-slate-200 dark:border-slate-700">
-                <div className="h-8 bg-slate-100 dark:bg-slate-700 flex items-center px-4 gap-1">
-                  <div className="w-3 h-3 rounded-full bg-red-400"></div>
-                  <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-                  <div className="w-3 h-3 rounded-full bg-green-400"></div>
-                  <div className="ml-4 text-xs text-slate-500 dark:text-slate-400">Google Cloud Skills Boost</div>
-                </div>
-                <Image
-                  src="/head.png"
-                  alt="Extension screenshot"
-                  width={300}
-                  height={300}
-                  className="w-full h-auto"
-                />
-              </div>
-              <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl blur-xl opacity-30"></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section id="features" className="py-20 px-4">
-        <div className="container mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <Badge className="mb-4 px-3 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100 hover:bg-blue-100 dark:hover:bg-blue-900">
-              Key Features
-            </Badge>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Supercharge Your Google Cloud Learning</h2>
-            <p className="text-slate-600 dark:text-slate-300">
-              Our extension provides powerful tools to help you track progress, calculate points, and manage
-              leaderboards efficiently.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <FeatureCard
-              icon={<BarChart2 className="h-10 w-10 text-blue-500" />}
-              title="Arcade Points Calculator"
-              description="Automatically calculates and displays your Arcade points, helping you track your progress."
-              gradient="from-blue-500 to-blue-600"
-            />
-
-            <FeatureCard
-              icon={<PieChart className="h-10 w-10 text-cyan-500" />}
-              title="Scoreboard with Quick Actions"
-              description="Easily track your scores and take quick actions with our intuitive scoreboard interface."
-              gradient="from-cyan-500 to-cyan-600"
-            />
-
-            <FeatureCard
-              icon={<Eye className="h-10 w-10 text-indigo-500" />}
-              title="Toggle Leaderboard Visibility"
-              description="Customize the display of the leaderboard as needed with a simple toggle feature."
-              gradient="from-indigo-500 to-indigo-600"
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Screenshots Section */}
-      <section id="screenshots" className="py-20 px-4 bg-slate-50 dark:bg-slate-900/50">
-        <div className="container mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <Badge className="mb-4 px-3 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100 hover:bg-blue-100 dark:hover:bg-blue-900">
-              Screenshots
-            </Badge>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">See It In Action</h2>
-            <p className="text-slate-600 dark:text-slate-300">
-              Take a look at how Google Cloud Skills Boost - Helper enhances your learning experience.
-            </p>
-          </div>
-
-          <div className="grid lg:grid-cols-3 gap-6 md:gap-8">
-            {[
-              {
-                title: "Arcade Points Calculator",
-                description: "Track your points in real-time with our intuitive calculator.",
-                image: "/placeholder.svg?height=400&width=600&text=Arcade+Points+Calculator",
-              },
-              {
-                title: "Scoreboard Interface",
-                description: "View and manage your scores with our comprehensive scoreboard.",
-                image: "/placeholder.svg?height=400&width=600&text=Scoreboard+Interface",
-              },
-              {
-                title: "Leaderboard Toggle",
-                description: "Customize your view by toggling leaderboard visibility.",
-                image: "/placeholder.svg?height=400&width=600&text=Leaderboard+Toggle",
-              },
-            ].map((item, i) => (
-              <div key={i} className="group">
-                <div className="relative rounded-xl overflow-hidden transition-all duration-300 group-hover:shadow-xl">
-                  <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/80 to-cyan-500/80 opacity-0 group-hover:opacity-30 transition-opacity duration-300 z-10"></div>
-                  <Image
-                    src={item.image || "/placeholder.svg"}
-                    alt={item.title}
-                    width={600}
-                    height={400}
-                    className="w-full h-auto transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
-                    <Button variant="secondary" className="bg-white/90 hover:bg-white">
-                      View Larger
-                    </Button>
-                  </div>
-                </div>
-                <div className="mt-4">
-                  <h3 className="font-semibold text-lg">{item.title}</h3>
-                  <p className="text-slate-600 dark:text-slate-400 mt-1">{item.description}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Download Section */}
-      <section id="download" className="py-20 px-4">
-        <div className="container mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <Badge className="mb-4 px-3 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100 hover:bg-blue-100 dark:hover:bg-blue-900">
-              Installation
-            </Badge>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Get Started in Minutes</h2>
-            <p className="text-slate-600 dark:text-slate-300">
-              Choose your browser and follow the simple installation steps.
-            </p>
-          </div>
-
-          <div className="max-w-4xl mx-auto">
-            <Tabs defaultValue="chrome" value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid grid-cols-4 mb-8">
-                <TabsTrigger
-                  value="chrome"
-                  className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-800 dark:data-[state=active]:bg-blue-900/50 dark:data-[state=active]:text-blue-100"
-                >
-                  <Chrome className="h-5 w-5 mr-2" /> Chrome
-                </TabsTrigger>
-                <TabsTrigger
-                  value="firefox"
-                  className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-800 dark:data-[state=active]:bg-blue-900/50 dark:data-[state=active]:text-blue-100"
-                >
-                  <Firefox className="h-5 w-5 mr-2" /> Firefox
-                </TabsTrigger>
-                <TabsTrigger
-                  value="edge"
-                  className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-800 dark:data-[state=active]:bg-blue-900/50 dark:data-[state=active]:text-blue-100"
-                >
-                  <Globe className="h-5 w-5 mr-2" /> Edge
-                </TabsTrigger>
-                <TabsTrigger
-                  value="opera"
-                  className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-800 dark:data-[state=active]:bg-blue-900/50 dark:data-[state=active]:text-blue-100"
-                >
-                  <Globe className="h-5 w-5 mr-2" /> Opera
-                </TabsTrigger>
-              </TabsList>
-
-              <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
-                <TabsContent value="chrome" className="m-0">
-                  <BrowserTab
-                    title="Chrome Web Store"
-                    steps={[
-                      "Visit the Chrome Web Store",
-                      "Click 'Add to Chrome'",
-                      "Confirm the installation when prompted",
-                      "The extension will appear in your toolbar",
-                    ]}
-                    manualSteps={[
-                      "Download and unzip google-cloud-skills-boost-helper-{version}-chrome.zip",
-                      "Rename the extracted folder to google-cloud-helper",
-                      "Open Chrome and go to Extensions",
-                      "Enable Developer mode",
-                      "Click 'Load unpacked extension...'",
-                      "Select the google-cloud-helper folder you extracted",
-                    ]}
-                    image="/chrome.jpg"
-                    downloadUrl={chrome}
-                  />
-                </TabsContent>
-
-                <TabsContent value="firefox" className="m-0">
-                  <BrowserTab
-                    title="Firefox Add-ons"
-                    steps={[
-                      "Visit Firefox Add-ons website",
-                      "Click 'Add to Firefox'",
-                      "Confirm the installation when prompted",
-                      "The extension will appear in your toolbar",
-                    ]}
-                    image="/firefox.jpg"
-                    downloadUrl={firefox}
-                  />
-                </TabsContent>
-
-                <TabsContent value="edge" className="m-0">
-                  <BrowserTab
-                    title="Microsoft Edge Add-ons"
-                    steps={[
-                      "Visit the Edge Add-ons store",
-                      "Click 'Get'",
-                      "Confirm the installation when prompted",
-                      "The extension will appear in your toolbar",
-                    ]}
-                    image="/edge-browser.jpg"
-                    downloadUrl={edge}
-                  />
-                </TabsContent>
-
-                <TabsContent value="opera" className="m-0">
-                  <BrowserTab
-                    title="Opera Add-ons"
-                    steps={[
-                      "Visit the Opera Add-ons store",
-                      "Click 'Add to Opera'",
-                      "Confirm the installation when prompted",
-                      "The extension will appear in your toolbar",
-                    ]}
-                    image="/opera-browser.jpg"
-                    downloadUrl={opera}
-                  />
-                </TabsContent>
-
-                <TabsContent value="other" className="m-0">
-                  <BrowserTab
-                    title="Manual Installation"
-                    steps={[
-                      "Download and unzip google-cloud-skills-boost-helper-{version}-chrome.zip",
-                      "Rename the extracted folder to google-cloud-helper",
-                      "Open Chrome and go to Extensions",
-                      "Enable Developer mode",
-                      "Click 'Load unpacked extension...'",
-                      "Select the google-cloud-helper folder you extracted",
-                    ]}
-                    image="/chrome.jpg"
-                    downloadUrl={chrome}
-                  />
-                </TabsContent>
-              </div>
-            </Tabs>
-          </div>
-        </div>
-      </section>
-
-      {/* Why Use Section */}
-      <section className="py-20 px-4 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-slate-900 dark:to-slate-800">
-        <div className="container mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <Badge className="mb-4 px-3 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100 hover:bg-blue-100 dark:hover:bg-blue-900">
-              Benefits
-            </Badge>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Why Use Google Cloud Skills Boost - Helper?</h2>
-            <p className="text-slate-600 dark:text-slate-300">
-              Our extension provides several advantages to enhance your Google Cloud learning experience.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <WhyUseCard
-              icon="🚀"
-              title="Speed Up Learning"
-              description="Accelerate your learning and practice on Google Cloud with our intuitive tools."
-            />
-            <WhyUseCard
-              icon="📌"
-              title="Track Arcade Scores"
-              description="Easily track and improve your Arcade scores with our comprehensive tracking system."
-            />
-            <WhyUseCard
-              icon="💡"
-              title="Visualize Information"
-              description="Better manage and optimize your learning strategy with our visualization tools."
-            />
-          </div>
-
-          <div className="mt-16 text-center">
-            <p className="text-xl font-medium mb-6">
-              Try it today and conquer Google Cloud Skills Boost challenges smarter! 🌟
-            </p>
-            <Button
-              size="lg"
-              className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white"
-              onClick={() => document.getElementById("download")?.scrollIntoView({ behavior: "smooth" })}
-            >
-              Download Now <Download className="ml-2 h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 px-4">
-        <div className="container mx-auto max-w-5xl">
-          <div className="relative rounded-2xl overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-500"></div>
-            <div className="absolute inset-0 bg-[url('/placeholder.svg?height=600&width=1200&text=Pattern')] opacity-10 mix-blend-overlay"></div>
-            <div className="relative p-8 md:p-12 text-white">
-              <div className="grid md:grid-cols-2 gap-8 items-center">
-                <div>
-                  <h2 className="text-3xl font-bold mb-4">Ready to enhance your Google Cloud learning?</h2>
-                  <p className="mb-6 text-blue-100">
-                    Download Google Cloud Skills Boost - Helper today and take your learning experience to the next
-                    level.
-                  </p>
-                  <div className="flex flex-wrap gap-4">
-                    <Button size="lg" className="bg-white text-blue-600 hover:bg-blue-50" onClick={() => document.getElementById("download")?.scrollIntoView({ behavior: "smooth" })}>
-                      Download Now <Download className="ml-2 h-4 w-4" />
-                    </Button>
-                    <Button variant="outline" size="lg" className="text-blue-600 border-white hover:bg-white/10">
-                      Learn More <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-                <div className="hidden md:block">
-                  <div className="relative">
-                    <div className="absolute -inset-1 bg-white/20 rounded-xl blur-sm"></div>
-                    <div className="relative bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/30">
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                          <CheckCircle2 className="h-5 w-5 text-white" />
-                        </div>
-                        <div>
-                          <h3 className="font-medium">Easy Installation</h3>
-                          <p className="text-sm text-blue-100">Available for all major browsers</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                          <CheckCircle2 className="h-5 w-5 text-white" />
-                        </div>
-                        <div>
-                          <h3 className="font-medium">Powerful Features</h3>
-                          <p className="text-sm text-blue-100">Track points, manage leaderboards</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                          <CheckCircle2 className="h-5 w-5 text-white" />
-                        </div>
-                        <div>
-                          <h3 className="font-medium">Regular Updates</h3>
-                          <p className="text-sm text-blue-100">New features and improvements</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-slate-900 text-slate-300 py-12 px-4">
-        <div className="container mx-auto">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-white font-bold text-xl">
-                  GC
-                </div>
-                <span className="font-semibold text-white">Google Cloud Skills Boost - Helper</span>
-              </div>
-              <p className="text-sm text-slate-400 mb-4">
-                A browser extension designed to optimize your learning experience on Google Cloud Skills Boost.
-              </p>
-              <div className="flex gap-3">
-                <a
-                  href="https://facebook.com/hoangsvit"
-                  className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:bg-blue-600 transition-colors"
-                >
-                  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path
-                      fillRule="evenodd"
-                      d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </a>
-                <a
-                  href="https://twitter.com/david_nguyen94"
-                  className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:bg-blue-400 transition-colors"
-                >
-                  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
-                  </svg>
-                </a>
-                <a
-                  href="http://github.com/hoangsvit"
-                  className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:bg-slate-700 transition-colors"
-                >
-                  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path
-                      fillRule="evenodd"
-                      d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </a>
-              </div>
-            </div>
-            <div>
-              <h3 className="font-semibold text-white mb-4">Resources</h3>
-              <ul className="space-y-2">
-                <li>
-                  <a href="#" className="text-slate-400 hover:text-white transition-colors">
-                    Documentation
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-slate-400 hover:text-white transition-colors">
-                    Tutorials
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-slate-400 hover:text-white transition-colors">
-                    FAQs
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-slate-400 hover:text-white transition-colors">
-                    Support
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-semibold text-white mb-4">Browsers</h3>
-              <ul className="space-y-2">
-                <li>
-                  <a href={chrome} className="text-slate-400 hover:text-white transition-colors">
-                    Chrome
-                  </a>
-                </li>
-                <li>
-                  <a href={firefox} className="text-slate-400 hover:text-white transition-colors">
-                    Firefox
-                  </a>
-                </li>
-                <li>
-                  <a href={edge} className="text-slate-400 hover:text-white transition-colors">
-                    Edge
-                  </a>
-                </li>
-                <li>
-                  <a href={opera} className="text-slate-400 hover:text-white transition-colors">
-                    Opera
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-semibold text-white mb-4">Legal</h3>
-              <ul className="space-y-2">
-                <li>
-                  <Link href="/privacy" className="text-slate-400 hover:text-white transition-colors">
-                    Privacy Policy
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/terms" className="text-slate-400 hover:text-white transition-colors">
-                    Terms of Service
-                  </Link>
-                </li>
-                <li>
-                  <a href="#" className="text-slate-400 hover:text-white transition-colors">
-                    Cookie Policy
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-slate-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
-            <p className="text-sm text-slate-400">
-              © {new Date().getFullYear()} Google Cloud Skills Boost - Helper. All rights reserved.
-            </p>
-            <div className="flex items-center gap-4 mt-4 md:mt-0">
-              <Link href="/privacy" className="text-sm text-slate-400 hover:text-white transition-colors">
-                Privacy
-              </Link>
-              <Link href="/terms" className="text-sm text-slate-400 hover:text-white transition-colors">
-                Terms
-              </Link>
-              <a href="#" className="text-sm text-slate-400 hover:text-white transition-colors">
-                Contact
-              </a>
-            </div>
-          </div>
-        </div>
-      </footer>
-    </div>
+  const currentTier = useMemo(() => getTier(snapshot.currentPoints), [snapshot.currentPoints])
+  const nextTier = useMemo(
+    () => getNextTier(snapshot.currentPoints, snapshot.targetPoints),
+    [snapshot.currentPoints, snapshot.targetPoints],
   )
-}
+  const pointsRemaining = Math.max(0, nextTier.points - snapshot.currentPoints)
+  const completion = clamp((snapshot.currentPoints / Math.max(nextTier.points, 1)) * 100, 0, 100)
+  const estimatedActivities = Math.ceil(pointsRemaining)
 
-interface FeatureCardProps {
-  icon: React.ReactNode
-  title: string
-  description: string
-  gradient: string
-}
+  const filteredBadges = useMemo(() => {
+    if (!response || filter === "all") return badges
 
-function FeatureCard({ icon, title, description, gradient }: FeatureCardProps) {
+    const byFilter: Record<Exclude<BadgeFilter, "all">, ArcadeBadge[]> = {
+      game: response.game ?? [],
+      trivia: response.trivia ?? [],
+      skill: response.skill ?? [],
+      special: response.special ?? [],
+    }
+
+    return byFilter[filter]
+  }, [badges, filter, response])
+
+  function persist(
+    nextSnapshot: CalculatorSnapshot,
+    nextResponse: ArcadeApiResponse | null,
+    nextBadges: ArcadeBadge[],
+  ) {
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ snapshot: nextSnapshot, response: nextResponse, badges: nextBadges }),
+    )
+  }
+
+  function applyApiResult(result: ArcadeApiResponse, url: string) {
+    const totalPoints = numeric(result.arcadePoints?.totalPoints)
+    const gameBadges = (result.game ?? []).length
+    const triviaBadges = (result.trivia ?? []).length
+    const skillBadges = (result.skill ?? []).length
+    const officialNext = getNextTier(totalPoints, 50)
+    const nextSnapshot: CalculatorSnapshot = {
+      profileUrl: url,
+      currentPoints: totalPoints,
+      gameBadges,
+      triviaBadges,
+      skillBadges,
+      targetPoints: officialNext.points,
+      userName: result.userDetails?.[0]?.userName || "Google Skills learner",
+      milestone: result.milestone || result.beta?.tier || getTier(totalPoints).name,
+      scoreComplete: result.beta?.scoreComplete ?? true,
+      unknownBadgeCount: numeric(result.beta?.unknownBadgeCount),
+      updatedAt: new Date().toISOString(),
+    }
+    const nextBadges = result.badges ?? [
+      ...(result.game ?? []),
+      ...(result.trivia ?? []),
+      ...(result.skill ?? []),
+      ...(result.special ?? []),
+    ]
+
+    setSnapshot(nextSnapshot)
+    setResponse(result)
+    setBadges(nextBadges)
+    setIsDemo(false)
+    persist(nextSnapshot, result, nextBadges)
+  }
+
+  async function analyzeProfile(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const normalized = profileUrl.trim().replace(/\/$/, "")
+
+    if (!PROFILE_URL_PATTERN.test(normalized)) {
+      setError("Enter a valid public profile URL from skills.google or cloudskillsboost.google.")
+      return
+    }
+
+    setLoading(true)
+    setError("")
+
+    try {
+      const request = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: normalized, season: "2026" }),
+      })
+      const result = (await request.json()) as ArcadeApiResponse
+
+      if (!request.ok || !result.success) {
+        throw new Error(result.message || "The profile could not be analyzed right now.")
+      }
+
+      applyApiResult(result, normalized)
+    } catch (caught) {
+      setError(
+        caught instanceof Error
+          ? `${caught.message} You can use manual entry while the crawler is unavailable.`
+          : "The profile could not be analyzed. You can use manual entry instead.",
+      )
+      setManualMode(true)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  function updateManual(field: keyof CalculatorSnapshot, value: string) {
+    const numericFields: Array<keyof CalculatorSnapshot> = [
+      "currentPoints",
+      "gameBadges",
+      "triviaBadges",
+      "skillBadges",
+      "targetPoints",
+    ]
+    const nextValue = numericFields.includes(field) ? Math.max(0, numeric(value)) : value
+    const nextSnapshot = { ...snapshot, [field]: nextValue, updatedAt: new Date().toISOString() }
+
+    setSnapshot(nextSnapshot)
+    setIsDemo(false)
+    persist(nextSnapshot, response, badges)
+  }
+
+  function loadDemo() {
+    setSnapshot(DEMO_SNAPSHOT)
+    setProfileUrl("")
+    setResponse(null)
+    setBadges(SAMPLE_BADGES)
+    setError("")
+    setManualMode(false)
+    setIsDemo(true)
+    window.localStorage.removeItem(STORAGE_KEY)
+  }
+
+  function resetCalculator() {
+    loadDemo()
+  }
+
   return (
-    <Card className="h-full overflow-hidden group hover:shadow-lg transition-all duration-300 border-slate-200 dark:border-slate-700">
-      <CardContent className="p-6">
-        <div
-          className={`w-14 h-14 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}
+    <main className="arcade-page">
+      <header className="site-header">
+        <a className="brand" href="#top" aria-label="Arcade Points home">
+          <JoystickLogo />
+          <span className="brand-name">Arcade Points</span>
+          <span className="season-pill">2026 Season</span>
+        </a>
+
+        <button
+          className="mobile-menu-button"
+          type="button"
+          aria-expanded={mobileNavOpen}
+          aria-controls="primary-navigation"
+          onClick={() => setMobileNavOpen((open) => !open)}
         >
-          {icon}
+          Menu
+        </button>
+
+        <nav id="primary-navigation" className={mobileNavOpen ? "site-nav is-open" : "site-nav"}>
+          <a className="active" href="#calculator"><Trophy />Calculator</a>
+          <a href="#badges"><BadgeCheck />Badges</a>
+          <a href="#extension"><ShieldCheck />Extension</a>
+          <a href="https://github.com/ePlus-DEV/google-cloud-skills-boost-helper" target="_blank" rel="noreferrer"><Github />GitHub</a>
+        </nav>
+      </header>
+
+      <section id="top" className="trail-stage" aria-labelledby="hero-title">
+        <div className="hero-copy">
+          <p className="eyebrow"><Sparkles /> Free, private & powered by public profile data</p>
+          <h1 id="hero-title">Know your points.<br />Plan your next badge.</h1>
+          <p className="hero-description">
+            Paste your public Google Skills profile to calculate Arcade points, inspect badges and see the fastest route to your next tier.
+          </p>
+
+          <form className="profile-form" onSubmit={analyzeProfile} noValidate>
+            <label htmlFor="profile-url">Google Skills public profile URL</label>
+            <div className={error ? "profile-input-wrap has-error" : "profile-input-wrap"}>
+              <Search aria-hidden="true" />
+              <input
+                id="profile-url"
+                type="url"
+                inputMode="url"
+                autoComplete="url"
+                placeholder="https://www.skills.google/public_profiles/..."
+                value={profileUrl}
+                onChange={(event: ChangeEvent<HTMLInputElement>) => setProfileUrl(event.target.value)}
+                aria-describedby={error ? "profile-error" : "profile-help"}
+              />
+            </div>
+            <p id="profile-help" className="field-help">Only public profile data is read. No Google sign-in is required.</p>
+            {error && <p id="profile-error" className="form-error" role="alert">{error}</p>}
+
+            <div className="hero-actions">
+              <button className="primary-button" type="submit" disabled={loading}>
+                {loading ? <LoaderCircle className="spin" /> : <BadgeCheck />}
+                {loading ? "Analyzing profile..." : "Analyze profile"}
+              </button>
+              <button className="secondary-button" type="button" onClick={loadDemo}>
+                <Gamepad2 /> Try demo
+              </button>
+              <button className="text-button" type="button" onClick={() => setManualMode((open) => !open)}>
+                {manualMode ? "Close manual entry" : "Enter points manually"}
+              </button>
+            </div>
+          </form>
+
+          {manualMode && (
+            <div className="manual-panel">
+              <div>
+                <strong>Manual entry</strong>
+                <span>Use this when the public crawler is temporarily unavailable.</span>
+              </div>
+              <label>Current points<input type="number" min="0" step="0.5" value={snapshot.currentPoints} onChange={(event: ChangeEvent<HTMLInputElement>) => updateManual("currentPoints", event.target.value)} /></label>
+              <label>Game badges<input type="number" min="0" value={snapshot.gameBadges} onChange={(event: ChangeEvent<HTMLInputElement>) => updateManual("gameBadges", event.target.value)} /></label>
+              <label>Trivia badges<input type="number" min="0" value={snapshot.triviaBadges} onChange={(event: ChangeEvent<HTMLInputElement>) => updateManual("triviaBadges", event.target.value)} /></label>
+              <label>Skill badges<input type="number" min="0" value={snapshot.skillBadges} onChange={(event: ChangeEvent<HTMLInputElement>) => updateManual("skillBadges", event.target.value)} /></label>
+              <label>Target<select value={snapshot.targetPoints} onChange={(event: ChangeEvent<HTMLSelectElement>) => updateManual("targetPoints", event.target.value)}><option value="25">25 points</option><option value="50">50 points</option><option value="75">75 points</option><option value="95">95 points</option><option value="120">120 points</option></select></label>
+            </div>
+          )}
         </div>
-        <h3 className="text-xl font-semibold mb-2">{title}</h3>
-        <p className="text-slate-600 dark:text-slate-300">{description}</p>
-      </CardContent>
-    </Card>
-  )
-}
 
-interface WhyUseCardProps {
-  icon: string
-  title: string
-  description: string
-}
+        <aside className="next-tier-card" aria-label="Next Arcade tier">
+          <span>Next tier</span>
+          <strong>{nextTier.name}</strong>
+          <b>{nextTier.points} points</b>
+          <p>{formatNumber(pointsRemaining)} points remaining</p>
+          <div className="mini-progress" aria-label={`${Math.round(completion)} percent complete`}>
+            <span style={{ width: `${completion}%` }} />
+          </div>
+        </aside>
 
-function WhyUseCard({ icon, title, description }: WhyUseCardProps) {
-  return (
-    <Card className="h-full overflow-hidden group hover:shadow-lg transition-all duration-300 border-slate-200 dark:border-slate-700">
-      <CardContent className="p-6">
-        <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">{icon}</div>
-        <h3 className="text-xl font-semibold mb-2">{title}</h3>
-        <p className="text-slate-600 dark:text-slate-300">{description}</p>
-      </CardContent>
-    </Card>
-  )
-}
-
-interface BrowserTabProps {
-  title: string
-  steps: string[]
-  manualSteps?: string[]
-  image: string
-  downloadUrl: string
-}
-
-function BrowserTab({ title, steps, manualSteps, image, downloadUrl }: BrowserTabProps) {
-  return (
-    <div className="grid md:grid-cols-2 gap-8 p-6">
-      <div>
-        <h3 className="text-xl font-semibold mb-4">{title}</h3>
-        <div className="mb-6">
-          <h4 className="font-medium mb-2">Official Installation</h4>
-          <ol className="space-y-2 ml-5 list-decimal">
-            {steps.map((step, i) => (
-              <li key={i} className="text-slate-600 dark:text-slate-300">
-                {step}
-              </li>
-            ))}
-          </ol>
+        <div className="trail-map-wrap">
+          <TrailMap snapshot={snapshot} />
         </div>
 
-        {manualSteps && (
+        <div className="trail-stats" aria-label="Arcade statistics">
+          <StatCard icon={<Trophy />} value={formatNumber(snapshot.currentPoints)} label="total points" tone="lime" />
+          <StatCard icon={<Gamepad2 />} value={String(snapshot.gameBadges + snapshot.triviaBadges)} label="game & trivia badges" tone="coral" />
+          <StatCard icon={<BookOpen />} value={String(snapshot.skillBadges)} label="skill badges" tone="mint" />
+        </div>
+
+        <div className="stage-status">
+          <span className={isDemo ? "status-dot demo" : "status-dot"} />
+          {isDemo ? "Demo preview — analyze a profile for live results" : `Showing ${snapshot.userName}'s latest saved result`}
+          {!isDemo && <button type="button" onClick={resetCalculator}><RotateCcw /> Reset</button>}
+        </div>
+      </section>
+
+      <section className="insight-strip" aria-label="Progress summary">
+        <div><small>Current tier</small><strong>{currentTier.name}</strong></div>
+        <div><small>Next goal</small><strong>{formatNumber(pointsRemaining)} points away</strong></div>
+        <div><small>Estimated work</small><strong>About {estimatedActivities} more 1-point activities</strong></div>
+        <div><small>Score confidence</small><strong>{snapshot.scoreComplete ? "All eligible badges classified" : `${snapshot.unknownBadgeCount} badge(s) need review`}</strong></div>
+      </section>
+
+      <section id="badges" className="content-section badge-section">
+        <div className="section-heading">
           <div>
-            <h4 className="font-medium mb-2">Manual Installation</h4>
-            <ol className="space-y-2 ml-5 list-decimal">
-              {manualSteps.map((step, i) => (
-                <li key={i} className="text-slate-600 dark:text-slate-300">
-                  {step}
-                </li>
-              ))}
-            </ol>
+            <p className="eyebrow"><BadgeCheck /> Badge explorer</p>
+            <h2>See exactly what built your score.</h2>
+            <p>Review game, trivia, skill and special badges returned by the ePlus Arcade crawler.</p>
           </div>
-        )}
-
-        <Button
-          asChild
-          className="mt-6 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white"
-        >
-          <Link href={downloadUrl} target="_blank" rel="noopener noreferrer">
-            Download <ExternalLink className="ml-2 h-4 w-4" />
-          </Link>
-        </Button>
-      </div>
-      <div className="relative">
-        <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl blur opacity-30"></div>
-        <div className="relative bg-white dark:bg-slate-800 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
-          <Image src={image || "/placeholder.svg"} alt={title} width={500} height={300} className="w-full h-auto" />
+          <div className="badge-filter" role="group" aria-label="Filter badges">
+            {(["all", "game", "trivia", "skill", "special"] as BadgeFilter[]).map((item) => (
+              <button key={item} type="button" className={filter === item ? "active" : ""} onClick={() => setFilter(item)}>{item}</button>
+            ))}
+          </div>
         </div>
-      </div>
-    </div>
+
+        <div className="badge-grid">
+          {filteredBadges.length > 0 ? filteredBadges.slice(0, 12).map((badge, index) => (
+            <article className="badge-card" key={`${badge.title}-${index}`}>
+              <div className="badge-art">
+                {badge.imageURL ? <img src={badge.imageURL} alt="" loading="lazy" /> : <BadgeCheck aria-hidden="true" />}
+              </div>
+              <div>
+                <span>{badge.dateEarned || "Earned badge"}</span>
+                <h3>{badge.title}</h3>
+                <p>{badge.points === "-*" ? "Bundle or special rule" : `${formatNumber(numeric(badge.points))} Arcade point${numeric(badge.points) === 1 ? "" : "s"}`}</p>
+              </div>
+              {badge.badgeURL && <a href={badge.badgeURL} target="_blank" rel="noreferrer" aria-label={`Open ${badge.title}`}><ExternalLink /></a>}
+            </article>
+          )) : (
+            <div className="empty-state"><BookOpen /><strong>No badges in this category yet.</strong><span>Analyze a profile or choose another filter.</span></div>
+          )}
+        </div>
+
+        {badges.length > 12 && <p className="badge-note">Showing the first 12 of {badges.length} returned badges to keep this page fast.</p>}
+      </section>
+
+      <section id="extension" className="extension-section">
+        <div className="extension-art" aria-hidden="true">
+          <div className="browser-window">
+            <div className="browser-bar"><i /><i /><i /><span>skills.google</span></div>
+            <div className="extension-panel">
+              <span className="extension-logo"><JoystickLogo /></span>
+              <div><small>Google Cloud Skills Boost</small><strong>Helper</strong></div>
+              <BadgeCheck />
+            </div>
+            <div className="extension-score"><span>Arcade points</span><strong>{formatNumber(snapshot.currentPoints)}</strong><small>Synced while you learn</small></div>
+          </div>
+        </div>
+
+        <div className="extension-copy">
+          <p className="eyebrow"><ShieldCheck /> The advantage other calculators do not have</p>
+          <h2>Calculate on the web. Track automatically with the extension.</h2>
+          <p>
+            The free ePlus.DEV extension brings Arcade points, multi-account snapshots, leaderboards and lab-solution search directly into Google Skills — so you do not need to keep returning to a separate calculator.
+          </p>
+          <ul>
+            <li><BadgeCheck /> Automatic Arcade point tracking on Google Skills</li>
+            <li><BadgeCheck /> Multi-account snapshots and quick switching</li>
+            <li><BadgeCheck /> Leaderboard, score tools and lab-solution search</li>
+            <li><BadgeCheck /> Open source and available in 13 languages</li>
+          </ul>
+          <ExtensionStoreLinks />
+          <a className="github-link" href="https://github.com/ePlus-DEV/google-cloud-skills-boost-helper" target="_blank" rel="noreferrer"><Github /> View source on GitHub <ExternalLink /></a>
+        </div>
+      </section>
+
+      <section className="content-section rules-section">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow"><Trophy /> Transparent scoring</p>
+            <h2>Built around the verified 2026 rules.</h2>
+            <p>The web calculator reuses the crawler and scoring engine maintained in hub.eplus.dev instead of copying totals from another calculator.</p>
+          </div>
+        </div>
+        <div className="rule-grid">
+          <article><Gamepad2 /><strong>Game & trivia</strong><span>Usually 1 point each, with official special-game overrides preserved.</span></article>
+          <article><BookOpen /><strong>Skill badges</strong><span>2 Skill Badges equal 1 Arcade point; half points remain visible.</span></article>
+          <article><ShieldCheck /><strong>No double counting</strong><span>Bundles and Facilitator estimates are handled separately and transparently.</span></article>
+          <article><Sparkles /><strong>Honest confidence</strong><span>Unknown eligible badges are shown instead of silently pretending the score is complete.</span></article>
+        </div>
+        <p className="disclaimer">Unofficial community calculator. Google remains the authority for final Arcade scores, tiers and rewards.</p>
+      </section>
+
+      <footer className="site-footer">
+        <div className="brand footer-brand"><JoystickLogo /><span><strong>Arcade Points</strong><small>by ePlus.DEV</small></span></div>
+        <p>Free and open source tools for Google Cloud learners.</p>
+        <nav><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/changelog">Changelog</a><a href="https://eplus.dev" target="_blank" rel="noreferrer">ePlus.DEV</a></nav>
+      </footer>
+    </main>
   )
 }
-
