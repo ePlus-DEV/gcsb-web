@@ -70,7 +70,7 @@ export const API_URL =
 
 export const STORAGE_KEY = "eplus-arcade-calculator-v1"
 export const PROFILE_URL_PATTERN =
-  /^https:\/\/(?:www\.)?(?:skills\.google|cloudskillsboost\.google)\/public_profiles\/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\/?$/i
+  /^https:\/\/(?:www\.)?(?:skills\.google|cloudskillsboost\.google)\/public_profiles\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/?$/i
 
 export const TIERS = [
   { points: 0, name: "Arcade Explorer" },
@@ -122,7 +122,7 @@ export function getNextTier(points: number, target: number) {
   if (officialNext) return officialNext
 
   return {
-    points: Math.max(target, Math.ceil(points / 25) * 25 + 25),
+    points: Math.max(target, Math.floor(points / 25) * 25 + 25),
     name: "Next personal goal",
   }
 }
