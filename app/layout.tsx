@@ -1,25 +1,49 @@
-import type { Metadata } from 'next'
-import { GoogleAnalytics } from '@next/third-parties/google'
+import type { Metadata } from "next"
+import { GoogleAnalytics } from "@next/third-parties/google"
 import { ThemeProvider } from "@/components/theme-provider"
-import { Inter } from "next/font/google"
-import './globals.css'
+import "./globals.css"
+import "./styles/base.css"
+import "./styles/trail.css"
+import "./styles/content.css"
+import "./styles/responsive.css"
+import "./styles/refinement.css"
 
-const inter = Inter({ subsets: ["latin"] })
+const siteUrl = "https://eplus-dev.github.io/gcsb-web/"
 
 export const metadata: Metadata = {
-  title: 'Google Cloud Skills Boost - Helper',
-  description: 'Optimize your learning experience on Google Cloud Skills Boost with our powerful browser extension. Track progress, calculate Arcade points, and manage leaderboards efficiently!',
-  generator: 'eplus.dev',
+  metadataBase: new URL(siteUrl),
+  title: "Arcade Points Calculator 2026 | ePlus.DEV",
+  description:
+    "Calculate Google Skills Arcade points from a public profile, review badges, track tier progress and install the open-source Google Cloud Skills Boost Helper extension.",
+  generator: "ePlus.DEV",
+  applicationName: "Arcade Points by ePlus.DEV",
+  keywords: [
+    "Google Skills Arcade",
+    "Arcade points calculator",
+    "Google Cloud Skills Boost",
+    "Arcade 2026",
+    "browser extension",
+  ],
+  openGraph: {
+    title: "Arcade Points Calculator 2026 | ePlus.DEV",
+    description: "Calculate points on the web and track automatically with the ePlus.DEV browser extension.",
+    type: "website",
+    url: siteUrl,
+    images: [
+      {
+        url: "head.png",
+        width: 1280,
+        height: 800,
+        alt: "Arcade Points Calculator and Google Cloud Skills Boost Helper",
+      },
+    ],
+  },
 }
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
+    <html lang="en" suppressHydrationWarning>
+      <body>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           {children}
         </ThemeProvider>

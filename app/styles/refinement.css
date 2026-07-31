@@ -1,0 +1,30 @@
+@media (min-width: 901px) {
+  .hero-copy {
+    width: min(760px, 54%);
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(3.3rem, 4.7vw, 4.45rem);
+  }
+
+  .trail-map-wrap {
+    bottom: 75px;
+  }
+
+  .trail-stats {
+    bottom: 72px;
+  }
+
+  .hero-actions .text-button {
+    flex-basis: 100%;
+    width: fit-content;
+    position: relative;
+    z-index: 12;
+    padding: 4px 0;
+    border-bottom: 0;
+    background: var(--cream);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+  }
+}
