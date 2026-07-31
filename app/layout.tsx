@@ -1,7 +1,6 @@
 import type { Metadata } from "next"
 import { GoogleAnalytics } from "@next/third-parties/google"
 import { ManualEntryStageSync } from "@/components/arcade/manual-entry-stage-sync"
-import { Option3DesktopHero } from "@/components/arcade/option3-desktop-hero"
 import { ThemeProvider } from "@/components/theme-provider"
 import "./globals.css"
 import "./styles/base.css"
@@ -50,7 +49,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <ManualEntryStageSync />
-          <Option3DesktopHero />
           {children}
         </ThemeProvider>
         <GoogleAnalytics gaId="G-41VM0C9NGM" />
