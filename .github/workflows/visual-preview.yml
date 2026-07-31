@@ -37,7 +37,7 @@ jobs:
         run: yarn build
 
       - name: Install Playwright runtime
-        run: npm install --no-save --ignore-scripts playwright@1.55.0
+        run: npm install --no-save --ignore-scripts --legacy-peer-deps playwright@1.55.0
 
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
