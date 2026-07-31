@@ -468,3 +468,33 @@
 .stage-status button svg {
   width: 14px;
 }
+
+/* Opening manual entry must expand the scene instead of covering the trail. */
+.trail-stage:has(.manual-panel) {
+  min-height: 1095px;
+}
+
+.trail-stage:has(.manual-panel) .manual-panel {
+  position: relative;
+  z-index: 11;
+}
+
+@media (max-width: 900px) {
+  .trail-stage:has(.manual-panel) {
+    min-height: 1480px;
+  }
+
+  .trail-stage:has(.manual-panel) .next-tier-card {
+    top: 760px;
+  }
+}
+
+@media (max-width: 620px) {
+  .trail-stage:has(.manual-panel) {
+    min-height: 1640px;
+  }
+
+  .trail-stage:has(.manual-panel) .next-tier-card {
+    top: 875px;
+  }
+}
