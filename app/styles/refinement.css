@@ -15,10 +15,12 @@
     bottom: 72px;
   }
 
-  .text-button {
+  .hero-actions .text-button {
+    flex-basis: 100%;
+    width: fit-content;
     position: relative;
     z-index: 12;
-    padding: 4px 8px;
+    padding: 4px 0;
     background: var(--cream);
   }
 }
