@@ -17,19 +17,24 @@ import type { ChangeEvent, FormEvent } from "react"
 import { useEffect, useMemo, useRef, useState } from "react"
 import {
   API_URL,
-  DEMO_SNAPSHOT,
+  ARCADE_MILESTONES_URL,
+  EMPTY_SNAPSHOT,
+  LEGACY_STORAGE_KEY,
+  OFFICIAL_MILESTONES,
   PROFILE_URL_PATTERN,
-  SAMPLE_BADGES,
   STORAGE_KEY,
+  clamp,
+  formatInteger,
   formatNumber,
   getNextTier,
   getTier,
   numeric,
-  clamp,
+  tierRangeLabel,
 } from "@/components/arcade/model"
 import type {
   ArcadeApiResponse,
   ArcadeBadge,
+  ArcadeMilestone,
   BadgeFilter,
   CalculatorSnapshot,
 } from "@/components/arcade/model"
@@ -95,15 +100,15 @@ function restoreSnapshot(value: unknown): CalculatorSnapshot | null {
     gameBadges: Math.max(0, numeric(candidate.gameBadges)),
     triviaBadges: Math.max(0, numeric(candidate.triviaBadges)),
     skillBadges: Math.max(0, numeric(candidate.skillBadges)),
-    targetPoints: targetPoints > 0 ? targetPoints : DEMO_SNAPSHOT.targetPoints,
+    targetPoints: targetPoints > 0 ? targetPoints : EMPTY_SNAPSHOT.targetPoints,
     userName:
-      typeof candidate.userName === "string" ? candidate.userName : DEMO_SNAPSHOT.userName,
+      typeof candidate.userName === "string" ? candidate.userName : EMPTY_SNAPSHOT.userName,
     milestone:
-      typeof candidate.milestone === "string" ? candidate.milestone : DEMO_SNAPSHOT.milestone,
+      typeof candidate.milestone === "string" ? candidate.milestone : EMPTY_SNAPSHOT.milestone,
     scoreComplete:
       typeof candidate.scoreComplete === "boolean"
         ? candidate.scoreComplete
-        : DEMO_SNAPSHOT.scoreComplete,
+        : EMPTY_SNAPSHOT.scoreComplete,
     unknownBadgeCount: Math.max(0, numeric(candidate.unknownBadgeCount)),
     updatedAt: typeof candidate.updatedAt === "string" ? candidate.updatedAt : "",
   }
@@ -111,18 +116,21 @@ function restoreSnapshot(value: unknown): CalculatorSnapshot | null {
 
 export default function ArcadeCalculatorClient() {
   const [profileUrl, setProfileUrl] = useState("")
-  const [snapshot, setSnapshot] = useState<CalculatorSnapshot>(DEMO_SNAPSHOT)
+  const [snapshot, setSnapshot] = useState<CalculatorSnapshot>(EMPTY_SNAPSHOT)
   const [response, setResponse] = useState<ArcadeApiResponse | null>(null)
-  const [badges, setBadges] = useState<ArcadeBadge[]>(SAMPLE_BADGES)
+  const [badges, setBadges] = useState<ArcadeBadge[]>([])
   const [filter, setFilter] = useState<BadgeFilter>("all")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
-  const [isDemo, setIsDemo] = useState(true)
+  const [hasResult, setHasResult] = useState(false)
+  const [milestones, setMilestones] = useState<ArcadeMilestone[]>(OFFICIAL_MILESTONES)
+  const [milestonesLive, setMilestonesLive] = useState(false)
   const [manualMode, setManualMode] = useState(false)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const headerRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
+    removeStorage(LEGACY_STORAGE_KEY)
     const stored = readStorage(STORAGE_KEY)
     if (!stored) return
 
@@ -137,7 +145,7 @@ export default function ArcadeCalculatorClient() {
       if (restoredSnapshot) {
         setSnapshot(restoredSnapshot)
         setProfileUrl(restoredSnapshot.profileUrl)
-        setIsDemo(false)
+        setHasResult(true)
       }
       if (typeof parsed.response === "object" && parsed.response !== null) {
         setResponse(parsed.response as ArcadeApiResponse)
@@ -151,7 +159,7 @@ export default function ArcadeCalculatorClient() {
   }, [])
 
   useEffect(() => {
-    if (isDemo) return
+    if (!hasResult) return
 
     const timeoutId = window.setTimeout(
       () => persistCalculatorState(snapshot, response, badges),
@@ -159,7 +167,56 @@ export default function ArcadeCalculatorClient() {
     )
 
     return () => window.clearTimeout(timeoutId)
-  }, [badges, isDemo, response, snapshot])
+  }, [badges, hasResult, response, snapshot])
+
+  useEffect(() => {
+    let active = true
+
+    async function loadMilestones() {
+      try {
+        const request = await fetch(ARCADE_MILESTONES_URL, { cache: "no-store" })
+        if (!request.ok) return
+
+        const payload: unknown = await request.json()
+        if (!Array.isArray(payload)) return
+
+        const liveMilestones = OFFICIAL_MILESTONES.map((fallback) => {
+          const candidate = payload.find(
+            (item) =>
+              typeof item === "object" &&
+              item !== null &&
+              numeric((item as { points?: unknown }).points) === fallback.points,
+          ) as Record<string, unknown> | undefined
+
+          if (!candidate) return fallback
+
+          const slots = numeric(candidate.slots)
+          const spotsLeft = numeric(candidate.spotsLeft)
+          if (slots <= 0 || spotsLeft < 0 || spotsLeft > slots) return fallback
+
+          return {
+            ...fallback,
+            league:
+              typeof candidate.league === "string" ? candidate.league : fallback.league,
+            slots,
+            spotsLeft,
+          }
+        })
+
+        if (active) {
+          setMilestones(liveMilestones)
+          setMilestonesLive(true)
+        }
+      } catch {
+        // Keep verified total slots if live crawler data is temporarily unavailable.
+      }
+    }
+
+    void loadMilestones()
+    return () => {
+      active = false
+    }
+  }, [])
 
   useEffect(() => {
     if (!mobileNavOpen) return
@@ -185,9 +242,12 @@ export default function ArcadeCalculatorClient() {
 
   const currentTier = useMemo(() => getTier(snapshot.currentPoints), [snapshot.currentPoints])
   const nextTier = useMemo(
-    () => getNextTier(snapshot.currentPoints, snapshot.targetPoints),
-    [snapshot.currentPoints, snapshot.targetPoints],
+    () => getNextTier(snapshot.currentPoints),
+    [snapshot.currentPoints],
   )
+  const nextMilestone =
+    milestones.find((milestone) => milestone.points === nextTier.points) ??
+    milestones[milestones.length - 1]
   const pointsRemaining = Math.max(0, nextTier.points - snapshot.currentPoints)
   const completion = clamp((snapshot.currentPoints / Math.max(nextTier.points, 1)) * 100, 0, 100)
   const estimatedActivities = Math.ceil(pointsRemaining)
@@ -210,14 +270,13 @@ export default function ArcadeCalculatorClient() {
     const gameBadges = (result.game ?? []).length
     const triviaBadges = (result.trivia ?? []).length
     const skillBadges = (result.skill ?? []).length
-    const officialNext = getNextTier(totalPoints, 50)
     const nextSnapshot: CalculatorSnapshot = {
       profileUrl: url,
       currentPoints: totalPoints,
       gameBadges,
       triviaBadges,
       skillBadges,
-      targetPoints: officialNext.points,
+      targetPoints: 120,
       userName: result.userDetails?.[0]?.userName || "Google Skills learner",
       milestone: result.milestone || result.beta?.tier || getTier(totalPoints).name,
       scoreComplete: result.beta?.scoreComplete ?? true,
@@ -234,7 +293,7 @@ export default function ArcadeCalculatorClient() {
     setSnapshot(nextSnapshot)
     setResponse(result)
     setBadges(nextBadges)
-    setIsDemo(false)
+    setHasResult(true)
   }
 
   async function analyzeProfile(event: FormEvent<HTMLFormElement>) {
@@ -300,18 +359,19 @@ export default function ArcadeCalculatorClient() {
     const nextSnapshot = { ...snapshot, [field]: nextValue, updatedAt: new Date().toISOString() }
 
     setSnapshot(nextSnapshot)
-    setIsDemo(false)
+    setHasResult(true)
   }
 
-  function loadDemo() {
-    setSnapshot(DEMO_SNAPSHOT)
+  function resetCalculator() {
+    setSnapshot(EMPTY_SNAPSHOT)
     setProfileUrl("")
     setResponse(null)
-    setBadges(SAMPLE_BADGES)
+    setBadges([])
     setError("")
     setManualMode(false)
-    setIsDemo(true)
+    setHasResult(false)
     removeStorage(STORAGE_KEY)
+    removeStorage(LEGACY_STORAGE_KEY)
   }
 
   const closeMobileNavigation = () => setMobileNavOpen(false)
@@ -349,7 +409,6 @@ export default function ArcadeCalculatorClient() {
             {error && <p id="profile-error" className="form-error" role="alert">{error}</p>}
             <div className="hero-actions">
               <button className="primary-button" type="submit" disabled={loading}>{loading ? <LoaderCircle className="spin" /> : <BadgeCheck />}{loading ? "Analyzing profile..." : "Analyze profile"}</button>
-              <button className="secondary-button" type="button" onClick={loadDemo}><Gamepad2 /> Try demo</button>
               <button className="text-button" type="button" onClick={() => setManualMode((open) => !open)}>{manualMode ? "Close manual entry" : "Enter points manually"}</button>
             </div>
           </form>
@@ -361,29 +420,66 @@ export default function ArcadeCalculatorClient() {
               <label>Game badges<input type="number" min="0" value={snapshot.gameBadges} onChange={(event: ChangeEvent<HTMLInputElement>) => updateManual("gameBadges", event.target.value)} /></label>
               <label>Trivia badges<input type="number" min="0" value={snapshot.triviaBadges} onChange={(event: ChangeEvent<HTMLInputElement>) => updateManual("triviaBadges", event.target.value)} /></label>
               <label>Skill badges<input type="number" min="0" value={snapshot.skillBadges} onChange={(event: ChangeEvent<HTMLInputElement>) => updateManual("skillBadges", event.target.value)} /></label>
-              <label>Target<select value={snapshot.targetPoints} onChange={(event: ChangeEvent<HTMLSelectElement>) => updateManual("targetPoints", event.target.value)}><option value="25">25 points</option><option value="50">50 points</option><option value="75">75 points</option><option value="95">95 points</option><option value="120">120 points</option></select></label>
             </div>
           )}
         </div>
 
         <aside className="next-tier-card" aria-label="Next Arcade tier">
-          <span>Next tier</span><strong>{nextTier.name}</strong><b>{nextTier.points} points</b><p>{formatNumber(pointsRemaining)} points remaining</p>
+          <span>{snapshot.currentPoints >= 120 ? "Top tier" : "Next tier"}</span>
+          <strong>{nextTier.league}</strong>
+          <b>{nextTier.points === 120 ? "120+ points" : `${nextTier.points} points`}</b>
+          <p>{pointsRemaining > 0 ? `${formatNumber(pointsRemaining)} points remaining` : "Top 2026 tier reached"}</p>
+          {nextMilestone && (
+            <p className="slot-summary">
+              {nextMilestone.spotsLeft === null
+                ? `${formatInteger(nextMilestone.slots)} total slots`
+                : `${formatInteger(nextMilestone.spotsLeft)} of ${formatInteger(nextMilestone.slots)} slots left`}
+            </p>
+          )}
           <div className="mini-progress" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(completion)} aria-label="Progress to next tier"><span style={{ width: `${completion}%` }} /></div>
         </aside>
         <div className="trail-map-wrap"><TrailMap snapshot={snapshot} /></div>
         <TrailStats snapshot={snapshot} />
         <div className="stage-status">
-          <span className={isDemo ? "status-dot demo" : "status-dot"} />
-          {isDemo ? "Demo preview — analyze a profile for live results" : `Showing ${snapshot.userName}'s latest saved result`}
-          {!isDemo && <button type="button" onClick={loadDemo}><RotateCcw /> Reset</button>}
+          <span className={hasResult ? "status-dot" : "status-dot idle"} />
+          {hasResult
+            ? `Showing ${snapshot.userName || "manual entry"}'s latest saved result`
+            : "No demo data — analyze a public profile or use manual entry"}
+          {hasResult && <button type="button" onClick={resetCalculator}><RotateCcw /> Reset</button>}
         </div>
       </section>
 
       <section className="insight-strip" aria-label="Progress summary">
-        <div><small>Current tier</small><strong>{currentTier.name}</strong></div>
-        <div><small>Next goal</small><strong>{formatNumber(pointsRemaining)} points away</strong></div>
-        <div><small>Estimated work</small><strong>About {estimatedActivities} more 1-point activities</strong></div>
-        <div><small>Score confidence</small><strong>{snapshot.scoreComplete ? "All eligible badges classified" : `${snapshot.unknownBadgeCount} badge(s) need review`}</strong></div>
+        <div><small>Current tier</small><strong>{hasResult ? currentTier.name : "Awaiting profile"}</strong></div>
+        <div><small>Next goal</small><strong>{hasResult ? `${formatNumber(pointsRemaining)} points away` : "Trooper starts at 50"}</strong></div>
+        <div><small>Estimated work</small><strong>{hasResult ? `About ${estimatedActivities} more 1-point activities` : "Analyze a profile first"}</strong></div>
+        <div><small>Score confidence</small><strong>{hasResult ? (snapshot.scoreComplete ? "All eligible badges classified" : `${snapshot.unknownBadgeCount} badge(s) need review`) : "No result loaded"}</strong></div>
+      </section>
+      <section className="content-section tier-section" aria-labelledby="tier-heading">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow"><Trophy /> Arcade 2026 tiers</p>
+            <h2 id="tier-heading">Every official milestone and prize slot.</h2>
+            <p>The point ranges and total slots are fixed for the 2026 season. Remaining slots are loaded from the automated arcade-crawler repository.</p>
+          </div>
+          <p className={milestonesLive ? "tier-data-source is-live" : "tier-data-source"}>
+            {milestonesLive ? "Live crawler data" : "Live availability unavailable"}
+          </p>
+        </div>
+        <div className="tier-grid">
+          {[...milestones].reverse().map((milestone) => (
+            <article className="tier-card" key={milestone.points}>
+              <small>{milestone.league.replace("Arcade ", "")}</small>
+              <strong>{tierRangeLabel(milestone)}</strong>
+              <span>{formatInteger(milestone.slots)} slots</span>
+              <b>
+                {milestone.spotsLeft === null
+                  ? "Remaining slots unavailable"
+                  : `${formatInteger(milestone.spotsLeft)} spots left`}
+              </b>
+            </article>
+          ))}
+        </div>
       </section>
 
       <section id="badges" className="content-section badge-section">
@@ -410,7 +506,7 @@ export default function ArcadeCalculatorClient() {
           <div className="browser-window">
             <div className="browser-bar"><i /><i /><i /><span>skills.google</span></div>
             <div className="extension-panel"><span className="extension-logo"><JoystickLogo /></span><div><small>Google Cloud Skills Boost</small><strong>Helper</strong></div><BadgeCheck /></div>
-            <div className="extension-score"><span>Arcade points</span><strong>{formatNumber(snapshot.currentPoints)}</strong><small>Synced while you learn</small></div>
+            <div className="extension-score"><span>Arcade points</span><strong>{hasResult ? formatNumber(snapshot.currentPoints) : "—"}</strong><small>Synced while you learn</small></div>
           </div>
         </div>
         <div className="extension-copy">

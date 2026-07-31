@@ -202,7 +202,7 @@
 .manual-panel {
   width: min(830px, calc(100vw - 48px));
   display: grid;
-  grid-template-columns: 1.7fr repeat(5, minmax(95px, 1fr));
+  grid-template-columns: 1.7fr repeat(4, minmax(105px, 1fr));
   gap: 10px;
   align-items: end;
   margin-top: 18px;
@@ -299,6 +299,15 @@
   margin: 11px 0 8px;
   font-size: .95rem;
   font-weight: 900;
+}
+
+
+.next-tier-card .slot-summary {
+  margin: 0 0 9px;
+  color: var(--soft-ink);
+  font-family: Arial, sans-serif;
+  font-size: .72rem;
+  font-weight: 700;
 }
 
 .mini-progress {
@@ -448,7 +457,7 @@
   background: #72d876;
 }
 
-.status-dot.demo {
+.status-dot.idle {
   background: var(--coral);
 }
 

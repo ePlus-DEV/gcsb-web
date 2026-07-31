@@ -26,16 +26,14 @@ const TRAIL_POINTS = [
 
 const CHECKPOINT_POSITIONS = [
   TRAIL_POINTS[0],
-  TRAIL_POINTS[2],
   TRAIL_POINTS[4],
+  TRAIL_POINTS[6],
+  TRAIL_POINTS[8],
   TRAIL_POINTS[9],
 ]
 
-function checkpointsFor(target: number): number[] {
-  if (target <= 50) return [0, 10, 25, 50]
-  if (target <= 75) return [0, 25, 50, 75]
-  if (target <= 95) return [0, 25, 50, 95]
-  return [0, 25, 75, target]
+function checkpointsFor(): number[] {
+  return [0, 50, 75, 95, 120]
 }
 
 function pointOnTrail(progress: number) {
@@ -91,10 +89,10 @@ function TrailCheckpoint({ x, y, label }: { x: number; y: number; label: number 
 
 export function TrailMap({ snapshot }: { snapshot: CalculatorSnapshot }) {
   const currentPoints = Number.isFinite(snapshot.currentPoints) ? snapshot.currentPoints : 0
-  const target = Number.isFinite(snapshot.targetPoints) ? Math.max(snapshot.targetPoints, 1) : 1
+  const target = 120
   const progress = clamp(currentPoints / target, 0, 1)
   const pin = pointOnTrail(progress)
-  const checkpoints = checkpointsFor(target)
+  const checkpoints = checkpointsFor()
     .slice(0, CHECKPOINT_POSITIONS.length)
     .map((label, index) => ({ label, position: CHECKPOINT_POSITIONS[index] }))
   const path = "M80 438C230 470 275 390 360 385c115-7 172 65 320-70 80-73 152 46 270-48 88-70 154-36 235-102 62-51 70-56 100-49"
