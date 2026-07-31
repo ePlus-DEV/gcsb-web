@@ -6,6 +6,7 @@ on:
       - "app/**"
       - "components/arcade/**"
       - "package.json"
+      - "yarn.lock"
       - "next.config.mjs"
       - ".github/workflows/visual-preview.yml"
   workflow_dispatch:
@@ -20,6 +21,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -28,7 +31,7 @@ jobs:
           cache: yarn
 
       - name: Install dependencies
-        run: yarn install --non-interactive
+        run: yarn install --frozen-lockfile --non-interactive
 
       - name: Build
         run: yarn build
