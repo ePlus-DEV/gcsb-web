@@ -14,4 +14,11 @@
   .trail-stats {
     bottom: 72px;
   }
+
+  .text-button {
+    position: relative;
+    z-index: 12;
+    padding: 4px 8px;
+    background: var(--cream);
+  }
 }
