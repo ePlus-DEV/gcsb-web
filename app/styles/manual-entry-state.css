@@ -1,0 +1,38 @@
+/* Explicit state hook for browsers that do not support :has(). */
+.trail-stage.is-manual-open {
+  min-height: 1095px;
+}
+
+.trail-stage.is-manual-open .hero-copy {
+  z-index: 12;
+}
+
+.trail-stage.is-manual-open .manual-panel {
+  position: relative;
+  z-index: 1;
+}
+
+/* Keep the ancestor stacking context above stats/status in supporting browsers too. */
+.trail-stage:has(.manual-panel) .hero-copy {
+  z-index: 12;
+}
+
+@media (max-width: 900px) {
+  .trail-stage.is-manual-open {
+    min-height: 1480px;
+  }
+
+  .trail-stage.is-manual-open .next-tier-card {
+    top: 760px;
+  }
+}
+
+@media (max-width: 620px) {
+  .trail-stage.is-manual-open {
+    min-height: 1640px;
+  }
+
+  .trail-stage.is-manual-open .next-tier-card {
+    top: 875px;
+  }
+}
