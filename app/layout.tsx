@@ -85,10 +85,6 @@ export const metadata: Metadata = {
     images: ["head.png"],
     creator: "@ePlusDEV",
   },
-  icons: {
-    icon: [{ url: "favicon.ico" }],
-    apple: [{ url: "apple-touch-icon.png" }],
-  },
   manifest: "manifest.webmanifest",
 }
 
