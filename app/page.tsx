@@ -1,6 +1,5 @@
 import type { Metadata } from "next"
 import FacilitatorPanel from "@/components/arcade/facilitator-panel"
-import { AppFooter, AppHeader } from "@/components/app/app-navigation"
 import SeoContent from "@/components/seo/seo-content"
 import RedesignCalculator from "./redesign-calculator"
 
@@ -17,14 +16,10 @@ export const metadata: Metadata = {
 
 export default function Page() {
   return (
-    <div className="min-h-screen bg-slate-950">
-      <AppHeader />
-      <main>
-        <RedesignCalculator />
-        <FacilitatorPanel />
-        <SeoContent />
-      </main>
-      <AppFooter />
-    </div>
+    <>
+      <RedesignCalculator />
+      <FacilitatorPanel />
+      <SeoContent />
+    </>
   )
 }
