@@ -29,7 +29,7 @@ jobs:
         if: github.event_name == 'pull_request' && github.head_ref == 'feat/arcade-dashboard-redesign'
         run: node scripts/fix-pr9-open-review-findings.mjs
 
-      - name: Restore normal CI and remove temporary patch
+      - name: Restore normal CI locally
         if: github.event_name == 'pull_request' && github.head_ref == 'feat/arcade-dashboard-redesign'
         shell: bash
         run: |
@@ -85,19 +85,21 @@ jobs:
       - name: Build static site
         run: yarn build
 
-      - name: Commit verified fixes
+      - name: Commit verified application fixes
         if: github.event_name == 'pull_request' && github.head_ref == 'feat/arcade-dashboard-redesign'
         env:
           BRANCH_NAME: ${{ github.head_ref }}
         shell: bash
         run: |
           set -euo pipefail
-          if git diff --quiet && git diff --cached --quiet; then
-            echo "No changes to commit."
+          git add app/redesign-calculator.tsx \
+            components/arcade/model.ts \
+            components/arcade/facilitator-panel.tsx
+          if git diff --cached --quiet; then
+            echo "No application changes to commit."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git commit -m "fix: resolve remaining PR review findings"
+          git commit -m "fix: resolve remaining application review findings"
           git push origin "HEAD:${BRANCH_NAME}"
