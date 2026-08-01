@@ -6,6 +6,7 @@ import "./styles/redesign-dashboard.css"
 import "./styles/redesign-results.css"
 import "./styles/redesign-components.css"
 import "./styles/redesign-responsive.css"
+import "./styles/facilitator-panel.css"
 
 const siteUrl = "https://eplus-dev.github.io/gcsb-web/"
 const googleFontsUrl =
@@ -15,20 +16,21 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: "Arcade Points Calculator 2026 | ePlus.DEV",
   description:
-    "Calculate Google Skills Arcade points from a public profile, review badges, check score eligibility and install the Google Cloud Skills Boost Helper extension for Chrome and Firefox.",
+    "Calculate Google Skills Arcade points, track Facilitator milestones, review badges and install the Google Cloud Skills Boost Helper extension for Chrome and Firefox.",
   generator: "ePlus.DEV",
   applicationName: "Arcade Points by ePlus.DEV",
   keywords: [
     "Google Skills Arcade",
     "Arcade points calculator",
     "Google Cloud Skills Boost",
+    "Arcade Facilitator",
     "Arcade 2026",
     "browser extension",
   ],
   openGraph: {
     title: "Arcade Points Calculator 2026 | ePlus.DEV",
     description:
-      "Calculate points on the web and track automatically with the Chrome or Firefox extension.",
+      "Calculate Arcade points, track Facilitator milestones and install the Chrome or Firefox extension.",
     type: "website",
     url: siteUrl,
     images: [
