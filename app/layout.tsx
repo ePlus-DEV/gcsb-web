@@ -8,6 +8,8 @@ import "./styles/redesign-components.css"
 import "./styles/redesign-responsive.css"
 
 const siteUrl = "https://eplus-dev.github.io/gcsb-web/"
+const googleFontsUrl =
+  "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Press+Start+2P&display=swap"
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -43,6 +45,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="stylesheet" href={googleFontsUrl} />
+      </head>
       <body>
         <ThemeProvider
           attribute="class"
