@@ -8,7 +8,7 @@ import "./styles/redesign-components.css"
 import "./styles/redesign-responsive.css"
 import "./styles/facilitator-panel.css"
 
-const siteUrl = "https://eplus-dev.github.io/gcsb-web/"
+const siteUrl = "https://arcade.eplus.dev/"
 const siteName = "Arcade Points by ePlus.DEV"
 const title = "Google Cloud Arcade Points Calculator & Badge Tracker 2026"
 const description =
@@ -48,9 +48,6 @@ export const metadata: Metadata = {
     "Google Cloud Arcade rewards",
     "Google Cloud Skills Boost Helper",
   ],
-  alternates: {
-    canonical: siteUrl,
-  },
   robots: {
     index: true,
     follow: true,
@@ -68,10 +65,9 @@ export const metadata: Metadata = {
     type: "website",
     siteName,
     locale: "en_US",
-    url: siteUrl,
     images: [
       {
-        url: "head.png",
+        url: "/head.png",
         width: 1280,
         height: 800,
         alt: "Google Cloud Arcade points calculator, badge tracker and Facilitator milestone dashboard",
@@ -82,10 +78,10 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title,
     description,
-    images: ["head.png"],
+    images: ["/head.png"],
     creator: "@ePlusDEV",
   },
-  manifest: "manifest.webmanifest",
+  manifest: "/manifest.webmanifest",
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
