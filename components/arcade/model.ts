@@ -80,6 +80,7 @@ export const ARCADE_MILESTONES_URL =
   process.env.NEXT_PUBLIC_ARCADE_MILESTONES_URL ??
   "https://raw.githubusercontent.com/hoangsvit/arcade-crawler/main/data/arcade_milestones.json"
 
+export const DASHBOARD_STORAGE_KEY = "eplus-arcade-dashboard-v1"
 export const STORAGE_KEY = "eplus-arcade-calculator-v2"
 export const LEGACY_STORAGE_KEY = "eplus-arcade-calculator-v1"
 export const PROFILE_URL_PATTERN =

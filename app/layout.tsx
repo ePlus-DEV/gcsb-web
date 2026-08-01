@@ -1,37 +1,36 @@
 import type { Metadata } from "next"
 import { GoogleAnalytics } from "@next/third-parties/google"
-import { ManualEntryStageSync } from "@/components/arcade/manual-entry-stage-sync"
 import { ThemeProvider } from "@/components/theme-provider"
 import "./globals.css"
-import "./styles/base.css"
-import "./styles/trail.css"
-import "./styles/content.css"
-import "./styles/responsive.css"
-import "./styles/refinement.css"
-import "./styles/manual-entry-state.css"
-import "./styles/option3-background.css"
-import "./styles/mobile-hero-redesign.css"
 import "./styles/redesign-dashboard.css"
+import "./styles/redesign-results.css"
+import "./styles/redesign-components.css"
+import "./styles/redesign-responsive.css"
+import "./styles/facilitator-panel.css"
 
 const siteUrl = "https://eplus-dev.github.io/gcsb-web/"
+const googleFontsUrl =
+  "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Press+Start+2P&display=swap"
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: "Arcade Points Calculator 2026 | ePlus.DEV",
   description:
-    "Calculate Google Skills Arcade points from a public profile, review badges, track tier progress and install the open-source Google Cloud Skills Boost Helper extension.",
+    "Calculate Google Skills Arcade points, track Facilitator milestones, review badges and install the Google Cloud Skills Boost Helper extension for Chrome and Firefox.",
   generator: "ePlus.DEV",
   applicationName: "Arcade Points by ePlus.DEV",
   keywords: [
     "Google Skills Arcade",
     "Arcade points calculator",
     "Google Cloud Skills Boost",
+    "Arcade Facilitator",
     "Arcade 2026",
     "browser extension",
   ],
   openGraph: {
     title: "Arcade Points Calculator 2026 | ePlus.DEV",
-    description: "Calculate points on the web and track automatically with the ePlus.DEV browser extension.",
+    description:
+      "Calculate Arcade points, track Facilitator milestones and install the Chrome or Firefox extension.",
     type: "website",
     url: siteUrl,
     images: [
@@ -48,9 +47,19 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="stylesheet" href={googleFontsUrl} />
+      </head>
       <body>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <ManualEntryStageSync />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          forcedTheme="dark"
+          enableSystem={false}
+          disableTransitionOnChange
+        >
           {children}
         </ThemeProvider>
         <GoogleAnalytics gaId="G-41VM0C9NGM" />
