@@ -1,11 +1,10 @@
 import Link from "next/link"
 import type { ReactNode } from "react"
 import { ArrowLeft, Chrome, Gamepad2, Globe2, Sparkles } from "lucide-react"
-
-const CHROME_EXTENSION_URL =
-  "https://chromewebstore.google.com/detail/google-cloud-skills-boost/lmbhjioadhcoebhgapaidogodllonbgg"
-const FIREFOX_EXTENSION_URL =
-  "https://addons.mozilla.org/addon/cloud-skills-boost-helper"
+import {
+  CHROME_EXTENSION_URL,
+  FIREFOX_EXTENSION_URL,
+} from "@/lib/extension-store-urls"
 
 export default function InternalPageShell({
   eyebrow,
@@ -91,7 +90,7 @@ export default function InternalPageShell({
       <footer className="border-t border-white/10">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-8 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <p>© {new Date().getFullYear()} ePlus.DEV. Independent community project.</p>
-          <div className="flex flex-wrap gap-4">
+          <div className="flex gap-4">
             <Link href="/" className="hover:text-white">Calculator</Link>
             <Link href="/about/" className="hover:text-white">About</Link>
             <Link href="/guide/" className="hover:text-white">Guide</Link>
