@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: "Arcade Points Calculator 2026 | ePlus.DEV",
   description:
-    "Calculate Google Skills Arcade points from a public profile, review badges, check score eligibility and install the Google Cloud Skills Boost Helper extension for Chrome or Firefox.",
+    "Calculate Google Skills Arcade points from a public profile, review badges, check score eligibility and install the Google Cloud Skills Boost Helper extension for Chrome and Firefox.",
   generator: "ePlus.DEV",
   applicationName: "Arcade Points by ePlus.DEV",
   keywords: [
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Arcade Points Calculator 2026 | ePlus.DEV",
     description:
-      "Calculate points on the web and track automatically with the ePlus.DEV browser extension.",
+      "Calculate points on the web and track automatically with the Chrome or Firefox extension.",
     type: "website",
     url: siteUrl,
     images: [
