@@ -33,6 +33,8 @@ export default function InternalPageShell({
 
         <nav className="arcade-nav" aria-label="Main navigation">
           <Link href="/">Calculator</Link>
+          <Link href="/about/">About</Link>
+          <Link href="/guide/">Guide</Link>
           <Link href="/privacy/">Privacy</Link>
           <Link href="/terms/">Terms</Link>
         </nav>
@@ -89,8 +91,10 @@ export default function InternalPageShell({
       <footer className="border-t border-white/10">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-8 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <p>© {new Date().getFullYear()} ePlus.DEV. Independent community project.</p>
-          <div className="flex gap-4">
+          <div className="flex flex-wrap gap-4">
             <Link href="/" className="hover:text-white">Calculator</Link>
+            <Link href="/about/" className="hover:text-white">About</Link>
+            <Link href="/guide/" className="hover:text-white">Guide</Link>
             <Link href="/privacy/" className="hover:text-white">Privacy</Link>
             <Link href="/terms/" className="hover:text-white">Terms</Link>
           </div>
