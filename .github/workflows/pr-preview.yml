@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     environment:
-      name: github-pages
+      name: pr-preview
       url: ${{ steps.deployment.outputs.page_url }}pr-preview/pr-${{ github.event.number }}/
 
     steps:
@@ -53,9 +53,7 @@ jobs:
         with:
           node-version: "20"
           cache: yarn
-          cache-dependency-path: |
-            production-source/yarn.lock
-            preview-source/yarn.lock
+          cache-dependency-path: production-source/yarn.lock
 
       - name: Build current production version
         working-directory: production-source
