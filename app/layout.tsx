@@ -3,6 +3,9 @@ import { GoogleAnalytics } from "@next/third-parties/google"
 import { ThemeProvider } from "@/components/theme-provider"
 import "./globals.css"
 import "./styles/redesign-dashboard.css"
+import "./styles/redesign-results.css"
+import "./styles/redesign-components.css"
+import "./styles/redesign-responsive.css"
 
 const siteUrl = "https://eplus-dev.github.io/gcsb-web/"
 
