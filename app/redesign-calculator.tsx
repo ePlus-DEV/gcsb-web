@@ -21,6 +21,7 @@ import type { FormEvent, ReactNode } from "react"
 import { useEffect, useMemo, useRef, useState } from "react"
 import {
   API_URL,
+  ARCADE_MILESTONES_URL,
   OFFICIAL_MILESTONES,
   PROFILE_URL_PATTERN,
   formatInteger,
@@ -39,6 +40,7 @@ import type {
 const EXTENSION_URL =
   "https://chromewebstore.google.com/detail/google-cloud-skills-boost/lmbhjioadhcoebhgapaidogodllonbgg"
 const GITHUB_URL = "https://github.com/ePlus-DEV/google-cloud-skills-boost-helper"
+const ARCADE_CRAWLER_URL = "https://github.com/hoangsvit/arcade-crawler"
 const STORAGE_KEY = "eplus-arcade-dashboard-v1"
 const BADGE_PREVIEW_LIMIT = 8
 
@@ -50,8 +52,11 @@ const FILTERS: Array<{ value: BadgeFilter; label: string }> = [
   { value: "special", label: "Special" },
 ]
 
-function getQualifiedMilestone(points: number): ArcadeMilestone | null {
-  return [...OFFICIAL_MILESTONES].reverse().find((tier) => points >= tier.points) ?? null
+function getQualifiedMilestone(
+  points: number,
+  milestones: ArcadeMilestone[],
+): ArcadeMilestone | null {
+  return [...milestones].reverse().find((tier) => points >= tier.points) ?? null
 }
 
 function safeDateLabel(value?: string): string {
@@ -168,6 +173,8 @@ export default function RedesignCalculator() {
   const [filter, setFilter] = useState<BadgeFilter>("all")
   const [showAllBadges, setShowAllBadges] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [milestones, setMilestones] = useState<ArcadeMilestone[]>(OFFICIAL_MILESTONES)
+  const [milestonesLive, setMilestonesLive] = useState(false)
   const abortControllerRef = useRef<AbortController | null>(null)
 
   useEffect(() => {
@@ -191,6 +198,69 @@ export default function RedesignCalculator() {
       // Storage is optional. The calculator still works without persistence.
     }
   }, [committedProfileUrl, result])
+
+  useEffect(() => {
+    let active = true
+    const controller = new AbortController()
+    const timeout = window.setTimeout(() => controller.abort(), 15_000)
+
+    async function loadLiveMilestones() {
+      try {
+        const response = await fetch(ARCADE_MILESTONES_URL, {
+          cache: "no-store",
+          signal: controller.signal,
+        })
+        if (!response.ok) return
+
+        const payload: unknown = await response.json()
+        if (!Array.isArray(payload)) return
+
+        const liveMilestones = OFFICIAL_MILESTONES.map((fallback) => {
+          const candidate = payload.find(
+            (item) =>
+              typeof item === "object" &&
+              item !== null &&
+              numeric((item as { points?: unknown }).points) === fallback.points,
+          ) as Record<string, unknown> | undefined
+
+          if (!candidate) return fallback
+
+          const slots = numeric(candidate.slots)
+          const spotsLeft = numeric(candidate.spotsLeft)
+          if (slots <= 0 || spotsLeft < 0 || spotsLeft > slots) return fallback
+
+          return {
+            ...fallback,
+            league:
+              typeof candidate.league === "string"
+                ? candidate.league
+                : fallback.league,
+            slots,
+            spotsLeft,
+          }
+        })
+
+        if (active) {
+          setMilestones(liveMilestones)
+          setMilestonesLive(
+            liveMilestones.every((milestone) => milestone.spotsLeft !== null),
+          )
+        }
+      } catch {
+        // Keep the verified tier thresholds and total-slot fallback.
+      } finally {
+        window.clearTimeout(timeout)
+      }
+    }
+
+    void loadLiveMilestones()
+
+    return () => {
+      active = false
+      window.clearTimeout(timeout)
+      controller.abort()
+    }
+  }, [])
 
   const badges = useMemo<ArcadeBadge[]>(
     () =>
@@ -228,7 +298,7 @@ export default function RedesignCalculator() {
   const profileName = profile?.userName || "Google Skills learner"
   const profileImage = profile?.profileImage
   const memberSince = profile?.memberSince
-  const qualifiedMilestone = getQualifiedMilestone(points)
+  const qualifiedMilestone = getQualifiedMilestone(points, milestones)
   const currentTier = getTier(points)
   const minimumTierPoints = OFFICIAL_MILESTONES[0]?.points ?? 50
   const scoreComplete = result?.beta?.scoreComplete ?? true
@@ -266,11 +336,10 @@ export default function RedesignCalculator() {
   const recentBadges = badges.filter((badge) => badge.dateEarned).slice(0, 4)
 
   const nextMilestone =
-    OFFICIAL_MILESTONES.find((tier) => points < tier.points) ??
-    OFFICIAL_MILESTONES[OFFICIAL_MILESTONES.length - 1]
+    milestones.find((tier) => points < tier.points) ??
+    milestones[milestones.length - 1]
   const pointsToNextTier = Math.max(0, nextMilestone.points - points)
-  const maxTierPoints =
-    OFFICIAL_MILESTONES[OFFICIAL_MILESTONES.length - 1]?.points ?? 0
+  const maxTierPoints = milestones[milestones.length - 1]?.points ?? 0
   const hasReachedMaxTier = maxTierPoints > 0 && points >= maxTierPoints
 
   async function analyzeProfile(event: FormEvent<HTMLFormElement>) {
@@ -500,9 +569,9 @@ export default function RedesignCalculator() {
 
             <article className="dashboard-panel tier-status-panel">
               <div className="panel-title-row">
-                <PanelTitle>Tier status · Arcade 2026</PanelTitle>
+                <PanelTitle>Point eligibility · Arcade 2026</PanelTitle>
                 <span className={isTierQualified ? "score-state is-qualified" : "score-state"}>
-                  {isTierQualified ? "Score qualified" : "Score not qualified"}
+                  {isTierQualified ? "Eligible by points" : "Not yet eligible"}
                 </span>
               </div>
               <div className="tier-status-main">
@@ -512,12 +581,28 @@ export default function RedesignCalculator() {
                   <span>{qualifiedMilestone ? tierRangeLabel(qualifiedMilestone) : `${pointsToNextTier} points to Trooper`}</span>
                 </div>
               </div>
+              {qualifiedMilestone && (
+                <div className="tier-availability-grid" aria-label="Tier slot availability">
+                  <div>
+                    <span>Total tier capacity</span>
+                    <strong>{formatInteger(qualifiedMilestone.slots)}</strong>
+                  </div>
+                  <div>
+                    <span>Spots currently left</span>
+                    <strong>
+                      {qualifiedMilestone.spotsLeft === null
+                        ? "Unavailable"
+                        : formatInteger(qualifiedMilestone.spotsLeft)}
+                    </strong>
+                  </div>
+                </div>
+              )}
               <dl className="allocation-row">
-                <dt>Allocation status</dt>
-                <dd>Unknown <CircleHelp /></dd>
+                <dt>Your queue position</dt>
+                <dd>Not available <CircleHelp /></dd>
               </dl>
               <p className="allocation-message">
-                Google does not publicly expose your allocation order. This result confirms score eligibility only.
+                Point eligibility and remaining spots are different. The slot count comes from the automated arcade-crawler, but Google does not expose whether your profile is ahead of other eligible users.
               </p>
             </article>
           </div>
@@ -593,22 +678,39 @@ export default function RedesignCalculator() {
             <aside id="tiers" className="dashboard-panel tier-list-panel">
               <div className="panel-title-row">
                 <PanelTitle>Arcade 2026 tiers</PanelTitle>
-                <span className="tier-help">Score only</span>
+                <span className={milestonesLive ? "tier-help is-live" : "tier-help"}>
+                  {milestonesLive ? "Live slot data" : "Total slots only"}
+                </span>
               </div>
               <div className="tier-list">
-                {[...OFFICIAL_MILESTONES].reverse().map((tier) => {
+                {[...milestones].reverse().map((tier) => {
                   const active = qualifiedMilestone?.points === tier.points
                   return (
                     <div className={`tier-list-row tier-${tier.points}${active ? " is-current" : ""}`} key={tier.points}>
                       <span className="tier-list-icon"><Trophy /></span>
                       <div><strong>{tier.league.replace("Arcade ", "")}</strong><span>{tierRangeLabel(tier)}</span></div>
-                      <b>{formatInteger(tier.slots)}<small> slots</small></b>
+                      <div className="tier-slot-count">
+                        <b>
+                          {tier.spotsLeft === null
+                            ? "—"
+                            : formatInteger(tier.spotsLeft)}
+                        </b>
+                        <small>
+                          {tier.spotsLeft === null
+                            ? formatInteger(tier.slots) + " total slots"
+                            : "left of " + formatInteger(tier.slots)}
+                        </small>
+                      </div>
                     </div>
                   )
                 })}
               </div>
               <p className="tier-note">
-                Slot limits are official totals. First-come allocation order is not public, so the site never claims a guaranteed reward.
+                Total and remaining spots are loaded from{" "}
+                <a href={ARCADE_CRAWLER_URL} target="_blank" rel="noreferrer noopener">
+                  arcade-crawler
+                </a>{" "}
+                dataset, which is refreshed every 6 hours. Your personal queue position is not included in that data.
               </p>
             </aside>
           </div>
@@ -683,11 +785,18 @@ export default function RedesignCalculator() {
             <p>Paste a public profile URL above to load real points, score eligibility and earned badges.</p>
           </div>
           <div className="empty-tier-grid">
-            {[...OFFICIAL_MILESTONES].reverse().map((tier) => (
+            {[...milestones].reverse().map((tier) => (
               <article key={tier.points}>
                 <Trophy />
                 <div><strong>{tier.league.replace("Arcade ", "")}</strong><span>{tierRangeLabel(tier)}</span></div>
-                <b>{formatInteger(tier.slots)} slots</b>
+                <b>
+                  {tier.spotsLeft === null
+                    ? formatInteger(tier.slots) + " total slots"
+                    : formatInteger(tier.spotsLeft) +
+                      " / " +
+                      formatInteger(tier.slots) +
+                      " left"}
+                </b>
               </article>
             ))}
           </div>
