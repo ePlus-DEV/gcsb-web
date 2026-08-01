@@ -1,0 +1,363 @@
+from pathlib import Path
+
+
+def replace_once(text: str, old: str, new: str, label: str) -> str:
+    count = text.count(old)
+    if count != 1:
+        raise SystemExit(f"{label}: expected exactly one match, found {count}")
+    return text.replace(old, new, 1)
+
+
+calculator_path = Path("app/redesign-calculator.tsx")
+calculator = calculator_path.read_text()
+
+calculator = replace_once(
+    calculator,
+    'import { useEffect, useMemo, useState } from "react"',
+    'import { useEffect, useMemo, useRef, useState } from "react"',
+    "React useRef import",
+)
+
+calculator = replace_once(
+    calculator,
+    '''}
+
+function readStoredResult(): { profileUrl: string; result: ArcadeApiResponse } | null {''',
+    '''}
+
+function safeHttpsUrl(value?: string): string | null {
+  if (!value) return null
+
+  try {
+    const url = new URL(value)
+    return url.protocol === "https:" ? url.toString() : null
+  } catch {
+    return null
+  }
+}
+
+function SafeRemoteImage({
+  src,
+  alt,
+  fallback,
+  loading,
+}: {
+  src?: string
+  alt: string
+  fallback: ReactNode
+  loading?: "eager" | "lazy"
+}) {
+  const safeSrc = safeHttpsUrl(src)
+  const [failed, setFailed] = useState(false)
+
+  useEffect(() => {
+    setFailed(false)
+  }, [safeSrc])
+
+  if (!safeSrc || failed) return <>{fallback}</>
+
+  return (
+    <img
+      src={safeSrc}
+      alt={alt}
+      loading={loading}
+      onError={() => setFailed(true)}
+    />
+  )
+}
+
+function SafeExternalLink({
+  href,
+  ariaLabel,
+  children,
+}: {
+  href?: string
+  ariaLabel: string
+  children: ReactNode
+}) {
+  const safeHref = safeHttpsUrl(href)
+  if (!safeHref) return null
+
+  return (
+    <a
+      href={safeHref}
+      target="_blank"
+      rel="noreferrer noopener"
+      aria-label={ariaLabel}
+    >
+      {children}
+    </a>
+  )
+}
+
+function readStoredResult(): { profileUrl: string; result: ArcadeApiResponse } | null {''',
+    "safe remote URL helpers",
+)
+
+calculator = replace_once(
+    calculator,
+    '''  const [profileUrl, setProfileUrl] = useState("")
+  const [result, setResult] = useState<ArcadeApiResponse | null>(null)''',
+    '''  const [profileUrl, setProfileUrl] = useState("")
+  const [committedProfileUrl, setCommittedProfileUrl] = useState("")
+  const [result, setResult] = useState<ArcadeApiResponse | null>(null)''',
+    "committed profile URL state",
+)
+
+calculator = replace_once(
+    calculator,
+    '''  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  useEffect(() => {''',
+    '''  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const abortControllerRef = useRef<AbortController | null>(null)
+
+  useEffect(() => {''',
+    "abort controller ref",
+)
+
+calculator = replace_once(
+    calculator,
+    '''    setProfileUrl(stored.profileUrl)
+    setResult(stored.result)''',
+    '''    setProfileUrl(stored.profileUrl)
+    setCommittedProfileUrl(stored.profileUrl)
+    setResult(stored.result)''',
+    "restore committed URL",
+)
+
+calculator = replace_once(
+    calculator,
+    '''      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ profileUrl, result }))''',
+    '''      window.localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({ profileUrl: committedProfileUrl, result }),
+      )''',
+    "persist committed URL",
+)
+
+calculator = replace_once(
+    calculator,
+    '''  }, [profileUrl, result])''',
+    '''  }, [committedProfileUrl, result])''',
+    "persistence dependencies",
+)
+
+calculator = replace_once(
+    calculator,
+    '''  const pointsToNextTier = Math.max(0, nextMilestone.points - points)
+
+  async function analyzeProfile''',
+    '''  const pointsToNextTier = Math.max(0, nextMilestone.points - points)
+  const maxTierPoints =
+    OFFICIAL_MILESTONES[OFFICIAL_MILESTONES.length - 1]?.points ?? 0
+  const hasReachedMaxTier = maxTierPoints > 0 && points >= maxTierPoints
+
+  async function analyzeProfile''',
+    "derived maximum tier",
+)
+
+calculator = replace_once(
+    calculator,
+    '''    setLoading(true)
+    setError("")
+    const controller = new AbortController()
+    const timeout = window.setTimeout(() => controller.abort(), 20_000)''',
+    '''    setLoading(true)
+    setError("")
+    abortControllerRef.current?.abort()
+    const controller = new AbortController()
+    abortControllerRef.current = controller
+    const timeout = window.setTimeout(() => controller.abort(), 20_000)''',
+    "track active request",
+)
+
+calculator = replace_once(
+    calculator,
+    '''      setResult(payload)
+      setFilter("all")''',
+    '''      setProfileUrl(normalized)
+      setCommittedProfileUrl(normalized)
+      setResult(payload)
+      setFilter("all")''',
+    "commit successful profile URL",
+)
+
+calculator = replace_once(
+    calculator,
+    '''    } catch (caught) {
+      setError(
+        caught instanceof DOMException && caught.name === "AbortError"
+          ? "The request timed out after 20 seconds."
+          : caught instanceof Error
+            ? caught.message
+            : "The profile could not be analyzed.",
+      )
+    } finally {
+      window.clearTimeout(timeout)
+      setLoading(false)
+    }''',
+    '''    } catch (caught) {
+      if (abortControllerRef.current !== controller) return
+
+      setError(
+        caught instanceof DOMException && caught.name === "AbortError"
+          ? "The request timed out after 20 seconds."
+          : caught instanceof Error
+            ? caught.message
+            : "The profile could not be analyzed.",
+      )
+    } finally {
+      window.clearTimeout(timeout)
+      if (abortControllerRef.current === controller) {
+        abortControllerRef.current = null
+        setLoading(false)
+      }
+    }''',
+    "abort-safe request cleanup",
+)
+
+calculator = replace_once(
+    calculator,
+    '''  function resetResult() {
+    setProfileUrl("")
+    setResult(null)''',
+    '''  function resetResult() {
+    const controller = abortControllerRef.current
+    abortControllerRef.current = null
+    controller?.abort()
+
+    setLoading(false)
+    setProfileUrl("")
+    setCommittedProfileUrl("")
+    setResult(null)''',
+    "cancel request on reset",
+)
+
+calculator = replace_once(
+    calculator,
+    '''                  {profileImage ? (
+                    <img src={profileImage} alt={`${profileName} profile`} />
+                  ) : (
+                    <span>{profileName.slice(0, 1).toUpperCase()}</span>
+                  )}''',
+    '''                  <SafeRemoteImage
+                    src={profileImage}
+                    alt={`${profileName} profile`}
+                    fallback={<span>{profileName.slice(0, 1).toUpperCase()}</span>}
+                  />''',
+    "profile image fallback",
+)
+
+calculator = replace_once(
+    calculator,
+    '''                        {badge.imageURL ? (
+                          <img src={badge.imageURL} alt="" loading="lazy" />
+                        ) : (
+                          <BadgeCheck />
+                        )}''',
+    '''                        <SafeRemoteImage
+                          src={badge.imageURL}
+                          alt=""
+                          loading="lazy"
+                          fallback={<BadgeCheck />}
+                        />''',
+    "badge image fallback",
+)
+
+calculator = replace_once(
+    calculator,
+    '''                      {badge.badgeURL && (
+                        <a href={badge.badgeURL} target="_blank" rel="noreferrer" aria-label={`Open ${badge.title}`}>
+                          <ExternalLink />
+                        </a>
+                      )}''',
+    '''                      <SafeExternalLink
+                        href={badge.badgeURL}
+                        ariaLabel={`Open ${badge.title}`}
+                      >
+                        <ExternalLink />
+                      </SafeExternalLink>''',
+    "safe badge link",
+)
+
+calculator = replace_once(
+    calculator,
+    '''                      <span className="compact-icon">{badge.imageURL ? <img src={badge.imageURL} alt="" /> : <BadgeCheck />}</span>''',
+    '''                      <span className="compact-icon">
+                        <SafeRemoteImage
+                          src={badge.imageURL}
+                          alt=""
+                          loading="lazy"
+                          fallback={<BadgeCheck />}
+                        />
+                      </span>''',
+    "recent badge image fallback",
+)
+
+calculator = replace_once(
+    calculator,
+    '''                <strong>{points >= 120 ? "MAX" : formatNumber(pointsToNextTier)}</strong>
+                <span>{points >= 120 ? "Top score tier reached" : "more points needed"}</span>''',
+    '''                <strong>{hasReachedMaxTier ? "MAX" : formatNumber(pointsToNextTier)}</strong>
+                <span>{hasReachedMaxTier ? "Top score tier reached" : "more points needed"}</span>''',
+    "remove hard-coded max tier",
+)
+
+calculator = replace_once(
+    calculator,
+    '''              <div className="goal-progress" role="progressbar" aria-valuemin={0} aria-valuemax={nextMilestone.points} aria-valuenow={Math.min(points, nextMilestone.points)}>
+                <span style={{ width: `${Math.min(100, (points / Math.max(nextMilestone.points, 1)) * 100)}%` }} />
+              </div>''',
+    '''              <div
+                className="goal-progress"
+                role="progressbar"
+                aria-label={`Progress toward ${nextMilestone.league}`}
+                aria-valuemin={0}
+                aria-valuemax={nextMilestone.points}
+                aria-valuenow={Math.min(points, nextMilestone.points)}
+              >
+                <span style={{ width: `${Math.min(100, (points / Math.max(nextMilestone.points, 1)) * 100)}%` }} />
+              </div>''',
+    "accessible goal progress",
+)
+
+calculator_path.write_text(calculator)
+
+layout_path = Path("app/layout.tsx")
+layout = layout_path.read_text()
+layout = replace_once(
+    layout,
+    '''<ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>''',
+    '''<ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          forcedTheme="dark"
+          enableSystem={false}
+          disableTransitionOnChange
+        >''',
+    "force dark theme",
+)
+layout_path.write_text(layout)
+
+css_path = Path("app/styles/redesign-dashboard.css")
+css = css_path.read_text()
+css = replace_once(
+    css,
+    '@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Press+Start+2P&display=swap");',
+    '@import "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Press+Start+2P&display=swap";',
+    "CSS import notation",
+)
+css = replace_once(
+    css,
+    'font-family:"Inter",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
+    'font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
+    "CSS Inter quoting",
+)
+css = replace_once(
+    css,
+    '.arcade-dashboard-page{position:relative;min-height:100vh;overflow:hidden;',
+    '.arcade-dashboard-page{position:relative;min-height:100vh;overflow-x:clip;',
+    "sticky header overflow",
+)
+css_path.write_text(css)
