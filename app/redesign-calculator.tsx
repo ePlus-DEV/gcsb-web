@@ -18,7 +18,7 @@ import {
   X,
 } from "lucide-react"
 import type { FormEvent, ReactNode } from "react"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import {
   API_URL,
   OFFICIAL_MILESTONES,
@@ -67,6 +67,71 @@ function safeDateLabel(value?: string): string {
   }).format(parsed)
 }
 
+function safeHttpsUrl(value?: string): string | null {
+  if (!value) return null
+
+  try {
+    const url = new URL(value)
+    return url.protocol === "https:" ? url.toString() : null
+  } catch {
+    return null
+  }
+}
+
+function SafeRemoteImage({
+  src,
+  alt,
+  fallback,
+  loading,
+}: {
+  src?: string
+  alt: string
+  fallback: ReactNode
+  loading?: "eager" | "lazy"
+}) {
+  const safeSrc = safeHttpsUrl(src)
+  const [failed, setFailed] = useState(false)
+
+  useEffect(() => {
+    setFailed(false)
+  }, [safeSrc])
+
+  if (!safeSrc || failed) return <>{fallback}</>
+
+  return (
+    <img
+      src={safeSrc}
+      alt={alt}
+      loading={loading}
+      onError={() => setFailed(true)}
+    />
+  )
+}
+
+function SafeExternalLink({
+  href,
+  ariaLabel,
+  children,
+}: {
+  href?: string
+  ariaLabel: string
+  children: ReactNode
+}) {
+  const safeHref = safeHttpsUrl(href)
+  if (!safeHref) return null
+
+  return (
+    <a
+      href={safeHref}
+      target="_blank"
+      rel="noreferrer noopener"
+      aria-label={ariaLabel}
+    >
+      {children}
+    </a>
+  )
+}
+
 function readStoredResult(): { profileUrl: string; result: ArcadeApiResponse } | null {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY)
@@ -96,18 +161,21 @@ function readStoredResult(): { profileUrl: string; result: ArcadeApiResponse } |
 
 export default function RedesignCalculator() {
   const [profileUrl, setProfileUrl] = useState("")
+  const [committedProfileUrl, setCommittedProfileUrl] = useState("")
   const [result, setResult] = useState<ArcadeApiResponse | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [filter, setFilter] = useState<BadgeFilter>("all")
   const [showAllBadges, setShowAllBadges] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const abortControllerRef = useRef<AbortController | null>(null)
 
   useEffect(() => {
     const stored = readStoredResult()
     if (!stored) return
 
     setProfileUrl(stored.profileUrl)
+    setCommittedProfileUrl(stored.profileUrl)
     setResult(stored.result)
   }, [])
 
@@ -115,11 +183,14 @@ export default function RedesignCalculator() {
     if (!result) return
 
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ profileUrl, result }))
+      window.localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({ profileUrl: committedProfileUrl, result }),
+      )
     } catch {
       // Storage is optional. The calculator still works without persistence.
     }
-  }, [profileUrl, result])
+  }, [committedProfileUrl, result])
 
   const badges = useMemo<ArcadeBadge[]>(
     () =>
@@ -198,6 +269,9 @@ export default function RedesignCalculator() {
     OFFICIAL_MILESTONES.find((tier) => points < tier.points) ??
     OFFICIAL_MILESTONES[OFFICIAL_MILESTONES.length - 1]
   const pointsToNextTier = Math.max(0, nextMilestone.points - points)
+  const maxTierPoints =
+    OFFICIAL_MILESTONES[OFFICIAL_MILESTONES.length - 1]?.points ?? 0
+  const hasReachedMaxTier = maxTierPoints > 0 && points >= maxTierPoints
 
   async function analyzeProfile(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -212,7 +286,9 @@ export default function RedesignCalculator() {
 
     setLoading(true)
     setError("")
+    abortControllerRef.current?.abort()
     const controller = new AbortController()
+    abortControllerRef.current = controller
     const timeout = window.setTimeout(() => controller.abort(), 20_000)
 
     try {
@@ -236,10 +312,14 @@ export default function RedesignCalculator() {
         )
       }
 
+      setProfileUrl(normalized)
+      setCommittedProfileUrl(normalized)
       setResult(payload)
       setFilter("all")
       setShowAllBadges(false)
     } catch (caught) {
+      if (abortControllerRef.current !== controller) return
+
       setError(
         caught instanceof DOMException && caught.name === "AbortError"
           ? "The request timed out after 20 seconds."
@@ -249,12 +329,21 @@ export default function RedesignCalculator() {
       )
     } finally {
       window.clearTimeout(timeout)
-      setLoading(false)
+      if (abortControllerRef.current === controller) {
+        abortControllerRef.current = null
+        setLoading(false)
+      }
     }
   }
 
   function resetResult() {
+    const controller = abortControllerRef.current
+    abortControllerRef.current = null
+    controller?.abort()
+
+    setLoading(false)
     setProfileUrl("")
+    setCommittedProfileUrl("")
     setResult(null)
     setError("")
     setFilter("all")
@@ -369,11 +458,11 @@ export default function RedesignCalculator() {
               <PanelTitle>Profile summary</PanelTitle>
               <div className="profile-overview">
                 <div className="profile-photo">
-                  {profileImage ? (
-                    <img src={profileImage} alt={`${profileName} profile`} />
-                  ) : (
-                    <span>{profileName.slice(0, 1).toUpperCase()}</span>
-                  )}
+                  <SafeRemoteImage
+                    src={profileImage}
+                    alt={`${profileName} profile`}
+                    fallback={<span>{profileName.slice(0, 1).toUpperCase()}</span>}
+                  />
                 </div>
                 <div className="profile-name-block">
                   <h2>{profileName}<BadgeCheck /></h2>
@@ -463,11 +552,12 @@ export default function RedesignCalculator() {
                   {displayedBadges.map((badge, index) => (
                     <article className="earned-badge" key={`${badge.title}-${index}`}>
                       <div className="earned-badge-art">
-                        {badge.imageURL ? (
-                          <img src={badge.imageURL} alt="" loading="lazy" />
-                        ) : (
-                          <BadgeCheck />
-                        )}
+                        <SafeRemoteImage
+                          src={badge.imageURL}
+                          alt=""
+                          loading="lazy"
+                          fallback={<BadgeCheck />}
+                        />
                       </div>
                       <h3>{badge.title}</h3>
                       <p>
@@ -476,11 +566,12 @@ export default function RedesignCalculator() {
                           : `+${formatNumber(numeric(badge.points))} pts`}
                       </p>
                       <time>{safeDateLabel(badge.dateEarned)}</time>
-                      {badge.badgeURL && (
-                        <a href={badge.badgeURL} target="_blank" rel="noreferrer" aria-label={`Open ${badge.title}`}>
-                          <ExternalLink />
-                        </a>
-                      )}
+                      <SafeExternalLink
+                        href={badge.badgeURL}
+                        ariaLabel={`Open ${badge.title}`}
+                      >
+                        <ExternalLink />
+                      </SafeExternalLink>
                     </article>
                   ))}
                 </div>
@@ -529,7 +620,14 @@ export default function RedesignCalculator() {
                 <div className="compact-list">
                   {recentBadges.map((badge, index) => (
                     <div key={`${badge.title}-recent-${index}`}>
-                      <span className="compact-icon">{badge.imageURL ? <img src={badge.imageURL} alt="" /> : <BadgeCheck />}</span>
+                      <span className="compact-icon">
+                        <SafeRemoteImage
+                          src={badge.imageURL}
+                          alt=""
+                          loading="lazy"
+                          fallback={<BadgeCheck />}
+                        />
+                      </span>
                       <strong>{badge.title}</strong>
                       <b>+{formatNumber(numeric(badge.points))} pts</b>
                     </div>
@@ -561,10 +659,17 @@ export default function RedesignCalculator() {
             <article className="dashboard-panel compact-panel next-goal-panel">
               <div className="compact-heading"><PanelTitle>Next score goal</PanelTitle><span>{nextMilestone.league.replace("Arcade ", "")}</span></div>
               <div className="next-goal-value">
-                <strong>{points >= 120 ? "MAX" : formatNumber(pointsToNextTier)}</strong>
-                <span>{points >= 120 ? "Top score tier reached" : "more points needed"}</span>
+                <strong>{hasReachedMaxTier ? "MAX" : formatNumber(pointsToNextTier)}</strong>
+                <span>{hasReachedMaxTier ? "Top score tier reached" : "more points needed"}</span>
               </div>
-              <div className="goal-progress" role="progressbar" aria-valuemin={0} aria-valuemax={nextMilestone.points} aria-valuenow={Math.min(points, nextMilestone.points)}>
+              <div
+                className="goal-progress"
+                role="progressbar"
+                aria-label={`Progress toward ${nextMilestone.league}`}
+                aria-valuemin={0}
+                aria-valuemax={nextMilestone.points}
+                aria-valuenow={Math.min(points, nextMilestone.points)}
+              >
                 <span style={{ width: `${Math.min(100, (points / Math.max(nextMilestone.points, 1)) * 100)}%` }} />
               </div>
             </article>
