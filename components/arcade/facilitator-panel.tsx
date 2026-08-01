@@ -14,9 +14,8 @@ import {
 import type { ReactNode } from "react"
 import { useEffect, useMemo, useRef, useState } from "react"
 import type { ArcadeApiResponse } from "./model"
-import { formatNumber, numeric } from "./model"
+import { DASHBOARD_STORAGE_KEY, formatNumber, numeric } from "./model"
 
-const STORAGE_KEY = "eplus-arcade-dashboard-v1"
 const STORAGE_SYNC_INTERVAL_MS = 1_500
 
 const FACILITATOR_MILESTONES = [
@@ -69,7 +68,7 @@ type FacilitatorCounts = {
  */
 function readDashboardSnapshot(): DashboardSnapshot {
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY) ?? ""
+    const raw = window.localStorage.getItem(DASHBOARD_STORAGE_KEY) ?? ""
     if (!raw) return { raw, dashboard: null }
 
     const parsed = JSON.parse(raw) as unknown

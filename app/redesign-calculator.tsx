@@ -23,6 +23,7 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import {
   API_URL,
   ARCADE_MILESTONES_URL,
+  DASHBOARD_STORAGE_KEY,
   OFFICIAL_MILESTONES,
   PROFILE_URL_PATTERN,
   formatInteger,
@@ -42,7 +43,6 @@ const CHROME_EXTENSION_URL =
   "https://chromewebstore.google.com/detail/google-cloud-skills-boost/lmbhjioadhcoebhgapaidogodllonbgg"
 const FIREFOX_EXTENSION_URL =
   "https://addons.mozilla.org/addon/cloud-skills-boost-helper"
-const STORAGE_KEY = "eplus-arcade-dashboard-v1"
 const BADGE_PREVIEW_LIMIT = 8
 
 const FILTERS: Array<{ value: BadgeFilter; label: string }> = [
@@ -140,7 +140,7 @@ function SafeExternalLink({
 
 function readStoredResult(): { profileUrl: string; result: ArcadeApiResponse } | null {
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY)
+    const raw = window.localStorage.getItem(DASHBOARD_STORAGE_KEY)
     if (!raw) return null
 
     const parsed = JSON.parse(raw) as {
@@ -192,7 +192,7 @@ export default function RedesignCalculator() {
 
     try {
       window.localStorage.setItem(
-        STORAGE_KEY,
+        DASHBOARD_STORAGE_KEY,
         JSON.stringify({ profileUrl: committedProfileUrl, result }),
       )
     } catch {
@@ -225,6 +225,16 @@ export default function RedesignCalculator() {
           ) as Record<string, unknown> | undefined
 
           if (!candidate) return fallback
+
+          const hasSlots =
+            candidate.slots !== undefined &&
+            candidate.slots !== null &&
+            candidate.slots !== ""
+          const hasSpotsLeft =
+            candidate.spotsLeft !== undefined &&
+            candidate.spotsLeft !== null &&
+            candidate.spotsLeft !== ""
+          if (!hasSlots || !hasSpotsLeft) return fallback
 
           const slots = numeric(candidate.slots)
           const spotsLeft = numeric(candidate.spotsLeft)
@@ -420,7 +430,7 @@ export default function RedesignCalculator() {
     setShowAllBadges(false)
 
     try {
-      window.localStorage.removeItem(STORAGE_KEY)
+      window.localStorage.removeItem(DASHBOARD_STORAGE_KEY)
     } catch {
       // Reset in-memory state even if storage is unavailable.
     }
