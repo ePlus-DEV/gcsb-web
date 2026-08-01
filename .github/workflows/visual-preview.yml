@@ -44,7 +44,7 @@ jobs:
           yarn start --hostname 127.0.0.1 --port 3000 > /tmp/gcsb-web.log 2>&1 &
           yarn wait-on http://127.0.0.1:3000
 
-      - name: Capture empty, manual and mobile states
+      - name: Capture desktop and mobile states
         run: |
           mkdir -p screenshots
           node <<'NODE'
@@ -55,19 +55,15 @@ jobs:
             const page = await browser.newPage({ viewport: { width: 1440, height: 900 } })
 
             await page.goto('http://127.0.0.1:3000', { waitUntil: 'networkidle' })
+            await page.getByRole('button', { name: 'Analyze profile' }).waitFor()
             await page.screenshot({
               path: 'screenshots/arcade-desktop-empty-1440x900.png',
               fullPage: false,
             })
 
-            await page.getByRole('button', { name: 'Enter points manually' }).click()
-            await page.screenshot({
-              path: 'screenshots/arcade-desktop-manual-1440x900.png',
-              fullPage: false,
-            })
-
             await page.setViewportSize({ width: 390, height: 844 })
             await page.goto('http://127.0.0.1:3000', { waitUntil: 'networkidle' })
+            await page.getByRole('button', { name: 'Analyze profile' }).waitFor()
             await page.screenshot({
               path: 'screenshots/arcade-mobile-empty-390x844.png',
               fullPage: false,
