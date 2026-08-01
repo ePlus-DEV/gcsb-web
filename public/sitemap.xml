@@ -6,11 +6,6 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://arcade.eplus.dev/changelog/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.4</priority>
-  </url>
-  <url>
     <loc>https://arcade.eplus.dev/privacy/</loc>
     <changefreq>yearly</changefreq>
     <priority>0.2</priority>
