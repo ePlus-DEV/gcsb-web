@@ -11,11 +11,13 @@ import {
   Trophy,
   X,
 } from "lucide-react"
-import { useEffect, useMemo, useState } from "react"
+import type { ReactNode } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import type { ArcadeApiResponse } from "./model"
 import { formatNumber, numeric } from "./model"
 
 const STORAGE_KEY = "eplus-arcade-dashboard-v1"
+const STORAGE_SYNC_INTERVAL_MS = 1_500
 
 const FACILITATOR_MILESTONES = [
   {
@@ -49,6 +51,11 @@ type StoredDashboard = {
   result?: ArcadeApiResponse
 }
 
+type DashboardSnapshot = {
+  raw: string
+  dashboard: StoredDashboard | null
+}
+
 type FacilitatorCounts = {
   games: number
   trivia: number
@@ -56,22 +63,31 @@ type FacilitatorCounts = {
   labFree: number
 }
 
-function readDashboard(): StoredDashboard | null {
+/**
+ * Read the persisted dashboard state without allowing unavailable browser
+ * storage to break the Facilitator launcher or drawer.
+ */
+function readDashboardSnapshot(): DashboardSnapshot {
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY)
-    if (!raw) return null
+    const raw = window.localStorage.getItem(STORAGE_KEY) ?? ""
+    if (!raw) return { raw, dashboard: null }
 
-    const parsed = JSON.parse(raw) as StoredDashboard
-    return parsed && typeof parsed === "object" ? parsed : null
+    const parsed = JSON.parse(raw) as unknown
+    if (typeof parsed !== "object" || parsed === null) {
+      return { raw, dashboard: null }
+    }
+
+    return { raw, dashboard: parsed as StoredDashboard }
   } catch {
-    return null
+    return { raw: "", dashboard: null }
   }
 }
 
+/** Determine whether every activity requirement for a milestone is met. */
 function hasCompletedMilestone(
   counts: FacilitatorCounts,
   requirements: (typeof FACILITATOR_MILESTONES)[number]["requirements"],
-) {
+): boolean {
   return (
     counts.games >= requirements.games &&
     counts.trivia >= requirements.trivia &&
@@ -80,45 +96,69 @@ function hasCompletedMilestone(
   )
 }
 
-function progress(current: number, target: number) {
+/** Convert an activity count into a bounded percentage for its progress bar. */
+function progress(current: number, target: number): number {
   return Math.min(100, Math.max(0, (current / Math.max(target, 1)) * 100))
 }
 
+/**
+ * Render the Google Cloud Arcade Facilitator tracker using the most recent
+ * calculator response persisted by the main dashboard.
+ */
 export default function FacilitatorPanel() {
   const [open, setOpen] = useState(false)
   const [dashboard, setDashboard] = useState<StoredDashboard | null>(null)
+  const launcherRef = useRef<HTMLButtonElement>(null)
+  const closeButtonRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
-    let previous = ""
+    let previousRaw: string | null = null
 
     const sync = () => {
-      const raw = window.localStorage.getItem(STORAGE_KEY) ?? ""
-      if (raw === previous) return
-      previous = raw
-      setDashboard(readDashboard())
+      const snapshot = readDashboardSnapshot()
+      if (snapshot.raw === previousRaw) return
+
+      previousRaw = snapshot.raw
+      setDashboard(snapshot.dashboard)
+    }
+
+    const syncWhenVisible = () => {
+      if (!document.hidden) sync()
     }
 
     sync()
-    const interval = window.setInterval(sync, 750)
+    const interval = window.setInterval(syncWhenVisible, STORAGE_SYNC_INTERVAL_MS)
     window.addEventListener("focus", sync)
-    document.addEventListener("visibilitychange", sync)
+    window.addEventListener("storage", sync)
+    document.addEventListener("visibilitychange", syncWhenVisible)
 
     return () => {
       window.clearInterval(interval)
       window.removeEventListener("focus", sync)
-      document.removeEventListener("visibilitychange", sync)
+      window.removeEventListener("storage", sync)
+      document.removeEventListener("visibilitychange", syncWhenVisible)
     }
   }, [])
 
   useEffect(() => {
     if (!open) return
 
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+    const focusFrame = window.requestAnimationFrame(() => closeButtonRef.current?.focus())
+
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") setOpen(false)
     }
 
     document.addEventListener("keydown", closeOnEscape)
-    return () => document.removeEventListener("keydown", closeOnEscape)
+
+    return () => {
+      window.cancelAnimationFrame(focusFrame)
+      document.body.style.overflow = previousOverflow
+      document.removeEventListener("keydown", closeOnEscape)
+      launcherRef.current?.focus()
+    }
   }, [open])
 
   const result = dashboard?.result
@@ -143,40 +183,64 @@ export default function FacilitatorPanel() {
   const facilitatorBonus = currentMilestone?.bonus ?? 0
   const arcadePoints = numeric(result?.arcadePoints?.totalPoints)
   const hasFacilitatorData = Boolean(result?.faciCounts)
+  const hasCompletedUltimate = currentMilestone?.id === "ultimate"
+
+  const closeAndGoToCalculator = () => {
+    setOpen(false)
+    window.requestAnimationFrame(() => {
+      document.getElementById("calculator")?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      })
+    })
+  }
 
   return (
     <>
       <button
+        ref={launcherRef}
         className="facilitator-launcher"
         type="button"
         onClick={() => setOpen(true)}
         aria-haspopup="dialog"
         aria-expanded={open}
+        aria-controls="facilitator-dialog"
       >
         <GraduationCap />
         <span>
           <strong>Facilitator</strong>
-          <small>{hasFacilitatorData ? `+${facilitatorBonus} bonus pts` : "Program tracker"}</small>
+          <small aria-live="polite">
+            {hasFacilitatorData ? `+${facilitatorBonus} bonus pts` : "Program tracker"}
+          </small>
         </span>
         <ChevronRight />
       </button>
 
       {open && (
-        <div className="facilitator-overlay" role="presentation" onMouseDown={() => setOpen(false)}>
+        <div className="facilitator-overlay" role="presentation" onClick={() => setOpen(false)}>
           <section
+            id="facilitator-dialog"
             className="facilitator-drawer"
             role="dialog"
             aria-modal="true"
             aria-labelledby="facilitator-title"
-            onMouseDown={(event) => event.stopPropagation()}
+            aria-describedby="facilitator-description"
+            onClick={(event) => event.stopPropagation()}
           >
             <header className="facilitator-header">
               <div>
                 <p><Sparkles /> Google Cloud Arcade</p>
                 <h2 id="facilitator-title">Facilitator Program</h2>
-                <span>Track Facilitator activities and the highest milestone bonus.</span>
+                <span id="facilitator-description">
+                  Track Facilitator activities and the highest milestone bonus.
+                </span>
               </div>
-              <button type="button" onClick={() => setOpen(false)} aria-label="Close Facilitator tracker">
+              <button
+                ref={closeButtonRef}
+                type="button"
+                onClick={() => setOpen(false)}
+                aria-label="Close Facilitator tracker"
+              >
                 <X />
               </button>
             </header>
@@ -185,8 +249,10 @@ export default function FacilitatorPanel() {
               <div className="facilitator-empty">
                 <GraduationCap />
                 <strong>Analyze a public profile first</strong>
-                <p>The Facilitator tracker uses the same returned profile data. Complete the calculator above, then reopen this panel.</p>
-                <button type="button" onClick={() => setOpen(false)}>Go to calculator</button>
+                <p>
+                  The Facilitator tracker uses the same returned profile data. Complete the calculator above, then reopen this panel.
+                </p>
+                <button type="button" onClick={closeAndGoToCalculator}>Go to calculator</button>
               </div>
             ) : (
               <div className="facilitator-content">
@@ -211,7 +277,9 @@ export default function FacilitatorPanel() {
                 {!hasFacilitatorData && (
                   <div className="facilitator-warning">
                     <CircleHelp />
-                    <span>This profile response does not contain Facilitator activity counts yet. Bonus remains 0 until the crawler returns <code>faciCounts</code>.</span>
+                    <span>
+                      This profile response does not contain Facilitator activity counts yet. Bonus remains 0 until the crawler returns <code>faciCounts</code>.
+                    </span>
                   </div>
                 )}
 
@@ -219,7 +287,11 @@ export default function FacilitatorPanel() {
                   <div className="facilitator-section-title">
                     <div>
                       <h3>Activity progress</h3>
-                      <p>Progress toward {nextMilestone.label}</p>
+                      <p>
+                        {hasCompletedUltimate
+                          ? "All Facilitator milestones completed"
+                          : `Progress toward ${nextMilestone.label}`}
+                      </p>
                     </div>
                     <span>{currentMilestone ? currentMilestone.label : "Not started"}</span>
                   </div>
@@ -302,18 +374,20 @@ export default function FacilitatorPanel() {
   )
 }
 
+/** Render one Facilitator activity and its accessible progress indicator. */
 function Activity({
   icon,
   label,
   current,
   target,
 }: {
-  icon: React.ReactNode
+  icon: ReactNode
   label: string
   current: number
   target: number
 }) {
   const completed = current >= target
+  const progressValue = progress(current, target)
 
   return (
     <article className={completed ? "is-completed" : ""}>
@@ -322,7 +396,15 @@ function Activity({
         <strong>{label}</strong>
         <b>{current} / {target}</b>
       </div>
-      <i aria-hidden="true"><b style={{ width: `${progress(current, target)}%` }} /></i>
+      <i
+        role="progressbar"
+        aria-label={`${label} progress`}
+        aria-valuemin={0}
+        aria-valuemax={target}
+        aria-valuenow={Math.min(current, target)}
+      >
+        <b style={{ width: `${progressValue}%` }} />
+      </i>
     </article>
   )
 }
