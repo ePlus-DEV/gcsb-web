@@ -4,9 +4,10 @@ import {
   BadgeCheck,
   Chrome,
   CircleHelp,
+  Download,
   ExternalLink,
   Gamepad2,
-  Github,
+  Globe2,
   LoaderCircle,
   Menu,
   RefreshCcw,
@@ -37,10 +38,10 @@ import type {
   BadgeFilter,
 } from "@/components/arcade/model"
 
-const EXTENSION_URL =
+const CHROME_EXTENSION_URL =
   "https://chromewebstore.google.com/detail/google-cloud-skills-boost/lmbhjioadhcoebhgapaidogodllonbgg"
-const GITHUB_URL = "https://github.com/ePlus-DEV/google-cloud-skills-boost-helper"
-const ARCADE_CRAWLER_URL = "https://github.com/hoangsvit/arcade-crawler"
+const FIREFOX_EXTENSION_URL =
+  "https://addons.mozilla.org/addon/cloud-skills-boost-helper"
 const STORAGE_KEY = "eplus-arcade-dashboard-v1"
 const BADGE_PREVIEW_LIMIT = 8
 
@@ -444,8 +445,23 @@ export default function RedesignCalculator() {
         </nav>
 
         <div className="arcade-header-actions">
-          <a className="header-github" href={GITHUB_URL} target="_blank" rel="noreferrer">
-            <Github /> <span>GitHub</span>
+          <a
+            className="header-store-link is-chrome"
+            href={CHROME_EXTENSION_URL}
+            target="_blank"
+            rel="noreferrer noopener"
+            aria-label="Install the extension from Chrome Web Store"
+          >
+            <Chrome /> <span>Chrome</span>
+          </a>
+          <a
+            className="header-store-link is-firefox"
+            href={FIREFOX_EXTENSION_URL}
+            target="_blank"
+            rel="noreferrer noopener"
+            aria-label="Install the extension from Firefox Add-ons"
+          >
+            <Globe2 /> <span>Firefox</span>
           </a>
           <button
             className="mobile-menu-toggle"
@@ -510,14 +526,29 @@ export default function RedesignCalculator() {
       </section>
 
       <section id="extension" className="extension-strip">
-        <span className="chrome-mark"><Chrome /></span>
-        <div>
-          <strong>Get points automatically with our Chrome extension</strong>
-          <span>One-click sync on Skills Boost · score tools · open source</span>
+        <span className="extension-store-mark"><Download /></span>
+        <div className="extension-copy-block">
+          <strong>Install the extension for your browser</strong>
+          <span>Automatic Arcade point tracking on Chrome and Firefox</span>
         </div>
-        <a href={EXTENSION_URL} target="_blank" rel="noreferrer">
-          Install extension <ExternalLink />
-        </a>
+        <div className="extension-store-actions">
+          <a
+            className="store-button is-chrome"
+            href={CHROME_EXTENSION_URL}
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            <Chrome /> Chrome <ExternalLink />
+          </a>
+          <a
+            className="store-button is-firefox"
+            href={FIREFOX_EXTENSION_URL}
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            <Globe2 /> Firefox <ExternalLink />
+          </a>
+        </div>
       </section>
 
       {result ? (
@@ -706,11 +737,7 @@ export default function RedesignCalculator() {
                 })}
               </div>
               <p className="tier-note">
-                Total and remaining spots are loaded from{" "}
-                <a href={ARCADE_CRAWLER_URL} target="_blank" rel="noreferrer noopener">
-                  arcade-crawler
-                </a>{" "}
-                dataset, which is refreshed every 6 hours. Your personal queue position is not included in that data.
+                Total and remaining spots are refreshed automatically every 6 hours. Your personal queue position is not included in the public data.
               </p>
             </aside>
           </div>
@@ -809,9 +836,13 @@ export default function RedesignCalculator() {
           <span className="arcade-brand-copy"><strong>ARCADE</strong><b>POINTS</b></span>
         </div>
         <p>Unofficial community calculator by ePlus.DEV. Google remains the authority for final scores and rewards.</p>
-        <div>
-          <a href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub</a>
-          <a href={EXTENSION_URL} target="_blank" rel="noreferrer">Extension</a>
+        <div className="footer-store-links">
+          <a href={CHROME_EXTENSION_URL} target="_blank" rel="noreferrer noopener">
+            <Chrome /> Chrome
+          </a>
+          <a href={FIREFOX_EXTENSION_URL} target="_blank" rel="noreferrer noopener">
+            <Globe2 /> Firefox
+          </a>
         </div>
       </footer>
 
