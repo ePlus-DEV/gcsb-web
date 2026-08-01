@@ -25,7 +25,9 @@ jobs:
           cache: yarn
 
       - name: Apply Chrome and Firefox store CTAs
-        run: node scripts/apply-extension-store-cta.mjs
+        run: |
+          sed -i 's/|EXTENSION_URL//' scripts/apply-extension-store-cta.mjs
+          node scripts/apply-extension-store-cta.mjs
 
       - name: Restore normal CI and remove migration script
         run: |
