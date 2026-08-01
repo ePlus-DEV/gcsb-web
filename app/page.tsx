@@ -1,5 +1,5 @@
-import ArcadeCalculatorClient from "./calculator-client"
+import RedesignCalculator from "./redesign-calculator"
 
 export default function Page() {
-  return <ArcadeCalculatorClient />
+  return <RedesignCalculator />
 }
