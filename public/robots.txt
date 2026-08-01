@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://eplus-dev.github.io/gcsb-web/sitemap.xml
