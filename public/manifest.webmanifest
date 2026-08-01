@@ -4,7 +4,7 @@
   "description": "Google Cloud Arcade points calculator, badge tracker, and Facilitator milestone dashboard.",
   "start_url": "/",
   "scope": "/",
-  "display": "standalone",
+  "display": "browser",
   "background_color": "#090b12",
   "theme_color": "#090b12",
   "lang": "en",
