@@ -102,14 +102,14 @@ calculator = replaceOnce(
 calculator = replaceOnce(
   calculator,
   `                      <b>{formatInteger(tier.slots)}<small> slots</small></b>`,
-  `                      <div className="tier-slot-count">\n                        <b>\n                          {tier.spotsLeft === null\n                            ? "—"\n                            : formatInteger(tier.spotsLeft)}\n                        </b>\n                        <small>\n                          {tier.spotsLeft === null\n                            ? `${formatInteger(tier.slots)} total slots`\n                            : `left of ${formatInteger(tier.slots)}`}\n                        </small>\n                      </div>`,
+  `                      <div className="tier-slot-count">\n                        <b>\n                          {tier.spotsLeft === null\n                            ? "—"\n                            : formatInteger(tier.spotsLeft)}\n                        </b>\n                        <small>\n                          {tier.spotsLeft === null\n                            ? formatInteger(tier.slots) + " total slots"\n                            : "left of " + formatInteger(tier.slots)}\n                        </small>\n                      </div>`,
   "tier remaining count",
 )
 
 calculator = replaceOnce(
   calculator,
   `              <p className="tier-note">\n                Slot limits are official totals. First-come allocation order is not public, so the site never claims a guaranteed reward.\n              </p>`,
-  `              <p className="tier-note">\n                Total and remaining spots are loaded from the{` `}\n                <a href={ARCADE_CRAWLER_URL} target="_blank" rel="noreferrer noopener">\n                  arcade-crawler\n                </a>{` `}\n                dataset, which is refreshed every 6 hours. Your personal queue position is not included in that data.\n              </p>`,
+  `              <p className="tier-note">\n                Total and remaining spots are loaded from{" "}\n                <a href={ARCADE_CRAWLER_URL} target="_blank" rel="noreferrer noopener">\n                  arcade-crawler\n                </a>{" "}\n                dataset, which is refreshed every 6 hours. Your personal queue position is not included in that data.\n              </p>`,
   "tier source note",
 )
 
@@ -123,7 +123,7 @@ calculator = replaceOnce(
 calculator = replaceOnce(
   calculator,
   `                <b>{formatInteger(tier.slots)} slots</b>`,
-  `                <b>\n                  {tier.spotsLeft === null\n                    ? `${formatInteger(tier.slots)} total slots`\n                    : `${formatInteger(tier.spotsLeft)} / ${formatInteger(tier.slots)} left`}\n                </b>`,
+  `                <b>\n                  {tier.spotsLeft === null\n                    ? formatInteger(tier.slots) + " total slots"\n                    : formatInteger(tier.spotsLeft) +\n                      " / " +\n                      formatInteger(tier.slots) +\n                      " left"}\n                </b>`,
   "empty tier availability",
 )
 
