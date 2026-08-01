@@ -1,4 +1,4 @@
-const siteUrl = "https://eplus-dev.github.io/gcsb-web/"
+const siteUrl = "https://arcade.eplus.dev/"
 
 const faqs = [
   {
