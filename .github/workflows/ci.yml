@@ -6,72 +6,22 @@ on:
     branches: ["main"]
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   validate:
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout PR head
+      - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref || github.ref_name }}
-          fetch-depth: 0
+          persist-credentials: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: yarn
-
-      - name: Apply open PR review fixes
-        if: github.event_name == 'pull_request' && github.head_ref == 'feat/arcade-dashboard-redesign'
-        run: node scripts/fix-pr9-open-review-findings.mjs
-
-      - name: Restore normal CI locally
-        if: github.event_name == 'pull_request' && github.head_ref == 'feat/arcade-dashboard-redesign'
-        shell: bash
-        run: |
-          cat > .github/workflows/ci.yml <<'YAML'
-          name: CI
-
-          on:
-            pull_request:
-            push:
-              branches: ["main"]
-
-          permissions:
-            contents: read
-
-          jobs:
-            validate:
-              runs-on: ubuntu-latest
-              steps:
-                - name: Checkout
-                  uses: actions/checkout@v4
-                  with:
-                    persist-credentials: false
-
-                - name: Setup Node.js
-                  uses: actions/setup-node@v4
-                  with:
-                    node-version: "20"
-                    cache: yarn
-
-                - name: Install dependencies
-                  run: yarn install --frozen-lockfile --non-interactive
-
-                - name: Type check
-                  run: yarn typecheck
-
-                - name: Lint
-                  run: yarn lint
-
-                - name: Build static site
-                  run: yarn build
-          YAML
-          rm -f scripts/fix-pr9-open-review-findings.mjs
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile --non-interactive
@@ -84,22 +34,3 @@ jobs:
 
       - name: Build static site
         run: yarn build
-
-      - name: Commit verified application fixes
-        if: github.event_name == 'pull_request' && github.head_ref == 'feat/arcade-dashboard-redesign'
-        env:
-          BRANCH_NAME: ${{ github.head_ref }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          git add app/redesign-calculator.tsx \
-            components/arcade/model.ts \
-            components/arcade/facilitator-panel.tsx
-          if git diff --cached --quiet; then
-            echo "No application changes to commit."
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "fix: resolve remaining application review findings"
-          git push origin "HEAD:${BRANCH_NAME}"
