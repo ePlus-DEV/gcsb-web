@@ -40,8 +40,19 @@ jobs:
       - name: Build production static export
         env:
           NEXT_STATIC_EXPORT: "true"
-          NEXT_PUBLIC_BASE_PATH: "/${{ github.event.repository.name }}"
+          NEXT_PUBLIC_BASE_PATH: ""
         run: yarn build
+
+      - name: Verify production asset paths
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f out/index.html
+          grep -q 'src="/_next/' out/index.html
+          if grep -q '/gcsb-web/_next/' out/index.html; then
+            echo "Production still contains the repository-name base path."
+            exit 1
+          fi
 
       - name: Preserve open PR previews
         shell: bash
