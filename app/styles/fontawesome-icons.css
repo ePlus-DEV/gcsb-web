@@ -1,13 +1,38 @@
 .fa-icon {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   flex: 0 0 auto;
+  width: 1em;
+  height: 1em;
+  min-width: 1em;
+  font-size: 1em;
   font-style: normal;
+  line-height: 1;
+  text-align: center;
   vertical-align: -0.125em;
+}
+
+/* Compatibility for legacy layouts that previously styled Lucide SVG descendants. */
+.site-nav a .fa-icon {
+  width: 27px;
+  height: 27px;
+  min-width: 27px;
+  font-size: 27px;
+}
+
+.primary-button .fa-icon,
+.secondary-button .fa-icon {
+  width: 23px;
+  height: 23px;
+  min-width: 23px;
+  font-size: 23px;
 }
 
 .arcade-brand-mark .fa-icon {
   width: 24px;
   height: 24px;
+  min-width: 24px;
   font-size: 24px;
 }
 
@@ -15,6 +40,7 @@
 .mobile-menu-toggle .fa-icon {
   width: 17px;
   height: 17px;
+  min-width: 17px;
   font-size: 17px;
 }
 
@@ -22,6 +48,7 @@
 .trust-pills .fa-icon {
   width: 15px;
   height: 15px;
+  min-width: 15px;
   font-size: 15px;
 }
 
@@ -29,29 +56,45 @@
 .footer-store-links .fa-icon {
   width: 14px;
   height: 14px;
+  min-width: 14px;
   font-size: 14px;
 }
 
 .analyze-button .fa-icon {
   width: 18px;
   height: 18px;
+  min-width: 18px;
   font-size: 18px;
 }
 
 .extension-store-mark .fa-icon {
   width: 19px;
   height: 19px;
+  min-width: 19px;
   font-size: 19px;
 }
 
 .extension-store-actions .fa-icon {
   width: 15px;
   height: 15px;
+  min-width: 15px;
   font-size: 15px;
 }
 
 .mobile-bottom-nav .fa-icon {
   width: 18px;
   height: 18px;
+  min-width: 18px;
   font-size: 18px;
+}
+
+/* Preserve state-based transforms that previously targeted direct SVG children. */
+[data-state="open"] > .fa-icon,
+[aria-expanded="true"] > .fa-icon {
+  transform-origin: center;
+}
+
+.spin.fa-icon,
+.fa-icon.spin {
+  animation: spin 1s linear infinite;
 }
