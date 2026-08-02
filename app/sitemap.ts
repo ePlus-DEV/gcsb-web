@@ -5,6 +5,8 @@ import {
   WEBSITE_SITE_URL,
 } from "@/lib/website-i18n"
 
+export const dynamic = "force-static"
+
 /** Generates canonical localized and supporting-page sitemap entries. */
 export default function sitemap(): MetadataRoute.Sitemap {
   const localizedPages: MetadataRoute.Sitemap = WEBSITE_LOCALES.filter(
