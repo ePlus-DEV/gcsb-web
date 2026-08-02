@@ -22,6 +22,22 @@ const catalogs = JSON.parse(
   gunzipSync(Buffer.from(encoded, "base64")).toString("utf8"),
 )
 
+const englishMessages = catalogs.en?.messages
+if (!englishMessages) {
+  throw new Error("The English website locale catalog is missing.")
+}
+
+const sourceKeys = new Map()
+for (const [key, value] of Object.entries(englishMessages)) {
+  const existingKey = sourceKeys.get(value)
+  if (existingKey) {
+    throw new Error(
+      `English website messages ${existingKey} and ${key} share the source text ${JSON.stringify(value)}.`,
+    )
+  }
+  sourceKeys.set(value, key)
+}
+
 await mkdir(outputDir, { recursive: true })
 await Promise.all(
   Object.entries(catalogs).map(([locale, catalog]) =>
