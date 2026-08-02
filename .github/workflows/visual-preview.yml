@@ -5,6 +5,10 @@ on:
     paths:
       - "app/**"
       - "components/arcade/**"
+      - "components/i18n/**"
+      - "lib/website-i18n.ts"
+      - "public/i18n/**"
+      - "scripts/**"
       - "package.json"
       - "yarn.lock"
       - "next.config.mjs"
@@ -66,6 +70,21 @@ jobs:
             await page.getByRole('button', { name: 'Analyze profile' }).waitFor()
             await page.screenshot({
               path: 'screenshots/arcade-mobile-empty-390x844.png',
+              fullPage: false,
+            })
+
+            const languageSelect = page.locator('.website-language-switcher select')
+            await languageSelect.selectOption('vi')
+            await page.locator('html[lang="vi"]').waitFor()
+            await page.getByRole('button', { name: 'Phân tích hồ sơ' }).waitFor()
+
+            const translatedHeading = await page.locator('h1').innerText()
+            if (!translatedHeading.includes('KIỂM TRA')) {
+              throw new Error(`Vietnamese heading was not applied: ${translatedHeading}`)
+            }
+
+            await page.screenshot({
+              path: 'screenshots/arcade-mobile-vi-390x844.png',
               fullPage: false,
             })
 
