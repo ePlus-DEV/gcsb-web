@@ -1,0 +1,103 @@
+.website-language-switcher {
+  align-items: center;
+  background: rgba(15, 23, 42, 0.82);
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 10px;
+  color: #e2e8f0;
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 6px;
+  height: 38px;
+  min-width: 72px;
+  order: -1;
+  padding: 0 8px;
+  position: relative;
+}
+
+.website-language-switcher svg,
+.website-language-switcher .fa-icon {
+  height: 15px;
+  min-width: 15px;
+  width: 15px;
+}
+
+.website-language-switcher select {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  max-width: 70px;
+  outline: 0;
+  padding: 0 2px;
+}
+
+.website-language-switcher option {
+  background: #0f172a;
+  color: #f8fafc;
+}
+
+html[dir="rtl"] .website-language-switcher {
+  direction: ltr;
+}
+
+/* Press Start 2P does not contain complete glyph sets for localized copy.
+   Use the Unicode-safe UI stack for translated hero headings so accents and
+   complex scripts render as a single, correctly shaped font run. */
+html[data-locale]:not([data-locale="en"]) .hero-heading h1,
+[lang]:not([lang="en"]) .hero-heading h1 {
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.055em;
+  line-height: 1.08;
+  text-shadow: 0 5px 0 rgba(0, 0, 0, 0.25);
+}
+
+@media (max-width: 700px) {
+  .arcade-header-actions {
+    gap: 6px;
+  }
+
+  .website-language-switcher {
+    height: 36px;
+    min-width: 58px;
+    padding: 0 7px;
+  }
+
+  .website-language-switcher select {
+    max-width: 42px;
+    width: 42px;
+  }
+}
+
+@media (max-width: 600px) {
+  .arcade-header-actions .header-store-link {
+    display: none;
+  }
+
+  .website-language-switcher {
+    min-width: 56px;
+  }
+
+  .website-language-switcher svg,
+  .website-language-switcher .fa-icon {
+    height: 14px;
+    min-width: 14px;
+    width: 14px;
+  }
+
+  .website-language-switcher select {
+    max-width: 30px;
+    width: 30px;
+  }
+
+  html[data-locale]:not([data-locale="en"]) .hero-heading h1,
+  [lang]:not([lang="en"]) .hero-heading h1 {
+    font-size: clamp(2rem, 10vw, 2.7rem);
+    line-height: 1.02;
+  }
+}

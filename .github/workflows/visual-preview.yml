@@ -5,6 +5,11 @@ on:
     paths:
       - "app/**"
       - "components/arcade/**"
+      - "components/i18n/**"
+      - "components/seo/**"
+      - "lib/website-i18n.ts"
+      - "public/i18n/**"
+      - "scripts/**"
       - "package.json"
       - "yarn.lock"
       - "next.config.mjs"
@@ -56,16 +61,113 @@ jobs:
 
             await page.goto('http://127.0.0.1:3000', { waitUntil: 'networkidle' })
             await page.getByRole('button', { name: 'Analyze profile' }).waitFor()
+
+            const languageIcon = page
+              .locator('.website-language-switcher :is(.fa-icon, svg)')
+              .first()
+            await languageIcon.waitFor()
+            const languageIconClass = (await languageIcon.getAttribute('class')) ?? ''
+            const hasGlobeIcon =
+              languageIconClass.includes('fa-globe') ||
+              languageIconClass.includes('lucide-globe')
+            if (!hasGlobeIcon || languageIconClass.includes('firefox')) {
+              throw new Error(`Unexpected language selector icon: ${languageIconClass}`)
+            }
+
             await page.screenshot({
               path: 'screenshots/arcade-desktop-empty-1440x900.png',
               fullPage: false,
             })
+
+            const preferencePage = await browser.newPage({
+              viewport: { width: 390, height: 844 },
+            })
+            await preferencePage.goto('http://127.0.0.1:3000', {
+              waitUntil: 'networkidle',
+            })
+            await preferencePage.evaluate(() => {
+              window.localStorage.setItem('arcade-points-locale', 'vi')
+            })
+            await preferencePage.reload({ waitUntil: 'networkidle' })
+            const persistedLocale = await preferencePage
+              .locator('.website-language-switcher select')
+              .inputValue()
+            if (persistedLocale !== 'vi') {
+              throw new Error(`Stored homepage locale was ignored: ${persistedLocale}`)
+            }
+            await preferencePage.close()
 
             await page.setViewportSize({ width: 390, height: 844 })
             await page.goto('http://127.0.0.1:3000', { waitUntil: 'networkidle' })
             await page.getByRole('button', { name: 'Analyze profile' }).waitFor()
             await page.screenshot({
               path: 'screenshots/arcade-mobile-empty-390x844.png',
+              fullPage: false,
+            })
+
+            const languageSelect = page.locator('.website-language-switcher select')
+            await languageSelect.selectOption('vi')
+            await page.waitForURL((url) => /\/vi\/?$/.test(url.pathname))
+            await page.locator('html[lang="vi"][dir="ltr"][data-locale="vi"]').waitFor()
+            await page.getByRole('button', { name: 'Phân tích hồ sơ' }).waitFor()
+
+            const vietnameseResponse = await page.request.get(
+              'http://127.0.0.1:3000/vi/',
+            )
+            const vietnameseHtml = await vietnameseResponse.text()
+            const vietnameseHtmlTag = vietnameseHtml.match(/<html\b[^>]*>/i)?.[0] ?? ''
+            if (
+              !vietnameseHtmlTag.includes('lang="vi"') ||
+              !vietnameseHtmlTag.includes('dir="ltr"') ||
+              !vietnameseHtmlTag.includes('data-locale="vi"')
+            ) {
+              throw new Error(
+                `Vietnamese HTML lacks server-rendered locale attributes: ${vietnameseHtmlTag}`,
+              )
+            }
+
+            const arabicResponse = await page.request.get(
+              'http://127.0.0.1:3000/ar/',
+            )
+            const arabicHtml = await arabicResponse.text()
+            const arabicHtmlTag = arabicHtml.match(/<html\b[^>]*>/i)?.[0] ?? ''
+            if (
+              !arabicHtmlTag.includes('lang="ar"') ||
+              !arabicHtmlTag.includes('dir="rtl"') ||
+              !arabicHtmlTag.includes('data-locale="ar"')
+            ) {
+              throw new Error(
+                `Arabic HTML lacks server-rendered locale attributes: ${arabicHtmlTag}`,
+              )
+            }
+
+            const canonical = await page.locator('link[rel="canonical"]').getAttribute('href')
+            if (canonical !== 'https://arcade.eplus.dev/vi/') {
+              throw new Error(`Unexpected Vietnamese canonical URL: ${canonical}`)
+            }
+
+            const vietnameseAlternate = await page
+              .locator('link[rel="alternate"][hreflang="vi"]')
+              .getAttribute('href')
+            if (vietnameseAlternate !== 'https://arcade.eplus.dev/vi/') {
+              throw new Error(`Unexpected Vietnamese hreflang URL: ${vietnameseAlternate}`)
+            }
+
+            const heroHeading = page.locator('.hero-heading h1')
+            const translatedHeading = await heroHeading.innerText()
+            if (!translatedHeading.includes('KIỂM TRA')) {
+              throw new Error(`Vietnamese heading was not applied: ${translatedHeading}`)
+            }
+
+            const headingFont = await heroHeading.evaluate(
+              (element) => window.getComputedStyle(element).fontFamily,
+            )
+            if (headingFont.includes('Press Start 2P')) {
+              throw new Error(`Vietnamese heading still uses unsupported pixel font: ${headingFont}`)
+            }
+
+            await page.screenshot({
+              path: 'screenshots/arcade-mobile-vi-390x844.png',
               fullPage: false,
             })
 
