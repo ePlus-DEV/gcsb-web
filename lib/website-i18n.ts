@@ -41,10 +41,12 @@ export type WebsiteCatalog = {
 
 export const DEFAULT_WEBSITE_LOCALE: WebsiteLocale = "en"
 export const WEBSITE_LOCALE_STORAGE_KEY = "arcade-points-locale"
+export const WEBSITE_SITE_URL = "https://arcade.eplus.dev/"
 
 const catalogRequests = new Map<WebsiteLocale, Promise<WebsiteCatalog>>()
 const sourceMessageMaps = new WeakMap<WebsiteCatalog, Map<string, string>>()
 
+/** Resolves browser, URL, or stored locale values to a supported locale code. */
 export function getWebsiteLocale(value?: string | null): WebsiteLocale {
   if (!value) return DEFAULT_WEBSITE_LOCALE
 
@@ -73,15 +75,27 @@ export function getWebsiteLocale(value?: string | null): WebsiteLocale {
   )
 }
 
+/** Returns display and routing metadata for a supported locale. */
 export function getWebsiteLocaleInfo(locale: WebsiteLocale) {
   return WEBSITE_LOCALES.find((item) => item.code === locale) ?? WEBSITE_LOCALES[0]
 }
 
+/** Returns the public route for a locale, with English kept at the site root. */
 export function getWebsiteLocaleHref(locale: WebsiteLocale): string {
   const localeInfo = getWebsiteLocaleInfo(locale)
   return localeInfo.path ? `/${localeInfo.path}/` : "/"
 }
 
+/** Returns an absolute canonical URL for a localized homepage. */
+export function getWebsiteCanonicalUrl(locale: WebsiteLocale): string {
+  return new URL(getWebsiteLocaleHref(locale), WEBSITE_SITE_URL).toString()
+}
+
+/**
+ * Reads an explicit locale segment from a pathname.
+ * Returns null for the homepage and non-localized routes so stored preferences
+ * and browser language detection can be used by the client.
+ */
 export function getWebsiteLocaleFromPathname(
   pathname: string,
 ): WebsiteLocale | null {
@@ -101,6 +115,7 @@ export function getWebsiteLocaleFromPathname(
   )
 }
 
+/** Builds the hreflang route map used by localized metadata. */
 export function getWebsiteLanguageAlternates(): Record<string, string> {
   return Object.fromEntries([
     ...WEBSITE_LOCALES.map((locale) => [
@@ -111,6 +126,7 @@ export function getWebsiteLanguageAlternates(): Record<string, string> {
   ])
 }
 
+/** Loads and caches one generated website translation catalog. */
 export function loadWebsiteCatalog(locale: WebsiteLocale): Promise<WebsiteCatalog> {
   const cached = catalogRequests.get(locale)
   if (cached) return cached
@@ -135,6 +151,7 @@ export function loadWebsiteCatalog(locale: WebsiteLocale): Promise<WebsiteCatalo
   return request
 }
 
+/** Translates exact, additional, and dynamic English UI text in that order. */
 export function translateWebsiteText(
   source: string,
   sourceCatalog: WebsiteCatalog,
@@ -142,9 +159,10 @@ export function translateWebsiteText(
 ): string {
   let sourceMessageMap = sourceMessageMaps.get(sourceCatalog)
   if (!sourceMessageMap) {
-    sourceMessageMap = new Map(
-      Object.entries(sourceCatalog.messages).map(([key, value]) => [value, key]),
-    )
+    sourceMessageMap = new Map()
+    for (const [key, value] of Object.entries(sourceCatalog.messages)) {
+      if (!sourceMessageMap.has(value)) sourceMessageMap.set(value, key)
+    }
     sourceMessageMaps.set(sourceCatalog, sourceMessageMap)
   }
 
@@ -157,6 +175,7 @@ export function translateWebsiteText(
   return translateDynamicText(source, sourceCatalog, targetCatalog)
 }
 
+/** Translates UI strings whose values contain runtime numbers or labels. */
 function translateDynamicText(
   source: string,
   sourceCatalog: WebsiteCatalog,
