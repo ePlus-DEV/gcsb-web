@@ -7,6 +7,7 @@ import "./styles/redesign-results.css"
 import "./styles/redesign-components.css"
 import "./styles/redesign-responsive.css"
 import "./styles/facilitator-panel.css"
+import "./styles/fontawesome-icons.css"
 
 const siteUrl = "https://arcade.eplus.dev/"
 const siteName = "Arcade Points by ePlus.DEV"
@@ -15,6 +16,8 @@ const description =
   "Calculate Google Cloud Arcade points from your public Google Skills profile, review completed badges, estimate milestone progress, and track Arcade Facilitator rewards."
 const googleFontsUrl =
   "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Press+Start+2P&display=swap"
+const fontAwesomeUrl =
+  "https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.7.2/css/all.min.css"
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -90,7 +93,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" />
         <link rel="stylesheet" href={googleFontsUrl} />
+        <link rel="stylesheet" href={fontAwesomeUrl} />
       </head>
       <body>
         <ThemeProvider
