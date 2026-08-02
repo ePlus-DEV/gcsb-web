@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next"
 import { GoogleAnalytics } from "@next/third-parties/google"
 import WebsiteLanguage from "@/components/i18n/website-language"
 import { ThemeProvider } from "@/components/theme-provider"
+import { WEBSITE_SITE_URL } from "@/lib/website-i18n"
 import "./globals.css"
 import "./styles/redesign-dashboard.css"
 import "./styles/redesign-results.css"
@@ -11,7 +12,6 @@ import "./styles/facilitator-panel.css"
 import "./styles/fontawesome-icons.css"
 import "./styles/website-language.css"
 
-const siteUrl = "https://arcade.eplus.dev/"
 const siteName = "Arcade Points by ePlus.DEV"
 const title = "Google Cloud Arcade Points Calculator & Badge Tracker 2026"
 const description =
@@ -31,7 +31,7 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: new URL(WEBSITE_SITE_URL),
   title: {
     default: title,
     template: "%s | ePlus.DEV",
@@ -91,9 +91,15 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
 }
 
+/** Provides the shared document shell and default English document semantics. */
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      dir="ltr"
+      data-locale="en"
+      suppressHydrationWarning
+    >
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
