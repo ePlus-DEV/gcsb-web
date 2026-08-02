@@ -92,9 +92,17 @@ jobs:
               throw new Error(`Unexpected Vietnamese hreflang URL: ${vietnameseAlternate}`)
             }
 
-            const translatedHeading = await page.locator('.hero-heading h1').innerText()
+            const heroHeading = page.locator('.hero-heading h1')
+            const translatedHeading = await heroHeading.innerText()
             if (!translatedHeading.includes('KIỂM TRA')) {
               throw new Error(`Vietnamese heading was not applied: ${translatedHeading}`)
+            }
+
+            const headingFont = await heroHeading.evaluate(
+              (element) => window.getComputedStyle(element).fontFamily,
+            )
+            if (headingFont.includes('Press Start 2P')) {
+              throw new Error(`Vietnamese heading still uses unsupported pixel font: ${headingFont}`)
             }
 
             await page.screenshot({
