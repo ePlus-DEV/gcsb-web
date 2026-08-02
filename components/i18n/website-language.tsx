@@ -219,13 +219,12 @@ export default function WebsiteLanguage() {
     return () => observer.disconnect()
   }, [catalogs, locale, localeInfo.htmlLang, ready])
 
-  if (!ready || !portalTarget || !catalogs || catalogs.locale !== locale) return null
+  if (!ready || !portalTarget) return null
 
-  const languageLabel = translateWebsiteText(
-    "Language",
-    catalogs.source,
-    catalogs.target,
-  )
+  const languageLabel =
+    catalogs && catalogs.locale === locale
+      ? translateWebsiteText("Language", catalogs.source, catalogs.target)
+      : "Language"
 
   return createPortal(
     <label className="website-language-switcher" data-no-translate>
