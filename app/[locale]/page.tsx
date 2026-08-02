@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises"
 import path from "node:path"
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
+import { cache } from "react"
 import FacilitatorPanel from "@/components/arcade/facilitator-panel"
 import ArcadeRouteLinks from "@/components/app/arcade-route-links"
 import SeoContent from "@/components/seo/seo-content"
@@ -33,21 +34,20 @@ function resolveLocale(segment: string): WebsiteLocale | null {
   )
 }
 
-/** Reads one generated translation catalog during static rendering. */
-async function readCatalog(locale: WebsiteLocale): Promise<WebsiteCatalog> {
+/** Reads and memoizes one generated catalog for metadata and page rendering. */
+const readCatalog = cache(async function readCatalog(
+  locale: WebsiteLocale,
+): Promise<WebsiteCatalog> {
   const filePath = path.join(process.cwd(), "public", "i18n", `${locale}.json`)
   return JSON.parse(await readFile(filePath, "utf8")) as WebsiteCatalog
-}
+})
 
 /** Builds localized title and description values for metadata and JSON-LD. */
-function getLocalizedSeo(locale: WebsiteLocale, catalog: WebsiteCatalog) {
-  const translatedTitle = `${catalog.messages.heroTitleTop ?? "CHECK YOUR"} ${
+function getLocalizedSeo(catalog: WebsiteCatalog) {
+  const fallbackTitle = `${catalog.messages.heroTitleTop ?? "CHECK YOUR"} ${
     catalog.messages.heroTitleBottom ?? "ARCADE SCORE"
-  }`
-  const title =
-    locale === "vi"
-      ? "Máy tính điểm Google Cloud Arcade & Theo dõi huy hiệu 2026"
-      : `${translatedTitle} – Google Cloud Arcade 2026`
+  } – Google Cloud Arcade 2026`
+  const title = catalog.messages.pageTitle ?? fallbackTitle
   const description =
     catalog.messages.heroDescription ??
     "Analyze your public Google Skills profile, review earned badges and check your Google Cloud Arcade reward tier."
@@ -69,7 +69,7 @@ export async function generateMetadata({
 
   const localeInfo = getWebsiteLocaleInfo(locale)
   const catalog = await readCatalog(locale)
-  const { title, description } = getLocalizedSeo(locale, catalog)
+  const { title, description } = getLocalizedSeo(catalog)
   const canonical = getWebsiteCanonicalUrl(locale)
 
   return {
@@ -113,7 +113,7 @@ export default async function LocalizedPage({ params }: LocalizedPageProps) {
 
   const localeInfo = getWebsiteLocaleInfo(locale)
   const catalog = await readCatalog(locale)
-  const { title, description } = getLocalizedSeo(locale, catalog)
+  const { title, description } = getLocalizedSeo(catalog)
 
   return (
     <>
