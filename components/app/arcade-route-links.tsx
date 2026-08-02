@@ -5,7 +5,8 @@ import { useEffect, useState } from "react"
 import { createPortal } from "react-dom"
 
 const routeLinks = [
-  { href: "/changelog/", label: "Changelog" },
+  { href: "/about/", label: "About" },
+  { href: "/guide/", label: "Guide" },
   { href: "/privacy/", label: "Privacy" },
   { href: "/terms/", label: "Terms" },
 ]

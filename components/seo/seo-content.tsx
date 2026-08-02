@@ -1,70 +1,56 @@
 const siteUrl = "https://arcade.eplus.dev/"
 
-const faqs = [
-  {
-    question: "What is the Google Cloud Arcade points calculator?",
-    answer:
-      "It analyzes badge information from a public Google Skills profile and summarizes estimated Arcade points, completed badges, and progress toward available milestones.",
-  },
-  {
-    question: "How do I calculate my Google Cloud Arcade points?",
-    answer:
-      "Open your public Google Skills profile, copy its URL, and paste it into the calculator. The tool reviews supported badges and presents the estimated point total and milestone progress.",
-  },
-  {
-    question: "Does the calculator support Arcade Facilitator milestones?",
-    answer:
-      "Yes. The dashboard includes a separate Facilitator progress view to help compare your current score with milestone requirements and limited reward tiers.",
-  },
-  {
-    question: "Is this an official Google tool?",
-    answer:
-      "No. Arcade Points by ePlus.DEV is an independent community tool and is not affiliated with or endorsed by Google.",
-  },
-]
-
 const structuredData = {
   "@context": "https://schema.org",
   "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": `${siteUrl}#website`,
+      url: siteUrl,
+      name: "Arcade Points by ePlus.DEV",
+      description:
+        "Google Cloud Arcade points calculator, badge tracker, and Facilitator milestone dashboard for public Google Skills profiles.",
+      publisher: {
+        "@id": "https://eplus.dev/#organization",
+      },
+      inLanguage: "en",
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://eplus.dev/#organization",
+      name: "ePlus.DEV",
+      url: "https://eplus.dev/",
+    },
     {
       "@type": "WebApplication",
       "@id": `${siteUrl}#application`,
       name: "Arcade Points by ePlus.DEV",
       url: siteUrl,
+      isPartOf: {
+        "@id": `${siteUrl}#website`,
+      },
       applicationCategory: "EducationalApplication",
+      applicationSubCategory: "Google Cloud learning progress tracker",
       operatingSystem: "Any",
-      browserRequirements: "Requires a modern web browser",
+      browserRequirements: "Requires a modern web browser with JavaScript enabled",
       description:
-        "A Google Cloud Arcade points calculator and badge tracker for public Google Skills profiles, including Arcade Facilitator milestone progress.",
+        "Analyze a public Google Skills profile to estimate Google Cloud Arcade points, review earned badges, and compare progress with Arcade and Facilitator milestones.",
       offers: {
         "@type": "Offer",
         price: "0",
         priceCurrency: "USD",
       },
       creator: {
-        "@type": "Organization",
-        name: "ePlus.DEV",
-        url: "https://eplus.dev",
+        "@id": "https://eplus.dev/#organization",
       },
       featureList: [
         "Google Cloud Arcade point estimation",
         "Google Skills public profile analysis",
-        "Badge completion summary",
+        "Earned badge review",
+        "Arcade reward tier comparison",
         "Arcade Facilitator milestone tracking",
-        "Chrome and Firefox extension links",
       ],
-    },
-    {
-      "@type": "FAQPage",
-      "@id": `${siteUrl}#faq`,
-      mainEntity: faqs.map((item) => ({
-        "@type": "Question",
-        name: item.question,
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: item.answer,
-        },
-      })),
+      inLanguage: "en",
     },
   ],
 }
