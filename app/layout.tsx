@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next"
 import { GoogleAnalytics } from "@next/third-parties/google"
+import WebsiteLanguage from "@/components/i18n/website-language"
 import { ThemeProvider } from "@/components/theme-provider"
 import "./globals.css"
 import "./styles/redesign-dashboard.css"
@@ -8,6 +9,7 @@ import "./styles/redesign-components.css"
 import "./styles/redesign-responsive.css"
 import "./styles/facilitator-panel.css"
 import "./styles/fontawesome-icons.css"
+import "./styles/website-language.css"
 
 const siteUrl = "https://arcade.eplus.dev/"
 const siteName = "Arcade Points by ePlus.DEV"
@@ -113,6 +115,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           enableSystem={false}
           disableTransitionOnChange
         >
+          <WebsiteLanguage />
           {children}
         </ThemeProvider>
         <GoogleAnalytics gaId="G-41VM0C9NGM" />

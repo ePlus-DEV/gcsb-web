@@ -160,9 +160,8 @@ export default function WebsiteLanguage() {
       .then(([source, target]) => {
         if (active) setCatalogs({ locale, source, target })
       })
-      .catch(async () => {
-        const source = await loadWebsiteCatalog("en")
-        if (active) setCatalogs({ locale, source, target: source })
+      .catch(() => {
+        if (active) setCatalogs(null)
       })
 
     return () => {
