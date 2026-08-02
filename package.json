@@ -4,7 +4,10 @@
   "author": "dev@eplus.dev",
   "homepage_url": "https://eplus.dev",
   "scripts": {
+    "generate:i18n": "node scripts/generate-website-i18n.mjs",
+    "predev": "node scripts/generate-website-i18n.mjs",
     "dev": "next dev",
+    "prebuild": "node scripts/generate-website-i18n.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
