@@ -88,6 +88,21 @@
   font-size: 18px;
 }
 
+/* The profile verification mark is visually distinct from badge/category icons. */
+.profile-name-block h2 .fa-icon {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  margin-left: 8px;
+  color: #38bdf8;
+  font-size: 20px;
+  filter: drop-shadow(0 0 7px rgb(56 189 248 / 45%));
+}
+
+.profile-name-block h2 .fa-icon::before {
+  content: "\f058";
+}
+
 /* Preserve state-based transforms that previously targeted direct SVG children. */
 [data-state="open"] > .fa-icon,
 [aria-expanded="true"] > .fa-icon {
