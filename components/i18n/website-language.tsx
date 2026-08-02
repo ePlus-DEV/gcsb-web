@@ -1,6 +1,6 @@
 "use client"
 
-import { Globe2 } from "lucide-react"
+import { Globe } from "lucide-react"
 import type { ChangeEvent } from "react"
 import { useEffect, useMemo, useState } from "react"
 import { createPortal } from "react-dom"
@@ -246,7 +246,7 @@ export default function WebsiteLanguage() {
 
   return createPortal(
     <label className="website-language-switcher" data-no-translate>
-      <Globe2 aria-hidden="true" />
+      <Globe aria-hidden="true" />
       <span className="sr-only">{languageLabel}</span>
       <select
         aria-label={languageLabel}
