@@ -92,7 +92,7 @@ export function getWebsiteLocaleFromPathname(
       : pathname
   const segment = pathWithoutBase.split("/").filter(Boolean)[0]
 
-  if (!segment) return DEFAULT_WEBSITE_LOCALE
+  if (!segment) return null
 
   return (
     WEBSITE_LOCALES.find(
