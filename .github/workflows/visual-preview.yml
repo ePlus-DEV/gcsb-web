@@ -61,6 +61,17 @@ jobs:
 
             await page.goto('http://127.0.0.1:3000', { waitUntil: 'networkidle' })
             await page.getByRole('button', { name: 'Analyze profile' }).waitFor()
+
+            const languageIcon = page.locator('.website-language-switcher .fa-icon')
+            await languageIcon.waitFor()
+            const languageIconClass = await languageIcon.getAttribute('class')
+            if (
+              !languageIconClass?.includes('fa-globe') ||
+              languageIconClass.includes('fa-firefox')
+            ) {
+              throw new Error(`Unexpected language selector icon: ${languageIconClass}`)
+            }
+
             await page.screenshot({
               path: 'screenshots/arcade-desktop-empty-1440x900.png',
               fullPage: false,
