@@ -7,6 +7,7 @@ import "./styles/redesign-results.css"
 import "./styles/redesign-components.css"
 import "./styles/redesign-responsive.css"
 import "./styles/facilitator-panel.css"
+import "./styles/firefox-icon.css"
 
 const siteUrl = "https://arcade.eplus.dev/"
 const siteName = "Arcade Points by ePlus.DEV"
