@@ -8,7 +8,7 @@
     "predev": "node scripts/generate-website-i18n.mjs",
     "dev": "next dev",
     "prebuild": "node scripts/generate-website-i18n.mjs",
-    "build": "next build",
+    "build": "next build && node scripts/patch-localized-html.mjs",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit"
