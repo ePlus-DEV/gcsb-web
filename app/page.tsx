@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import FacilitatorPanel from "@/components/arcade/facilitator-panel"
 import ArcadeRouteLinks from "@/components/app/arcade-route-links"
-import SolutionRecommendationDemo from "@/components/extension/solution-recommendation-demo"
+import ContextualExtensionRecommendations from "@/components/extension/contextual-extension-recommendations"
 import SeoContent from "@/components/seo/seo-content"
 import RedesignCalculator from "./redesign-calculator"
 
@@ -20,7 +20,7 @@ export default function Page() {
   return (
     <>
       <RedesignCalculator />
-      <SolutionRecommendationDemo />
+      <ContextualExtensionRecommendations />
       <ArcadeRouteLinks />
       <FacilitatorPanel />
       <SeoContent />
