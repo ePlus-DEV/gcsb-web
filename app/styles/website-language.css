@@ -1,0 +1,55 @@
+.website-language-switcher {
+  align-items: center;
+  background: rgba(15, 23, 42, 0.82);
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 10px;
+  color: #e2e8f0;
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 6px;
+  height: 38px;
+  padding: 0 8px;
+  position: relative;
+}
+
+.website-language-switcher svg,
+.website-language-switcher .fa-icon {
+  height: 15px;
+  min-width: 15px;
+  width: 15px;
+}
+
+.website-language-switcher select {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  max-width: 70px;
+  outline: 0;
+  padding: 0 2px;
+}
+
+.website-language-switcher option {
+  background: #0f172a;
+  color: #f8fafc;
+}
+
+html[dir="rtl"] .website-language-switcher {
+  direction: ltr;
+}
+
+@media (max-width: 700px) {
+  .website-language-switcher {
+    height: 34px;
+    padding: 0 6px;
+  }
+
+  .website-language-switcher select {
+    max-width: 42px;
+    width: 42px;
+  }
+}
