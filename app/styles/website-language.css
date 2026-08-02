@@ -8,6 +8,8 @@
   flex: 0 0 auto;
   gap: 6px;
   height: 38px;
+  min-width: 72px;
+  order: -1;
   padding: 0 8px;
   position: relative;
 }
@@ -43,13 +45,40 @@ html[dir="rtl"] .website-language-switcher {
 }
 
 @media (max-width: 700px) {
+  .arcade-header-actions {
+    gap: 6px;
+  }
+
   .website-language-switcher {
-    height: 34px;
-    padding: 0 6px;
+    height: 36px;
+    min-width: 58px;
+    padding: 0 7px;
   }
 
   .website-language-switcher select {
     max-width: 42px;
     width: 42px;
+  }
+}
+
+@media (max-width: 600px) {
+  .arcade-header-actions .header-store-link {
+    display: none;
+  }
+
+  .website-language-switcher {
+    min-width: 56px;
+  }
+
+  .website-language-switcher svg,
+  .website-language-switcher .fa-icon {
+    height: 14px;
+    min-width: 14px;
+    width: 14px;
+  }
+
+  .website-language-switcher select {
+    max-width: 30px;
+    width: 30px;
   }
 }
