@@ -2,22 +2,24 @@ import type { Metadata } from "next"
 import FacilitatorPanel from "@/components/arcade/facilitator-panel"
 import ArcadeRouteLinks from "@/components/app/arcade-route-links"
 import SeoContent from "@/components/seo/seo-content"
-import { getWebsiteLanguageAlternates } from "@/lib/website-i18n"
+import {
+  getWebsiteLanguageAlternates,
+  WEBSITE_SITE_URL,
+} from "@/lib/website-i18n"
 import RedesignCalculator from "./redesign-calculator"
-
-const siteUrl = "https://arcade.eplus.dev/"
 
 export const metadata: Metadata = {
   alternates: {
-    canonical: siteUrl,
+    canonical: WEBSITE_SITE_URL,
     languages: getWebsiteLanguageAlternates(),
   },
   openGraph: {
-    url: siteUrl,
+    url: WEBSITE_SITE_URL,
     locale: "en_US",
   },
 }
 
+/** Renders the default English calculator homepage. */
 export default function Page() {
   return (
     <>
