@@ -103,7 +103,10 @@ export function getWebsiteLocaleFromPathname(
 
 export function getWebsiteLanguageAlternates(): Record<string, string> {
   return Object.fromEntries([
-    ...WEBSITE_LOCALES.map((locale) => [locale.htmlLang, getWebsiteLocaleHref(locale)]),
+    ...WEBSITE_LOCALES.map((locale) => [
+      locale.htmlLang,
+      getWebsiteLocaleHref(locale.code),
+    ]),
     ["x-default", "/"],
   ])
 }
