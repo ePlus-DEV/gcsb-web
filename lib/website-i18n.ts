@@ -1,17 +1,17 @@
 export const WEBSITE_LOCALES = [
-  { code: "en", htmlLang: "en", label: "English", shortLabel: "EN" },
-  { code: "vi", htmlLang: "vi", label: "Tiếng Việt", shortLabel: "VI" },
-  { code: "ja", htmlLang: "ja", label: "日本語", shortLabel: "JA" },
-  { code: "ko", htmlLang: "ko", label: "한국어", shortLabel: "KO" },
-  { code: "zh_CN", htmlLang: "zh-CN", label: "简体中文", shortLabel: "ZH" },
-  { code: "fr", htmlLang: "fr", label: "Français", shortLabel: "FR" },
-  { code: "de", htmlLang: "de", label: "Deutsch", shortLabel: "DE" },
-  { code: "es", htmlLang: "es", label: "Español", shortLabel: "ES" },
-  { code: "pt_BR", htmlLang: "pt-BR", label: "Português (Brasil)", shortLabel: "PT" },
-  { code: "it", htmlLang: "it", label: "Italiano", shortLabel: "IT" },
-  { code: "ru", htmlLang: "ru", label: "Русский", shortLabel: "RU" },
-  { code: "ar", htmlLang: "ar", label: "العربية", shortLabel: "AR" },
-  { code: "hi", htmlLang: "hi", label: "हिन्दी", shortLabel: "HI" },
+  { code: "en", path: "", htmlLang: "en", label: "English", shortLabel: "EN" },
+  { code: "vi", path: "vi", htmlLang: "vi", label: "Tiếng Việt", shortLabel: "VI" },
+  { code: "ja", path: "ja", htmlLang: "ja", label: "日本語", shortLabel: "JA" },
+  { code: "ko", path: "ko", htmlLang: "ko", label: "한국어", shortLabel: "KO" },
+  { code: "zh_CN", path: "zh-cn", htmlLang: "zh-CN", label: "简体中文", shortLabel: "ZH" },
+  { code: "fr", path: "fr", htmlLang: "fr", label: "Français", shortLabel: "FR" },
+  { code: "de", path: "de", htmlLang: "de", label: "Deutsch", shortLabel: "DE" },
+  { code: "es", path: "es", htmlLang: "es", label: "Español", shortLabel: "ES" },
+  { code: "pt_BR", path: "pt-br", htmlLang: "pt-BR", label: "Português (Brasil)", shortLabel: "PT" },
+  { code: "it", path: "it", htmlLang: "it", label: "Italiano", shortLabel: "IT" },
+  { code: "ru", path: "ru", htmlLang: "ru", label: "Русский", shortLabel: "RU" },
+  { code: "ar", path: "ar", htmlLang: "ar", label: "العربية", shortLabel: "AR" },
+  { code: "hi", path: "hi", htmlLang: "hi", label: "हिन्दी", shortLabel: "HI" },
 ] as const
 
 export type WebsiteLocale = (typeof WEBSITE_LOCALES)[number]["code"]
@@ -61,6 +61,7 @@ export function getWebsiteLocale(value?: string | null): WebsiteLocale {
   const direct = WEBSITE_LOCALES.find(
     (locale) =>
       locale.code.toLowerCase() === normalized ||
+      locale.path.toLowerCase() === normalized ||
       locale.htmlLang.toLowerCase() === normalized,
   )
   if (direct) return direct.code
@@ -74,6 +75,37 @@ export function getWebsiteLocale(value?: string | null): WebsiteLocale {
 
 export function getWebsiteLocaleInfo(locale: WebsiteLocale) {
   return WEBSITE_LOCALES.find((item) => item.code === locale) ?? WEBSITE_LOCALES[0]
+}
+
+export function getWebsiteLocaleHref(locale: WebsiteLocale): string {
+  const localeInfo = getWebsiteLocaleInfo(locale)
+  return localeInfo.path ? `/${localeInfo.path}/` : "/"
+}
+
+export function getWebsiteLocaleFromPathname(
+  pathname: string,
+): WebsiteLocale | null {
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ""
+  const pathWithoutBase =
+    basePath && pathname.startsWith(basePath)
+      ? pathname.slice(basePath.length)
+      : pathname
+  const segment = pathWithoutBase.split("/").filter(Boolean)[0]
+
+  if (!segment) return DEFAULT_WEBSITE_LOCALE
+
+  return (
+    WEBSITE_LOCALES.find(
+      (locale) => locale.path && locale.path.toLowerCase() === segment.toLowerCase(),
+    )?.code ?? null
+  )
+}
+
+export function getWebsiteLanguageAlternates(): Record<string, string> {
+  return Object.fromEntries([
+    ...WEBSITE_LOCALES.map((locale) => [locale.htmlLang, getWebsiteLocaleHref(locale)]),
+    ["x-default", "/"],
+  ])
 }
 
 export function loadWebsiteCatalog(locale: WebsiteLocale): Promise<WebsiteCatalog> {
