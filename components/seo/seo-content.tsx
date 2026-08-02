@@ -1,10 +1,9 @@
 import {
-  getWebsiteLocaleHref,
+  getWebsiteCanonicalUrl,
   getWebsiteLocaleInfo,
   type WebsiteLocale,
 } from "@/lib/website-i18n"
 
-const siteUrl = "https://arcade.eplus.dev/"
 const defaultDescription =
   "Google Cloud Arcade points calculator, badge tracker, and Facilitator milestone dashboard for public Google Skills profiles."
 
@@ -14,13 +13,14 @@ type SeoContentProps = {
   description?: string
 }
 
+/** Renders localized WebSite, Organization, and WebApplication JSON-LD. */
 export default function SeoContent({
   locale = "en",
   title = "Arcade Points by ePlus.DEV",
   description = defaultDescription,
 }: SeoContentProps) {
   const localeInfo = getWebsiteLocaleInfo(locale)
-  const pageUrl = new URL(getWebsiteLocaleHref(locale), siteUrl).toString()
+  const pageUrl = getWebsiteCanonicalUrl(locale)
   const structuredData = {
     "@context": "https://schema.org",
     "@graph": [
