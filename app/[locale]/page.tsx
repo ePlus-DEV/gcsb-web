@@ -6,8 +6,8 @@ import FacilitatorPanel from "@/components/arcade/facilitator-panel"
 import ArcadeRouteLinks from "@/components/app/arcade-route-links"
 import SeoContent from "@/components/seo/seo-content"
 import {
+  getWebsiteCanonicalUrl,
   getWebsiteLanguageAlternates,
-  getWebsiteLocaleHref,
   getWebsiteLocaleInfo,
   WEBSITE_LOCALES,
   type WebsiteCatalog,
@@ -15,16 +15,16 @@ import {
 } from "@/lib/website-i18n"
 import RedesignCalculator from "../redesign-calculator"
 
-const siteUrl = "https://arcade.eplus.dev/"
-
 export const dynamicParams = false
 
+/** Generates every supported non-English localized homepage at build time. */
 export function generateStaticParams() {
   return WEBSITE_LOCALES.filter((locale) => locale.path).map((locale) => ({
     locale: locale.path,
   }))
 }
 
+/** Resolves a route segment to a supported website locale. */
 function resolveLocale(segment: string): WebsiteLocale | null {
   return (
     WEBSITE_LOCALES.find(
@@ -33,11 +33,13 @@ function resolveLocale(segment: string): WebsiteLocale | null {
   )
 }
 
+/** Reads one generated translation catalog during static rendering. */
 async function readCatalog(locale: WebsiteLocale): Promise<WebsiteCatalog> {
   const filePath = path.join(process.cwd(), "public", "i18n", `${locale}.json`)
   return JSON.parse(await readFile(filePath, "utf8")) as WebsiteCatalog
 }
 
+/** Builds localized title and description values for metadata and JSON-LD. */
 function getLocalizedSeo(locale: WebsiteLocale, catalog: WebsiteCatalog) {
   const translatedTitle = `${catalog.messages.heroTitleTop ?? "CHECK YOUR"} ${
     catalog.messages.heroTitleBottom ?? "ARCADE SCORE"
@@ -57,6 +59,7 @@ type LocalizedPageProps = {
   params: Promise<{ locale: string }>
 }
 
+/** Generates localized canonical, hreflang, social, and search metadata. */
 export async function generateMetadata({
   params,
 }: LocalizedPageProps): Promise<Metadata> {
@@ -67,7 +70,7 @@ export async function generateMetadata({
   const localeInfo = getWebsiteLocaleInfo(locale)
   const catalog = await readCatalog(locale)
   const { title, description } = getLocalizedSeo(locale, catalog)
-  const canonical = new URL(getWebsiteLocaleHref(locale), siteUrl).toString()
+  const canonical = getWebsiteCanonicalUrl(locale)
 
   return {
     title,
@@ -102,6 +105,7 @@ export async function generateMetadata({
   }
 }
 
+/** Renders one statically generated localized calculator homepage. */
 export default async function LocalizedPage({ params }: LocalizedPageProps) {
   const { locale: segment } = await params
   const locale = resolveLocale(segment)
