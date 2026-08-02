@@ -36,7 +36,10 @@ jobs:
       - name: Checkout production source
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.base.sha }}
+          # Always rebuild the latest base branch. The immutable base SHA stored
+          # on the PR points to the commit before merge and would revert the
+          # production root when the closed-event cleanup runs.
+          ref: ${{ github.event.pull_request.base.ref }}
           path: production-source
           persist-credentials: false
 
