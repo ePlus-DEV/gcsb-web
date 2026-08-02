@@ -10,6 +10,11 @@ type LocaleLayoutProps = {
   params: Promise<{ locale: string }>
 }
 
+/**
+ * Validates localized route segments and provides matching subtree semantics.
+ * The build postprocessor applies the same lang, dir, and data-locale values to
+ * the prerendered root html element before the production response is served.
+ */
 export default async function LocaleLayout({
   children,
   params,
@@ -23,7 +28,11 @@ export default async function LocaleLayout({
 
   const localeInfo = getWebsiteLocaleInfo(locale)
   return (
-    <div lang={localeInfo.htmlLang} dir={locale === "ar" ? "rtl" : "ltr"}>
+    <div
+      lang={localeInfo.htmlLang}
+      dir={locale === "ar" ? "rtl" : "ltr"}
+      data-locale={locale}
+    >
       {children}
     </div>
   )
