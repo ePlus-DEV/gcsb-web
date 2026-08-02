@@ -7,6 +7,8 @@ import { createPortal } from "react-dom"
 import {
   DEFAULT_WEBSITE_LOCALE,
   getWebsiteLocale,
+  getWebsiteLocaleFromPathname,
+  getWebsiteLocaleHref,
   getWebsiteLocaleInfo,
   loadWebsiteCatalog,
   translateWebsiteText,
@@ -132,7 +134,8 @@ export default function WebsiteLanguage() {
       // Locale persistence is optional.
     }
 
-    setLocale(getWebsiteLocale(stored || navigator.language))
+    const pathLocale = getWebsiteLocaleFromPathname(window.location.pathname)
+    setLocale(pathLocale ?? getWebsiteLocale(stored || navigator.language))
     setReady(true)
   }, [])
 
@@ -155,6 +158,21 @@ export default function WebsiteLanguage() {
   useEffect(() => {
     if (!ready) return
 
+    const html = document.documentElement
+    html.lang = localeInfo.htmlLang
+    html.dir = locale === "ar" ? "rtl" : "ltr"
+    html.dataset.locale = locale
+
+    try {
+      window.localStorage.setItem(WEBSITE_LOCALE_STORAGE_KEY, locale)
+    } catch {
+      // Locale persistence is optional.
+    }
+  }, [locale, localeInfo.htmlLang, ready])
+
+  useEffect(() => {
+    if (!ready) return
+
     let active = true
     void Promise.all([loadWebsiteCatalog("en"), loadWebsiteCatalog(locale)])
       .then(([source, target]) => {
@@ -171,17 +189,6 @@ export default function WebsiteLanguage() {
 
   useEffect(() => {
     if (!ready || !catalogs || catalogs.locale !== locale) return
-
-    const html = document.documentElement
-    html.lang = localeInfo.htmlLang
-    html.dir = locale === "ar" ? "rtl" : "ltr"
-    html.dataset.locale = locale
-
-    try {
-      window.localStorage.setItem(WEBSITE_LOCALE_STORAGE_KEY, locale)
-    } catch {
-      // Locale persistence is optional.
-    }
 
     translateTree(document.body, catalogs.source, catalogs.target)
 
@@ -217,7 +224,18 @@ export default function WebsiteLanguage() {
       subtree: true,
     })
     return () => observer.disconnect()
-  }, [catalogs, locale, localeInfo.htmlLang, ready])
+  }, [catalogs, locale, ready])
+
+  function changeLocale(nextLocale: WebsiteLocale) {
+    try {
+      window.localStorage.setItem(WEBSITE_LOCALE_STORAGE_KEY, nextLocale)
+    } catch {
+      // Locale persistence is optional.
+    }
+
+    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ""
+    window.location.assign(`${basePath}${getWebsiteLocaleHref(nextLocale)}`)
+  }
 
   if (!ready || !portalTarget) return null
 
@@ -234,7 +252,7 @@ export default function WebsiteLanguage() {
         aria-label={languageLabel}
         value={locale}
         onChange={(event: ChangeEvent<HTMLSelectElement>) =>
-          setLocale(event.target.value as WebsiteLocale)
+          changeLocale(event.target.value as WebsiteLocale)
         }
       >
         {WEBSITE_LOCALES.map((item) => (
