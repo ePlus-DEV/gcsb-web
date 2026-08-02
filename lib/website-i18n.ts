@@ -115,14 +115,14 @@ export function getWebsiteLocaleFromPathname(
   )
 }
 
-/** Builds the hreflang route map used by localized metadata. */
+/** Builds the absolute hreflang URL map used by localized metadata. */
 export function getWebsiteLanguageAlternates(): Record<string, string> {
   return Object.fromEntries([
     ...WEBSITE_LOCALES.map((locale) => [
       locale.htmlLang,
-      getWebsiteLocaleHref(locale.code),
+      getWebsiteCanonicalUrl(locale.code),
     ]),
-    ["x-default", "/"],
+    ["x-default", WEBSITE_SITE_URL],
   ])
 }
 
