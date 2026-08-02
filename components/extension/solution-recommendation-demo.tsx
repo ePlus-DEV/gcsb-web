@@ -1,6 +1,6 @@
 "use client"
 
-import { BadgeCheck, Chrome, ExternalLink, Globe2, Sparkles, WandSparkles } from "lucide-react"
+import { BadgeCheck, Chrome, ExternalLink, Globe2, Sparkles } from "lucide-react"
 import { useState } from "react"
 
 const CHROME_EXTENSION_URL =
@@ -66,7 +66,7 @@ export default function SolutionRecommendationDemo() {
     <section className="solution-demo" aria-labelledby="solution-demo-title">
       <div className="solution-demo__intro">
         <span className="solution-demo__kicker">
-          <WandSparkles aria-hidden="true" /> Optional companion
+          <Sparkles aria-hidden="true" /> Optional companion
         </span>
         <h2 id="solution-demo-title">Use the web normally. Install the extension when it saves you time.</h2>
         <p>
