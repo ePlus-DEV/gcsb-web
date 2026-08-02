@@ -1,0 +1,57 @@
+.fa-icon {
+  display: inline-block;
+  flex: 0 0 auto;
+  font-style: normal;
+  vertical-align: -0.125em;
+}
+
+.arcade-brand-mark .fa-icon {
+  width: 24px;
+  height: 24px;
+  font-size: 24px;
+}
+
+.header-store-link .fa-icon,
+.mobile-menu-toggle .fa-icon {
+  width: 17px;
+  height: 17px;
+  font-size: 17px;
+}
+
+.pixel-kicker .fa-icon,
+.trust-pills .fa-icon {
+  width: 15px;
+  height: 15px;
+  font-size: 15px;
+}
+
+.analyzer-help-row .fa-icon,
+.footer-store-links .fa-icon {
+  width: 14px;
+  height: 14px;
+  font-size: 14px;
+}
+
+.analyze-button .fa-icon {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+}
+
+.extension-store-mark .fa-icon {
+  width: 19px;
+  height: 19px;
+  font-size: 19px;
+}
+
+.extension-store-actions .fa-icon {
+  width: 15px;
+  height: 15px;
+  font-size: 15px;
+}
+
+.mobile-bottom-nav .fa-icon {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+}
