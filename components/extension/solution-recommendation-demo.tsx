@@ -2,11 +2,10 @@
 
 import { BadgeCheck, Chrome, ExternalLink, Globe2, Sparkles } from "lucide-react"
 import { useState } from "react"
-
-const CHROME_EXTENSION_URL =
-  "https://chromewebstore.google.com/detail/google-cloud-skills-boost/lmbhjioadhcoebhgapaidogodllonbgg"
-const FIREFOX_EXTENSION_URL =
-  "https://addons.mozilla.org/addon/cloud-skills-boost-helper"
+import {
+  CHROME_EXTENSION_URL,
+  FIREFOX_EXTENSION_URL,
+} from "@/lib/extension-store-urls"
 
 type RecommendationKey = "calculator" | "badges" | "tiers"
 
@@ -75,13 +74,12 @@ export default function SolutionRecommendationDemo() {
       </div>
 
       <div className="solution-demo__shell">
-        <div className="solution-demo__tabs" role="tablist" aria-label="Recommendation examples">
+        <div className="solution-demo__tabs" aria-label="Recommendation examples">
           {(Object.keys(recommendations) as RecommendationKey[]).map((key) => (
             <button
               key={key}
               type="button"
-              role="tab"
-              aria-selected={activeKey === key}
+              aria-pressed={activeKey === key}
               className={activeKey === key ? "is-active" : undefined}
               onClick={() => setActiveKey(key)}
             >
@@ -90,7 +88,7 @@ export default function SolutionRecommendationDemo() {
           ))}
         </div>
 
-        <div className="solution-card" role="tabpanel">
+        <div className="solution-card" aria-live="polite">
           <div className="solution-card__icon" aria-hidden="true">
             <Sparkles />
           </div>
