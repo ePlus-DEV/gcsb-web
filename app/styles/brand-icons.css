@@ -1,0 +1,32 @@
+.is-chrome > svg,
+.is-firefox > svg {
+  display: none;
+}
+
+.is-chrome::before,
+.is-firefox::before {
+  content: "";
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 17px;
+  height: 17px;
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.is-chrome::before {
+  background-image: url("/chrome.svg");
+}
+
+.is-firefox::before {
+  background-image: url("/firefox.svg");
+}
+
+.extension-store-actions .is-chrome::before,
+.extension-store-actions .is-firefox::before,
+.footer-store-links .is-chrome::before,
+.footer-store-links .is-firefox::before {
+  width: 15px;
+  height: 15px;
+}
