@@ -42,7 +42,7 @@ export type WebsiteCatalog = {
 export const DEFAULT_WEBSITE_LOCALE: WebsiteLocale = "en"
 export const WEBSITE_LOCALE_STORAGE_KEY = "arcade-points-locale"
 
-let catalogsRequest: Promise<Record<WebsiteLocale, WebsiteCatalog>> | null = null
+const catalogRequests = new Map<WebsiteLocale, Promise<WebsiteCatalog>>()
 const sourceMessageMaps = new WeakMap<WebsiteCatalog, Map<string, string>>()
 
 export function getWebsiteLocale(value?: string | null): WebsiteLocale {
@@ -76,41 +76,28 @@ export function getWebsiteLocaleInfo(locale: WebsiteLocale) {
   return WEBSITE_LOCALES.find((item) => item.code === locale) ?? WEBSITE_LOCALES[0]
 }
 
-export async function loadWebsiteCatalog(
-  locale: WebsiteLocale,
-): Promise<WebsiteCatalog> {
-  if (!catalogsRequest) {
-    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ""
-    catalogsRequest = Promise.all(
-      Array.from({ length: 7 }, (_, index) =>
-        fetch(
-          `${basePath}/i18n/catalogs.part.${String(index).padStart(2, "0")}.txt`,
-          { cache: "force-cache" },
-        ).then((response) => {
-          if (!response.ok) throw new Error("Unable to load website locales.")
-          return response.text()
-        }),
-      ),
-    ).then(async (parts) => {
-      const encoded = parts.join("")
-      const compressed = Uint8Array.from(atob(encoded), (character) =>
-        character.charCodeAt(0),
-      )
+export function loadWebsiteCatalog(locale: WebsiteLocale): Promise<WebsiteCatalog> {
+  const cached = catalogRequests.get(locale)
+  if (cached) return cached
 
-      if (typeof DecompressionStream === "undefined") {
-        throw new Error("Gzip decompression is unavailable.")
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ""
+  const request = fetch(`${basePath}/i18n/${locale}.json`, {
+    cache: "force-cache",
+  })
+    .then(async (response) => {
+      if (!response.ok) {
+        throw new Error(`Unable to load the ${locale} website locale.`)
       }
 
-      const stream = new Blob([compressed])
-        .stream()
-        .pipeThrough(new DecompressionStream("gzip"))
-      const json = await new Response(stream).text()
-      return JSON.parse(json) as Record<WebsiteLocale, WebsiteCatalog>
+      return (await response.json()) as WebsiteCatalog
     })
-  }
+    .catch((error) => {
+      catalogRequests.delete(locale)
+      throw error
+    })
 
-  const catalogs = await catalogsRequest
-  return catalogs[locale] ?? catalogs[DEFAULT_WEBSITE_LOCALE]
+  catalogRequests.set(locale, request)
+  return request
 }
 
 export function translateWebsiteText(
