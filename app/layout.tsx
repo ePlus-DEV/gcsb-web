@@ -17,7 +17,9 @@ const description =
 const googleFontsUrl =
   "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Press+Start+2P&display=swap"
 const fontAwesomeUrl =
-  "https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.7.2/css/all.min.css"
+  "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+const fontAwesomeIntegrity =
+  "sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -93,9 +95,15 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+        <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
         <link rel="stylesheet" href={googleFontsUrl} />
-        <link rel="stylesheet" href={fontAwesomeUrl} />
+        <link
+          rel="stylesheet"
+          href={fontAwesomeUrl}
+          integrity={fontAwesomeIntegrity}
+          crossOrigin="anonymous"
+          referrerPolicy="no-referrer"
+        />
       </head>
       <body>
         <ThemeProvider
