@@ -79,3 +79,42 @@ html.light .footer-route-links a:hover {
     gap: 14px;
   }
 }
+
+@media (max-width: 520px) {
+  .arcade-header-actions,
+  .website-language-switcher {
+    position: static;
+  }
+
+  .website-language-trigger {
+    min-width: 84px;
+  }
+
+  .website-language-menu {
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    width: auto;
+    max-width: none;
+    margin: 0;
+    transform-origin: top center;
+    box-shadow:
+      0 22px 55px rgba(0, 0, 0, 0.42),
+      0 0 0 100vmax rgba(3, 7, 18, 0.22);
+    clip-path: inset(-100vmax);
+  }
+
+  .website-language-menu::before {
+    display: none;
+  }
+
+  .website-language-options {
+    max-height: min(56vh, 430px);
+  }
+
+  html.light .website-language-menu {
+    box-shadow:
+      0 22px 55px rgba(51, 65, 85, 0.2),
+      0 0 0 100vmax rgba(30, 41, 59, 0.12);
+  }
+}
