@@ -1,9 +1,11 @@
 import { ImageResponse } from "next/og"
 
-const imageSize = {
+export const SOCIAL_IMAGE_SIZE = {
   width: 1200,
   height: 630,
-}
+} as const
+
+export const ARCADE_SEASON = "2026"
 
 function GamepadMark() {
   return (
@@ -260,7 +262,7 @@ export function createSocialImage() {
                 letterSpacing: 1.2,
               }}
             >
-              ✦ GOOGLE CLOUD SKILLS BOOST ARCADE 2026
+              ✦ GOOGLE CLOUD SKILLS BOOST ARCADE {ARCADE_SEASON}
             </div>
             <div
               style={{
@@ -296,7 +298,7 @@ export function createSocialImage() {
                 lineHeight: 1.5,
               }}
             >
-              Analyze your public profile, inspect earned badges and check which 2026 reward tier your score qualifies for.
+              {`Analyze your public profile, inspect earned badges and check which ${ARCADE_SEASON} reward tier your score qualifies for.`}
             </div>
             <div
               style={{
@@ -502,6 +504,6 @@ export function createSocialImage() {
         </div>
       </div>
     ),
-    imageSize,
+    SOCIAL_IMAGE_SIZE,
   )
 }
