@@ -45,12 +45,14 @@ jobs:
           NEXT_PUBLIC_GA_IDS: "G-41VM0C9NGM,G-SJNYKL2864"
         run: yarn build
 
-      - name: Verify production asset paths
+      - name: Verify production asset paths and analytics
         shell: bash
         run: |
           set -euo pipefail
           test -f out/index.html
           grep -q 'src="/_next/' out/index.html
+          grep -R -q "G-41VM0C9NGM" out
+          grep -R -q "G-SJNYKL2864" out
           if grep -q '/gcsb-web/_next/' out/index.html; then
             echo "Production still contains the repository-name base path."
             exit 1
