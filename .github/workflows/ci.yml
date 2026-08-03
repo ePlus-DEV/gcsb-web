@@ -40,33 +40,10 @@ jobs:
           NEXT_PUBLIC_GA_IDS: "G-SJNYKL2864,G-41VM0C9NGM"
         run: yarn build
 
-      - name: Inspect Google Analytics initialization
-        shell: bash
+      - name: Verify Google Analytics initialization
         run: |
-          set -euo pipefail
-          test -f out/index.html
-          python3 - <<'PY'
-          from pathlib import Path
-
-          html = Path("out/index.html").read_text()
-          marker = "G-SJNYKL2864"
-          positions = []
-          start = 0
-
-          while True:
-              position = html.find(marker, start)
-              if position == -1:
-                  break
-              positions.append(position)
-              start = position + len(marker)
-
-          print(f"Found {len(positions)} occurrence(s) of {marker} in out/index.html")
-          for index, position in enumerate(positions, start=1):
-              context_start = max(0, position - 350)
-              context_end = min(len(html), position + len(marker) + 350)
-              print(f"--- occurrence {index} ---")
-              print(html[context_start:context_end])
-
-          if not positions:
-              raise SystemExit(f"{marker} is missing from out/index.html")
-          PY
+          python3 scripts/verify-google-analytics-html.py \
+            out/index.html \
+            G-SJNYKL2864 \
+            G-SJNYKL2864 \
+            G-41VM0C9NGM
