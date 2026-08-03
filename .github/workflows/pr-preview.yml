@@ -95,7 +95,7 @@ jobs:
           yarn install --frozen-lockfile --non-interactive
           yarn build
 
-      - name: Verify preview asset paths
+      - name: Verify preview asset paths and analytics isolation
         if: github.event.action != 'closed'
         working-directory: preview-source
         env:
@@ -106,6 +106,10 @@ jobs:
           set -euo pipefail
           test -f out/index.html
           grep -q "${PREVIEW_PATH}/_next/" out/index.html
+          if grep -R -E -q "G-41VM0C9NGM|G-SJNYKL2864" out; then
+            echo "Preview output contains a production Google Analytics ID."
+            exit 1
+          fi
           if grep -q "/${REPO_NAME}/pr-preview/" out/index.html; then
             echo "Preview still contains the repository-name base path."
             exit 1
