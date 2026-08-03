@@ -2,6 +2,7 @@
 
 import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
+import { createPortal } from "react-dom"
 
 function SunIcon() {
   return (
@@ -42,28 +43,43 @@ function MoonIcon() {
 export default function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
+  const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null)
 
   useEffect(() => {
     setMounted(true)
+
+    const syncPortalTarget = () => {
+      const nextTarget = document.querySelector<HTMLElement>(
+        ".arcade-header-actions",
+      )
+      setPortalTarget((current) =>
+        current === nextTarget ? current : nextTarget,
+      )
+    }
+
+    syncPortalTarget()
+    const observer = new MutationObserver(syncPortalTarget)
+    observer.observe(document.body, { childList: true, subtree: true })
+    return () => observer.disconnect()
   }, [])
 
-  const isDark = !mounted || resolvedTheme === "dark"
-  const nextTheme = isDark ? "light" : "dark"
-  const label = mounted
-    ? `Switch to ${nextTheme} mode`
-    : "Change color theme"
+  if (!mounted) return null
 
-  return (
+  const isDark = resolvedTheme === "dark"
+  const nextTheme = isDark ? "light" : "dark"
+  const label = `Switch to ${nextTheme} mode`
+  const button = (
     <button
-      className="website-theme-toggle"
+      className={`website-theme-toggle ${portalTarget ? "is-header-control" : "is-floating"}`}
       type="button"
       aria-label={label}
       title={label}
-      disabled={!mounted}
       onClick={() => setTheme(nextTheme)}
     >
       <SunIcon />
       <MoonIcon />
     </button>
   )
+
+  return portalTarget ? createPortal(button, portalTarget) : button
 }
