@@ -51,19 +51,11 @@ jobs:
           set -euo pipefail
           test -f out/index.html
           grep -q 'src="/_next/' out/index.html
-          python3 - <<'PY'
-          from pathlib import Path
-
-          html = Path("out/index.html").read_text()
-          primary_url = "https://www.googletagmanager.com/gtag/js?id=G-SJNYKL2864"
-
-          if html.count(f'src="{primary_url}"') != 1:
-              raise SystemExit("Expected exactly one primary gtag.js script URL.")
-
-          for ga_id in ("G-SJNYKL2864", "G-41VM0C9NGM"):
-              if html.count(f'gtag("config", "{ga_id}");') != 1:
-                  raise SystemExit(f"Expected exactly one gtag config for {ga_id}.")
-          PY
+          python3 scripts/verify-google-analytics-html.py \
+            out/index.html \
+            G-SJNYKL2864 \
+            G-SJNYKL2864 \
+            G-41VM0C9NGM
           if grep -q '/gcsb-web/_next/' out/index.html; then
             echo "Production still contains the repository-name base path."
             exit 1
