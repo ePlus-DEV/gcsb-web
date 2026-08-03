@@ -72,20 +72,11 @@ export const metadata: Metadata = {
     type: "website",
     siteName,
     locale: "en_US",
-    images: [
-      {
-        url: "/head.png",
-        width: 1280,
-        height: 800,
-        alt: "Google Cloud Arcade points calculator, badge tracker and Facilitator milestone dashboard",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
     title,
     description,
-    images: ["/head.png"],
     creator: "@ePlusDEV",
   },
   manifest: "/manifest.webmanifest",

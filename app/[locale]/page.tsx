@@ -87,20 +87,11 @@ export async function generateMetadata({
       alternateLocale: WEBSITE_LOCALES.filter((item) => item.code !== locale).map(
         (item) => item.htmlLang.replace("-", "_"),
       ),
-      images: [
-        {
-          url: "/head.png",
-          width: 1280,
-          height: 800,
-          alt: title,
-        },
-      ],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: ["/head.png"],
     },
   }
 }
