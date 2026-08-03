@@ -7,48 +7,68 @@ export const SOCIAL_IMAGE_SIZE = {
 
 export const ARCADE_SEASON = "2026"
 
+const FONT_CDN = "https://cdn.jsdelivr.net/fontsource/fonts"
+
+async function fetchFont(path: string): Promise<ArrayBuffer> {
+  const response = await fetch(`${FONT_CDN}/${path}`)
+
+  if (!response.ok) {
+    throw new Error(`Unable to load social image font: ${path}`)
+  }
+
+  return response.arrayBuffer()
+}
+
+const socialFontData = Promise.all([
+  fetchFont("inter@5.3.0/latin-400-normal.woff"),
+  fetchFont("inter@5.3.0/latin-600-normal.woff"),
+  fetchFont("inter@5.3.0/latin-700-normal.woff"),
+  fetchFont("inter@5.3.0/latin-800-normal.woff"),
+  fetchFont("press-start-2p@5.3.0/latin-400-normal.woff"),
+])
+
 function GamepadMark() {
   return (
     <div
       style={{
         position: "relative",
         display: "flex",
-        width: 31,
-        height: 22,
-        border: "4px solid #ffd43b",
-        borderRadius: 8,
+        width: 27,
+        height: 19,
+        border: "3px solid #ffd43b",
+        borderRadius: 7,
       }}
     >
       <div
         style={{
           position: "absolute",
-          left: 5,
+          left: 4,
           top: 5,
           display: "flex",
-          width: 12,
-          height: 4,
+          width: 10,
+          height: 3,
           backgroundColor: "#ffd43b",
         }}
       />
       <div
         style={{
           position: "absolute",
-          left: 9,
-          top: 1,
+          left: 7,
+          top: 2,
           display: "flex",
-          width: 4,
-          height: 12,
+          width: 3,
+          height: 10,
           backgroundColor: "#ffd43b",
         }}
       />
       <div
         style={{
           position: "absolute",
-          right: 5,
+          right: 4,
           top: 4,
           display: "flex",
-          width: 5,
-          height: 5,
+          width: 4,
+          height: 4,
           borderRadius: 999,
           backgroundColor: "#22d3ee",
         }}
@@ -63,8 +83,8 @@ function SearchMark() {
       style={{
         position: "relative",
         display: "flex",
-        width: 20,
-        height: 20,
+        width: 18,
+        height: 18,
         border: "3px solid #7f8da9",
         borderRadius: 999,
       }}
@@ -86,8 +106,88 @@ function SearchMark() {
   )
 }
 
+function SparkleMark({ size = 14 }: { size?: number }) {
+  return (
+    <div
+      style={{
+        position: "relative",
+        display: "flex",
+        width: size,
+        height: size,
+      }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          left: size / 2 - 1,
+          top: 0,
+          display: "flex",
+          width: 2,
+          height: size,
+          borderRadius: 999,
+          backgroundColor: "#7dd3fc",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          left: 0,
+          top: size / 2 - 1,
+          display: "flex",
+          width: size,
+          height: 2,
+          borderRadius: 999,
+          backgroundColor: "#7dd3fc",
+        }}
+      />
+    </div>
+  )
+}
+
+function CheckMark() {
+  return (
+    <div
+      style={{
+        display: "flex",
+        width: 13,
+        height: 8,
+        marginRight: 8,
+        borderLeft: "3px solid #2fd17d",
+        borderBottom: "3px solid #2fd17d",
+        transform: "rotate(-45deg)",
+      }}
+    />
+  )
+}
+
+function InfoMark() {
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: 15,
+        height: 15,
+        marginRight: 6,
+        border: "1px solid #8fa1bd",
+        borderRadius: 999,
+        color: "#8fa1bd",
+        fontFamily: "Inter",
+        fontSize: 10,
+        fontWeight: 700,
+      }}
+    >
+      i
+    </div>
+  )
+}
+
 /** Creates a social preview that mirrors the current landing-page hero. */
-export function createSocialImage() {
+export async function createSocialImage() {
+  const [inter400, inter600, inter700, inter800, pressStart400] =
+    await socialFontData
+
   return new ImageResponse(
     (
       <div
@@ -100,7 +200,8 @@ export function createSocialImage() {
           overflow: "hidden",
           backgroundColor: "#050918",
           color: "#f7f9ff",
-          fontFamily: "Arial, Helvetica, sans-serif",
+          fontFamily: "Inter",
+          fontWeight: 400,
         }}
       >
         <div
@@ -134,7 +235,7 @@ export function createSocialImage() {
           style={{
             position: "relative",
             display: "flex",
-            height: 82,
+            height: 72,
             padding: "0 54px",
             alignItems: "center",
             justifyContent: "space-between",
@@ -148,12 +249,12 @@ export function createSocialImage() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                width: 45,
-                height: 45,
-                marginRight: 11,
-                border: "1px solid rgba(255,212,59,0.34)",
-                borderRadius: 10,
-                backgroundColor: "#1c2354",
+                width: 40,
+                height: 40,
+                marginRight: 9,
+                border: "1px solid rgba(255,212,59,0.32)",
+                borderRadius: 9,
+                backgroundColor: "#1b2050",
               }}
             >
               <GamepadMark />
@@ -162,24 +263,25 @@ export function createSocialImage() {
               style={{
                 display: "flex",
                 flexDirection: "column",
-                fontSize: 14,
-                fontWeight: 900,
-                lineHeight: 1.12,
-                letterSpacing: 0.5,
+                fontFamily: "Press Start 2P",
+                fontSize: 12,
+                fontWeight: 400,
+                lineHeight: 1.25,
+                letterSpacing: -0.5,
               }}
             >
               <span style={{ color: "#ffd43b" }}>ARCADE</span>
-              <span>POINTS</span>
+              <span style={{ color: "#ffffff" }}>POINTS</span>
             </div>
             <div
               style={{
                 display: "flex",
-                marginLeft: 10,
-                padding: "5px 8px",
-                borderRadius: 6,
+                marginLeft: 9,
+                padding: "4px 7px",
+                borderRadius: 5,
                 backgroundColor: "#8b5cf6",
                 fontSize: 10,
-                fontWeight: 900,
+                fontWeight: 800,
               }}
             >
               PRO
@@ -191,8 +293,8 @@ export function createSocialImage() {
               display: "flex",
               alignItems: "center",
               color: "#c1cbe0",
-              fontSize: 15,
-              fontWeight: 700,
+              fontSize: 13,
+              fontWeight: 600,
             }}
           >
             <span style={{ color: "#ffffff" }}>Calculator</span>
@@ -206,13 +308,13 @@ export function createSocialImage() {
               style={{
                 display: "flex",
                 alignItems: "center",
-                padding: "10px 14px",
-                border: "1px solid rgba(148,163,184,0.2)",
+                padding: "10px 13px",
+                border: "1px solid rgba(148,163,184,0.17)",
                 borderRadius: 9,
                 backgroundColor: "#0b152a",
                 color: "#dbe6fa",
                 fontSize: 13,
-                fontWeight: 700,
+                fontWeight: 600,
               }}
             >
               Chrome
@@ -221,14 +323,14 @@ export function createSocialImage() {
               style={{
                 display: "flex",
                 alignItems: "center",
-                marginLeft: 9,
-                padding: "10px 14px",
+                marginLeft: 10,
+                padding: "10px 13px",
                 border: "1px solid rgba(255,145,0,0.28)",
                 borderRadius: 9,
                 backgroundColor: "#26170c",
                 color: "#f7e6d2",
                 fontSize: 13,
-                fontWeight: 700,
+                fontWeight: 600,
               }}
             >
               Firefox
@@ -242,7 +344,7 @@ export function createSocialImage() {
             display: "flex",
             flex: 1,
             alignItems: "center",
-            padding: "38px 58px 42px",
+            padding: "42px 58px 38px",
           }}
         >
           <div
@@ -256,49 +358,46 @@ export function createSocialImage() {
             <div
               style={{
                 display: "flex",
+                alignItems: "center",
                 color: "#7dd3fc",
-                fontSize: 15,
-                fontWeight: 800,
-                letterSpacing: 1.2,
+                fontSize: 12,
+                fontWeight: 700,
+                letterSpacing: 0.6,
+                textTransform: "uppercase",
               }}
             >
-              ✦ GOOGLE CLOUD SKILLS BOOST ARCADE {ARCADE_SEASON}
+              <SparkleMark size={14} />
+              <span style={{ marginLeft: 8 }}>
+                GOOGLE CLOUD SKILLS BOOST ARCADE {ARCADE_SEASON}
+              </span>
             </div>
             <div
               style={{
                 display: "flex",
-                marginTop: 22,
-                fontSize: 55,
-                fontWeight: 900,
-                lineHeight: 1.05,
-                letterSpacing: -2.5,
+                flexDirection: "column",
+                marginTop: 20,
+                fontFamily: "Press Start 2P",
+                fontSize: 48,
+                fontWeight: 400,
+                lineHeight: 1.18,
+                letterSpacing: -3.1,
               }}
             >
-              CHECK YOUR
-            </div>
-            <div
-              style={{
-                display: "flex",
-                marginTop: 4,
-                color: "#a86cff",
-                fontSize: 57,
-                fontWeight: 900,
-                lineHeight: 1.05,
-                letterSpacing: -2.8,
-              }}
-            >
-              ARCADE SCORE
+              <span>CHECK YOUR</span>
+              <span style={{ marginTop: 8, color: "#a86cff" }}>
+                ARCADE SCORE
+              </span>
             </div>
             <div
               style={{
                 display: "flex",
                 marginTop: 22,
                 color: "#a8b5cc",
-                fontSize: 18,
-                lineHeight: 1.5,
+                fontSize: 16,
+                lineHeight: 1.7,
               }}
             >
-              {`Analyze your public profile, inspect earned badges and check which ${ARCADE_SEASON} reward tier your score qualifies for.`}
+              Analyze your public profile, inspect earned badges and check which {ARCADE_SEASON} reward tier your score qualifies for.
             </div>
             <div
               style={{
@@ -310,31 +409,33 @@ export function createSocialImage() {
               <div
                 style={{
                   display: "flex",
+                  alignItems: "center",
                   padding: "8px 11px",
-                  border: "1px solid rgba(47,209,125,0.23)",
+                  border: "1px solid rgba(47,209,125,0.2)",
                   borderRadius: 7,
                   backgroundColor: "#082329",
                   color: "#c7d4e8",
                   fontSize: 12,
-                  fontWeight: 700,
                 }}
               >
-                ✓ Public profile data only
+                <CheckMark />
+                Public profile data only
               </div>
               <div
                 style={{
                   display: "flex",
-                  marginLeft: 9,
+                  alignItems: "center",
+                  marginLeft: 10,
                   padding: "8px 11px",
-                  border: "1px solid rgba(47,209,125,0.23)",
+                  border: "1px solid rgba(47,209,125,0.2)",
                   borderRadius: 7,
                   backgroundColor: "#082329",
                   color: "#c7d4e8",
                   fontSize: 12,
-                  fontWeight: 700,
                 }}
               >
-                ✓ No Google sign-in required
+                <CheckMark />
+                No Google sign-in required
               </div>
             </div>
           </div>
@@ -344,9 +445,9 @@ export function createSocialImage() {
               display: "flex",
               flexDirection: "column",
               width: 560,
-              padding: 25,
+              padding: 23,
               border: "1px solid rgba(124,92,246,0.42)",
-              borderRadius: 15,
+              borderRadius: 14,
               backgroundColor: "#0a1328",
             }}
           >
@@ -355,9 +456,10 @@ export function createSocialImage() {
                 display: "flex",
                 alignItems: "center",
                 color: "#eef4ff",
-                fontSize: 14,
-                fontWeight: 900,
-                letterSpacing: 0.7,
+                fontSize: 12,
+                fontWeight: 800,
+                letterSpacing: 0.55,
+                textTransform: "uppercase",
               }}
             >
               <div
@@ -365,13 +467,13 @@ export function createSocialImage() {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  width: 27,
-                  height: 27,
-                  marginRight: 11,
-                  border: "1px solid rgba(139,92,246,0.72)",
+                  width: 23,
+                  height: 23,
+                  marginRight: 10,
+                  border: "1px solid rgba(139,92,246,0.68)",
                   borderRadius: 999,
                   color: "#d8c9ff",
-                  fontSize: 12,
+                  fontSize: 11,
                 }}
               >
                 1
@@ -379,15 +481,15 @@ export function createSocialImage() {
               PASTE YOUR PUBLIC PROFILE URL
             </div>
 
-            <div style={{ display: "flex", marginTop: 18 }}>
+            <div style={{ display: "flex", marginTop: 15 }}>
               <div
                 style={{
                   display: "flex",
                   flex: 1,
-                  height: 58,
+                  height: 54,
                   alignItems: "center",
-                  padding: "0 16px",
-                  border: "1px solid rgba(148,163,184,0.23)",
+                  padding: "0 13px",
+                  border: "1px solid rgba(148,163,184,0.2)",
                   borderRadius: 9,
                   backgroundColor: "#040b1b",
                 }}
@@ -396,20 +498,20 @@ export function createSocialImage() {
                 <div
                   style={{
                     display: "flex",
-                    marginLeft: 15,
+                    marginLeft: 14,
                     color: "#5e6c87",
-                    fontSize: 14,
+                    fontSize: 13,
                   }}
                 >
-                  https://www.skills.google/my_account/profile/...
+                  https://www.skills.google/public_profiles/...
                 </div>
               </div>
               <div
                 style={{
                   display: "flex",
-                  height: 58,
+                  height: 54,
                   marginLeft: 11,
-                  padding: "0 22px",
+                  padding: "0 21px",
                   alignItems: "center",
                   justifyContent: "center",
                   border: "1px solid rgba(192,84,255,0.58)",
@@ -417,7 +519,7 @@ export function createSocialImage() {
                   backgroundColor: "#713be0",
                   color: "#ffffff",
                   fontSize: 13,
-                  fontWeight: 900,
+                  fontWeight: 800,
                 }}
               >
                 ANALYZE PROFILE
@@ -428,12 +530,15 @@ export function createSocialImage() {
               style={{
                 display: "flex",
                 justifyContent: "space-between",
-                marginTop: 14,
+                marginTop: 12,
                 color: "#8fa1bd",
                 fontSize: 12,
               }}
             >
-              <span>ⓘ How to find your public profile</span>
+              <span style={{ display: "flex", alignItems: "center" }}>
+                <InfoMark />
+                How to find your public profile
+              </span>
               <span>arcade.eplus.dev</span>
             </div>
 
@@ -458,10 +563,9 @@ export function createSocialImage() {
                   marginRight: 13,
                   borderRadius: 9,
                   backgroundColor: "#39236f",
-                  fontSize: 19,
                 }}
               >
-                ✦
+                <SparkleMark size={16} />
               </div>
               <div style={{ display: "flex", flexDirection: "column" }}>
                 <div
@@ -469,7 +573,7 @@ export function createSocialImage() {
                     display: "flex",
                     color: "#eef4ff",
                     fontSize: 14,
-                    fontWeight: 800,
+                    fontWeight: 700,
                   }}
                 >
                   Install the browser extension
@@ -494,7 +598,7 @@ export function createSocialImage() {
                   borderRadius: 8,
                   color: "#eee8ff",
                   fontSize: 12,
-                  fontWeight: 800,
+                  fontWeight: 700,
                 }}
               >
                 CHROME
@@ -504,6 +608,20 @@ export function createSocialImage() {
         </div>
       </div>
     ),
-    SOCIAL_IMAGE_SIZE,
+    {
+      ...SOCIAL_IMAGE_SIZE,
+      fonts: [
+        { name: "Inter", data: inter400, weight: 400, style: "normal" },
+        { name: "Inter", data: inter600, weight: 600, style: "normal" },
+        { name: "Inter", data: inter700, weight: 700, style: "normal" },
+        { name: "Inter", data: inter800, weight: 800, style: "normal" },
+        {
+          name: "Press Start 2P",
+          data: pressStart400,
+          weight: 400,
+          style: "normal",
+        },
+      ],
+    },
   )
 }
