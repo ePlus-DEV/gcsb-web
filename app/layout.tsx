@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next"
-import Script from "next/script"
 import WebsiteLanguage from "@/components/i18n/website-language"
 import { ThemeProvider } from "@/components/theme-provider"
 import ThemeToggle from "@/components/theme-toggle"
@@ -58,6 +57,12 @@ const primaryGoogleAnalyticsId = googleAnalyticsIds[0]
 const googleAnalyticsConfig = googleAnalyticsIds
   .map((gaId) => `gtag("config", ${JSON.stringify(gaId)});`)
   .join("\n")
+const googleAnalyticsInitScript = `
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag("js", new Date());
+${googleAnalyticsConfig}
+`
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -138,6 +143,19 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           crossOrigin="anonymous"
           referrerPolicy="no-referrer"
         />
+        {primaryGoogleAnalyticsId ? (
+          <>
+            <script
+              id="google-analytics"
+              async
+              src={`https://www.googletagmanager.com/gtag/js?id=${primaryGoogleAnalyticsId}`}
+            />
+            <script
+              id="google-analytics-init"
+              dangerouslySetInnerHTML={{ __html: googleAnalyticsInitScript }}
+            />
+          </>
+        ) : null}
       </head>
       <body>
         <ThemeProvider
@@ -151,27 +169,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <ThemeToggle />
           {children}
         </ThemeProvider>
-        {primaryGoogleAnalyticsId ? (
-          <>
-            <Script
-              id="google-analytics"
-              src={`https://www.googletagmanager.com/gtag/js?id=${primaryGoogleAnalyticsId}`}
-              strategy="beforeInteractive"
-            />
-            <Script
-              id="google-analytics-init"
-              strategy="beforeInteractive"
-              dangerouslySetInnerHTML={{
-                __html: `
-window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag("js", new Date());
-${googleAnalyticsConfig}
-`,
-              }}
-            />
-          </>
-        ) : null}
       </body>
     </html>
   )
