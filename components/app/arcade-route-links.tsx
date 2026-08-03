@@ -1,8 +1,8 @@
 "use client"
 
 import Link from "next/link"
-import { useEffect, useState } from "react"
 import { createPortal } from "react-dom"
+import { usePortalTarget } from "@/components/use-portal-target"
 
 const routeLinks = [
   { href: "/about/", label: "About" },
@@ -12,22 +12,18 @@ const routeLinks = [
 ]
 
 export default function ArcadeRouteLinks() {
-  const [navigation, setNavigation] = useState<HTMLElement | null>(null)
+  const footer = usePortalTarget(".arcade-footer")
 
-  useEffect(() => {
-    setNavigation(document.querySelector<HTMLElement>(".arcade-nav"))
-  }, [])
-
-  if (!navigation) return null
+  if (!footer) return null
 
   return createPortal(
-    <>
+    <nav className="footer-route-links" aria-label="Site information">
       {routeLinks.map((item) => (
         <Link key={item.href} href={item.href}>
           {item.label}
         </Link>
       ))}
-    </>,
-    navigation,
+    </nav>,
+    footer,
   )
 }
