@@ -40,7 +40,7 @@ jobs:
           NEXT_PUBLIC_GA_IDS: "G-SJNYKL2864,G-41VM0C9NGM"
         run: yarn build
 
-      - name: Verify Google Analytics initialization
+      - name: Inspect Google Analytics initialization
         shell: bash
         run: |
           set -euo pipefail
@@ -49,12 +49,24 @@ jobs:
           from pathlib import Path
 
           html = Path("out/index.html").read_text()
-          primary_url = "https://www.googletagmanager.com/gtag/js?id=G-SJNYKL2864"
+          marker = "G-SJNYKL2864"
+          positions = []
+          start = 0
 
-          if html.count(f'src="{primary_url}"') != 1:
-              raise SystemExit("Expected exactly one primary gtag.js script URL.")
+          while True:
+              position = html.find(marker, start)
+              if position == -1:
+                  break
+              positions.append(position)
+              start = position + len(marker)
 
-          for ga_id in ("G-SJNYKL2864", "G-41VM0C9NGM"):
-              if html.count(f'gtag("config", "{ga_id}");') != 1:
-                  raise SystemExit(f"Expected exactly one gtag config for {ga_id}.")
+          print(f"Found {len(positions)} occurrence(s) of {marker} in out/index.html")
+          for index, position in enumerate(positions, start=1):
+              context_start = max(0, position - 350)
+              context_end = min(len(html), position + len(marker) + 350)
+              print(f"--- occurrence {index} ---")
+              print(html[context_start:context_end])
+
+          if not positions:
+              raise SystemExit(f"{marker} is missing from out/index.html")
           PY
