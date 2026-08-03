@@ -66,7 +66,7 @@ export function Option3Hero({
           type="url"
           inputMode="url"
           autoComplete="url"
-          placeholder="https://www.skills.google/public_profiles/..."
+          placeholder="https://www.skills.google/my_account/profile/..."
           value={profileUrl}
           onChange={(event: ChangeEvent<HTMLInputElement>) => setProfileUrl(event.target.value)}
           aria-describedby={error ? "option3-profile-error" : undefined}

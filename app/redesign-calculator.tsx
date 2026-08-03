@@ -509,7 +509,7 @@ export default function RedesignCalculator() {
                 autoComplete="url"
                 value={profileUrl}
                 onChange={(event) => setProfileUrl(event.target.value)}
-                placeholder="https://www.skills.google/public_profiles/..."
+                placeholder="https://www.skills.google/my_account/profile/..."
                 aria-label="Google Skills public profile URL"
               />
               {profileUrl && (
@@ -525,7 +525,7 @@ export default function RedesignCalculator() {
           </form>
           {error && <p className="analyzer-error" role="alert">{error}</p>}
           <div className="analyzer-help-row">
-            <a href="https://www.skills.google/public_profiles" target="_blank" rel="noreferrer">
+            <a href="https://www.skills.google/my_account/profile" target="_blank" rel="noreferrer">
               <CircleHelp /> How to find your public profile <ExternalLink />
             </a>
             {result && (

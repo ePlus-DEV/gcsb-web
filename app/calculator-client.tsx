@@ -428,7 +428,7 @@ export default function ArcadeCalculatorClient() {
             <label htmlFor="profile-url">Google Skills public profile URL</label>
             <div className={error ? "profile-input-wrap has-error" : "profile-input-wrap"}>
               <Search aria-hidden="true" />
-              <input id="profile-url" type="url" inputMode="url" autoComplete="url" placeholder="https://www.skills.google/public_profiles/..." value={profileUrl} onChange={(event: ChangeEvent<HTMLInputElement>) => setProfileUrl(event.target.value)} aria-describedby={error ? "profile-error" : "profile-help"} />
+              <input id="profile-url" type="url" inputMode="url" autoComplete="url" placeholder="https://www.skills.google/my_account/profile/..." value={profileUrl} onChange={(event: ChangeEvent<HTMLInputElement>) => setProfileUrl(event.target.value)} aria-describedby={error ? "profile-error" : "profile-help"} />
             </div>
             <p id="profile-help" className="field-help">Only public profile data is read. No Google sign-in is required.</p>
             {error && <p id="profile-error" className="form-error" role="alert">{error}</p>}
