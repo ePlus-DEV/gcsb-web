@@ -62,10 +62,9 @@ jobs:
             await page.goto('http://127.0.0.1:3000', { waitUntil: 'networkidle' })
             await page.getByRole('button', { name: 'Analyze profile' }).waitFor()
 
-            const languageIcon = page
-              .locator('.website-language-switcher :is(.fa-icon, svg)')
-              .first()
-            await languageIcon.waitFor()
+            const languageTrigger = page.locator('.website-language-trigger')
+            await languageTrigger.waitFor()
+            const languageIcon = languageTrigger.locator(':is(.fa-icon, svg)').first()
             const languageIconClass = (await languageIcon.getAttribute('class')) ?? ''
             const hasGlobeIcon =
               languageIconClass.includes('fa-globe') ||
@@ -73,11 +72,30 @@ jobs:
             if (!hasGlobeIcon || languageIconClass.includes('firefox')) {
               throw new Error(`Unexpected language selector icon: ${languageIconClass}`)
             }
+            if ((await languageTrigger.getAttribute('aria-expanded')) !== 'false') {
+              throw new Error('Language popover starts open unexpectedly')
+            }
 
             await page.screenshot({
               path: 'screenshots/arcade-desktop-empty-1440x900.png',
               fullPage: false,
             })
+
+            await languageTrigger.click()
+            const languageMenu = page.locator('.website-language-menu')
+            await languageMenu.waitFor()
+            const languageOptions = page.locator('.website-language-option')
+            if ((await languageOptions.count()) !== 13) {
+              throw new Error(`Unexpected language option count: ${await languageOptions.count()}`)
+            }
+            if ((await languageTrigger.getAttribute('aria-expanded')) !== 'true') {
+              throw new Error('Language trigger did not expose its open state')
+            }
+            await page.screenshot({
+              path: 'screenshots/arcade-desktop-language-menu-1440x900.png',
+              fullPage: false,
+            })
+            await languageTrigger.click()
 
             const lightPage = await browser.newPage({
               viewport: { width: 1440, height: 900 },
@@ -92,7 +110,7 @@ jobs:
             await lightPage.getByRole('button', { name: 'Analyze profile' }).waitFor()
 
             const lightSurfaceSelectors = [
-              '.website-language-switcher',
+              '.website-language-trigger',
               '.facilitator-launcher',
               '.dashboard-empty-state',
             ]
@@ -117,6 +135,14 @@ jobs:
               fullPage: false,
             })
 
+            await lightPage.locator('.website-language-trigger').click()
+            await lightPage.locator('.website-language-menu').waitFor()
+            await lightPage.screenshot({
+              path: 'screenshots/arcade-desktop-light-language-menu-1440x900.png',
+              fullPage: false,
+            })
+            await lightPage.locator('.website-language-trigger').click()
+
             await lightPage.getByRole('button', { name: /Facilitator/i }).click()
             await lightPage.locator('.facilitator-drawer').waitFor()
             await lightPage.screenshot({
@@ -135,10 +161,11 @@ jobs:
               window.localStorage.setItem('arcade-points-locale', 'vi')
             })
             await preferencePage.reload({ waitUntil: 'networkidle' })
+            await preferencePage.locator('html[data-locale="vi"]').waitFor()
             const persistedLocale = await preferencePage
-              .locator('.website-language-switcher select')
-              .inputValue()
-            if (persistedLocale !== 'vi') {
+              .locator('.website-language-current-code')
+              .innerText()
+            if (persistedLocale.trim() !== 'VI') {
               throw new Error(`Stored homepage locale was ignored: ${persistedLocale}`)
             }
             await preferencePage.close()
@@ -154,6 +181,13 @@ jobs:
             })
             await lightMobilePage.locator('html.light').waitFor()
             await lightMobilePage.getByRole('button', { name: 'Analyze profile' }).waitFor()
+            await lightMobilePage.locator('.website-language-trigger').click()
+            await lightMobilePage.locator('.website-language-menu').waitFor()
+            await lightMobilePage.screenshot({
+              path: 'screenshots/arcade-mobile-light-language-menu-390x844.png',
+              fullPage: false,
+            })
+            await lightMobilePage.locator('.website-language-trigger').click()
             await lightMobilePage.screenshot({
               path: 'screenshots/arcade-mobile-light-390x844.png',
               fullPage: false,
@@ -168,8 +202,11 @@ jobs:
               fullPage: false,
             })
 
-            const languageSelect = page.locator('.website-language-switcher select')
-            await languageSelect.selectOption('vi')
+            await page.locator('.website-language-trigger').click()
+            await page
+              .locator('.website-language-option')
+              .filter({ hasText: 'Tiếng Việt' })
+              .click()
             await page.waitForURL((url) => /\/vi\/?$/.test(url.pathname))
             await page.locator('html[lang="vi"][dir="ltr"][data-locale="vi"]').waitFor()
             await page.getByRole('button', { name: 'Phân tích hồ sơ' }).waitFor()
