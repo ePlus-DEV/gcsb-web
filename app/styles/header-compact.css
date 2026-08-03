@@ -1,3 +1,7 @@
+.arcade-brand em {
+  color: #fff;
+}
+
 .arcade-header-actions .header-store-link {
   display: none;
 }
