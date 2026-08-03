@@ -62,7 +62,7 @@ jobs:
         working-directory: production-source
         env:
           NEXT_PUBLIC_ENABLE_ANALYTICS: "true"
-          NEXT_PUBLIC_GA_IDS: "G-41VM0C9NGM,G-SJNYKL2864"
+          NEXT_PUBLIC_GA_IDS: "G-SJNYKL2864,G-41VM0C9NGM"
         shell: bash
         run: |
           set -euo pipefail
