@@ -42,7 +42,7 @@ jobs:
           NEXT_STATIC_EXPORT: "true"
           NEXT_PUBLIC_BASE_PATH: ""
           NEXT_PUBLIC_ENABLE_ANALYTICS: "true"
-          NEXT_PUBLIC_GA_IDS: "G-41VM0C9NGM,G-SJNYKL2864"
+          NEXT_PUBLIC_GA_IDS: "G-SJNYKL2864,G-41VM0C9NGM"
         run: yarn build
 
       - name: Verify production asset paths and analytics
@@ -51,8 +51,9 @@ jobs:
           set -euo pipefail
           test -f out/index.html
           grep -q 'src="/_next/' out/index.html
-          grep -R -q "G-41VM0C9NGM" out
-          grep -R -q "G-SJNYKL2864" out
+          grep -F -q "googletagmanager.com/gtag/js?id=G-SJNYKL2864" out/index.html
+          grep -F -q "G-SJNYKL2864" out/index.html
+          grep -F -q "G-41VM0C9NGM" out/index.html
           if grep -q '/gcsb-web/_next/' out/index.html; then
             echo "Production still contains the repository-name base path."
             exit 1
