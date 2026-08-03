@@ -62,16 +62,23 @@ def main() -> None:
     loader_scripts = [
         attrs
         for attrs, _body in collector.scripts
-        if attrs.get("id") == "google-analytics"
-        and attrs.get("src") == primary_url
+        if (attrs.get("src") or "").split("?", 1)[0]
+        == "https://www.googletagmanager.com/gtag/js"
     ]
     if len(loader_scripts) != 1:
         raise SystemExit(
-            f"Expected exactly one direct GA loader for {primary_url}; "
+            "Expected exactly one direct GA loader; "
             f"found {len(loader_scripts)}."
         )
-    if "async" not in loader_scripts[0]:
-        raise SystemExit("The direct Google Analytics loader must be async.")
+    if (
+        loader_scripts[0].get("id") != "google-analytics"
+        or loader_scripts[0].get("src") != primary_url
+        or "async" not in loader_scripts[0]
+    ):
+        raise SystemExit(
+            "The direct Google Analytics loader must use the expected ID, "
+            "source URL, and async attribute."
+        )
 
     init_scripts = [
         body
