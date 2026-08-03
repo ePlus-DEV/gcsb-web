@@ -31,10 +31,6 @@ const fontAwesomeIntegrity =
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f4f7ff" },
-    { media: "(prefers-color-scheme: dark)", color: "#050918" },
-  ],
   colorScheme: "light dark",
 }
 
