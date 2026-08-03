@@ -1,3 +1,7 @@
+:root {
+  --arcade-anchor-offset: 76px;
+}
+
 .arcade-brand em {
   color: #fff;
 }
@@ -31,17 +35,14 @@
   order: 1;
 }
 
-/* Keep desktop anchor targets visible below the sticky 72px header.
-   Mobile keeps its existing breakpoint-specific offsets. */
-@media (min-width: 821px) {
-  .arcade-hero,
-  .extension-strip,
-  #calculator,
-  #tiers,
-  #badges,
-  #extension {
-    scroll-margin-top: 76px;
-  }
+/* Keep anchor targets visible below the sticky header at every breakpoint. */
+.arcade-hero,
+.extension-strip,
+#calculator,
+#tiers,
+#badges,
+#extension {
+  scroll-margin-top: var(--arcade-anchor-offset);
 }
 
 .footer-route-links {
@@ -92,5 +93,11 @@ html.light .footer-route-links a:hover {
 
   .footer-route-links {
     gap: 14px;
+  }
+}
+
+@media (max-width: 600px) {
+  :root {
+    --arcade-anchor-offset: 68px;
   }
 }
