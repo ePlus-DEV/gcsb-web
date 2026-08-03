@@ -4,6 +4,7 @@ import { Check, ChevronDown, Globe } from "lucide-react"
 import type { KeyboardEvent as ReactKeyboardEvent } from "react"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { createPortal } from "react-dom"
+import { usePortalTarget } from "@/components/use-portal-target"
 import {
   DEFAULT_WEBSITE_LOCALE,
   getWebsiteLocale,
@@ -124,7 +125,7 @@ export default function WebsiteLanguage() {
   } | null>(null)
   const [ready, setReady] = useState(false)
   const [open, setOpen] = useState(false)
-  const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null)
+  const portalTarget = usePortalTarget(".arcade-header-actions")
   const switcherRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
   const optionRefs = useRef<Array<HTMLButtonElement | null>>([])
@@ -141,22 +142,6 @@ export default function WebsiteLanguage() {
     const pathLocale = getWebsiteLocaleFromPathname(window.location.pathname)
     setLocale(pathLocale ?? getWebsiteLocale(stored || navigator.language))
     setReady(true)
-  }, [])
-
-  useEffect(() => {
-    const syncPortalTarget = () => {
-      const nextTarget = document.querySelector<HTMLElement>(
-        ".arcade-header-actions",
-      )
-      setPortalTarget((current: HTMLElement | null) =>
-        current === nextTarget ? current : nextTarget,
-      )
-    }
-
-    syncPortalTarget()
-    const observer = new MutationObserver(syncPortalTarget)
-    observer.observe(document.body, { childList: true, subtree: true })
-    return () => observer.disconnect()
   }, [])
 
   useEffect(() => {
@@ -363,6 +348,7 @@ export default function WebsiteLanguage() {
                   className={`website-language-option${selected ? " is-selected" : ""}`}
                   role="option"
                   aria-selected={selected}
+                  tabIndex={selected ? 0 : -1}
                   onClick={() => changeLocale(item.code)}
                 >
                   <span className="website-language-option-code">{item.shortLabel}</span>
