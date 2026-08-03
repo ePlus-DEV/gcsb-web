@@ -79,6 +79,52 @@ jobs:
               fullPage: false,
             })
 
+            const lightPage = await browser.newPage({
+              viewport: { width: 1440, height: 900 },
+            })
+            await lightPage.addInitScript(() => {
+              window.localStorage.setItem('arcade-theme', 'light')
+            })
+            await lightPage.goto('http://127.0.0.1:3000', {
+              waitUntil: 'networkidle',
+            })
+            await lightPage.locator('html.light').waitFor()
+            await lightPage.getByRole('button', { name: 'Analyze profile' }).waitFor()
+
+            const lightSurfaceSelectors = [
+              '.website-language-switcher',
+              '.facilitator-launcher',
+              '.dashboard-empty-state',
+            ]
+            for (const selector of lightSurfaceSelectors) {
+              const surface = lightPage.locator(selector)
+              await surface.waitFor()
+              const paint = await surface.evaluate((element) => {
+                const style = window.getComputedStyle(element)
+                return `${style.backgroundColor} ${style.backgroundImage}`
+              })
+              if (
+                paint.includes('rgb(5, 9, 24)') ||
+                paint.includes('rgb(7, 14, 31)') ||
+                paint.includes('rgb(10, 28, 54)')
+              ) {
+                throw new Error(`Dark light-theme surface for ${selector}: ${paint}`)
+              }
+            }
+
+            await lightPage.screenshot({
+              path: 'screenshots/arcade-desktop-light-1440x900.png',
+              fullPage: false,
+            })
+
+            await lightPage.getByRole('button', { name: /Facilitator/i }).click()
+            await lightPage.locator('.facilitator-drawer').waitFor()
+            await lightPage.screenshot({
+              path: 'screenshots/arcade-desktop-light-facilitator-1440x900.png',
+              fullPage: false,
+            })
+            await lightPage.close()
+
             const preferencePage = await browser.newPage({
               viewport: { width: 390, height: 844 },
             })
@@ -96,6 +142,23 @@ jobs:
               throw new Error(`Stored homepage locale was ignored: ${persistedLocale}`)
             }
             await preferencePage.close()
+
+            const lightMobilePage = await browser.newPage({
+              viewport: { width: 390, height: 844 },
+            })
+            await lightMobilePage.addInitScript(() => {
+              window.localStorage.setItem('arcade-theme', 'light')
+            })
+            await lightMobilePage.goto('http://127.0.0.1:3000', {
+              waitUntil: 'networkidle',
+            })
+            await lightMobilePage.locator('html.light').waitFor()
+            await lightMobilePage.getByRole('button', { name: 'Analyze profile' }).waitFor()
+            await lightMobilePage.screenshot({
+              path: 'screenshots/arcade-mobile-light-390x844.png',
+              fullPage: false,
+            })
+            await lightMobilePage.close()
 
             await page.setViewportSize({ width: 390, height: 844 })
             await page.goto('http://127.0.0.1:3000', { waitUntil: 'networkidle' })
