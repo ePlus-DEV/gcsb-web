@@ -15,6 +15,7 @@ import "./styles/website-language.css"
 import "./styles/theme-modes.css"
 import "./styles/header-compact.css"
 import "./styles/theme-light-components.css"
+import "./styles/internal-page-theme.css"
 
 const siteName = "Arcade Points by ePlus.DEV"
 const title = "Google Cloud Arcade Points Calculator & Badge Tracker 2026"
