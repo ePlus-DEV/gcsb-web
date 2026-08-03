@@ -3,6 +3,7 @@
 import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
 import { createPortal } from "react-dom"
+import { usePortalTarget } from "@/components/use-portal-target"
 
 const THEME_COLORS = {
   light: "#f4f7ff",
@@ -48,24 +49,10 @@ function MoonIcon() {
 export default function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
-  const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null)
+  const portalTarget = usePortalTarget(".arcade-header-actions")
 
   useEffect(() => {
     setMounted(true)
-
-    const syncPortalTarget = () => {
-      const nextTarget = document.querySelector<HTMLElement>(
-        ".arcade-header-actions",
-      )
-      setPortalTarget((current) =>
-        current === nextTarget ? current : nextTarget,
-      )
-    }
-
-    syncPortalTarget()
-    const observer = new MutationObserver(syncPortalTarget)
-    observer.observe(document.body, { childList: true, subtree: true })
-    return () => observer.disconnect()
   }, [])
 
   useEffect(() => {
