@@ -1,8 +1,8 @@
 "use client"
 
 import Link from "next/link"
-import { useEffect, useState } from "react"
 import { createPortal } from "react-dom"
+import { usePortalTarget } from "@/components/use-portal-target"
 
 const routeLinks = [
   { href: "/about/", label: "About" },
@@ -12,19 +12,7 @@ const routeLinks = [
 ]
 
 export default function ArcadeRouteLinks() {
-  const [footer, setFooter] = useState<HTMLElement | null>(null)
-
-  useEffect(() => {
-    const syncFooter = () => {
-      const nextFooter = document.querySelector<HTMLElement>(".arcade-footer")
-      setFooter((current) => (current === nextFooter ? current : nextFooter))
-    }
-
-    syncFooter()
-    const observer = new MutationObserver(syncFooter)
-    observer.observe(document.body, { childList: true, subtree: true })
-    return () => observer.disconnect()
-  }, [])
+  const footer = usePortalTarget(".arcade-footer")
 
   if (!footer) return null
 
