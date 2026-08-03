@@ -31,6 +31,19 @@
   order: 1;
 }
 
+/* Keep desktop anchor targets visible below the sticky 72px header.
+   Mobile keeps its existing breakpoint-specific offsets. */
+@media (min-width: 821px) {
+  .arcade-hero,
+  .extension-strip,
+  #calculator,
+  #tiers,
+  #badges,
+  #extension {
+    scroll-margin-top: 76px;
+  }
+}
+
 .footer-route-links {
   grid-column: 1 / -1;
   display: flex;
