@@ -233,20 +233,27 @@ export default function WebsiteLanguage() {
   useEffect(() => {
     if (!open) return
 
+    const switcher = switcherRef.current
     const handlePointerDown = (event: MouseEvent) => {
-      if (!switcherRef.current?.contains(event.target as Node)) setOpen(false)
+      if (!switcher?.contains(event.target as Node)) setOpen(false)
     }
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return
       setOpen(false)
       triggerRef.current?.focus()
     }
+    const handleFocusOut = (event: FocusEvent) => {
+      const nextFocus = event.relatedTarget as Node | null
+      if (!switcher?.contains(nextFocus)) setOpen(false)
+    }
 
     document.addEventListener("mousedown", handlePointerDown)
     document.addEventListener("keydown", handleEscape)
+    switcher?.addEventListener("focusout", handleFocusOut)
     return () => {
       document.removeEventListener("mousedown", handlePointerDown)
       document.removeEventListener("keydown", handleEscape)
+      switcher?.removeEventListener("focusout", handleFocusOut)
     }
   }, [open])
 
