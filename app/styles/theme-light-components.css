@@ -7,8 +7,8 @@ html.light .website-language-switcher {
 }
 
 html.light .website-language-switcher:focus-within {
-  border-color: rgba(79, 70, 229, 0.42);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  border-color: rgba(124, 58, 237, 0.42);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
 html.light .website-language-switcher select {
@@ -22,18 +22,18 @@ html.light .website-language-switcher option {
 }
 
 html.light .facilitator-launcher {
-  border-color: rgba(79, 70, 229, 0.26);
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(238, 242, 255, 0.97));
-  box-shadow: 0 16px 42px rgba(51, 65, 85, 0.16), 0 0 24px rgba(99, 102, 241, 0.08);
+  border-color: rgba(124, 58, 237, 0.28);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(245, 243, 255, 0.97));
+  box-shadow: 0 16px 42px rgba(51, 65, 85, 0.16), 0 0 24px rgba(124, 58, 237, 0.08);
   color: #172033;
 }
 
 html.light .facilitator-launcher:hover {
-  border-color: rgba(79, 70, 229, 0.5);
+  border-color: rgba(124, 58, 237, 0.52);
 }
 
 html.light .facilitator-launcher > svg:first-child {
-  color: #4f46e5;
+  color: #6d28d9;
 }
 
 html.light .facilitator-launcher > svg:last-child,
@@ -46,15 +46,15 @@ html.light .facilitator-overlay {
 }
 
 html.light .facilitator-drawer {
-  border-left-color: rgba(79, 70, 229, 0.2);
-  background: linear-gradient(180deg, #f8faff, #eef3ff);
+  border-left-color: rgba(124, 58, 237, 0.2);
+  background: linear-gradient(180deg, #fbfaff, #f1f5ff);
   box-shadow: -32px 0 80px rgba(51, 65, 85, 0.2);
   color: #172033;
 }
 
 html.light .facilitator-header {
   border-bottom-color: rgba(100, 116, 139, 0.16);
-  background: rgba(248, 250, 255, 0.96);
+  background: rgba(251, 250, 255, 0.96);
 }
 
 html.light .facilitator-header p {
@@ -76,13 +76,13 @@ html.light .facilitator-header > button {
 }
 
 html.light .facilitator-header > button:hover {
-  background: #eef2ff;
-  color: #4338ca;
+  background: #f5f3ff;
+  color: #6d28d9;
 }
 
 html.light .facilitator-score-grid article {
   border-color: rgba(100, 116, 139, 0.15);
-  background: rgba(255, 255, 255, 0.88);
+  background: rgba(255, 255, 255, 0.9);
 }
 
 html.light .facilitator-score-grid article.is-bonus {
@@ -92,7 +92,7 @@ html.light .facilitator-score-grid article.is-bonus {
 
 html.light .facilitator-score-grid article.is-total {
   border-color: rgba(124, 58, 237, 0.2);
-  background: linear-gradient(145deg, #f5f3ff, #eef2ff);
+  background: linear-gradient(145deg, #faf5ff, #f5f3ff);
 }
 
 html.light .facilitator-score-grid span,
@@ -109,11 +109,11 @@ html.light .facilitator-score-grid .is-bonus strong {
 }
 
 html.light .facilitator-score-grid .is-total strong {
-  color: #7c3aed;
+  color: #6d28d9;
 }
 
 html.light .facilitator-warning {
-  border-color: rgba(202, 138, 4, 0.22);
+  border-color: rgba(202, 138, 4, 0.24);
   background: #fffbeb;
   color: #785b17;
 }
@@ -123,8 +123,8 @@ html.light .facilitator-warning code {
 }
 
 html.light .facilitator-section {
-  border-color: rgba(79, 70, 229, 0.16);
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(246, 248, 255, 0.92));
+  border-color: rgba(124, 58, 237, 0.16);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(250, 248, 255, 0.94));
   box-shadow: 0 10px 28px rgba(51, 65, 85, 0.07);
 }
 
@@ -153,13 +153,22 @@ html.light .facilitator-section-title > span {
 html.light .facilitator-activity-grid article,
 html.light .facilitator-milestones > article {
   border-color: rgba(100, 116, 139, 0.15);
-  background: rgba(248, 250, 252, 0.9);
+  background: rgba(255, 255, 255, 0.88);
+}
+
+html.light .facilitator-milestones > article.is-completed {
+  border-color: rgba(21, 128, 61, 0.24);
+}
+
+html.light .facilitator-milestones > article.is-current {
+  background: #f0fdf4;
+  box-shadow: inset 3px 0 0 #16a34a;
 }
 
 html.light .facilitator-activity-grid article > div > span,
 html.light .facilitator-milestone-heading > span {
   background: #ede9fe;
-  color: #7c3aed;
+  color: #6d28d9;
 }
 
 html.light .facilitator-activity-grid article.is-completed > div > span,
@@ -173,11 +182,198 @@ html.light .facilitator-activity-grid article > i {
 }
 
 html.light .facilitator-milestones dl > div {
-  background: #eef2ff;
+  background: #f1f5ff;
+}
+
+html.light .facilitator-milestone-heading em {
+  background: #dcfce7;
+  color: #15803d;
 }
 
 html.light .facilitator-disclaimer {
   border-color: rgba(100, 116, 139, 0.14);
-  background: rgba(248, 250, 252, 0.88);
+  background: rgba(248, 250, 252, 0.9);
   color: #64748b;
+}
+
+html.light .facilitator-empty > svg {
+  color: #6d28d9;
+}
+
+/* Result cards and states that otherwise retain dark-theme accent values. */
+html.light .profile-photo {
+  border-color: rgba(79, 70, 229, 0.55);
+  background: linear-gradient(145deg, #e0e7ff, #f3e8ff);
+  box-shadow: 0 0 0 5px rgba(79, 70, 229, 0.08);
+  color: #4338ca;
+}
+
+html.light .panel-link-note,
+html.light .compact-empty {
+  color: #64748b;
+}
+
+html.light .score-state {
+  color: #a16207;
+}
+
+html.light .score-state.is-qualified,
+html.light .earned-badge p,
+html.light .compact-list b {
+  color: #15803d;
+}
+
+html.light .tier-trophy {
+  border-color: rgba(202, 138, 4, 0.26);
+  background: #fffbeb;
+  color: #a16207;
+}
+
+html.light .tier-status-main strong,
+html.light .next-goal-value strong {
+  color: #6d28d9;
+}
+
+html.light .allocation-row svg {
+  color: #64748b;
+}
+
+html.light .analyzer-error {
+  color: #be123c;
+}
+
+html.light .profile-input.has-error {
+  border-color: rgba(225, 29, 72, 0.72);
+  box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.09);
+}
+
+html.light .badge-filters button:hover:not(.active) {
+  border-color: rgba(124, 58, 237, 0.22);
+  background: #f5f3ff;
+  color: #6d28d9;
+}
+
+html.light .badge-filters button.active {
+  border-color: rgba(109, 40, 217, 0.62);
+  background: linear-gradient(135deg, #6d28d9, #9333ea);
+  color: #ffffff;
+  box-shadow: 0 6px 16px rgba(109, 40, 217, 0.16);
+}
+
+html.light .earned-badge:hover {
+  border-color: rgba(124, 58, 237, 0.36);
+  box-shadow: 0 14px 30px rgba(79, 70, 229, 0.1);
+}
+
+html.light .earned-badge > a {
+  color: #64748b;
+}
+
+html.light .earned-badge > a:hover {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+html.light .show-all-badges {
+  border-color: rgba(124, 58, 237, 0.24);
+  background: #f5f3ff;
+  color: #6d28d9;
+}
+
+html.light .show-all-badges:hover {
+  border-color: rgba(124, 58, 237, 0.38);
+  background: #ede9fe;
+}
+
+html.light .empty-badge-state {
+  border-color: rgba(100, 116, 139, 0.24);
+}
+
+html.light .empty-badge-state svg {
+  color: #7c3aed;
+}
+
+html.light .tier-list-row.is-current {
+  border-color: rgba(147, 51, 234, 0.42);
+  background: #faf5ff;
+  box-shadow: inset 3px 0 0 #9333ea, 0 10px 24px rgba(124, 58, 237, 0.08);
+}
+
+html.light .tier-list-icon {
+  background: #fffbeb;
+  color: #a16207;
+}
+
+html.light .tier-120 .tier-list-icon {
+  background: #faf5ff;
+  color: #9333ea;
+}
+
+html.light .tier-95 .tier-list-icon {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+html.light .tier-75 .tier-list-icon {
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+html.light .tier-50 .tier-list-icon {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+html.light .confidence-ring {
+  border-color: rgba(202, 138, 4, 0.3);
+  background: #fffbeb;
+  color: #a16207;
+}
+
+html.light .confidence-ring.is-complete {
+  border-color: rgba(21, 128, 61, 0.3);
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+html.light .unknown-badge-list {
+  color: #52637c;
+}
+
+html.light .goal-progress span {
+  background: linear-gradient(90deg, #6d28d9, #0891b2);
+  box-shadow: none;
+}
+
+html.light .empty-result-message > span {
+  background: #fffbeb;
+  color: #a16207;
+}
+
+html.light .empty-tier-grid article > svg {
+  color: #a16207;
+}
+
+html.light .tier-note a {
+  color: #6d28d9;
+}
+
+html.light .tier-note a:hover {
+  color: #581c87;
+}
+
+@media (max-width: 600px) {
+  html.light .mobile-bottom-nav {
+    border-top-color: rgba(100, 116, 139, 0.18);
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 -10px 30px rgba(51, 65, 85, 0.12);
+  }
+
+  html.light .mobile-bottom-nav a {
+    color: #64748b;
+  }
+
+  html.light .mobile-bottom-nav a:first-child {
+    color: #6d28d9;
+  }
 }
