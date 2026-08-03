@@ -12,22 +12,30 @@ const routeLinks = [
 ]
 
 export default function ArcadeRouteLinks() {
-  const [navigation, setNavigation] = useState<HTMLElement | null>(null)
+  const [footer, setFooter] = useState<HTMLElement | null>(null)
 
   useEffect(() => {
-    setNavigation(document.querySelector<HTMLElement>(".arcade-nav"))
+    const syncFooter = () => {
+      const nextFooter = document.querySelector<HTMLElement>(".arcade-footer")
+      setFooter((current) => (current === nextFooter ? current : nextFooter))
+    }
+
+    syncFooter()
+    const observer = new MutationObserver(syncFooter)
+    observer.observe(document.body, { childList: true, subtree: true })
+    return () => observer.disconnect()
   }, [])
 
-  if (!navigation) return null
+  if (!footer) return null
 
   return createPortal(
-    <>
+    <nav className="footer-route-links" aria-label="Site information">
       {routeLinks.map((item) => (
         <Link key={item.href} href={item.href}>
           {item.label}
         </Link>
       ))}
-    </>,
-    navigation,
+    </nav>,
+    footer,
   )
 }
