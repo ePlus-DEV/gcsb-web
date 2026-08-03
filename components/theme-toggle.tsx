@@ -4,6 +4,11 @@ import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
 import { createPortal } from "react-dom"
 
+const THEME_COLORS = {
+  light: "#f4f7ff",
+  dark: "#050918",
+} as const
+
 function SunIcon() {
   return (
     <svg
@@ -62,6 +67,21 @@ export default function ThemeToggle() {
     observer.observe(document.body, { childList: true, subtree: true })
     return () => observer.disconnect()
   }, [])
+
+  useEffect(() => {
+    const activeTheme = resolvedTheme === "light" ? "light" : "dark"
+    let themeColor = document.querySelector<HTMLMetaElement>(
+      'meta[name="theme-color"]',
+    )
+
+    if (!themeColor) {
+      themeColor = document.createElement("meta")
+      themeColor.name = "theme-color"
+      document.head.append(themeColor)
+    }
+
+    themeColor.content = THEME_COLORS[activeTheme]
+  }, [resolvedTheme])
 
   if (!mounted) return null
 
