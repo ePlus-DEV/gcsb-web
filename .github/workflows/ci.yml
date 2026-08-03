@@ -32,5 +32,19 @@ jobs:
       - name: Lint
         run: yarn lint
 
-      - name: Build static site
+      - name: Build production static site
+        env:
+          NEXT_STATIC_EXPORT: "true"
+          NEXT_PUBLIC_BASE_PATH: ""
+          NEXT_PUBLIC_ENABLE_ANALYTICS: "true"
+          NEXT_PUBLIC_GA_IDS: "G-SJNYKL2864,G-41VM0C9NGM"
         run: yarn build
+
+      - name: Verify Google Analytics initialization
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f out/index.html
+          grep -F -q "googletagmanager.com/gtag/js?id=G-SJNYKL2864" out/index.html
+          grep -F -q "G-SJNYKL2864" out/index.html
+          grep -F -q "G-41VM0C9NGM" out/index.html
