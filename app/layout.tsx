@@ -27,6 +27,17 @@ const fontAwesomeUrl =
   "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
 const fontAwesomeIntegrity =
   "sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
+const googleAnalyticsIds =
+  process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === "true"
+    ? [
+        ...new Set(
+          (process.env.NEXT_PUBLIC_GA_IDS ?? "")
+            .split(",")
+            .map((gaId) => gaId.trim())
+            .filter((gaId) => gaId.length > 0),
+        ),
+      ]
+    : []
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -120,7 +131,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <ThemeToggle />
           {children}
         </ThemeProvider>
-        <GoogleAnalytics gaId="G-41VM0C9NGM" />
+        {googleAnalyticsIds.map((gaId) => (
+          <GoogleAnalytics key={gaId} gaId={gaId} />
+        ))}
       </body>
     </html>
   )
