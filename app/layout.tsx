@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next"
-import { GoogleAnalytics } from "@next/third-parties/google"
+import Script from "next/script"
 import WebsiteLanguage from "@/components/i18n/website-language"
 import { ThemeProvider } from "@/components/theme-provider"
 import ThemeToggle from "@/components/theme-toggle"
@@ -27,17 +27,37 @@ const fontAwesomeUrl =
   "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
 const fontAwesomeIntegrity =
   "sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
-const googleAnalyticsIds =
-  process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === "true"
-    ? [
-        ...new Set(
-          (process.env.NEXT_PUBLIC_GA_IDS ?? "")
-            .split(",")
-            .map((gaId) => gaId.trim())
-            .filter((gaId) => gaId.length > 0),
-        ),
-      ]
-    : []
+const googleAnalyticsIdPattern = /^G-[A-Z0-9]+$/
+const analyticsEnabled = process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === "true"
+const configuredGoogleAnalyticsIds = (process.env.NEXT_PUBLIC_GA_IDS ?? "")
+  .split(",")
+  .map((gaId) => gaId.trim().toUpperCase())
+  .filter((gaId) => gaId.length > 0)
+const invalidGoogleAnalyticsIds = analyticsEnabled
+  ? configuredGoogleAnalyticsIds.filter(
+      (gaId) => !googleAnalyticsIdPattern.test(gaId),
+    )
+  : []
+
+if (analyticsEnabled && configuredGoogleAnalyticsIds.length === 0) {
+  throw new Error(
+    "Google Analytics is enabled but NEXT_PUBLIC_GA_IDS is empty.",
+  )
+}
+
+if (invalidGoogleAnalyticsIds.length > 0) {
+  throw new Error(
+    `NEXT_PUBLIC_GA_IDS contains invalid GA4 measurement IDs: ${invalidGoogleAnalyticsIds.join(", ")}`,
+  )
+}
+
+const googleAnalyticsIds = analyticsEnabled
+  ? [...new Set(configuredGoogleAnalyticsIds)]
+  : []
+const primaryGoogleAnalyticsId = googleAnalyticsIds[0]
+const googleAnalyticsConfig = googleAnalyticsIds
+  .map((gaId) => `gtag("config", ${JSON.stringify(gaId)});`)
+  .join("\n")
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -131,9 +151,27 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <ThemeToggle />
           {children}
         </ThemeProvider>
-        {googleAnalyticsIds.map((gaId) => (
-          <GoogleAnalytics key={gaId} gaId={gaId} />
-        ))}
+        {primaryGoogleAnalyticsId ? (
+          <>
+            <Script
+              id="google-analytics"
+              src={`https://www.googletagmanager.com/gtag/js?id=${primaryGoogleAnalyticsId}`}
+              strategy="beforeInteractive"
+            />
+            <Script
+              id="google-analytics-init"
+              strategy="beforeInteractive"
+              dangerouslySetInnerHTML={{
+                __html: `
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag("js", new Date());
+${googleAnalyticsConfig}
+`,
+              }}
+            />
+          </>
+        ) : null}
       </body>
     </html>
   )
