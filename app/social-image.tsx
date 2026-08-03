@@ -1,14 +1,9 @@
 import { ImageResponse } from "next/og"
 
-export const socialImageAlt =
-  "Arcade Points — Google Cloud Arcade score calculator, badge tracker and reward tier dashboard"
-
-export const socialImageSize = {
+const imageSize = {
   width: 1200,
   height: 630,
 }
-
-export const socialImageContentType = "image/png"
 
 /** Creates the shared Open Graph and X/Twitter social preview image. */
 export function createSocialImage() {
@@ -21,8 +16,7 @@ export function createSocialImage() {
           width: "100%",
           height: "100%",
           overflow: "hidden",
-          background:
-            "radial-gradient(circle at 82% 16%, rgba(139,92,246,0.34), transparent 34%), radial-gradient(circle at 12% 78%, rgba(47,128,255,0.22), transparent 36%), #050918",
+          backgroundColor: "#050918",
           color: "#f7f9ff",
           fontFamily: "Arial, Helvetica, sans-serif",
         }}
@@ -30,36 +24,63 @@ export function createSocialImage() {
         <div
           style={{
             position: "absolute",
-            inset: 0,
+            right: -110,
+            top: -130,
             display: "flex",
-            opacity: 0.18,
-            backgroundImage:
-              "linear-gradient(rgba(59,130,246,0.22) 1px, transparent 1px), linear-gradient(90deg, rgba(59,130,246,0.22) 1px, transparent 1px)",
-            backgroundSize: "42px 42px",
+            width: 430,
+            height: 430,
+            borderRadius: 999,
+            backgroundColor: "#432a89",
+            opacity: 0.5,
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            left: -140,
+            bottom: -220,
+            display: "flex",
+            width: 520,
+            height: 520,
+            borderRadius: 999,
+            backgroundColor: "#123d82",
+            opacity: 0.32,
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            left: 32,
+            right: 32,
+            top: 32,
+            bottom: 32,
+            display: "flex",
+            border: "1px solid rgba(139,92,246,0.28)",
+            borderRadius: 26,
           }}
         />
 
         <div
           style={{
             position: "absolute",
-            top: 48,
-            left: 54,
+            left: 62,
+            top: 52,
             display: "flex",
             alignItems: "center",
           }}
         >
           <div
             style={{
+              position: "relative",
               display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
               width: 58,
               height: 58,
               marginRight: 16,
-              border: "1px solid rgba(255,212,59,0.42)",
+              alignItems: "center",
+              justifyContent: "center",
+              border: "1px solid rgba(255,212,59,0.46)",
               borderRadius: 14,
-              background: "linear-gradient(145deg, #152653, #281557)",
-              boxShadow: "0 0 28px rgba(139,92,246,0.34)",
+              backgroundColor: "#1c2354",
             }}
           >
             <div
@@ -80,7 +101,7 @@ export function createSocialImage() {
                   display: "flex",
                   width: 12,
                   height: 4,
-                  background: "#ffd43b",
+                  backgroundColor: "#ffd43b",
                 }}
               />
               <div
@@ -91,7 +112,7 @@ export function createSocialImage() {
                   display: "flex",
                   width: 4,
                   height: 12,
-                  background: "#ffd43b",
+                  backgroundColor: "#ffd43b",
                 }}
               />
               <div
@@ -103,7 +124,7 @@ export function createSocialImage() {
                   width: 5,
                   height: 5,
                   borderRadius: 999,
-                  background: "#22d3ee",
+                  backgroundColor: "#22d3ee",
                 }}
               />
             </div>
@@ -113,7 +134,7 @@ export function createSocialImage() {
             <div
               style={{
                 display: "flex",
-                fontSize: 22,
+                fontSize: 23,
                 fontWeight: 900,
                 letterSpacing: 2,
               }}
@@ -126,7 +147,7 @@ export function createSocialImage() {
                 display: "flex",
                 marginTop: 4,
                 color: "#93a4bf",
-                fontSize: 14,
+                fontSize: 13,
                 fontWeight: 700,
                 letterSpacing: 1.6,
               }}
@@ -141,7 +162,7 @@ export function createSocialImage() {
               marginLeft: 18,
               padding: "7px 11px",
               borderRadius: 8,
-              background: "#8b5cf6",
+              backgroundColor: "#8b5cf6",
               fontSize: 13,
               fontWeight: 900,
               letterSpacing: 1,
@@ -154,11 +175,11 @@ export function createSocialImage() {
         <div
           style={{
             position: "absolute",
-            left: 58,
-            top: 164,
+            left: 64,
+            top: 163,
             display: "flex",
             flexDirection: "column",
-            width: 690,
+            width: 660,
           }}
         >
           <div
@@ -167,8 +188,7 @@ export function createSocialImage() {
               color: "#7dd3fc",
               fontSize: 17,
               fontWeight: 800,
-              letterSpacing: 2.2,
-              textTransform: "uppercase",
+              letterSpacing: 2.1,
             }}
           >
             GOOGLE CLOUD SKILLS BOOST ARCADE
@@ -177,9 +197,9 @@ export function createSocialImage() {
             style={{
               display: "flex",
               marginTop: 25,
-              fontSize: 66,
+              fontSize: 65,
               fontWeight: 900,
-              lineHeight: 1.03,
+              lineHeight: 1.02,
               letterSpacing: -3,
             }}
           >
@@ -188,13 +208,12 @@ export function createSocialImage() {
           <div
             style={{
               display: "flex",
-              marginTop: 2,
+              marginTop: 5,
               color: "#a86cff",
-              fontSize: 70,
+              fontSize: 68,
               fontWeight: 900,
-              lineHeight: 1.03,
+              lineHeight: 1.02,
               letterSpacing: -3.5,
-              textShadow: "0 0 28px rgba(139,92,246,0.45)",
             }}
           >
             ARCADE SCORE
@@ -202,29 +221,57 @@ export function createSocialImage() {
           <div
             style={{
               display: "flex",
-              marginTop: 26,
+              marginTop: 25,
               color: "#a8b5cc",
-              fontSize: 22,
+              fontSize: 21,
               lineHeight: 1.45,
             }}
           >
-            Calculate points, review earned badges and estimate your reward tier from a public Google Skills profile.
+            Calculate points, review badges and estimate your reward tier from a public Google Skills profile.
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              marginTop: 24,
+              alignItems: "center",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                width: 11,
+                height: 11,
+                marginRight: 9,
+                borderRadius: 999,
+                backgroundColor: "#2fd17d",
+              }}
+            />
+            <div
+              style={{
+                display: "flex",
+                color: "#c7d4e8",
+                fontSize: 16,
+                fontWeight: 700,
+              }}
+            >
+              Public profile only | No Google sign-in required
+            </div>
           </div>
         </div>
 
         <div
           style={{
             position: "absolute",
-            right: 62,
-            top: 132,
+            right: 66,
+            top: 126,
             display: "flex",
             flexDirection: "column",
-            width: 330,
-            padding: 26,
-            border: "1px solid rgba(139,92,246,0.44)",
+            width: 340,
+            padding: 27,
+            border: "1px solid rgba(139,92,246,0.48)",
             borderRadius: 22,
-            background: "linear-gradient(145deg, rgba(12,23,48,0.96), rgba(7,14,31,0.98))",
-            boxShadow: "0 30px 80px rgba(0,0,0,0.36)",
+            backgroundColor: "#0a1328",
           }}
         >
           <div
@@ -251,8 +298,7 @@ export function createSocialImage() {
                 width: 12,
                 height: 12,
                 borderRadius: 999,
-                background: "#2fd17d",
-                boxShadow: "0 0 16px rgba(47,209,125,0.8)",
+                backgroundColor: "#2fd17d",
               }}
             />
           </div>
@@ -261,7 +307,7 @@ export function createSocialImage() {
             style={{
               display: "flex",
               alignItems: "flex-end",
-              marginTop: 27,
+              marginTop: 28,
             }}
           >
             <div
@@ -291,12 +337,12 @@ export function createSocialImage() {
           <div
             style={{
               display: "flex",
-              marginTop: 17,
+              marginTop: 18,
               width: "100%",
               height: 10,
               overflow: "hidden",
               borderRadius: 999,
-              background: "#16213b",
+              backgroundColor: "#16213b",
             }}
           >
             <div
@@ -305,7 +351,7 @@ export function createSocialImage() {
                 width: "76%",
                 height: "100%",
                 borderRadius: 999,
-                background: "linear-gradient(90deg, #8b5cf6, #22d3ee)",
+                backgroundColor: "#8b5cf6",
               }}
             />
           </div>
@@ -314,7 +360,7 @@ export function createSocialImage() {
             style={{
               display: "flex",
               justifyContent: "space-between",
-              marginTop: 22,
+              marginTop: 23,
             }}
           >
             {[
@@ -328,11 +374,11 @@ export function createSocialImage() {
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
-                  width: 82,
+                  width: 86,
                   padding: "13px 8px",
-                  border: "1px solid rgba(148,163,184,0.16)",
+                  border: "1px solid rgba(148,163,184,0.18)",
                   borderRadius: 12,
-                  background: "rgba(13,25,49,0.86)",
+                  backgroundColor: "#0d1931",
                 }}
               >
                 <div
@@ -366,10 +412,10 @@ export function createSocialImage() {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              marginTop: 22,
-              padding: "12px 16px",
+              marginTop: 24,
+              padding: "13px 16px",
               borderRadius: 11,
-              background: "linear-gradient(135deg, #6337e5, #9333ea)",
+              backgroundColor: "#713be0",
               fontSize: 15,
               fontWeight: 900,
               letterSpacing: 0.8,
@@ -382,20 +428,19 @@ export function createSocialImage() {
         <div
           style={{
             position: "absolute",
-            left: 58,
-            bottom: 42,
+            left: 64,
+            bottom: 48,
             display: "flex",
-            alignItems: "center",
-            color: "#93a4bf",
-            fontSize: 16,
+            color: "#7f91ae",
+            fontSize: 15,
             fontWeight: 700,
+            letterSpacing: 0.5,
           }}
         >
-          <span style={{ color: "#2fd17d", marginRight: 9 }}>●</span>
-          Public profile data only · No Google sign-in required
+          arcade.eplus.dev
         </div>
       </div>
     ),
-    socialImageSize,
+    imageSize,
   )
 }
