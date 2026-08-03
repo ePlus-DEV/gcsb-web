@@ -156,11 +156,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <Script
               id="google-analytics"
               src={`https://www.googletagmanager.com/gtag/js?id=${primaryGoogleAnalyticsId}`}
-              strategy="afterInteractive"
+              strategy="beforeInteractive"
             />
             <Script
               id="google-analytics-init"
-              strategy="afterInteractive"
+              strategy="beforeInteractive"
               dangerouslySetInnerHTML={{
                 __html: `
 window.dataLayer = window.dataLayer || [];
