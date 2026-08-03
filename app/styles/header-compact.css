@@ -99,6 +99,7 @@ html.light .footer-route-links a:hover {
     margin: 0;
     background: #07101f;
     transform-origin: top center;
+    animation: none;
     box-shadow:
       0 22px 55px rgba(0, 0, 0, 0.42),
       0 0 0 100vmax rgba(3, 7, 18, 0.22);
