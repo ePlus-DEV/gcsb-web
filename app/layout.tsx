@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next"
 import { GoogleAnalytics } from "@next/third-parties/google"
 import WebsiteLanguage from "@/components/i18n/website-language"
 import { ThemeProvider } from "@/components/theme-provider"
+import ThemeToggle from "@/components/theme-toggle"
 import { WEBSITE_SITE_URL } from "@/lib/website-i18n"
 import "./globals.css"
 import "./styles/redesign-dashboard.css"
@@ -11,6 +12,7 @@ import "./styles/redesign-responsive.css"
 import "./styles/facilitator-panel.css"
 import "./styles/fontawesome-icons.css"
 import "./styles/website-language.css"
+import "./styles/theme-modes.css"
 
 const siteName = "Arcade Points by ePlus.DEV"
 const title = "Google Cloud Arcade Points Calculator & Badge Tracker 2026"
@@ -26,8 +28,11 @@ const fontAwesomeIntegrity =
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#090b12",
-  colorScheme: "dark",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f4f7ff" },
+    { media: "(prefers-color-scheme: dark)", color: "#050918" },
+  ],
+  colorScheme: "light dark",
 }
 
 export const metadata: Metadata = {
@@ -108,11 +113,12 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
-          forcedTheme="dark"
           enableSystem={false}
           disableTransitionOnChange
+          storageKey="arcade-theme"
         >
           <WebsiteLanguage />
+          <ThemeToggle />
           {children}
         </ThemeProvider>
         <GoogleAnalytics gaId="G-41VM0C9NGM" />
