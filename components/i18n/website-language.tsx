@@ -1,8 +1,8 @@
 "use client"
 
-import { Globe } from "lucide-react"
-import type { ChangeEvent } from "react"
-import { useEffect, useMemo, useState } from "react"
+import { Check, ChevronDown, Globe } from "lucide-react"
+import type { KeyboardEvent as ReactKeyboardEvent } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 import {
   DEFAULT_WEBSITE_LOCALE,
@@ -123,7 +123,11 @@ export default function WebsiteLanguage() {
     target: WebsiteCatalog
   } | null>(null)
   const [ready, setReady] = useState(false)
+  const [open, setOpen] = useState(false)
   const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null)
+  const switcherRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const optionRefs = useRef<Array<HTMLButtonElement | null>>([])
   const localeInfo = useMemo(() => getWebsiteLocaleInfo(locale), [locale])
 
   useEffect(() => {
@@ -226,7 +230,67 @@ export default function WebsiteLanguage() {
     return () => observer.disconnect()
   }, [catalogs, locale, ready])
 
+  useEffect(() => {
+    if (!open) return
+
+    const handlePointerDown = (event: MouseEvent) => {
+      if (!switcherRef.current?.contains(event.target as Node)) setOpen(false)
+    }
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return
+      setOpen(false)
+      triggerRef.current?.focus()
+    }
+
+    document.addEventListener("mousedown", handlePointerDown)
+    document.addEventListener("keydown", handleEscape)
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown)
+      document.removeEventListener("keydown", handleEscape)
+    }
+  }, [open])
+
+  function focusOption(index: number) {
+    const total = WEBSITE_LOCALES.length
+    optionRefs.current[(index + total) % total]?.focus()
+  }
+
+  function openMenu(focusSelected = false) {
+    setOpen(true)
+    if (focusSelected) {
+      const selectedIndex = WEBSITE_LOCALES.findIndex((item) => item.code === locale)
+      window.requestAnimationFrame(() => focusOption(selectedIndex))
+    }
+  }
+
+  function handleTriggerKeyDown(event: ReactKeyboardEvent<HTMLButtonElement>) {
+    if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return
+    event.preventDefault()
+    openMenu(true)
+  }
+
+  function handleMenuKeyDown(event: ReactKeyboardEvent<HTMLDivElement>) {
+    const activeIndex = optionRefs.current.findIndex(
+      (option) => option === document.activeElement,
+    )
+
+    if (event.key === "ArrowDown" || event.key === "ArrowRight") {
+      event.preventDefault()
+      focusOption(activeIndex + 1)
+    } else if (event.key === "ArrowUp" || event.key === "ArrowLeft") {
+      event.preventDefault()
+      focusOption(activeIndex - 1)
+    } else if (event.key === "Home") {
+      event.preventDefault()
+      focusOption(0)
+    } else if (event.key === "End") {
+      event.preventDefault()
+      focusOption(WEBSITE_LOCALES.length - 1)
+    }
+  }
+
   function changeLocale(nextLocale: WebsiteLocale) {
+    setOpen(false)
     try {
       window.localStorage.setItem(WEBSITE_LOCALE_STORAGE_KEY, nextLocale)
     } catch {
@@ -245,23 +309,65 @@ export default function WebsiteLanguage() {
       : "Language"
 
   return createPortal(
-    <label className="website-language-switcher" data-no-translate>
-      <Globe aria-hidden="true" />
-      <span className="sr-only">{languageLabel}</span>
-      <select
-        aria-label={languageLabel}
-        value={locale}
-        onChange={(event: ChangeEvent<HTMLSelectElement>) =>
-          changeLocale(event.target.value as WebsiteLocale)
-        }
+    <div
+      ref={switcherRef}
+      className={`website-language-switcher${open ? " is-open" : ""}`}
+      data-no-translate
+    >
+      <button
+        ref={triggerRef}
+        type="button"
+        className="website-language-trigger"
+        aria-label={`${languageLabel}: ${localeInfo.label}`}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-controls="website-language-menu"
+        onClick={() => setOpen((current) => !current)}
+        onKeyDown={handleTriggerKeyDown}
       >
-        {WEBSITE_LOCALES.map((item) => (
-          <option key={item.code} value={item.code}>
-            {item.shortLabel} · {item.label}
-          </option>
-        ))}
-      </select>
-    </label>,
+        <Globe aria-hidden="true" />
+        <span className="website-language-current-code">{localeInfo.shortLabel}</span>
+        <span className="website-language-current-label">{localeInfo.label}</span>
+        <ChevronDown className="website-language-chevron" aria-hidden="true" />
+      </button>
+
+      {open ? (
+        <div
+          id="website-language-menu"
+          className="website-language-menu"
+          role="listbox"
+          aria-label={languageLabel}
+          onKeyDown={handleMenuKeyDown}
+        >
+          <div className="website-language-menu-heading">
+            <span>{languageLabel}</span>
+            <small>{localeInfo.label}</small>
+          </div>
+          <div className="website-language-options">
+            {WEBSITE_LOCALES.map((item, index) => {
+              const selected = item.code === locale
+              return (
+                <button
+                  key={item.code}
+                  ref={(element) => {
+                    optionRefs.current[index] = element
+                  }}
+                  type="button"
+                  className={`website-language-option${selected ? " is-selected" : ""}`}
+                  role="option"
+                  aria-selected={selected}
+                  onClick={() => changeLocale(item.code)}
+                >
+                  <span className="website-language-option-code">{item.shortLabel}</span>
+                  <span className="website-language-option-label">{item.label}</span>
+                  {selected ? <Check aria-hidden="true" /> : null}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      ) : null}
+    </div>,
     portalTarget,
   )
 }
