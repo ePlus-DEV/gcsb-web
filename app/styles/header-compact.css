@@ -97,6 +97,7 @@ html.light .footer-route-links a:hover {
     width: auto;
     max-width: none;
     margin: 0;
+    background: #07101f;
     transform-origin: top center;
     box-shadow:
       0 22px 55px rgba(0, 0, 0, 0.42),
@@ -109,10 +110,28 @@ html.light .footer-route-links a:hover {
   }
 
   .website-language-options {
-    max-height: min(56vh, 430px);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-height: min(48vh, 350px);
+  }
+
+  .website-language-option {
+    grid-template-columns: 30px minmax(0, 1fr) 14px;
+    gap: 6px;
+    min-height: 40px;
+    padding-inline: 6px;
+  }
+
+  .website-language-option-code {
+    width: 28px;
+    height: 25px;
+  }
+
+  .website-language-option-label {
+    font-size: 0.66rem;
   }
 
   html.light .website-language-menu {
+    background: #ffffff;
     box-shadow:
       0 22px 55px rgba(51, 65, 85, 0.2),
       0 0 0 100vmax rgba(30, 41, 59, 0.12);
