@@ -45,6 +45,16 @@ jobs:
         run: |
           set -euo pipefail
           test -f out/index.html
-          grep -F -q "googletagmanager.com/gtag/js?id=G-SJNYKL2864" out/index.html
-          grep -F -q "G-SJNYKL2864" out/index.html
-          grep -F -q "G-41VM0C9NGM" out/index.html
+          python3 - <<'PY'
+          from pathlib import Path
+
+          html = Path("out/index.html").read_text()
+          primary_url = "https://www.googletagmanager.com/gtag/js?id=G-SJNYKL2864"
+
+          if html.count(f'src="{primary_url}"') != 1:
+              raise SystemExit("Expected exactly one primary gtag.js script URL.")
+
+          for ga_id in ("G-SJNYKL2864", "G-41VM0C9NGM"):
+              if html.count(f'gtag("config", "{ga_id}");') != 1:
+                  raise SystemExit(f"Expected exactly one gtag config for {ga_id}.")
+          PY
