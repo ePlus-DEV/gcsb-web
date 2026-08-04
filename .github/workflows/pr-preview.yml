@@ -62,7 +62,7 @@ jobs:
         working-directory: production-source
         env:
           NEXT_PUBLIC_ENABLE_ANALYTICS: "true"
-          NEXT_PUBLIC_GA_IDS: "G-SJNYKL2864,G-41VM0C9NGM"
+          NEXT_PUBLIC_GA_ID: "G-SJNYKL2864"
         shell: bash
         run: |
           set -euo pipefail
@@ -90,7 +90,7 @@ jobs:
           NEXT_STATIC_EXPORT: "true"
           NEXT_PUBLIC_BASE_PATH: "/pr-preview/pr-${{ github.event.number }}"
           NEXT_PUBLIC_ENABLE_ANALYTICS: "false"
-          NEXT_PUBLIC_GA_IDS: ""
+          NEXT_PUBLIC_GA_ID: ""
         run: |
           yarn install --frozen-lockfile --non-interactive
           yarn build
@@ -106,8 +106,8 @@ jobs:
           set -euo pipefail
           test -f out/index.html
           grep -q "${PREVIEW_PATH}/_next/" out/index.html
-          if grep -R -E -q "G-41VM0C9NGM|G-SJNYKL2864" out; then
-            echo "Preview output contains a production Google Analytics ID."
+          if grep -R -F -q "G-SJNYKL2864" out; then
+            echo "Preview output contains the production Google Analytics ID."
             exit 1
           fi
           if grep -q "/${REPO_NAME}/pr-preview/" out/index.html; then
