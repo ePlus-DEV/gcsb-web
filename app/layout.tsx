@@ -28,41 +28,34 @@ const fontAwesomeIntegrity =
   "sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
 const googleAnalyticsIdPattern = /^G-[A-Z0-9]+$/
 const analyticsEnabled = process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === "true"
-const configuredGoogleAnalyticsIds = (process.env.NEXT_PUBLIC_GA_IDS ?? "")
-  .split(",")
-  .map((gaId) => gaId.trim().toUpperCase())
-  .filter((gaId) => gaId.length > 0)
-const invalidGoogleAnalyticsIds = analyticsEnabled
-  ? configuredGoogleAnalyticsIds.filter(
-      (gaId) => !googleAnalyticsIdPattern.test(gaId),
-    )
-  : []
+const configuredGoogleAnalyticsId = (process.env.NEXT_PUBLIC_GA_ID ?? "")
+  .trim()
+  .toUpperCase()
 
-if (analyticsEnabled && configuredGoogleAnalyticsIds.length === 0) {
+if (analyticsEnabled && configuredGoogleAnalyticsId.length === 0) {
   throw new Error(
-    "Google Analytics is enabled but NEXT_PUBLIC_GA_IDS is empty.",
+    "Google Analytics is enabled but NEXT_PUBLIC_GA_ID is empty.",
   )
 }
 
-if (invalidGoogleAnalyticsIds.length > 0) {
+if (
+  analyticsEnabled &&
+  !googleAnalyticsIdPattern.test(configuredGoogleAnalyticsId)
+) {
   throw new Error(
-    `NEXT_PUBLIC_GA_IDS contains invalid GA4 measurement IDs: ${invalidGoogleAnalyticsIds.join(", ")}`,
+    `NEXT_PUBLIC_GA_ID contains an invalid GA4 measurement ID: ${configuredGoogleAnalyticsId}`,
   )
 }
 
-const googleAnalyticsIds = analyticsEnabled
-  ? [...new Set(configuredGoogleAnalyticsIds)]
-  : []
-const primaryGoogleAnalyticsId = googleAnalyticsIds[0]
-const googleAnalyticsConfig = googleAnalyticsIds
-  .map((gaId) => `gtag("config", ${JSON.stringify(gaId)});`)
-  .join("\n")
-const googleAnalyticsInitScript = `
+const googleAnalyticsId = analyticsEnabled ? configuredGoogleAnalyticsId : ""
+const googleAnalyticsInitScript = googleAnalyticsId
+  ? `
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag("js", new Date());
-${googleAnalyticsConfig}
+gtag("config", ${JSON.stringify(googleAnalyticsId)});
 `
+  : ""
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -143,12 +136,12 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           crossOrigin="anonymous"
           referrerPolicy="no-referrer"
         />
-        {primaryGoogleAnalyticsId ? (
+        {googleAnalyticsId ? (
           <>
             <script
               id="google-analytics"
               async
-              src={`https://www.googletagmanager.com/gtag/js?id=${primaryGoogleAnalyticsId}`}
+              src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}
             />
             <script
               id="google-analytics-init"
