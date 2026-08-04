@@ -62,7 +62,10 @@ jobs:
         working-directory: production-source
         env:
           NEXT_PUBLIC_ENABLE_ANALYTICS: "true"
+          # main still reads the plural variable until this PR is merged.
+          # Both names intentionally contain the same single Measurement ID.
           NEXT_PUBLIC_GA_ID: "G-SJNYKL2864"
+          NEXT_PUBLIC_GA_IDS: "G-SJNYKL2864"
         shell: bash
         run: |
           set -euo pipefail
