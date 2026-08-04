@@ -45,19 +45,14 @@ class ScriptCollector(HTMLParser):
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("html_path", type=Path)
-    parser.add_argument("primary_id")
-    parser.add_argument("expected_ids", nargs="+")
+    parser.add_argument("expected_id")
     args = parser.parse_args()
-
-    expected_ids = list(dict.fromkeys(args.expected_ids))
-    if not expected_ids or expected_ids[0] != args.primary_id:
-        raise SystemExit("The primary GA ID must be the first expected ID.")
 
     collector = ScriptCollector()
     collector.feed(args.html_path.read_text(encoding="utf-8"))
 
-    primary_url = (
-        "https://www.googletagmanager.com/gtag/js?id=" + args.primary_id
+    expected_url = (
+        "https://www.googletagmanager.com/gtag/js?id=" + args.expected_id
     )
     loader_scripts = [
         attrs
@@ -72,7 +67,7 @@ def main() -> None:
         )
     if (
         loader_scripts[0].get("id") != "google-analytics"
-        or loader_scripts[0].get("src") != primary_url
+        or loader_scripts[0].get("src") != expected_url
         or "async" not in loader_scripts[0]
     ):
         raise SystemExit(
@@ -100,15 +95,15 @@ def main() -> None:
         r'gtag\("config", "(G-[A-Z0-9]+)"\);',
         init_script,
     )
-    if configured_ids != expected_ids:
+    if configured_ids != [args.expected_id]:
         raise SystemExit(
-            "Unexpected GA configuration order or duplicates. "
-            f"Expected {expected_ids}, found {configured_ids}."
+            "Expected exactly one GA configuration call for "
+            f"{args.expected_id}; found {configured_ids}."
         )
 
     print(
-        "Verified direct Google Analytics loader and config calls for: "
-        + ", ".join(configured_ids)
+        "Verified one direct Google Analytics loader and config call for: "
+        + args.expected_id
     )
 
 
