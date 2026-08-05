@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import FacilitatorAnalyzerOption from "@/components/arcade/facilitator-analyzer-option"
 import FacilitatorPanel from "@/components/arcade/facilitator-panel"
 import ArcadeRouteLinks from "@/components/app/arcade-route-links"
 import SeoContent from "@/components/seo/seo-content"
@@ -24,6 +25,7 @@ export default function Page() {
   return (
     <>
       <RedesignCalculator />
+      <FacilitatorAnalyzerOption />
       <ArcadeRouteLinks />
       <FacilitatorPanel />
       <SeoContent />
