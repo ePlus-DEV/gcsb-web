@@ -68,8 +68,7 @@ def main() -> None:
     args = parser.parse_args()
 
     collector = AnalyticsMarkupCollector()
-    html = args.html_path.read_text(encoding="utf-8")
-    collector.feed(html)
+    collector.feed(args.html_path.read_text(encoding="utf-8"))
 
     loader_scripts = [
         attrs
@@ -108,10 +107,14 @@ def main() -> None:
             f"found {consent_markers}."
         )
 
-    if "arcade-cookie-consent-v1" not in html:
+    storage_markers = get_meta_content(
+        collector.meta,
+        "analytics-consent-storage",
+    )
+    if storage_markers != ["arcade-cookie-consent-v1"]:
         raise SystemExit(
-            "The static export does not contain the cookie consent component "
-            "configuration."
+            "Expected one analytics consent storage marker; "
+            f"found {storage_markers}."
         )
 
     print(
