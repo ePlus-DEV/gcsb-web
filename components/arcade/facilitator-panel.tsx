@@ -31,6 +31,9 @@ import { DASHBOARD_STORAGE_KEY, formatNumber, numeric } from "./model"
 
 const SYNC_INTERVAL_MS = 1_500
 const BONUS_MILESTONE_POINTS = 10
+const BONUS_GUIDE_URL =
+  "https://rsvp.withgoogle.com/events/arcade-facilitator/bonus-milestone"
+const BONUS_FORM_URL = "https://forms.gle/MMfH5RKp83TfRtXj9"
 const FOCUSABLE_SELECTOR = [
   "a[href]",
   "button:not([disabled])",
@@ -66,6 +69,26 @@ const MILESTONES = [
     requirements: { games: 12, skills: 66 },
   },
 ] as const
+
+const GEAR_SKILL_BADGES = [
+  "Create Your First Gemini Enterprise Application",
+  "Engineer AI Agents with Agent Development Kit (ADK)",
+  "Deploy Multi-Agent Architectures",
+  "Orchestrate Multi-Agent Workflows with Gemini Enterprise",
+] as const
+
+const GEAR_SIGNUP_BADGE_ALIASES = [
+  "GEAR Sign-up Badge",
+  "GEAR Signup Badge",
+  "GEAR Program Enrolment Badge",
+  "GEAR Program Enrollment Badge",
+]
+
+const ARCADE_GEAR_BADGE_ALIASES = [
+  "Arcade - GEAR Badge",
+  "Arcade GEAR Badge",
+  "GEAR Arcade Badge",
+]
 
 type StoredDashboard = {
   profileUrl?: string
@@ -117,6 +140,17 @@ function getFocusableElements(container: HTMLElement): HTMLElement[] {
       element.getAttribute("aria-hidden") !== "true" &&
       !element.hasAttribute("hidden"),
   )
+}
+
+function titleMatchesAliases(title: string, aliases: readonly string[]): boolean {
+  const normalizedTitle = normalizeFacilitatorBadgeTitle(title)
+  return aliases.some((alias) => {
+    const normalizedAlias = normalizeFacilitatorBadgeTitle(alias)
+    return (
+      normalizedTitle === normalizedAlias ||
+      normalizedTitle.includes(normalizedAlias)
+    )
+  })
 }
 
 export default function FacilitatorPanel() {
@@ -218,13 +252,18 @@ export default function FacilitatorPanel() {
     [result],
   )
 
-  const syllabus = useMemo(
-    () =>
-      evaluateFacilitatorSyllabus([
-        ...(result?.skill ?? []),
-        ...(result?.badges ?? []),
-      ]),
+  const earnedBadges = useMemo(
+    () => [
+      ...(result?.skill ?? []),
+      ...(result?.badges ?? []),
+      ...(result?.special ?? []),
+    ],
     [result],
+  )
+
+  const syllabus = useMemo(
+    () => evaluateFacilitatorSyllabus(earnedBadges),
+    [earnedBadges],
   )
 
   const completedCount = syllabus.filter((badge) => badge.completed).length
@@ -255,6 +294,35 @@ export default function FacilitatorPanel() {
   const estimatedTotal = facilitatorArcadePoints + milestoneBonus
   const hasFacilitatorData = Boolean(result?.faciCounts)
   const completedUltimate = currentMilestone?.id === "ultimate"
+  const completedMilestoneOne = milestoneComplete(
+    counts,
+    MILESTONES[0].requirements,
+  )
+
+  const hasGearSignupBadge = earnedBadges.some((badge) =>
+    titleMatchesAliases(badge.title, GEAR_SIGNUP_BADGE_ALIASES),
+  )
+  const hasArcadeGearBadge = earnedBadges.some((badge) =>
+    titleMatchesAliases(badge.title, ARCADE_GEAR_BADGE_ALIASES),
+  )
+  const gearSkillStatuses = GEAR_SKILL_BADGES.map((title) => ({
+    title,
+    completed: earnedBadges.some(
+      (badge) =>
+        normalizeFacilitatorBadgeTitle(badge.title) ===
+        normalizeFacilitatorBadgeTitle(title),
+    ),
+  }))
+  const completedGearSkills = gearSkillStatuses.filter(
+    (badge) => badge.completed,
+  ).length
+  const completedBonusProfileChecks = [
+    hasGearSignupBadge,
+    hasArcadeGearBadge,
+    completedMilestoneOne,
+    completedGearSkills === GEAR_SKILL_BADGES.length,
+  ].filter(Boolean).length
+  const readyForBonusManualSteps = completedBonusProfileChecks === 4
 
   const goToCalculator = () => {
     setOpen(false)
@@ -651,12 +719,166 @@ export default function FacilitatorPanel() {
                   </div>
                 </section>
 
+                <section className="facilitator-section">
+                  <div className="facilitator-section-title">
+                    <div>
+                      <h3>Bonus Milestone</h3>
+                      <p>
+                        Earn an extra +{BONUS_MILESTONE_POINTS} points by
+                        completing the GEAR and AI agent verification steps.
+                      </p>
+                    </div>
+                    <span>{completedBonusProfileChecks} / 4 profile checks</span>
+                  </div>
+
+                  <div className="facilitator-syllabus-progress">
+                    <span>
+                      <b>{completedBonusProfileChecks}</b> of 4 requirements can
+                      be checked from the public profile. Agent verification is
+                      completed manually through Google&apos;s form.
+                    </span>
+                    <i
+                      role="progressbar"
+                      aria-label="Bonus Milestone profile-checkable progress"
+                      aria-valuemin={0}
+                      aria-valuemax={4}
+                      aria-valuenow={completedBonusProfileChecks}
+                    >
+                      <b
+                        style={{
+                          width: `${percentage(completedBonusProfileChecks, 4)}%`,
+                        }}
+                      />
+                    </i>
+                  </div>
+
+                  <div className="facilitator-milestones">
+                    <BonusCriterion
+                      completed={hasGearSignupBadge}
+                      title="GEAR Sign-up badge"
+                      detail="Earn the GEAR program enrolment badge."
+                    />
+                    <BonusCriterion
+                      completed={hasArcadeGearBadge}
+                      title="Arcade - GEAR badge"
+                      detail="Earn the Arcade - GEAR badge on your developer profile."
+                    />
+                    <BonusCriterion
+                      completed={completedMilestoneOne}
+                      title="Complete Milestone 1"
+                      detail="Reach at least 6 Arcade Games and 18 Skill Badges."
+                    />
+                    <BonusCriterion
+                      completed={completedGearSkills === GEAR_SKILL_BADGES.length}
+                      title="Complete all 4 GEAR skill badges"
+                      detail={`${completedGearSkills} of ${GEAR_SKILL_BADGES.length} found on the public profile.`}
+                    />
+                    <article>
+                      <div className="facilitator-milestone-heading">
+                        <span>
+                          <CircleHelp />
+                        </span>
+                        <div>
+                          <strong>Build and submit your AI agent</strong>
+                          <small>
+                            Free Trial, agent creation, Project Name and Billing
+                            ID verification cannot be detected from a public
+                            profile.
+                          </small>
+                        </div>
+                        <em>Manual</em>
+                      </div>
+                    </article>
+                  </div>
+
+                  <div className="facilitator-syllabus-list">
+                    {gearSkillStatuses.map((badge) => (
+                      <article
+                        key={badge.title}
+                        className={badge.completed ? "is-completed" : "is-missing"}
+                      >
+                        <span
+                          className="facilitator-badge-status"
+                          aria-hidden="true"
+                        >
+                          {badge.completed ? <CheckCircle2 /> : <CircleHelp />}
+                        </span>
+                        <div>
+                          <small>GEAR skill badge</small>
+                          <strong>{badge.title}</strong>
+                          <p>{badge.completed ? "Completed" : "Not found"}</p>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                      gap: 8,
+                    }}
+                  >
+                    <a
+                      href={BONUS_GUIDE_URL}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 8,
+                        minHeight: 42,
+                        padding: "0 12px",
+                        border: "1px solid rgba(34, 211, 238, .35)",
+                        borderRadius: 9,
+                        background: "rgba(34, 211, 238, .08)",
+                        color: "#67e8f9",
+                        fontSize: ".68rem",
+                        fontWeight: 800,
+                        textDecoration: "none",
+                      }}
+                    >
+                      Read official guide <ExternalLink />
+                    </a>
+                    <a
+                      href={BONUS_FORM_URL}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 8,
+                        minHeight: 42,
+                        padding: "0 12px",
+                        border: "1px solid rgba(124, 92, 246, .48)",
+                        borderRadius: 9,
+                        background:
+                          "linear-gradient(135deg, rgba(98, 53, 220, .9), rgba(139, 63, 224, .9))",
+                        color: "#fff",
+                        fontSize: ".68rem",
+                        fontWeight: 800,
+                        textDecoration: "none",
+                      }}
+                    >
+                      Submit verification form <ExternalLink />
+                    </a>
+                  </div>
+
+                  <p className="facilitator-syllabus-note">
+                    {readyForBonusManualSteps
+                      ? "All profile-checkable requirements appear complete. Follow the official guide, create your AI agent, then submit the verification form."
+                      : "Complete the remaining profile requirements first. Google recommends finishing enrolment before starting the Bonus Milestone steps."}
+                  </p>
+                </section>
+
                 <p className="facilitator-disclaimer">
                   The optional Bonus Milestone can add +{BONUS_MILESTONE_POINTS}{" "}
-                  more points and is not included automatically. Google also
-                  requires the program enrolment badges for milestone bonus
-                  eligibility. Final recognition remains subject to Google&apos;s
-                  program records.
+                  more points and is not included automatically. Public-profile
+                  matching cannot confirm Free Trial signup, AI agent creation,
+                  or verification-form approval. Final recognition remains
+                  subject to Google&apos;s program records.
                 </p>
               </div>
             )}
@@ -691,6 +913,29 @@ function TrackButton({
       <strong>{label}</strong>
       <small>{count}</small>
     </button>
+  )
+}
+
+function BonusCriterion({
+  completed,
+  title,
+  detail,
+}: {
+  completed: boolean
+  title: string
+  detail: string
+}) {
+  return (
+    <article className={completed ? "is-completed" : ""}>
+      <div className="facilitator-milestone-heading">
+        <span>{completed ? <CheckCircle2 /> : <CircleHelp />}</span>
+        <div>
+          <strong>{title}</strong>
+          <small>{detail}</small>
+        </div>
+        <em>{completed ? "Confirmed" : "Pending"}</em>
+      </div>
+    </article>
   )
 }
 
