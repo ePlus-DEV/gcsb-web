@@ -37,6 +37,7 @@ function validProfileUrl(value: string): string {
 export default function FacilitatorAnalyzerOption() {
   const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null)
   const [inputProfileUrl, setInputProfileUrl] = useState("")
+  const [storedProfileUrl, setStoredProfileUrl] = useState("")
   const [participating, setParticipating] = useState(false)
 
   useEffect(() => {
@@ -77,7 +78,23 @@ export default function FacilitatorAnalyzerOption() {
       observer.disconnect()
       currentInput?.removeEventListener("input", syncInputValue)
       slot?.remove()
-      setPortalTarget(null)
+    }
+  }, [])
+
+  useEffect(() => {
+    const syncStoredProfile = () => {
+      setStoredProfileUrl(readStoredProfileUrl())
+    }
+
+    syncStoredProfile()
+    const timer = window.setInterval(syncStoredProfile, 1_000)
+    window.addEventListener("focus", syncStoredProfile)
+    window.addEventListener("storage", syncStoredProfile)
+
+    return () => {
+      window.clearInterval(timer)
+      window.removeEventListener("focus", syncStoredProfile)
+      window.removeEventListener("storage", syncStoredProfile)
     }
   }, [])
 
@@ -85,8 +102,8 @@ export default function FacilitatorAnalyzerOption() {
     const fromInput = validProfileUrl(inputProfileUrl)
     if (fromInput) return fromInput
 
-    return validProfileUrl(readStoredProfileUrl())
-  }, [inputProfileUrl])
+    return validProfileUrl(storedProfileUrl)
+  }, [inputProfileUrl, storedProfileUrl])
 
   useEffect(() => {
     if (!profileUrl) {
