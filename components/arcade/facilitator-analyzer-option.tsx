@@ -1,9 +1,10 @@
 "use client"
 
-import { GraduationCap } from "lucide-react"
+import { CircleHelp, GraduationCap } from "lucide-react"
 import { createPortal } from "react-dom"
 import { useEffect, useMemo, useState } from "react"
 import {
+  FACILITATOR_PANEL_OPEN_EVENT,
   FACILITATOR_PARTICIPATION_EVENT,
   normalizeFacilitatorProfileUrl,
   readFacilitatorParticipation,
@@ -16,8 +17,6 @@ const ANALYZER_SELECTOR = ".profile-analyzer-card"
 const INPUT_SELECTOR =
   'input[aria-label="Google Skills public profile URL"]'
 const HELP_ROW_SELECTOR = ".analyzer-help-row"
-const DRAWER_TOGGLE_SELECTOR =
-  'input[aria-label="Include Facilitator Program bonus in the estimated total"]'
 
 function readStoredProfileUrl(): string {
   try {
@@ -150,56 +149,67 @@ export default function FacilitatorAnalyzerOption() {
     }
   }, [profileUrl])
 
-  useEffect(() => {
-    if (!profileUrl) return
-
-    const syncDrawerToggle = () => {
-      const drawerToggle =
-        document.querySelector<HTMLInputElement>(DRAWER_TOGGLE_SELECTOR)
-      if (!drawerToggle || drawerToggle.checked === participating) return
-
-      drawerToggle.click()
-    }
-
-    syncDrawerToggle()
-    const observer = new MutationObserver(syncDrawerToggle)
-    observer.observe(document.body, { childList: true, subtree: true })
-
-    return () => observer.disconnect()
-  }, [participating, profileUrl])
-
   if (!portalTarget) return null
 
   return createPortal(
-    <label
-      className={`analyzer-facilitator-option${
-        participating ? " is-active" : ""
-      }${profileUrl ? "" : " is-disabled"}`}
-    >
-      <input
-        type="checkbox"
-        checked={participating}
-        disabled={!profileUrl}
-        onChange={(event) => {
-          const checked = event.target.checked
-          setParticipating(checked)
-          writeFacilitatorParticipation(profileUrl, checked)
+    <div style={{ display: "grid", gap: 8 }}>
+      <label
+        className={`analyzer-facilitator-option${
+          participating ? " is-active" : ""
+        }${profileUrl ? "" : " is-disabled"}`}
+      >
+        <input
+          type="checkbox"
+          checked={participating}
+          disabled={!profileUrl}
+          onChange={(event) => {
+            const checked = event.target.checked
+            setParticipating(checked)
+            writeFacilitatorParticipation(profileUrl, checked)
+          }}
+          aria-describedby="analyzer-facilitator-description"
+        />
+        <span className="analyzer-facilitator-icon" aria-hidden="true">
+          <GraduationCap />
+        </span>
+        <span className="analyzer-facilitator-copy">
+          <strong>Participating in Facilitator Program</strong>
+          <small id="analyzer-facilitator-description">
+            {profileUrl
+              ? "Include the highest eligible Facilitator milestone bonus."
+              : "Paste a valid public profile URL to enable this option."}
+          </small>
+        </span>
+        <span className="analyzer-facilitator-switch" aria-hidden="true" />
+      </label>
+
+      <button
+        className="analyzer-facilitator-details"
+        type="button"
+        onClick={() =>
+          window.dispatchEvent(new Event(FACILITATOR_PANEL_OPEN_EVENT))
+        }
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          justifySelf: "end",
+          gap: 6,
+          minHeight: 30,
+          padding: "0 10px",
+          border: "1px solid rgba(139, 92, 246, 0.25)",
+          borderRadius: 7,
+          background: "rgba(124, 58, 237, 0.08)",
+          color: "#bda7ee",
+          fontSize: "0.62rem",
+          fontWeight: 700,
+          cursor: "pointer",
         }}
-        aria-describedby="analyzer-facilitator-description"
-      />
-      <span className="analyzer-facilitator-icon" aria-hidden="true">
-        <GraduationCap />
-      </span>
-      <span className="analyzer-facilitator-copy">
-        <strong>Participating in Facilitator Program</strong>
-        <small id="analyzer-facilitator-description">
-          {profileUrl
-            ? "Include the highest eligible Facilitator milestone bonus."
-            : "Paste a valid public profile URL to enable this option."}
-        </small>
-      </span>
-      <span className="analyzer-facilitator-switch" aria-hidden="true" />
-    </label>,
+      >
+        <CircleHelp style={{ width: 14, height: 14 }} />
+        View program details
+      </button>
+    </div>,
     portalTarget,
   )
 }
