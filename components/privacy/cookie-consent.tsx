@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { BarChart3, Check, ChevronDown, ShieldCheck, X } from "lucide-react"
+import { BarChart3, ChevronDown, ShieldCheck, X } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { getWebsiteLocaleFromPathname } from "@/lib/website-i18n"
 
@@ -150,6 +150,15 @@ export default function CookieConsent({
             <p id="cookie-consent-description">{copy.description}</p>
           </div>
 
+          <button
+            type="button"
+            className="cookie-consent-close"
+            aria-label={copy.close}
+            onClick={acknowledgeNotice}
+          >
+            <X />
+          </button>
+
           <div className="cookie-consent-actions">
             <button
               type="button"
@@ -169,15 +178,6 @@ export default function CookieConsent({
               {copy.acknowledge}
             </button>
           </div>
-
-          <button
-            type="button"
-            className="cookie-consent-close"
-            aria-label={copy.close}
-            onClick={acknowledgeNotice}
-          >
-            <X />
-          </button>
         </div>
 
         {showDetails ? (
@@ -185,52 +185,37 @@ export default function CookieConsent({
             <h3>{copy.usageTitle}</h3>
 
             <div className="cookie-consent-categories">
-              <details className="cookie-consent-category">
-                <summary>
-                  <span className="cookie-category-chevron" aria-hidden="true">
-                    <ChevronDown />
-                  </span>
+              <article className="cookie-consent-category">
+                <div className="cookie-category-header">
                   <span className="cookie-category-name">
                     <ShieldCheck />
                     {copy.essentialTitle}
                   </span>
-                  <span className="cookie-category-status">
+                  <span className="cookie-category-status is-enabled">
                     {copy.essentialStatus}
                   </span>
-                  <span className="cookie-category-switch is-on" aria-hidden="true">
-                    <Check />
-                  </span>
-                </summary>
+                </div>
                 <p>{copy.essentialDescription}</p>
-              </details>
+              </article>
 
-              <details className="cookie-consent-category">
-                <summary>
-                  <span className="cookie-category-chevron" aria-hidden="true">
-                    <ChevronDown />
-                  </span>
+              <article className="cookie-consent-category">
+                <div className="cookie-category-header">
                   <span className="cookie-category-name">
                     <BarChart3 />
                     {copy.analyticsTitle}
                   </span>
-                  <span className="cookie-category-status">
+                  <span
+                    className={`cookie-category-status${
+                      previewMode ? " is-preview" : " is-enabled"
+                    }`}
+                  >
                     {previewMode
                       ? copy.analyticsPreviewStatus
                       : copy.analyticsStatus}
                   </span>
-                  <span
-                    className={
-                      previewMode
-                        ? "cookie-category-switch is-preview"
-                        : "cookie-category-switch is-on"
-                    }
-                    aria-hidden="true"
-                  >
-                    <Check />
-                  </span>
-                </summary>
+                </div>
                 <p>{copy.analyticsDescription}</p>
-              </details>
+              </article>
             </div>
 
             {previewMode ? (
