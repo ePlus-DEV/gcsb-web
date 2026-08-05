@@ -131,6 +131,129 @@
   color: #43dc8b;
 }
 
+.analyzer-facilitator-slot {
+  margin-top: 10px;
+}
+
+.analyzer-facilitator-option {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 11px;
+  min-height: 58px;
+  padding: 10px 13px;
+  border: 1px solid rgba(251, 191, 36, 0.24);
+  border-radius: 11px;
+  background: linear-gradient(145deg, rgba(69, 42, 7, 0.24), rgba(10, 20, 43, 0.82));
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+}
+
+.analyzer-facilitator-option:hover {
+  border-color: rgba(251, 191, 36, 0.48);
+  transform: translateY(-1px);
+}
+
+.analyzer-facilitator-option.is-active {
+  border-color: rgba(47, 209, 125, 0.4);
+  background: linear-gradient(145deg, rgba(7, 56, 40, 0.35), rgba(10, 25, 48, 0.88));
+}
+
+.analyzer-facilitator-option.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.analyzer-facilitator-option.is-disabled:hover {
+  border-color: rgba(251, 191, 36, 0.24);
+  transform: none;
+}
+
+.analyzer-facilitator-option > input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+}
+
+.analyzer-facilitator-icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: rgba(251, 191, 36, 0.12);
+  color: #fbbf24;
+}
+
+.analyzer-facilitator-option.is-active .analyzer-facilitator-icon {
+  background: rgba(47, 209, 125, 0.12);
+  color: #43dc8b;
+}
+
+.analyzer-facilitator-icon svg {
+  width: 19px;
+  height: 19px;
+}
+
+.analyzer-facilitator-copy {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.analyzer-facilitator-copy strong {
+  color: #e8eefb;
+  font-size: 0.72rem;
+}
+
+.analyzer-facilitator-copy small {
+  color: #8798b4;
+  font-size: 0.62rem;
+  line-height: 1.45;
+}
+
+.analyzer-facilitator-switch {
+  position: relative;
+  display: block;
+  width: 46px;
+  height: 25px;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 999px;
+  background: #17233b;
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+
+.analyzer-facilitator-switch::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: #94a3b8;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.28);
+  transition: transform 0.18s ease, background 0.18s ease;
+}
+
+.analyzer-facilitator-option > input:checked ~ .analyzer-facilitator-switch {
+  border-color: rgba(47, 209, 125, 0.68);
+  background: rgba(22, 163, 74, 0.32);
+}
+
+.analyzer-facilitator-option > input:checked ~ .analyzer-facilitator-switch::after {
+  transform: translateX(21px);
+  background: #43dc8b;
+}
+
+.analyzer-facilitator-option > input:focus-visible ~ .analyzer-facilitator-switch {
+  outline: 3px solid rgba(34, 211, 238, 0.3);
+  outline-offset: 3px;
+}
+
 @media (min-width: 601px) {
   .facilitator-launcher {
     top: 50%;
@@ -229,6 +352,33 @@ html.light .facilitator-launcher::before {
   background: #ffffff;
 }
 
+html.light .analyzer-facilitator-option {
+  border-color: rgba(202, 138, 4, 0.24);
+  background: linear-gradient(145deg, #fffbeb, #ffffff);
+}
+
+html.light .analyzer-facilitator-option.is-active {
+  border-color: rgba(21, 128, 61, 0.28);
+  background: linear-gradient(145deg, #f0fdf4, #ffffff);
+}
+
+html.light .analyzer-facilitator-copy strong {
+  color: #26324a;
+}
+
+html.light .analyzer-facilitator-copy small {
+  color: #64748b;
+}
+
+html.light .analyzer-facilitator-switch {
+  border-color: rgba(100, 116, 139, 0.28);
+  background: #e2e8f0;
+}
+
+html.light .analyzer-facilitator-switch::after {
+  background: #64748b;
+}
+
 @media (max-width: 600px) {
   .facilitator-launcher {
     top: auto;
@@ -260,12 +410,35 @@ html.light .facilitator-launcher::before {
     justify-items: start;
     padding-left: 49px;
   }
+
+  .analyzer-facilitator-option {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 9px;
+    min-height: 54px;
+    padding: 9px 10px;
+  }
+
+  .analyzer-facilitator-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .analyzer-facilitator-copy strong {
+    font-size: 0.68rem;
+  }
+
+  .analyzer-facilitator-copy small {
+    font-size: 0.58rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .facilitator-launcher,
   .facilitator-participation-toggle > span,
-  .facilitator-participation-toggle > span::after {
+  .facilitator-participation-toggle > span::after,
+  .analyzer-facilitator-option,
+  .analyzer-facilitator-switch,
+  .analyzer-facilitator-switch::after {
     transition: none;
   }
 }
