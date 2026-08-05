@@ -15,6 +15,7 @@ import {
 } from "lucide-react"
 import type {
   ChangeEvent,
+  CSSProperties,
   MouseEvent as ReactMouseEvent,
   ReactNode,
 } from "react"
@@ -48,24 +49,28 @@ const MILESTONES = [
     id: "1",
     label: "Milestone 1",
     bonus: 5,
+    color: "#4285f4",
     requirements: { games: 6, skills: 18 },
   },
   {
     id: "2",
     label: "Milestone 2",
     bonus: 15,
+    color: "#f9ab00",
     requirements: { games: 8, skills: 34 },
   },
   {
     id: "3",
     label: "Milestone 3",
     bonus: 25,
+    color: "#34a853",
     requirements: { games: 10, skills: 50 },
   },
   {
     id: "ultimate",
     label: "Ultimate Milestone",
     bonus: 35,
+    color: "#ea4335",
     requirements: { games: 12, skills: 66 },
   },
 ] as const
@@ -107,7 +112,6 @@ function readDashboard(): StoredDashboard | null {
   try {
     const value = window.localStorage.getItem(DASHBOARD_STORAGE_KEY)
     if (!value) return null
-
     const parsed = JSON.parse(value) as unknown
     return typeof parsed === "object" && parsed !== null
       ? (parsed as StoredDashboard)
@@ -130,6 +134,21 @@ function regularArcadePointsForActivities(counts: Counts): number {
 
 function percentage(current: number, target: number): number {
   return Math.min(100, Math.max(0, (current / Math.max(target, 1)) * 100))
+}
+
+function milestoneProgress(
+  counts: Counts,
+  target: (typeof MILESTONES)[number]["requirements"],
+) {
+  const completed =
+    Math.min(counts.games, target.games) + Math.min(counts.skills, target.skills)
+  const total = target.games + target.skills
+
+  return {
+    completed,
+    total,
+    percent: Math.floor(percentage(completed, total)),
+  }
 }
 
 function getFocusableElements(container: HTMLElement): HTMLElement[] {
@@ -165,11 +184,9 @@ export default function FacilitatorPanel() {
 
   useEffect(() => {
     let previous = ""
-
     const sync = () => {
       const raw = window.localStorage.getItem(DASHBOARD_STORAGE_KEY) ?? ""
       if (raw === previous) return
-
       previous = raw
       setDashboard(readDashboard())
     }
@@ -188,7 +205,6 @@ export default function FacilitatorPanel() {
 
   useEffect(() => {
     if (!open) return
-
     const drawer = drawerRef.current
     if (!drawer) return
 
@@ -202,11 +218,10 @@ export default function FacilitatorPanel() {
         setOpen(false)
         return
       }
-
       if (event.key !== "Tab") return
 
       const focusableElements = getFocusableElements(drawer)
-      if (focusableElements.length === 0) {
+      if (!focusableElements.length) {
         event.preventDefault()
         drawer.focus()
         return
@@ -234,7 +249,6 @@ export default function FacilitatorPanel() {
     }
 
     document.addEventListener("keydown", onKeyDown)
-
     return () => {
       window.cancelAnimationFrame(focusFrame)
       document.body.style.overflow = previousOverflow
@@ -257,15 +271,14 @@ export default function FacilitatorPanel() {
       ...(result?.skill ?? []),
       ...(result?.badges ?? []),
       ...(result?.special ?? []),
+      ...(result?.game ?? []),
     ],
     [result],
   )
-
   const syllabus = useMemo(
     () => evaluateFacilitatorSyllabus(earnedBadges),
     [earnedBadges],
   )
-
   const completedCount = syllabus.filter((badge) => badge.completed).length
   const missingCount = FACILITATOR_SYLLABUS_2026.length - completedCount
   const normalizedSearch = normalizeFacilitatorBadgeTitle(search)
@@ -277,7 +290,6 @@ export default function FacilitatorPanel() {
     const searchMatches =
       !normalizedSearch ||
       normalizeFacilitatorBadgeTitle(badge.title).includes(normalizedSearch)
-
     return statusMatches && trackMatches && searchMatches
   })
 
@@ -398,10 +410,7 @@ export default function FacilitatorPanel() {
               <div className="facilitator-empty">
                 <GraduationCap />
                 <strong>Analyze a public profile first</strong>
-                <p>
-                  The tracker uses the same public-profile result as the
-                  calculator.
-                </p>
+                <p>The tracker uses the same public-profile result as the calculator.</p>
                 <button type="button" onClick={goToCalculator}>
                   Go to calculator
                 </button>
@@ -412,9 +421,7 @@ export default function FacilitatorPanel() {
                   <article>
                     <span>Overall Arcade points</span>
                     <strong>{formatNumber(overallArcadePoints)}</strong>
-                    <small>
-                      Includes regular points earned from games and skill badges
-                    </small>
+                    <small>Includes regular points from games and skill badges</small>
                   </article>
                   <article className="is-bonus">
                     <span>Facilitator bonus</span>
@@ -431,10 +438,9 @@ export default function FacilitatorPanel() {
                 <div className="facilitator-warning">
                   <CircleHelp />
                   <span>
-                    Facilitator game and skill-badge counts are used only to
-                    determine the milestone bonus. Their regular Arcade points
-                    are already included in the overall score and are not added a
-                    second time.
+                    Facilitator game and skill-badge counts only determine the
+                    milestone bonus. Their regular Arcade points are already in
+                    the overall score and are not added twice.
                   </span>
                 </div>
 
@@ -442,188 +448,24 @@ export default function FacilitatorPanel() {
                   <div className="facilitator-warning">
                     <CircleHelp />
                     <span>
-                      Facilitator activity totals are unavailable, so the
-                      milestone bonus cannot be estimated yet. The overall Arcade
-                      score and badge checklist can still be shown.
+                      Facilitator activity totals are unavailable, so milestone
+                      progress and bonus cannot be estimated yet.
                     </span>
                   </div>
                 ) : null}
 
-                <section className="facilitator-section facilitator-syllabus-section">
-                  <div className="facilitator-section-title">
-                    <div>
-                      <h3>2026 syllabus badge checklist</h3>
-                      <p>Compare the profile with all 51 listed skill badges.</p>
-                    </div>
-                    <span>
-                      {completedCount} / {FACILITATOR_SYLLABUS_2026.length}
-                    </span>
-                  </div>
-
-                  <div className="facilitator-syllabus-summary">
-                    <article className="is-completed">
-                      <CheckCircle2 />
-                      <span>Completed</span>
-                      <strong>{completedCount}</strong>
-                    </article>
-                    <article className="is-missing">
-                      <CircleHelp />
-                      <span>Not completed</span>
-                      <strong>{missingCount}</strong>
-                    </article>
-                    <article>
-                      <Trophy />
-                      <span>Ultimate target</span>
-                      <strong>51 + 15</strong>
-                      <small>66 eligible skill badges total</small>
-                    </article>
-                  </div>
-
-                  <div className="facilitator-syllabus-progress">
-                    <span>
-                      <b>{completedCount}</b> of {FACILITATOR_SYLLABUS_2026.length}{" "}
-                      syllabus badges completed
-                    </span>
-                    <i
-                      role="progressbar"
-                      aria-label="Facilitator syllabus badge progress"
-                      aria-valuemin={0}
-                      aria-valuemax={FACILITATOR_SYLLABUS_2026.length}
-                      aria-valuenow={completedCount}
-                    >
-                      <b
-                        style={{
-                          width: `${percentage(
-                            completedCount,
-                            FACILITATOR_SYLLABUS_2026.length,
-                          )}%`,
-                        }}
-                      />
-                    </i>
-                  </div>
-
-                  <div
-                    className="facilitator-track-filters"
-                    aria-label="Filter syllabus by learning track"
-                  >
-                    <TrackButton
-                      active={trackFilter === "all"}
-                      label="All tracks"
-                      count={`${completedCount}/${FACILITATOR_SYLLABUS_2026.length}`}
-                      onClick={() => setTrackFilter("all")}
-                    />
-                    {FACILITATOR_TRACKS.map((track) => {
-                      const badges = syllabus.filter(
-                        (badge) => badge.track === track.id,
-                      )
-                      return (
-                        <TrackButton
-                          key={track.id}
-                          active={trackFilter === track.id}
-                          label={track.label}
-                          count={`${
-                            badges.filter((badge) => badge.completed).length
-                          }/${badges.length}`}
-                          title={track.description}
-                          onClick={() => setTrackFilter(track.id)}
-                        />
-                      )
-                    })}
-                  </div>
-
-                  <div className="facilitator-syllabus-toolbar">
-                    <label>
-                      <Search />
-                      <input
-                        type="search"
-                        value={search}
-                        onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                          setSearch(event.target.value)
-                        }
-                        placeholder="Search syllabus badges"
-                        aria-label="Search Facilitator syllabus badges"
-                      />
-                    </label>
-                    <div aria-label="Filter syllabus by completion status">
-                      {(["missing", "completed", "all"] as const).map(
-                        (value) => (
-                          <button
-                            key={value}
-                            type="button"
-                            className={statusFilter === value ? "is-active" : ""}
-                            aria-pressed={statusFilter === value}
-                            onClick={() => setStatusFilter(value)}
-                          >
-                            {value[0].toUpperCase() + value.slice(1)}
-                          </button>
-                        ),
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="facilitator-syllabus-list">
-                    {visibleBadges.length ? (
-                      visibleBadges.map((badge) => (
-                        <article
-                          key={badge.courseTemplateId}
-                          className={
-                            badge.completed ? "is-completed" : "is-missing"
-                          }
-                        >
-                          <span
-                            className="facilitator-badge-status"
-                            aria-hidden="true"
-                          >
-                            {badge.completed ? <CheckCircle2 /> : <CircleHelp />}
-                          </span>
-                          <div>
-                            <small>
-                              {
-                                FACILITATOR_TRACKS.find(
-                                  (track) => track.id === badge.track,
-                                )?.label
-                              }
-                            </small>
-                            <strong>{badge.title}</strong>
-                            <p>
-                              {badge.labs} {badge.labs === 1 ? "lab" : "labs"}
-                              <span aria-hidden="true">•</span>
-                              {badge.credits}{" "}
-                              {badge.credits === 1 ? "credit" : "credits"}
-                              {badge.completed && badge.earnedBadge?.dateEarned ? (
-                                <>
-                                  <span aria-hidden="true">•</span>
-                                  Earned {badge.earnedBadge.dateEarned}
-                                </>
-                              ) : null}
-                            </p>
-                          </div>
-                          <a
-                            href={badge.url}
-                            target="_blank"
-                            rel="noreferrer noopener"
-                            aria-label={`Open ${badge.title}`}
-                            title={`Open ${badge.title}`}
-                          >
-                            <ExternalLink />
-                          </a>
-                        </article>
-                      ))
-                    ) : (
-                      <div className="facilitator-syllabus-empty">
-                        <Search />
-                        <strong>No badges match these filters</strong>
-                        <p>Clear the search or select another track/status.</p>
-                      </div>
-                    )}
-                  </div>
-
-                  <p className="facilitator-syllabus-note">
-                    Based on the July–September 2026 syllabus. Google&apos;s
-                    official syllabus and program records remain the final source
-                    of truth.
-                  </p>
-                </section>
+                <SyllabusSection
+                  syllabus={syllabus}
+                  visibleBadges={visibleBadges}
+                  completedCount={completedCount}
+                  missingCount={missingCount}
+                  trackFilter={trackFilter}
+                  statusFilter={statusFilter}
+                  search={search}
+                  setTrackFilter={setTrackFilter}
+                  setStatusFilter={setStatusFilter}
+                  setSearch={setSearch}
+                />
 
                 <section className="facilitator-section">
                   <div className="facilitator-section-title">
@@ -658,9 +500,9 @@ export default function FacilitatorPanel() {
                     <div>
                       <h3>Facilitator milestones</h3>
                       <p>
-                        Facilitator contributes only the bonus shown for the
-                        highest milestone reached; standard activity points are
-                        part of the regular Arcade score.
+                        Progress follows Google&apos;s official combined completed
+                        requirements display. Only the highest milestone bonus
+                        applies.
                       </p>
                     </div>
                   </div>
@@ -674,13 +516,17 @@ export default function FacilitatorPanel() {
                       const regularPoints = regularArcadePointsForActivities(
                         milestone.requirements,
                       )
+                      const progress = milestoneProgress(
+                        counts,
+                        milestone.requirements,
+                      )
 
                       return (
                         <article
                           key={milestone.id}
-                          className={`${
-                            completed ? "is-completed" : ""
-                          }${current ? " is-current" : ""}`}
+                          className={`${completed ? "is-completed" : ""}${
+                            current ? " is-current" : ""
+                          }`}
                         >
                           <div className="facilitator-milestone-heading">
                             <span>
@@ -689,19 +535,36 @@ export default function FacilitatorPanel() {
                             <div>
                               <strong>{milestone.label}</strong>
                               <small>
-                                +{milestone.bonus} Facilitator bonus points
+                                Complete any {milestone.requirements.games} Arcade
+                                Games and {milestone.requirements.skills} Skill
+                                Badges
                               </small>
                             </div>
                             {current ? <em>Current</em> : null}
                           </div>
+
+                          <MilestoneProgressBar
+                            label={milestone.label}
+                            color={milestone.color}
+                            completed={progress.completed}
+                            total={progress.total}
+                            percent={progress.percent}
+                          />
+
                           <dl>
                             <div>
                               <dt>Games</dt>
-                              <dd>{milestone.requirements.games}</dd>
+                              <dd>
+                                {Math.min(counts.games, milestone.requirements.games)} /{" "}
+                                {milestone.requirements.games}
+                              </dd>
                             </div>
                             <div>
                               <dt>Skills</dt>
-                              <dd>{milestone.requirements.skills}</dd>
+                              <dd>
+                                {Math.min(counts.skills, milestone.requirements.skills)} /{" "}
+                                {milestone.requirements.skills}
+                              </dd>
                             </div>
                             <div>
                               <dt>Regular Arcade</dt>
@@ -718,166 +581,22 @@ export default function FacilitatorPanel() {
                   </div>
                 </section>
 
-                <section className="facilitator-section">
-                  <div className="facilitator-section-title">
-                    <div>
-                      <h3>Bonus Milestone</h3>
-                      <p>
-                        Earn an extra +{BONUS_MILESTONE_POINTS} bonus points by
-                        completing the GEAR and AI agent verification steps.
-                      </p>
-                    </div>
-                    <span>{completedBonusProfileChecks} / 4 profile checks</span>
-                  </div>
-
-                  <div className="facilitator-syllabus-progress">
-                    <span>
-                      <b>{completedBonusProfileChecks}</b> of 4 requirements can
-                      be checked from the public profile. Agent verification is
-                      completed manually through Google&apos;s form.
-                    </span>
-                    <i
-                      role="progressbar"
-                      aria-label="Bonus Milestone profile-checkable progress"
-                      aria-valuemin={0}
-                      aria-valuemax={4}
-                      aria-valuenow={completedBonusProfileChecks}
-                    >
-                      <b
-                        style={{
-                          width: `${percentage(completedBonusProfileChecks, 4)}%`,
-                        }}
-                      />
-                    </i>
-                  </div>
-
-                  <div className="facilitator-milestones">
-                    <BonusCriterion
-                      completed={hasGearSignupBadge}
-                      title="GEAR Sign-up badge"
-                      detail="Earn the GEAR program enrolment badge."
-                    />
-                    <BonusCriterion
-                      completed={hasArcadeGearBadge}
-                      title="Arcade - GEAR badge"
-                      detail="Earn the Arcade - GEAR badge on your developer profile."
-                    />
-                    <BonusCriterion
-                      completed={completedMilestoneOne}
-                      title="Complete Milestone 1"
-                      detail="Reach at least 6 Arcade Games and 18 Skill Badges."
-                    />
-                    <BonusCriterion
-                      completed={completedGearSkills === GEAR_SKILL_BADGES.length}
-                      title="Complete all 4 GEAR skill badges"
-                      detail={`${completedGearSkills} of ${GEAR_SKILL_BADGES.length} found on the public profile.`}
-                    />
-                    <article>
-                      <div className="facilitator-milestone-heading">
-                        <span>
-                          <CircleHelp />
-                        </span>
-                        <div>
-                          <strong>Build and submit your AI agent</strong>
-                          <small>
-                            Free Trial, agent creation, Project Name and Billing
-                            ID verification cannot be detected from a public
-                            profile.
-                          </small>
-                        </div>
-                        <em>Manual</em>
-                      </div>
-                    </article>
-                  </div>
-
-                  <div className="facilitator-syllabus-list">
-                    {gearSkillStatuses.map((badge) => (
-                      <article
-                        key={badge.title}
-                        className={badge.completed ? "is-completed" : "is-missing"}
-                      >
-                        <span
-                          className="facilitator-badge-status"
-                          aria-hidden="true"
-                        >
-                          {badge.completed ? <CheckCircle2 /> : <CircleHelp />}
-                        </span>
-                        <div>
-                          <small>GEAR skill badge</small>
-                          <strong>{badge.title}</strong>
-                          <p>{badge.completed ? "Completed" : "Not found"}</p>
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-
-                  <div
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-                      gap: 8,
-                    }}
-                  >
-                    <a
-                      href={BONUS_GUIDE_URL}
-                      target="_blank"
-                      rel="noreferrer noopener"
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: 8,
-                        minHeight: 42,
-                        padding: "0 12px",
-                        border: "1px solid rgba(34, 211, 238, .35)",
-                        borderRadius: 9,
-                        background: "rgba(34, 211, 238, .08)",
-                        color: "#67e8f9",
-                        fontSize: ".68rem",
-                        fontWeight: 800,
-                        textDecoration: "none",
-                      }}
-                    >
-                      Read official guide <ExternalLink />
-                    </a>
-                    <a
-                      href={BONUS_FORM_URL}
-                      target="_blank"
-                      rel="noreferrer noopener"
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: 8,
-                        minHeight: 42,
-                        padding: "0 12px",
-                        border: "1px solid rgba(124, 92, 246, .48)",
-                        borderRadius: 9,
-                        background:
-                          "linear-gradient(135deg, rgba(98, 53, 220, .9), rgba(139, 63, 224, .9))",
-                        color: "#fff",
-                        fontSize: ".68rem",
-                        fontWeight: 800,
-                        textDecoration: "none",
-                      }}
-                    >
-                      Submit verification form <ExternalLink />
-                    </a>
-                  </div>
-
-                  <p className="facilitator-syllabus-note">
-                    {readyForBonusManualSteps
-                      ? "All profile-checkable requirements appear complete. Follow the official guide, create your AI agent, then submit the verification form."
-                      : "Complete the remaining profile requirements first. Google recommends finishing enrolment before starting the Bonus Milestone steps."}
-                  </p>
-                </section>
+                <BonusMilestoneSection
+                  completedBonusProfileChecks={completedBonusProfileChecks}
+                  hasGearSignupBadge={hasGearSignupBadge}
+                  hasArcadeGearBadge={hasArcadeGearBadge}
+                  completedMilestoneOne={completedMilestoneOne}
+                  completedGearSkills={completedGearSkills}
+                  gearSkillStatuses={gearSkillStatuses}
+                  readyForBonusManualSteps={readyForBonusManualSteps}
+                />
 
                 <p className="facilitator-disclaimer">
                   Facilitator milestones add bonus points to the existing Arcade
                   total; game and skill-badge points are not counted twice. The
-                  optional Bonus Milestone can add +{BONUS_MILESTONE_POINTS} more
-                  bonus points after Google verifies the submitted form. Final
-                  recognition remains subject to Google&apos;s program records.
+                  optional Bonus Milestone adds +{BONUS_MILESTONE_POINTS} after
+                  Google verifies the form. Final recognition remains subject to
+                  Google&apos;s program records.
                 </p>
               </div>
             )}
@@ -888,83 +607,335 @@ export default function FacilitatorPanel() {
   )
 }
 
-function TrackButton({
-  active,
+function MilestoneProgressBar({
   label,
-  count,
-  title,
-  onClick,
+  color,
+  completed,
+  total,
+  percent,
 }: {
-  active: boolean
   label: string
-  count: string
-  title?: string
-  onClick: () => void
+  color: string
+  completed: number
+  total: number
+  percent: number
+}) {
+  const containerStyle: CSSProperties = {
+    borderColor: `${color}55`,
+    background: `${color}12`,
+  }
+  const labelStyle: CSSProperties = {
+    display: "flex",
+    justifyContent: "space-between",
+    gap: 12,
+  }
+
+  return (
+    <div className="facilitator-syllabus-progress" style={containerStyle}>
+      <span style={labelStyle}>
+        <b style={{ color }}>{percent}% completed</b>
+        <strong style={{ color }}>{completed}/{total}</strong>
+      </span>
+      <i
+        role="progressbar"
+        aria-label={`${label} progress`}
+        aria-valuemin={0}
+        aria-valuemax={total}
+        aria-valuenow={completed}
+        style={{ background: `${color}18`, border: `1px solid ${color}` }}
+      >
+        <b style={{ width: `${percent}%`, background: color }} />
+      </i>
+    </div>
+  )
+}
+
+function SyllabusSection({
+  syllabus,
+  visibleBadges,
+  completedCount,
+  missingCount,
+  trackFilter,
+  statusFilter,
+  search,
+  setTrackFilter,
+  setStatusFilter,
+  setSearch,
+}: {
+  syllabus: ReturnType<typeof evaluateFacilitatorSyllabus>
+  visibleBadges: ReturnType<typeof evaluateFacilitatorSyllabus>
+  completedCount: number
+  missingCount: number
+  trackFilter: TrackFilter
+  statusFilter: StatusFilter
+  search: string
+  setTrackFilter: (value: TrackFilter) => void
+  setStatusFilter: (value: StatusFilter) => void
+  setSearch: (value: string) => void
 }) {
   return (
-    <button
-      type="button"
-      className={active ? "is-active" : ""}
-      aria-pressed={active}
-      title={title}
-      onClick={onClick}
+    <section className="facilitator-section facilitator-syllabus-section">
+      <div className="facilitator-section-title">
+        <div>
+          <h3>2026 syllabus badge checklist</h3>
+          <p>Compare the profile with all 51 listed skill badges.</p>
+        </div>
+        <span>{completedCount} / {FACILITATOR_SYLLABUS_2026.length}</span>
+      </div>
+
+      <div className="facilitator-syllabus-summary">
+        <article className="is-completed">
+          <CheckCircle2 /><span>Completed</span><strong>{completedCount}</strong>
+        </article>
+        <article className="is-missing">
+          <CircleHelp /><span>Not completed</span><strong>{missingCount}</strong>
+        </article>
+        <article>
+          <Trophy /><span>Ultimate target</span><strong>51 + 15</strong>
+          <small>66 eligible skill badges total</small>
+        </article>
+      </div>
+
+      <div className="facilitator-syllabus-progress">
+        <span>
+          <b>{completedCount}</b> of {FACILITATOR_SYLLABUS_2026.length} syllabus
+          badges completed
+        </span>
+        <i
+          role="progressbar"
+          aria-label="Facilitator syllabus badge progress"
+          aria-valuemin={0}
+          aria-valuemax={FACILITATOR_SYLLABUS_2026.length}
+          aria-valuenow={completedCount}
+        >
+          <b style={{ width: `${percentage(completedCount, FACILITATOR_SYLLABUS_2026.length)}%` }} />
+        </i>
+      </div>
+
+      <div className="facilitator-track-filters" aria-label="Filter syllabus by learning track">
+        <TrackButton
+          active={trackFilter === "all"}
+          label="All tracks"
+          count={`${completedCount}/${FACILITATOR_SYLLABUS_2026.length}`}
+          onClick={() => setTrackFilter("all")}
+        />
+        {FACILITATOR_TRACKS.map((track) => {
+          const badges = syllabus.filter((badge) => badge.track === track.id)
+          return (
+            <TrackButton
+              key={track.id}
+              active={trackFilter === track.id}
+              label={track.label}
+              count={`${badges.filter((badge) => badge.completed).length}/${badges.length}`}
+              title={track.description}
+              onClick={() => setTrackFilter(track.id)}
+            />
+          )
+        })}
+      </div>
+
+      <div className="facilitator-syllabus-toolbar">
+        <label>
+          <Search />
+          <input
+            type="search"
+            value={search}
+            onChange={(event: ChangeEvent<HTMLInputElement>) => setSearch(event.target.value)}
+            placeholder="Search syllabus badges"
+            aria-label="Search Facilitator syllabus badges"
+          />
+        </label>
+        <div aria-label="Filter syllabus by completion status">
+          {(["missing", "completed", "all"] as const).map((value) => (
+            <button
+              key={value}
+              type="button"
+              className={statusFilter === value ? "is-active" : ""}
+              aria-pressed={statusFilter === value}
+              onClick={() => setStatusFilter(value)}
+            >
+              {value[0].toUpperCase() + value.slice(1)}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="facilitator-syllabus-list">
+        {visibleBadges.length ? visibleBadges.map((badge) => (
+          <article key={badge.courseTemplateId} className={badge.completed ? "is-completed" : "is-missing"}>
+            <span className="facilitator-badge-status" aria-hidden="true">
+              {badge.completed ? <CheckCircle2 /> : <CircleHelp />}
+            </span>
+            <div>
+              <small>{FACILITATOR_TRACKS.find((track) => track.id === badge.track)?.label}</small>
+              <strong>{badge.title}</strong>
+              <p>
+                {badge.labs} {badge.labs === 1 ? "lab" : "labs"}
+                <span aria-hidden="true">•</span>
+                {badge.credits} {badge.credits === 1 ? "credit" : "credits"}
+                {badge.completed && badge.earnedBadge?.dateEarned ? (
+                  <><span aria-hidden="true">•</span>Earned {badge.earnedBadge.dateEarned}</>
+                ) : null}
+              </p>
+            </div>
+            <a href={badge.url} target="_blank" rel="noreferrer noopener" aria-label={`Open ${badge.title}`} title={`Open ${badge.title}`}>
+              <ExternalLink />
+            </a>
+          </article>
+        )) : (
+          <div className="facilitator-syllabus-empty">
+            <Search /><strong>No badges match these filters</strong>
+            <p>Clear the search or select another track/status.</p>
+          </div>
+        )}
+      </div>
+
+      <p className="facilitator-syllabus-note">
+        Based on the July–September 2026 syllabus. Google&apos;s official syllabus
+        and program records remain the final source of truth.
+      </p>
+    </section>
+  )
+}
+
+function BonusMilestoneSection({
+  completedBonusProfileChecks,
+  hasGearSignupBadge,
+  hasArcadeGearBadge,
+  completedMilestoneOne,
+  completedGearSkills,
+  gearSkillStatuses,
+  readyForBonusManualSteps,
+}: {
+  completedBonusProfileChecks: number
+  hasGearSignupBadge: boolean
+  hasArcadeGearBadge: boolean
+  completedMilestoneOne: boolean
+  completedGearSkills: number
+  gearSkillStatuses: Array<{ title: string; completed: boolean }>
+  readyForBonusManualSteps: boolean
+}) {
+  return (
+    <section className="facilitator-section">
+      <div className="facilitator-section-title">
+        <div>
+          <h3>Bonus Milestone</h3>
+          <p>Earn an extra +{BONUS_MILESTONE_POINTS} bonus points through GEAR and AI agent verification.</p>
+        </div>
+        <span>{completedBonusProfileChecks} / 4 profile checks</span>
+      </div>
+
+      <div className="facilitator-syllabus-progress">
+        <span>
+          <b>{completedBonusProfileChecks}</b> of 4 requirements can be checked
+          from the public profile. Agent verification is manual.
+        </span>
+        <i role="progressbar" aria-label="Bonus Milestone profile-checkable progress" aria-valuemin={0} aria-valuemax={4} aria-valuenow={completedBonusProfileChecks}>
+          <b style={{ width: `${percentage(completedBonusProfileChecks, 4)}%` }} />
+        </i>
+      </div>
+
+      <div className="facilitator-milestones">
+        <BonusCriterion completed={hasGearSignupBadge} title="GEAR Sign-up badge" detail="Earn the GEAR program enrolment badge." />
+        <BonusCriterion completed={hasArcadeGearBadge} title="Arcade - GEAR badge" detail="Earn the Arcade - GEAR badge on your developer profile." />
+        <BonusCriterion completed={completedMilestoneOne} title="Complete Milestone 1" detail="Reach at least 6 Arcade Games and 18 Skill Badges." />
+        <BonusCriterion
+          completed={completedGearSkills === GEAR_SKILL_BADGES.length}
+          title="Complete all 4 GEAR skill badges"
+          detail={`${completedGearSkills} of ${GEAR_SKILL_BADGES.length} found on the public profile.`}
+        />
+        <article>
+          <div className="facilitator-milestone-heading">
+            <span><CircleHelp /></span>
+            <div>
+              <strong>Build and submit your AI agent</strong>
+              <small>Free Trial, agent creation, Project Name and Billing ID verification cannot be detected from a public profile.</small>
+            </div>
+            <em>Manual</em>
+          </div>
+        </article>
+      </div>
+
+      <div className="facilitator-syllabus-list">
+        {gearSkillStatuses.map((badge) => (
+          <article key={badge.title} className={badge.completed ? "is-completed" : "is-missing"}>
+            <span className="facilitator-badge-status" aria-hidden="true">
+              {badge.completed ? <CheckCircle2 /> : <CircleHelp />}
+            </span>
+            <div>
+              <small>GEAR skill badge</small><strong>{badge.title}</strong>
+              <p>{badge.completed ? "Completed" : "Not found"}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}>
+        <BonusLink href={BONUS_GUIDE_URL} secondary>Read official guide</BonusLink>
+        <BonusLink href={BONUS_FORM_URL}>Submit verification form</BonusLink>
+      </div>
+
+      <p className="facilitator-syllabus-note">
+        {readyForBonusManualSteps
+          ? "All profile-checkable requirements appear complete. Follow the guide, build your AI agent, then submit the verification form."
+          : "Complete the remaining profile requirements first. Google recommends finishing enrolment before starting the Bonus Milestone steps."}
+      </p>
+    </section>
+  )
+}
+
+function BonusLink({ href, children, secondary = false }: { href: string; children: ReactNode; secondary?: boolean }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer noopener"
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 8,
+        minHeight: 42,
+        padding: "0 12px",
+        border: secondary ? "1px solid rgba(34, 211, 238, .35)" : "1px solid rgba(124, 92, 246, .48)",
+        borderRadius: 9,
+        background: secondary ? "rgba(34, 211, 238, .08)" : "linear-gradient(135deg, rgba(98, 53, 220, .9), rgba(139, 63, 224, .9))",
+        color: secondary ? "#67e8f9" : "#fff",
+        fontSize: ".68rem",
+        fontWeight: 800,
+        textDecoration: "none",
+      }}
     >
-      <strong>{label}</strong>
-      <small>{count}</small>
+      {children} <ExternalLink />
+    </a>
+  )
+}
+
+function TrackButton({ active, label, count, title, onClick }: { active: boolean; label: string; count: string; title?: string; onClick: () => void }) {
+  return (
+    <button type="button" className={active ? "is-active" : ""} aria-pressed={active} title={title} onClick={onClick}>
+      <strong>{label}</strong><small>{count}</small>
     </button>
   )
 }
 
-function BonusCriterion({
-  completed,
-  title,
-  detail,
-}: {
-  completed: boolean
-  title: string
-  detail: string
-}) {
+function BonusCriterion({ completed, title, detail }: { completed: boolean; title: string; detail: string }) {
   return (
     <article className={completed ? "is-completed" : ""}>
       <div className="facilitator-milestone-heading">
         <span>{completed ? <CheckCircle2 /> : <CircleHelp />}</span>
-        <div>
-          <strong>{title}</strong>
-          <small>{detail}</small>
-        </div>
+        <div><strong>{title}</strong><small>{detail}</small></div>
         <em>{completed ? "Confirmed" : "Pending"}</em>
       </div>
     </article>
   )
 }
 
-function Activity({
-  icon,
-  label,
-  current,
-  target,
-}: {
-  icon: ReactNode
-  label: string
-  current: number
-  target: number
-}) {
+function Activity({ icon, label, current, target }: { icon: ReactNode; label: string; current: number; target: number }) {
   return (
     <article className={current >= target ? "is-completed" : ""}>
-      <div>
-        <span>{icon}</span>
-        <strong>{label}</strong>
-        <b>
-          {current} / {target}
-        </b>
-      </div>
-      <i
-        role="progressbar"
-        aria-label={`${label} progress`}
-        aria-valuemin={0}
-        aria-valuemax={target}
-        aria-valuenow={Math.min(current, target)}
-      >
+      <div><span>{icon}</span><strong>{label}</strong><b>{current} / {target}</b></div>
+      <i role="progressbar" aria-label={`${label} progress`} aria-valuemin={0} aria-valuemax={target} aria-valuenow={Math.min(current, target)}>
         <b style={{ width: `${percentage(current, target)}%` }} />
       </i>
     </article>
