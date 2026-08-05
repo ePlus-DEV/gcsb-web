@@ -40,7 +40,7 @@ jobs:
           NEXT_PUBLIC_GA_ID: "G-SJNYKL2864"
         run: yarn build
 
-      - name: Verify Google Analytics initialization
+      - name: Verify consent-gated Google Analytics
         run: |
           python3 scripts/verify-google-analytics-html.py \
             out/index.html \
