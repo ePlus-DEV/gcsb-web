@@ -110,7 +110,7 @@ export default function CookieConsent({
     if (!noticeEnabled) return
 
     setShowDetails(false)
-    setIsOpen(!readAcknowledgement(storageKey))
+    setIsOpen(previewMode || !readAcknowledgement(storageKey))
 
     const openNotice = () => {
       setShowDetails(false)
@@ -121,7 +121,7 @@ export default function CookieConsent({
     return () => {
       window.removeEventListener(COOKIE_PREFERENCES_EVENT, openNotice)
     }
-  }, [noticeEnabled, storageKey])
+  }, [noticeEnabled, previewMode, storageKey])
 
   function acknowledgeNotice() {
     storeAcknowledgement(storageKey)
