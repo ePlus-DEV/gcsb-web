@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import FacilitatorPanel from "./facilitator-panel"
 import {
   FACILITATOR_PANEL_OPEN_EVENT,
@@ -28,6 +28,8 @@ function readStoredProfileUrl(): string {
 export default function FacilitatorPanelGate() {
   const [profileUrl, setProfileUrl] = useState("")
   const [participating, setParticipating] = useState(false)
+  const returnFocusRef = useRef<HTMLElement | null>(null)
+  const drawerWasOpenRef = useRef(false)
 
   useEffect(() => {
     const syncProfile = () => setProfileUrl(readStoredProfileUrl())
@@ -105,7 +107,34 @@ export default function FacilitatorPanelGate() {
   }, [participating])
 
   useEffect(() => {
+    const restoreFocusWhenDrawerCloses = () => {
+      const drawerIsOpen = Boolean(
+        document.querySelector(".facilitator-overlay"),
+      )
+
+      if (drawerWasOpenRef.current && !drawerIsOpen) {
+        const returnTarget = returnFocusRef.current
+        if (returnTarget?.isConnected) returnTarget.focus()
+        returnFocusRef.current = null
+      }
+
+      drawerWasOpenRef.current = drawerIsOpen
+    }
+
+    restoreFocusWhenDrawerCloses()
+    const observer = new MutationObserver(restoreFocusWhenDrawerCloses)
+    observer.observe(document.body, { childList: true, subtree: true })
+
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
     const openPanel = () => {
+      returnFocusRef.current =
+        document.activeElement instanceof HTMLElement
+          ? document.activeElement
+          : null
+
       window.requestAnimationFrame(() => {
         const launcher =
           document.querySelector<HTMLButtonElement>(".facilitator-launcher")
