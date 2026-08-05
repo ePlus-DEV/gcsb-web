@@ -2,6 +2,7 @@ import { gunzipSync } from "node:zlib"
 import { mkdir, readFile, readdir, writeFile } from "node:fs/promises"
 import path from "node:path"
 import { applyFacilitatorLabelTranslations } from "./apply-facilitator-label-translations.mjs"
+import { applyCompleteFacilitatorTranslations } from "./facilitator-translations-complete.mjs"
 import { applyFacilitatorTranslations } from "./facilitator-translations.mjs"
 
 const root = process.cwd()
@@ -39,6 +40,7 @@ for (const [locale, catalog] of Object.entries(catalogs)) {
 
 applyFacilitatorTranslations(catalogs)
 applyFacilitatorLabelTranslations(catalogs)
+applyCompleteFacilitatorTranslations(catalogs)
 
 const englishMessages = catalogs.en?.messages
 if (!englishMessages) {
