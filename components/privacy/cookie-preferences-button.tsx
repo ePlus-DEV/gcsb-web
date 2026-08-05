@@ -10,7 +10,7 @@ export default function CookiePreferencesButton() {
       className="cookie-preferences-trigger"
       onClick={() => window.dispatchEvent(new Event(COOKIE_PREFERENCES_EVENT))}
     >
-      <Info /> Review cookie information
+      <Info /> View cookie information
     </button>
   )
 }
