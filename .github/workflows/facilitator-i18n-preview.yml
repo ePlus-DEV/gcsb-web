@@ -1,0 +1,138 @@
+name: Facilitator i18n Preview
+
+on:
+  pull_request:
+    paths:
+      - "components/arcade/**"
+      - "components/i18n/**"
+      - "lib/website-i18n.ts"
+      - "scripts/facilitator-translations*.mjs"
+      - "scripts/generate-website-i18n.mjs"
+      - ".github/workflows/facilitator-i18n-preview.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  vietnamese-drawer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --non-interactive
+
+      - name: Build
+        run: yarn build
+
+      - name: Install Chromium
+        run: yarn playwright install --with-deps chromium
+
+      - name: Start production server
+        run: |
+          yarn start --hostname 127.0.0.1 --port 3000 > /tmp/gcsb-web.log 2>&1 &
+          yarn wait-on http://127.0.0.1:3000/vi/
+
+      - name: Verify rendered Vietnamese Facilitator UI
+        run: |
+          mkdir -p screenshots
+          node <<'NODE'
+          const { chromium } = require('playwright')
+
+          ;(async () => {
+            const browser = await chromium.launch({ headless: true })
+            const page = await browser.newPage({ viewport: { width: 430, height: 932 } })
+
+            await page.addInitScript(() => {
+              const profileUrl =
+                'https://www.skills.google/public_profiles/f41c688e-40d2-489d-9850-123456789abc'
+              window.localStorage.setItem('arcade-points-locale', 'vi')
+              window.localStorage.setItem(
+                'eplus-arcade-dashboard-v1',
+                JSON.stringify({
+                  profileUrl,
+                  result: {
+                    success: true,
+                    badges: [],
+                    game: [],
+                    skill: [],
+                    special: [],
+                    arcadePoints: { totalPoints: 28 },
+                    faciCounts: { faciGame: 5, faciSkill: 23 },
+                  },
+                }),
+              )
+            })
+
+            await page.goto('http://127.0.0.1:3000/vi/', {
+              waitUntil: 'networkidle',
+            })
+            await page.getByRole('button', { name: 'Xem chi tiết chương trình' }).click()
+
+            const drawer = page.locator('.facilitator-drawer')
+            await drawer.waitFor()
+            await drawer.getByText('Tổng điểm Arcade', { exact: true }).waitFor()
+            await drawer
+              .getByText('Danh sách huy hiệu giáo trình 2026', { exact: true })
+              .waitFor()
+
+            const text = await drawer.innerText()
+            const forbiddenEnglishUi = [
+              'Overall Arcade points',
+              'Estimated total after bonus',
+              'Milestone progress',
+              'Facilitator milestones',
+              '2026 syllabus badge checklist',
+              'Not completed',
+              'Ultimate target',
+              'All tracks',
+              'Bonus Milestone',
+              'Participation off',
+              'Build and submit your AI agent',
+              'Read official guide',
+              'Submit verification form',
+              'Confirmed',
+              'Pending',
+              'Not found',
+              'Regular Arcade',
+              'Skill Badges',
+              'Arcade Games and',
+              'syllabus badges completed',
+              'Get Started with Google Cloud & AI',
+              'Dive Deeper into Google Cloud & AI',
+              'Take Your Google Cloud & AI Skills to the Next Level',
+            ]
+
+            const leaks = forbiddenEnglishUi.filter((value) => text.includes(value))
+            if (leaks.length) {
+              throw new Error(`Untranslated Facilitator UI: ${leaks.join(', ')}`)
+            }
+
+            await page.screenshot({
+              path: 'screenshots/facilitator-mobile-vi-430x932.png',
+              fullPage: false,
+            })
+            await browser.close()
+          })().catch((error) => {
+            console.error(error)
+            process.exit(1)
+          })
+          NODE
+
+      - name: Upload screenshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: facilitator-i18n-preview
+          path: screenshots/*.png
+          retention-days: 14
