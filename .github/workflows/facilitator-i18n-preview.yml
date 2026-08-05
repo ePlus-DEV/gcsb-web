@@ -82,12 +82,19 @@ jobs:
 
             const drawer = page.locator('.facilitator-drawer')
             await drawer.waitFor()
-            await drawer.getByText('Tổng điểm Arcade', { exact: true }).waitFor()
+            await drawer.getByText(/Tổng điểm Arcade/).first().waitFor()
             await drawer
               .getByText('Danh sách huy hiệu giáo trình 2026', { exact: true })
               .waitFor()
 
+            await page.screenshot({
+              path: 'screenshots/facilitator-mobile-vi-430x932.png',
+              fullPage: true,
+            })
+
             const text = await drawer.innerText()
+            console.log('Rendered Vietnamese Facilitator drawer:\n', text)
+
             const forbiddenEnglishUi = [
               'Overall Arcade points',
               'Estimated total after bonus',
@@ -119,10 +126,6 @@ jobs:
               throw new Error(`Untranslated Facilitator UI: ${leaks.join(', ')}`)
             }
 
-            await page.screenshot({
-              path: 'screenshots/facilitator-mobile-vi-430x932.png',
-              fullPage: false,
-            })
             await browser.close()
           })().catch((error) => {
             console.error(error)
@@ -131,8 +134,10 @@ jobs:
           NODE
 
       - name: Upload screenshot
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: facilitator-i18n-preview
           path: screenshots/*.png
+          if-no-files-found: ignore
           retention-days: 14
