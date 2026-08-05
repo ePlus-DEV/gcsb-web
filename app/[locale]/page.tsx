@@ -4,7 +4,7 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { cache } from "react"
 import FacilitatorAnalyzerOption from "@/components/arcade/facilitator-analyzer-option"
-import FacilitatorPanel from "@/components/arcade/facilitator-panel"
+import FacilitatorPanelGate from "@/components/arcade/facilitator-panel-gate"
 import ArcadeRouteLinks from "@/components/app/arcade-route-links"
 import SeoContent from "@/components/seo/seo-content"
 import {
@@ -116,7 +116,7 @@ export default async function LocalizedPage({ params }: LocalizedPageProps) {
       <RedesignCalculator />
       <FacilitatorAnalyzerOption />
       <ArcadeRouteLinks />
-      <FacilitatorPanel />
+      <FacilitatorPanelGate />
       <SeoContent locale={locale} title={title} description={description} />
     </>
   )
