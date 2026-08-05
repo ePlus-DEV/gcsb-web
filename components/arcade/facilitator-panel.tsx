@@ -712,7 +712,11 @@ function SyllabusSection({
         </i>
       </div>
 
-      <div className="facilitator-track-filters" aria-label="Filter syllabus by learning track">
+      <div
+        className="facilitator-track-filters"
+        role="group"
+        aria-label="Filter syllabus by learning track"
+      >
         <TrackButton
           active={trackFilter === "all"}
           label="All tracks"
@@ -745,7 +749,7 @@ function SyllabusSection({
             aria-label="Search Facilitator syllabus badges"
           />
         </label>
-        <div aria-label="Filter syllabus by completion status">
+        <div role="group" aria-label="Filter syllabus by completion status">
           {(["missing", "completed", "all"] as const).map((value) => (
             <button
               key={value}
