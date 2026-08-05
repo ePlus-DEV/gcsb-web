@@ -5,12 +5,10 @@ import {
   BookOpenCheck,
   CheckCircle2,
   ChevronRight,
-  CircleDashed,
   CircleHelp,
   ExternalLink,
   Gamepad2,
   GraduationCap,
-  ListChecks,
   Search,
   Sparkles,
   Trophy,
@@ -28,160 +26,94 @@ import {
 import type { ArcadeApiResponse } from "./model"
 import { DASHBOARD_STORAGE_KEY, formatNumber, numeric } from "./model"
 
-const STORAGE_SYNC_INTERVAL_MS = 1_500
-
-const FACILITATOR_MILESTONES = [
-  {
-    id: "1",
-    label: "Milestone 1",
-    bonus: 2,
-    requirements: { games: 6, trivia: 5, skills: 14, labFree: 6 },
-  },
-  {
-    id: "2",
-    label: "Milestone 2",
-    bonus: 8,
-    requirements: { games: 8, trivia: 6, skills: 28, labFree: 12 },
-  },
-  {
-    id: "3",
-    label: "Milestone 3",
-    bonus: 15,
-    requirements: { games: 10, trivia: 7, skills: 38, labFree: 18 },
-  },
-  {
-    id: "ultimate",
-    label: "Ultimate",
-    bonus: 25,
-    requirements: { games: 12, trivia: 8, skills: 52, labFree: 24 },
-  },
+const SYNC_INTERVAL_MS = 1_500
+const MILESTONES = [
+  { id: "1", label: "Milestone 1", bonus: 2, requirements: { games: 6, trivia: 5, skills: 14, labFree: 6 } },
+  { id: "2", label: "Milestone 2", bonus: 8, requirements: { games: 8, trivia: 6, skills: 28, labFree: 12 } },
+  { id: "3", label: "Milestone 3", bonus: 15, requirements: { games: 10, trivia: 7, skills: 38, labFree: 18 } },
+  { id: "ultimate", label: "Ultimate", bonus: 25, requirements: { games: 12, trivia: 8, skills: 52, labFree: 24 } },
 ] as const
 
-type StoredDashboard = {
-  profileUrl?: string
-  result?: ArcadeApiResponse
-}
+type StoredDashboard = { profileUrl?: string; result?: ArcadeApiResponse }
+type Counts = { games: number; trivia: number; skills: number; labFree: number }
+type StatusFilter = "missing" | "completed" | "all"
+type TrackFilter = "all" | FacilitatorTrack
 
-type DashboardSnapshot = {
-  raw: string
-  dashboard: StoredDashboard | null
-}
-
-type FacilitatorCounts = {
-  games: number
-  trivia: number
-  skills: number
-  labFree: number
-}
-
-type SyllabusStatusFilter = "missing" | "completed" | "all"
-type SyllabusTrackFilter = "all" | FacilitatorTrack
-
-/**
- * Read the persisted dashboard state without allowing unavailable browser
- * storage to break the Facilitator launcher or drawer.
- */
-function readDashboardSnapshot(): DashboardSnapshot {
+function readDashboard(): StoredDashboard | null {
   try {
-    const raw = window.localStorage.getItem(DASHBOARD_STORAGE_KEY) ?? ""
-    if (!raw) return { raw, dashboard: null }
-
-    const parsed = JSON.parse(raw) as unknown
-    if (typeof parsed !== "object" || parsed === null) {
-      return { raw, dashboard: null }
-    }
-
-    return { raw, dashboard: parsed as StoredDashboard }
+    const value = window.localStorage.getItem(DASHBOARD_STORAGE_KEY)
+    if (!value) return null
+    const parsed = JSON.parse(value) as unknown
+    return typeof parsed === "object" && parsed !== null
+      ? (parsed as StoredDashboard)
+      : null
   } catch {
-    return { raw: "", dashboard: null }
+    return null
   }
 }
 
-/** Determine whether every activity requirement for a milestone is met. */
-function hasCompletedMilestone(
-  counts: FacilitatorCounts,
-  requirements: (typeof FACILITATOR_MILESTONES)[number]["requirements"],
+function milestoneComplete(
+  counts: Counts,
+  target: (typeof MILESTONES)[number]["requirements"],
 ): boolean {
   return (
-    counts.games >= requirements.games &&
-    counts.trivia >= requirements.trivia &&
-    counts.skills >= requirements.skills &&
-    counts.labFree >= requirements.labFree
+    counts.games >= target.games &&
+    counts.trivia >= target.trivia &&
+    counts.skills >= target.skills &&
+    counts.labFree >= target.labFree
   )
 }
 
-/** Convert an activity count into a bounded percentage for its progress bar. */
-function progress(current: number, target: number): number {
+function percentage(current: number, target: number): number {
   return Math.min(100, Math.max(0, (current / Math.max(target, 1)) * 100))
 }
 
-/**
- * Render the Google Cloud Arcade Facilitator tracker using the most recent
- * calculator response persisted by the main dashboard.
- */
 export default function FacilitatorPanel() {
   const [open, setOpen] = useState(false)
   const [dashboard, setDashboard] = useState<StoredDashboard | null>(null)
-  const [syllabusStatusFilter, setSyllabusStatusFilter] =
-    useState<SyllabusStatusFilter>("missing")
-  const [syllabusTrackFilter, setSyllabusTrackFilter] =
-    useState<SyllabusTrackFilter>("all")
-  const [syllabusSearch, setSyllabusSearch] = useState("")
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("missing")
+  const [trackFilter, setTrackFilter] = useState<TrackFilter>("all")
+  const [search, setSearch] = useState("")
   const launcherRef = useRef<HTMLButtonElement>(null)
-  const closeButtonRef = useRef<HTMLButtonElement>(null)
+  const closeRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
-    let previousRaw: string | null = null
-
+    let previous = ""
     const sync = () => {
-      const snapshot = readDashboardSnapshot()
-      if (snapshot.raw === previousRaw) return
-
-      previousRaw = snapshot.raw
-      setDashboard(snapshot.dashboard)
+      const raw = window.localStorage.getItem(DASHBOARD_STORAGE_KEY) ?? ""
+      if (raw === previous) return
+      previous = raw
+      setDashboard(readDashboard())
     }
-
-    const syncWhenVisible = () => {
-      if (!document.hidden) sync()
-    }
-
     sync()
-    const interval = window.setInterval(syncWhenVisible, STORAGE_SYNC_INTERVAL_MS)
+    const timer = window.setInterval(sync, SYNC_INTERVAL_MS)
     window.addEventListener("focus", sync)
     window.addEventListener("storage", sync)
-    document.addEventListener("visibilitychange", syncWhenVisible)
-
     return () => {
-      window.clearInterval(interval)
+      window.clearInterval(timer)
       window.removeEventListener("focus", sync)
       window.removeEventListener("storage", sync)
-      document.removeEventListener("visibilitychange", syncWhenVisible)
     }
   }, [])
 
   useEffect(() => {
     if (!open) return
-
     const previousOverflow = document.body.style.overflow
     document.body.style.overflow = "hidden"
-    const focusFrame = window.requestAnimationFrame(() => closeButtonRef.current?.focus())
-
-    const closeOnEscape = (event: KeyboardEvent) => {
+    closeRef.current?.focus()
+    const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") setOpen(false)
     }
-
-    document.addEventListener("keydown", closeOnEscape)
-
+    document.addEventListener("keydown", onKeyDown)
     return () => {
-      window.cancelAnimationFrame(focusFrame)
       document.body.style.overflow = previousOverflow
-      document.removeEventListener("keydown", closeOnEscape)
+      document.removeEventListener("keydown", onKeyDown)
       launcherRef.current?.focus()
     }
   }, [open])
 
   const result = dashboard?.result
-  const counts = useMemo<FacilitatorCounts>(
+  const counts = useMemo<Counts>(
     () => ({
       games: numeric(result?.faciCounts?.faciGame),
       trivia: numeric(result?.faciCounts?.faciTrivia),
@@ -190,58 +122,39 @@ export default function FacilitatorPanel() {
     }),
     [result],
   )
-
-  const syllabusStatuses = useMemo(
-    () =>
-      evaluateFacilitatorSyllabus([
-        ...(result?.skill ?? []),
-        ...(result?.badges ?? []),
-      ]),
+  const syllabus = useMemo(
+    () => evaluateFacilitatorSyllabus([...(result?.skill ?? []), ...(result?.badges ?? [])]),
     [result],
   )
-  const syllabusCompletedCount = syllabusStatuses.filter(
-    (badge) => badge.completed,
-  ).length
-  const syllabusMissingCount =
-    FACILITATOR_SYLLABUS_2026.length - syllabusCompletedCount
-  const normalizedSyllabusSearch = normalizeFacilitatorBadgeTitle(syllabusSearch)
-  const filteredSyllabusStatuses = syllabusStatuses.filter((badge) => {
-    const matchesStatus =
-      syllabusStatusFilter === "all" ||
-      (syllabusStatusFilter === "completed" && badge.completed) ||
-      (syllabusStatusFilter === "missing" && !badge.completed)
-    const matchesTrack =
-      syllabusTrackFilter === "all" || badge.track === syllabusTrackFilter
-    const matchesSearch =
-      !normalizedSyllabusSearch ||
-      normalizeFacilitatorBadgeTitle(badge.title).includes(
-        normalizedSyllabusSearch,
-      )
-
-    return matchesStatus && matchesTrack && matchesSearch
+  const completedCount = syllabus.filter((badge) => badge.completed).length
+  const missingCount = FACILITATOR_SYLLABUS_2026.length - completedCount
+  const normalizedSearch = normalizeFacilitatorBadgeTitle(search)
+  const visibleBadges = syllabus.filter((badge) => {
+    const statusMatches =
+      statusFilter === "all" ||
+      (statusFilter === "completed" ? badge.completed : !badge.completed)
+    const trackMatches = trackFilter === "all" || badge.track === trackFilter
+    const searchMatches =
+      !normalizedSearch ||
+      normalizeFacilitatorBadgeTitle(badge.title).includes(normalizedSearch)
+    return statusMatches && trackMatches && searchMatches
   })
 
-  const completedMilestones = FACILITATOR_MILESTONES.filter((milestone) =>
-    hasCompletedMilestone(counts, milestone.requirements),
+  const completedMilestones = MILESTONES.filter((item) =>
+    milestoneComplete(counts, item.requirements),
   )
   const currentMilestone = completedMilestones.at(-1) ?? null
   const nextMilestone =
-    FACILITATOR_MILESTONES.find(
-      (milestone) => !hasCompletedMilestone(counts, milestone.requirements),
-    ) ?? FACILITATOR_MILESTONES.at(-1)!
-  const facilitatorBonus = currentMilestone?.bonus ?? 0
+    MILESTONES.find((item) => !milestoneComplete(counts, item.requirements)) ??
+    MILESTONES.at(-1)!
+  const bonus = currentMilestone?.bonus ?? 0
   const arcadePoints = numeric(result?.arcadePoints?.totalPoints)
-  const hasFacilitatorData = Boolean(result?.faciCounts)
-  const hasCompletedUltimate = currentMilestone?.id === "ultimate"
 
-  const closeAndGoToCalculator = () => {
+  const goToCalculator = () => {
     setOpen(false)
-    window.requestAnimationFrame(() => {
-      document.getElementById("calculator")?.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      })
-    })
+    window.requestAnimationFrame(() =>
+      document.getElementById("calculator")?.scrollIntoView({ behavior: "smooth", block: "center" }),
+    )
   }
 
   return (
@@ -259,20 +172,14 @@ export default function FacilitatorPanel() {
         <span>
           <strong>Facilitator</strong>
           <small aria-live="polite">
-            {result
-              ? `${syllabusMissingCount} syllabus badges left`
-              : "Program tracker"}
+            {result ? `${missingCount} syllabus badges left` : "Program tracker"}
           </small>
         </span>
         <ChevronRight />
       </button>
 
-      {open && (
-        <div
-          className="facilitator-overlay"
-          role="presentation"
-          onClick={() => setOpen(false)}
-        >
+      {open ? (
+        <div className="facilitator-overlay" role="presentation" onClick={() => setOpen(false)}>
           <section
             id="facilitator-dialog"
             className="facilitator-drawer"
@@ -290,12 +197,7 @@ export default function FacilitatorPanel() {
                   Track program activities and find syllabus badges that are still missing.
                 </span>
               </div>
-              <button
-                ref={closeButtonRef}
-                type="button"
-                onClick={() => setOpen(false)}
-                aria-label="Close Facilitator tracker"
-              >
+              <button ref={closeRef} type="button" onClick={() => setOpen(false)} aria-label="Close Facilitator tracker">
                 <X />
               </button>
             </header>
@@ -304,122 +206,59 @@ export default function FacilitatorPanel() {
               <div className="facilitator-empty">
                 <GraduationCap />
                 <strong>Analyze a public profile first</strong>
-                <p>
-                  The Facilitator tracker uses the same returned profile data. Complete the calculator above, then reopen this panel.
-                </p>
-                <button type="button" onClick={closeAndGoToCalculator}>Go to calculator</button>
+                <p>The checklist uses the same public-profile result as the calculator.</p>
+                <button type="button" onClick={goToCalculator}>Go to calculator</button>
               </div>
             ) : (
               <div className="facilitator-content">
                 <div className="facilitator-score-grid">
-                  <article>
-                    <span>Arcade score</span>
-                    <strong>{formatNumber(arcadePoints)}</strong>
-                    <small>Regular Arcade points</small>
-                  </article>
-                  <article className="is-bonus">
-                    <span>Facilitator bonus</span>
-                    <strong>+{formatNumber(facilitatorBonus)}</strong>
-                    <small>Highest completed milestone</small>
-                  </article>
-                  <article className="is-total">
-                    <span>Estimated combined score</span>
-                    <strong>{formatNumber(arcadePoints + facilitatorBonus)}</strong>
-                    <small>Arcade score + Facilitator bonus</small>
-                  </article>
+                  <article><span>Arcade score</span><strong>{formatNumber(arcadePoints)}</strong><small>Regular Arcade points</small></article>
+                  <article className="is-bonus"><span>Facilitator bonus</span><strong>+{formatNumber(bonus)}</strong><small>Highest completed milestone</small></article>
+                  <article className="is-total"><span>Estimated combined score</span><strong>{formatNumber(arcadePoints + bonus)}</strong><small>Arcade score + Facilitator bonus</small></article>
                 </div>
 
-                {!hasFacilitatorData && (
+                {!result.faciCounts ? (
                   <div className="facilitator-warning">
                     <CircleHelp />
-                    <span>
-                      This profile response does not contain Facilitator activity counts yet. The syllabus checklist still works from earned badge titles.
-                    </span>
+                    <span>Facilitator activity totals are unavailable, but the syllabus checklist still works from earned badge titles.</span>
                   </div>
-                )}
+                ) : null}
 
                 <section className="facilitator-section facilitator-syllabus-section">
                   <div className="facilitator-section-title">
                     <div>
                       <h3>2026 syllabus badge checklist</h3>
-                      <p>
-                        Compare the public profile with the 51 listed skill badges and open any unfinished course directly.
-                      </p>
+                      <p>Compare the profile with all 51 listed skill badges.</p>
                     </div>
-                    <span>{syllabusCompletedCount} / {FACILITATOR_SYLLABUS_2026.length}</span>
+                    <span>{completedCount} / {FACILITATOR_SYLLABUS_2026.length}</span>
                   </div>
 
                   <div className="facilitator-syllabus-summary">
-                    <article className="is-completed">
-                      <CheckCircle2 />
-                      <span>Completed</span>
-                      <strong>{syllabusCompletedCount}</strong>
-                    </article>
-                    <article className="is-missing">
-                      <CircleDashed />
-                      <span>Not completed</span>
-                      <strong>{syllabusMissingCount}</strong>
-                    </article>
-                    <article>
-                      <ListChecks />
-                      <span>Top target</span>
-                      <strong>51 + 15</strong>
-                      <small>15 additional catalog badges</small>
-                    </article>
+                    <article className="is-completed"><CheckCircle2 /><span>Completed</span><strong>{completedCount}</strong></article>
+                    <article className="is-missing"><CircleHelp /><span>Not completed</span><strong>{missingCount}</strong></article>
+                    <article><Trophy /><span>Top target</span><strong>51 + 15</strong><small>15 additional catalog badges</small></article>
                   </div>
 
                   <div className="facilitator-syllabus-progress">
-                    <span>
-                      <b>{syllabusCompletedCount}</b> of {FACILITATOR_SYLLABUS_2026.length} syllabus badges completed
-                    </span>
-                    <i
-                      role="progressbar"
-                      aria-label="Facilitator syllabus badge progress"
-                      aria-valuemin={0}
-                      aria-valuemax={FACILITATOR_SYLLABUS_2026.length}
-                      aria-valuenow={syllabusCompletedCount}
-                    >
-                      <b
-                        style={{
-                          width: `${progress(
-                            syllabusCompletedCount,
-                            FACILITATOR_SYLLABUS_2026.length,
-                          )}%`,
-                        }}
-                      />
+                    <span><b>{completedCount}</b> of {FACILITATOR_SYLLABUS_2026.length} syllabus badges completed</span>
+                    <i role="progressbar" aria-label="Facilitator syllabus badge progress" aria-valuemin={0} aria-valuemax={51} aria-valuenow={completedCount}>
+                      <b style={{ width: `${percentage(completedCount, 51)}%` }} />
                     </i>
                   </div>
 
                   <div className="facilitator-track-filters" aria-label="Filter syllabus by learning track">
-                    <button
-                      type="button"
-                      className={syllabusTrackFilter === "all" ? "is-active" : ""}
-                      aria-pressed={syllabusTrackFilter === "all"}
-                      onClick={() => setSyllabusTrackFilter("all")}
-                    >
-                      <strong>All tracks</strong>
-                      <small>{syllabusCompletedCount}/{FACILITATOR_SYLLABUS_2026.length}</small>
-                    </button>
+                    <TrackButton active={trackFilter === "all"} label="All tracks" count={`${completedCount}/51`} onClick={() => setTrackFilter("all")} />
                     {FACILITATOR_TRACKS.map((track) => {
-                      const trackBadges = syllabusStatuses.filter(
-                        (badge) => badge.track === track.id,
-                      )
-                      const completed = trackBadges.filter(
-                        (badge) => badge.completed,
-                      ).length
-
+                      const badges = syllabus.filter((badge) => badge.track === track.id)
                       return (
-                        <button
+                        <TrackButton
                           key={track.id}
-                          type="button"
-                          className={syllabusTrackFilter === track.id ? "is-active" : ""}
-                          aria-pressed={syllabusTrackFilter === track.id}
+                          active={trackFilter === track.id}
+                          label={track.label}
+                          count={`${badges.filter((badge) => badge.completed).length}/${badges.length}`}
                           title={track.description}
-                          onClick={() => setSyllabusTrackFilter(track.id)}
-                        >
-                          <strong>{track.label}</strong>
-                          <small>{completed}/{trackBadges.length}</small>
-                        </button>
+                          onClick={() => setTrackFilter(track.id)}
+                        />
                       )
                     })}
                   </div>
@@ -429,151 +268,84 @@ export default function FacilitatorPanel() {
                       <Search />
                       <input
                         type="search"
-                        value={syllabusSearch}
-                        onChange={(event: ChangeEvent<HTMLInputElement>) => setSyllabusSearch(event.target.value)}
+                        value={search}
+                        onChange={(event: ChangeEvent<HTMLInputElement>) => setSearch(event.target.value)}
                         placeholder="Search syllabus badges"
                         aria-label="Search Facilitator syllabus badges"
                       />
                     </label>
                     <div aria-label="Filter syllabus by completion status">
-                      {([
-                        ["missing", "Missing"],
-                        ["completed", "Completed"],
-                        ["all", "All"],
-                      ] as const).map(([value, label]) => (
+                      {(["missing", "completed", "all"] as const).map((value) => (
                         <button
                           key={value}
                           type="button"
-                          className={syllabusStatusFilter === value ? "is-active" : ""}
-                          aria-pressed={syllabusStatusFilter === value}
-                          onClick={() => setSyllabusStatusFilter(value)}
+                          className={statusFilter === value ? "is-active" : ""}
+                          aria-pressed={statusFilter === value}
+                          onClick={() => setStatusFilter(value)}
                         >
-                          {label}
+                          {value[0].toUpperCase() + value.slice(1)}
                         </button>
                       ))}
                     </div>
                   </div>
 
                   <div className="facilitator-syllabus-list">
-                    {filteredSyllabusStatuses.length > 0 ? (
-                      filteredSyllabusStatuses.map((badge) => (
-                        <article
-                          key={badge.courseTemplateId}
-                          className={badge.completed ? "is-completed" : "is-missing"}
-                        >
-                          <span className="facilitator-badge-status" aria-hidden="true">
-                            {badge.completed ? <CheckCircle2 /> : <CircleDashed />}
-                          </span>
-                          <div>
-                            <small>
-                              {FACILITATOR_TRACKS.find(
-                                (track) => track.id === badge.track,
-                              )?.label}
-                            </small>
-                            <strong>{badge.title}</strong>
-                            <p>
-                              {badge.labs} {badge.labs === 1 ? "lab" : "labs"}
-                              <span aria-hidden="true">•</span>
-                              {badge.credits} {badge.credits === 1 ? "credit" : "credits"}
-                              {badge.completed && badge.earnedBadge?.dateEarned ? (
-                                <>
-                                  <span aria-hidden="true">•</span>
-                                  Earned {badge.earnedBadge.dateEarned}
-                                </>
-                              ) : null}
-                            </p>
-                          </div>
-                          <a
-                            href={badge.url}
-                            target="_blank"
-                            rel="noreferrer noopener"
-                            aria-label={`Open ${badge.title}`}
-                            title={`Open ${badge.title}`}
-                          >
-                            <ExternalLink />
-                          </a>
-                        </article>
-                      ))
-                    ) : (
+                    {visibleBadges.length ? visibleBadges.map((badge) => (
+                      <article key={badge.courseTemplateId} className={badge.completed ? "is-completed" : "is-missing"}>
+                        <span className="facilitator-badge-status" aria-hidden="true">
+                          {badge.completed ? <CheckCircle2 /> : <CircleHelp />}
+                        </span>
+                        <div>
+                          <small>{FACILITATOR_TRACKS.find((track) => track.id === badge.track)?.label}</small>
+                          <strong>{badge.title}</strong>
+                          <p>
+                            {badge.labs} {badge.labs === 1 ? "lab" : "labs"}
+                            <span aria-hidden="true">•</span>
+                            {badge.credits} {badge.credits === 1 ? "credit" : "credits"}
+                            {badge.completed && badge.earnedBadge?.dateEarned ? <><span aria-hidden="true">•</span>Earned {badge.earnedBadge.dateEarned}</> : null}
+                          </p>
+                        </div>
+                        <a href={badge.url} target="_blank" rel="noreferrer noopener" aria-label={`Open ${badge.title}`} title={`Open ${badge.title}`}>
+                          <ExternalLink />
+                        </a>
+                      </article>
+                    )) : (
                       <div className="facilitator-syllabus-empty">
-                        <Search />
-                        <strong>No badges match these filters</strong>
-                        <p>Clear the search or select another track/status.</p>
+                        <Search /><strong>No badges match these filters</strong><p>Clear the search or select another track/status.</p>
                       </div>
                     )}
                   </div>
 
                   <p className="facilitator-syllabus-note">
-                    Based on the July–September 2026 syllabus snapshot. Course names and eligibility can change, so Google&apos;s official syllabus and program records remain the final source of truth.
+                    Based on the July–September 2026 syllabus snapshot. Google&apos;s official syllabus and program records remain the final source of truth.
                   </p>
                 </section>
 
                 <section className="facilitator-section">
                   <div className="facilitator-section-title">
-                    <div>
-                      <h3>Activity progress</h3>
-                      <p>
-                        {hasCompletedUltimate
-                          ? "All Facilitator milestones completed"
-                          : `Progress toward ${nextMilestone.label}`}
-                      </p>
-                    </div>
-                    <span>{currentMilestone ? currentMilestone.label : "Not started"}</span>
+                    <div><h3>Activity progress</h3><p>Progress toward {nextMilestone.label}</p></div>
+                    <span>{currentMilestone?.label ?? "Not started"}</span>
                   </div>
-
                   <div className="facilitator-activity-grid">
-                    <Activity
-                      icon={<Gamepad2 />}
-                      label="Games"
-                      current={counts.games}
-                      target={nextMilestone.requirements.games}
-                    />
-                    <Activity
-                      icon={<Trophy />}
-                      label="Trivia"
-                      current={counts.trivia}
-                      target={nextMilestone.requirements.trivia}
-                    />
-                    <Activity
-                      icon={<BadgeCheck />}
-                      label="Skill badges"
-                      current={counts.skills}
-                      target={nextMilestone.requirements.skills}
-                    />
-                    <Activity
-                      icon={<BookOpenCheck />}
-                      label="Lab-free courses"
-                      current={counts.labFree}
-                      target={nextMilestone.requirements.labFree}
-                    />
+                    <Activity icon={<Gamepad2 />} label="Games" current={counts.games} target={nextMilestone.requirements.games} />
+                    <Activity icon={<Trophy />} label="Trivia" current={counts.trivia} target={nextMilestone.requirements.trivia} />
+                    <Activity icon={<BadgeCheck />} label="Skill badges" current={counts.skills} target={nextMilestone.requirements.skills} />
+                    <Activity icon={<BookOpenCheck />} label="Lab-free courses" current={counts.labFree} target={nextMilestone.requirements.labFree} />
                   </div>
                 </section>
 
                 <section className="facilitator-section">
-                  <div className="facilitator-section-title">
-                    <div>
-                      <h3>Facilitator milestones</h3>
-                      <p>The bonus is not cumulative; only the highest completed milestone applies.</p>
-                    </div>
-                  </div>
-
+                  <div className="facilitator-section-title"><div><h3>Facilitator milestones</h3><p>Only the highest completed milestone bonus applies.</p></div></div>
                   <div className="facilitator-milestones">
-                    {FACILITATOR_MILESTONES.map((milestone) => {
-                      const completed = hasCompletedMilestone(counts, milestone.requirements)
-                      const active = currentMilestone?.id === milestone.id
-
+                    {MILESTONES.map((milestone) => {
+                      const completed = milestoneComplete(counts, milestone.requirements)
+                      const current = currentMilestone?.id === milestone.id
                       return (
-                        <article
-                          key={milestone.id}
-                          className={`${completed ? "is-completed" : ""}${active ? " is-current" : ""}`}
-                        >
+                        <article key={milestone.id} className={`${completed ? "is-completed" : ""}${current ? " is-current" : ""}`}>
                           <div className="facilitator-milestone-heading">
                             <span>{completed ? <BadgeCheck /> : <GraduationCap />}</span>
-                            <div>
-                              <strong>{milestone.label}</strong>
-                              <small>+{milestone.bonus} bonus points</small>
-                            </div>
-                            {active && <em>Current</em>}
+                            <div><strong>{milestone.label}</strong><small>+{milestone.bonus} bonus points</small></div>
+                            {current ? <em>Current</em> : null}
                           </div>
                           <dl>
                             <div><dt>Games</dt><dd>{milestone.requirements.games}</dd></div>
@@ -587,48 +359,26 @@ export default function FacilitatorPanel() {
                   </div>
                 </section>
 
-                <p className="facilitator-disclaimer">
-                  Facilitator tracking is relevant only to learners enrolled in the Facilitator Program. The calculator estimates progress from public profile data; final recognition remains subject to Google&apos;s program records.
-                </p>
+                <p className="facilitator-disclaimer">This is an estimate from public-profile data. Final recognition remains subject to Google&apos;s program records.</p>
               </div>
             )}
           </section>
         </div>
-      )}
+      ) : null}
     </>
   )
 }
 
-/** Render one Facilitator activity and its accessible progress indicator. */
-function Activity({
-  icon,
-  label,
-  current,
-  target,
-}: {
-  icon: ReactNode
-  label: string
-  current: number
-  target: number
-}) {
-  const completed = current >= target
-  const progressValue = progress(current, target)
+function TrackButton({ active, label, count, title, onClick }: { active: boolean; label: string; count: string; title?: string; onClick: () => void }) {
+  return <button type="button" className={active ? "is-active" : ""} aria-pressed={active} title={title} onClick={onClick}><strong>{label}</strong><small>{count}</small></button>
+}
 
+function Activity({ icon, label, current, target }: { icon: ReactNode; label: string; current: number; target: number }) {
   return (
-    <article className={completed ? "is-completed" : ""}>
-      <div>
-        <span>{icon}</span>
-        <strong>{label}</strong>
-        <b>{current} / {target}</b>
-      </div>
-      <i
-        role="progressbar"
-        aria-label={`${label} progress`}
-        aria-valuemin={0}
-        aria-valuemax={target}
-        aria-valuenow={Math.min(current, target)}
-      >
-        <b style={{ width: `${progressValue}%` }} />
+    <article className={current >= target ? "is-completed" : ""}>
+      <div><span>{icon}</span><strong>{label}</strong><b>{current} / {target}</b></div>
+      <i role="progressbar" aria-label={`${label} progress`} aria-valuemin={0} aria-valuemax={target} aria-valuenow={Math.min(current, target)}>
+        <b style={{ width: `${percentage(current, target)}%` }} />
       </i>
     </article>
   )
