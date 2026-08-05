@@ -9,6 +9,8 @@ import { getWebsiteLocaleFromPathname } from "@/lib/website-i18n"
 export const COOKIE_PREFERENCES_EVENT = "arcade:open-cookie-preferences"
 
 const COOKIE_CONSENT_STORAGE_KEY = "arcade-cookie-consent-v1"
+const COOKIE_CONSENT_PREVIEW_STORAGE_KEY =
+  "arcade-cookie-consent-preview-v1"
 const GOOGLE_ANALYTICS_SCRIPT_ID = "google-analytics"
 
 type ConsentChoice = "accepted" | "rejected"
@@ -30,6 +32,7 @@ const COPY = {
     close: "Close cookie settings",
     currentAccepted: "Current choice: analytics accepted",
     currentRejected: "Current choice: analytics rejected",
+    preview: "Preview mode: analytics remains disabled.",
   },
   vi: {
     eyebrow: "Lựa chọn quyền riêng tư",
@@ -42,6 +45,7 @@ const COPY = {
     close: "Đóng cài đặt cookie",
     currentAccepted: "Lựa chọn hiện tại: đã chấp nhận phân tích",
     currentRejected: "Lựa chọn hiện tại: đã từ chối phân tích",
+    preview: "Chế độ xem trước: analytics vẫn được tắt.",
   },
 } as const
 
@@ -57,18 +61,18 @@ function setAnalyticsDisabled(
   analyticsFlags[`ga-disable-${googleAnalyticsId}`] = disabled
 }
 
-function readStoredChoice(): ConsentChoice | null {
+function readStoredChoice(storageKey: string): ConsentChoice | null {
   try {
-    const value = window.localStorage.getItem(COOKIE_CONSENT_STORAGE_KEY)
+    const value = window.localStorage.getItem(storageKey)
     return value === "accepted" || value === "rejected" ? value : null
   } catch {
     return null
   }
 }
 
-function storeChoice(choice: ConsentChoice): void {
+function storeChoice(storageKey: string, choice: ConsentChoice): void {
   try {
-    window.localStorage.setItem(COOKIE_CONSENT_STORAGE_KEY, choice)
+    window.localStorage.setItem(storageKey, choice)
   } catch {
     // Consent still applies for the current page when browser storage is blocked.
   }
@@ -151,11 +155,15 @@ function enableAnalytics(googleAnalyticsId: string): void {
   document.head.appendChild(script)
 }
 
+type CookieConsentProps = {
+  googleAnalyticsId: string
+  previewMode?: boolean
+}
+
 export default function CookieConsent({
   googleAnalyticsId,
-}: {
-  googleAnalyticsId: string
-}) {
+  previewMode = false,
+}: CookieConsentProps) {
   const pathname = usePathname()
   const dialogRef = useRef<HTMLElement>(null)
   const [choice, setChoice] = useState<ConsentChoice | null>(null)
@@ -167,11 +175,15 @@ export default function CookieConsent({
         : COPY.en,
     [pathname],
   )
+  const storageKey = previewMode
+    ? COOKIE_CONSENT_PREVIEW_STORAGE_KEY
+    : COOKIE_CONSENT_STORAGE_KEY
+  const consentUiEnabled = Boolean(googleAnalyticsId) || previewMode
 
   useEffect(() => {
-    if (!googleAnalyticsId) return
+    if (!consentUiEnabled) return
 
-    const storedChoice = readStoredChoice()
+    const storedChoice = readStoredChoice(storageKey)
     setChoice(storedChoice)
     setIsOpen(storedChoice === null)
 
@@ -187,7 +199,7 @@ export default function CookieConsent({
     return () => {
       window.removeEventListener(COOKIE_PREFERENCES_EVENT, openPreferences)
     }
-  }, [googleAnalyticsId])
+  }, [consentUiEnabled, googleAnalyticsId, storageKey])
 
   useEffect(() => {
     if (!isOpen) return
@@ -201,7 +213,7 @@ export default function CookieConsent({
   }, [choice, isOpen])
 
   function applyChoice(nextChoice: ConsentChoice) {
-    storeChoice(nextChoice)
+    storeChoice(storageKey, nextChoice)
     setChoice(nextChoice)
     setIsOpen(false)
 
@@ -212,7 +224,7 @@ export default function CookieConsent({
     }
   }
 
-  if (!googleAnalyticsId || !isOpen) return null
+  if (!consentUiEnabled || !isOpen) return null
 
   return (
     <div className="cookie-consent-layer">
@@ -235,6 +247,7 @@ export default function CookieConsent({
           <p id="cookie-consent-description">{copy.description}</p>
           <div className="cookie-consent-meta">
             <Link href="/privacy/">{copy.privacy}</Link>
+            {previewMode ? <span>{copy.preview}</span> : null}
             {choice ? (
               <span>
                 {choice === "accepted"
