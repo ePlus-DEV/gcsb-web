@@ -1,6 +1,7 @@
 import { gunzipSync } from "node:zlib"
 import { mkdir, readFile, readdir, writeFile } from "node:fs/promises"
 import path from "node:path"
+import { applyFacilitatorTranslations } from "./facilitator-translations.mjs"
 
 const root = process.cwd()
 const sourceDir = path.join(root, "public", "i18n")
@@ -34,6 +35,8 @@ for (const [locale, catalog] of Object.entries(catalogs)) {
         ? "Máy tính điểm Google Cloud Arcade & Theo dõi huy hiệu 2026"
         : fallbackTitle
 }
+
+applyFacilitatorTranslations(catalogs)
 
 const englishMessages = catalogs.en?.messages
 if (!englishMessages) {
