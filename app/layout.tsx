@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next"
 import WebsiteLanguage from "@/components/i18n/website-language"
+import CookieConsent from "@/components/privacy/cookie-consent"
 import { ThemeProvider } from "@/components/theme-provider"
 import ThemeToggle from "@/components/theme-toggle"
 import { WEBSITE_SITE_URL } from "@/lib/website-i18n"
@@ -15,6 +16,7 @@ import "./styles/theme-modes.css"
 import "./styles/header-compact.css"
 import "./styles/theme-light-components.css"
 import "./styles/internal-page-theme.css"
+import "./styles/cookie-consent.css"
 
 const siteName = "Arcade Points by ePlus.DEV"
 const title = "Google Cloud Arcade Points Calculator & Badge Tracker 2026"
@@ -48,14 +50,6 @@ if (
 }
 
 const googleAnalyticsId = analyticsEnabled ? configuredGoogleAnalyticsId : ""
-const googleAnalyticsInitScript = googleAnalyticsId
-  ? `
-window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag("js", new Date());
-gtag("config", ${JSON.stringify(googleAnalyticsId)});
-`
-  : ""
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -138,14 +132,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         />
         {googleAnalyticsId ? (
           <>
-            <script
-              id="google-analytics"
-              async
-              src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}
-            />
-            <script
-              id="google-analytics-init"
-              dangerouslySetInnerHTML={{ __html: googleAnalyticsInitScript }}
+            <meta name="google-analytics-id" content={googleAnalyticsId} />
+            <meta name="analytics-consent" content="required" />
+            <meta
+              name="analytics-consent-storage"
+              content="arcade-cookie-consent-v1"
             />
           </>
         ) : null}
@@ -161,6 +152,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <WebsiteLanguage />
           <ThemeToggle />
           {children}
+          <CookieConsent googleAnalyticsId={googleAnalyticsId} />
         </ThemeProvider>
       </body>
     </html>
