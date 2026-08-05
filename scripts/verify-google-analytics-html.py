@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
-"""Verify the direct Google Analytics scripts in a static HTML export."""
+"""Verify that Google Analytics is configured but not preloaded before consent."""
 
 from __future__ import annotations
 
 import argparse
-import re
 from html.parser import HTMLParser
 from pathlib import Path
 
 
-class ScriptCollector(HTMLParser):
-    """Collect script attributes and inline bodies from an HTML document."""
+class AnalyticsMarkupCollector(HTMLParser):
+    """Collect script and meta elements from a static HTML document."""
 
     def __init__(self) -> None:
         super().__init__()
         self.scripts: list[tuple[dict[str, str | None], str]] = []
+        self.meta: list[dict[str, str | None]] = []
         self._current_attrs: dict[str, str | None] | None = None
         self._current_body: list[str] = []
 
@@ -23,10 +23,22 @@ class ScriptCollector(HTMLParser):
         tag: str,
         attrs: list[tuple[str, str | None]],
     ) -> None:
-        if tag.lower() != "script":
+        normalized_tag = tag.lower()
+        if normalized_tag == "meta":
+            self.meta.append(dict(attrs))
+            return
+        if normalized_tag != "script":
             return
         self._current_attrs = dict(attrs)
         self._current_body = []
+
+    def handle_startendtag(
+        self,
+        tag: str,
+        attrs: list[tuple[str, str | None]],
+    ) -> None:
+        if tag.lower() == "meta":
+            self.meta.append(dict(attrs))
 
     def handle_data(self, data: str) -> None:
         if self._current_attrs is not None:
@@ -42,68 +54,70 @@ class ScriptCollector(HTMLParser):
         self._current_body = []
 
 
+def get_meta_content(
+    meta: list[dict[str, str | None]],
+    name: str,
+) -> list[str | None]:
+    return [item.get("content") for item in meta if item.get("name") == name]
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("html_path", type=Path)
     parser.add_argument("expected_id")
     args = parser.parse_args()
 
-    collector = ScriptCollector()
-    collector.feed(args.html_path.read_text(encoding="utf-8"))
+    collector = AnalyticsMarkupCollector()
+    html = args.html_path.read_text(encoding="utf-8")
+    collector.feed(html)
 
-    expected_url = (
-        "https://www.googletagmanager.com/gtag/js?id=" + args.expected_id
-    )
     loader_scripts = [
         attrs
         for attrs, _body in collector.scripts
         if (attrs.get("src") or "").split("?", 1)[0]
         == "https://www.googletagmanager.com/gtag/js"
     ]
-    if len(loader_scripts) != 1:
+    if loader_scripts:
         raise SystemExit(
-            "Expected exactly one direct GA loader; "
-            f"found {len(loader_scripts)}."
-        )
-    if (
-        loader_scripts[0].get("id") != "google-analytics"
-        or loader_scripts[0].get("src") != expected_url
-        or "async" not in loader_scripts[0]
-    ):
-        raise SystemExit(
-            "The direct Google Analytics loader must use the expected ID, "
-            "source URL, and async attribute."
+            "Google Analytics must not be present in the initial static HTML; "
+            f"found {len(loader_scripts)} loader script(s)."
         )
 
-    init_scripts = [
+    inline_initializers = [
         body
-        for attrs, body in collector.scripts
-        if attrs.get("id") == "google-analytics-init"
-        and not attrs.get("src")
+        for _attrs, body in collector.scripts
+        if 'gtag("config"' in body or "gtag('config'" in body
     ]
-    if len(init_scripts) != 1:
+    if inline_initializers:
         raise SystemExit(
-            "Expected exactly one direct Google Analytics init script; "
-            f"found {len(init_scripts)}."
+            "Google Analytics configuration must run only after consent; "
+            "an inline initializer was found in the initial HTML."
         )
 
-    init_script = init_scripts[0]
-    if init_script.count('gtag("js", new Date());') != 1:
-        raise SystemExit("Expected exactly one gtag JavaScript initialization call.")
-
-    configured_ids = re.findall(
-        r'gtag\("config", "(G-[A-Z0-9]+)"\);',
-        init_script,
-    )
-    if configured_ids != [args.expected_id]:
+    analytics_ids = get_meta_content(collector.meta, "google-analytics-id")
+    if analytics_ids != [args.expected_id]:
         raise SystemExit(
-            "Expected exactly one GA configuration call for "
-            f"{args.expected_id}; found {configured_ids}."
+            "Expected one consent-gated Google Analytics ID marker for "
+            f"{args.expected_id}; found {analytics_ids}."
+        )
+
+    consent_markers = get_meta_content(collector.meta, "analytics-consent")
+    if consent_markers != ["required"]:
+        raise SystemExit(
+            "Expected one analytics consent marker with content='required'; "
+            f"found {consent_markers}."
+        )
+
+    if "arcade-cookie-consent-v1" not in html:
+        raise SystemExit(
+            "The static export does not contain the cookie consent component "
+            "configuration."
         )
 
     print(
-        "Verified one direct Google Analytics loader and config call for: "
+        "Verified that Google Analytics "
         + args.expected_id
+        + " is configured but not loaded before consent."
     )
 
 
