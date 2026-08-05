@@ -134,6 +134,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <>
             <meta name="google-analytics-id" content={googleAnalyticsId} />
             <meta name="analytics-consent" content="required" />
+            <meta
+              name="analytics-consent-storage"
+              content="arcade-cookie-consent-v1"
+            />
           </>
         ) : null}
       </head>
