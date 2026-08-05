@@ -1,0 +1,3 @@
+# ESLint is configured for JavaScript and TypeScript in this Next.js project.
+# Stylesheets are validated by the production build instead of the JS parser.
+**/*.css
