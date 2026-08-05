@@ -6,6 +6,8 @@ const VI_OVERRIDES = {
     "Xác nhận tham gia chương trình, theo dõi điểm thưởng cột mốc và tìm các huy hiệu còn thiếu trong giáo trình.",
   "Includes regular points earned from games and skill badges":
     "Đã bao gồm điểm thông thường từ trò chơi và huy hiệu kỹ năng",
+  "Optional +10 Bonus Milestone not included":
+    "Chưa bao gồm 10 điểm của Cột mốc thưởng tùy chọn",
   "Facilitator game and skill-badge counts determine the milestone bonus only. Their regular Arcade points are already included in the overall score and are not added twice.":
     "Số trò chơi và huy hiệu kỹ năng của Facilitator chỉ dùng để xác định điểm thưởng cột mốc. Điểm Arcade thông thường đã nằm trong tổng điểm và không được cộng hai lần.",
   "2026 syllabus badge checklist": "Danh sách huy hiệu giáo trình 2026",
@@ -28,6 +30,8 @@ const VI_OVERRIDES = {
     "yêu cầu có thể kiểm tra từ hồ sơ công khai. Việc xác minh tác nhân AI cần thực hiện thủ công.",
   "of 4 requirements can be checked from the public profile. Agent verification is manual.":
     "trên 4 yêu cầu có thể kiểm tra từ hồ sơ công khai. Việc xác minh tác nhân AI cần thực hiện thủ công.",
+  "Reach at least 6 Arcade Games and 18 Skill Badges.":
+    "Đạt ít nhất 6 trò chơi Arcade và 18 huy hiệu kỹ năng.",
   "Complete all 4 GEAR skill badges": "Hoàn thành đủ 4 huy hiệu kỹ năng GEAR",
   "Build and submit your AI agent": "Tạo và gửi tác nhân AI của bạn",
   "Free Trial, agent creation, Project Name and Billing ID verification cannot be detected from a public profile.":
@@ -36,6 +40,10 @@ const VI_OVERRIDES = {
     "Các yêu cầu có thể kiểm tra từ hồ sơ đã hoàn tất. Hãy làm theo hướng dẫn, tạo tác nhân AI rồi gửi biểu mẫu xác minh.",
   "Complete the remaining profile requirements first. Google recommends finishing enrolment before starting the Bonus Milestone steps.":
     "Hãy hoàn tất các yêu cầu hồ sơ còn thiếu trước. Google khuyến nghị hoàn tất đăng ký trước khi bắt đầu các bước của Cột mốc thưởng.",
+  "Facilitator bonuses are included only after the player confirms participation above. Game and skill-badge points are never counted twice. The optional Bonus Milestone adds +":
+    "Điểm thưởng Facilitator chỉ được tính sau khi người chơi xác nhận tham gia. Điểm trò chơi và huy hiệu kỹ năng không bao giờ được cộng hai lần. Cột mốc thưởng tùy chọn cộng thêm +",
+  "after Google verifies the submitted form. Final recognition remains subject to Google's program records.":
+    "sau khi Google xác minh biểu mẫu đã gửi. Kết quả cuối cùng vẫn phụ thuộc vào dữ liệu chương trình của Google.",
   "Start with foundational cloud, AI, security, and data skills.":
     "Bắt đầu với kiến thức nền tảng về đám mây, AI, bảo mật và dữ liệu.",
   "Build practical application, infrastructure, networking, and AI skills.":
