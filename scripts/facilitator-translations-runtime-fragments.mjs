@@ -1,55 +1,55 @@
 const RUNTIME_FRAGMENTS = {
   en: {
     percentCompletedSuffix: "% completed",
-    game: "Game",
+    games: "Games",
   },
   vi: {
     percentCompletedSuffix: "% hoàn thành",
-    game: "Trò chơi",
+    games: "Trò chơi",
   },
   ja: {
     percentCompletedSuffix: "% 完了",
-    game: "ゲーム",
+    games: "ゲーム",
   },
   ko: {
     percentCompletedSuffix: "% 완료",
-    game: "게임",
+    games: "게임",
   },
   zh_CN: {
     percentCompletedSuffix: "% 已完成",
-    game: "游戏",
+    games: "游戏",
   },
   hi: {
     percentCompletedSuffix: "% पूर्ण",
-    game: "गेम",
+    games: "गेम",
   },
   fr: {
     percentCompletedSuffix: "% terminé",
-    game: "Jeu",
+    games: "Jeux",
   },
   de: {
     percentCompletedSuffix: "% abgeschlossen",
-    game: "Spiel",
+    games: "Spiele",
   },
   es: {
     percentCompletedSuffix: "% completado",
-    game: "Juego",
+    games: "Juegos",
   },
   pt_BR: {
     percentCompletedSuffix: "% concluído",
-    game: "Jogo",
+    games: "Jogos",
   },
   it: {
     percentCompletedSuffix: "% completato",
-    game: "Gioco",
+    games: "Giochi",
   },
   ru: {
     percentCompletedSuffix: "% выполнено",
-    game: "Игра",
+    games: "Игры",
   },
   ar: {
     percentCompletedSuffix: "% مكتمل",
-    game: "لعبة",
+    games: "الألعاب",
   },
 }
 
@@ -60,7 +60,7 @@ function findEnglishMessageKey(catalogs, source) {
 }
 
 export function applyFacilitatorRuntimeFragments(catalogs) {
-  const gameMessageKey = findEnglishMessageKey(catalogs, "Games")
+  const gamesMessageKey = findEnglishMessageKey(catalogs, "Games")
 
   for (const [locale, catalog] of Object.entries(catalogs)) {
     const translations = RUNTIME_FRAGMENTS[locale]
@@ -71,13 +71,15 @@ export function applyFacilitatorRuntimeFragments(catalogs) {
     catalog.additional ??= {}
     catalog.additional["% completed"] = translations.percentCompletedSuffix
 
-    // Existing website catalogs may already map "Games" through messages.
-    // Override that exact key because message translations take precedence over
+    // Preserve the English source catalog. For target locales, override the
+    // existing exact-message key because messages are resolved before
     // additional translations in translateWebsiteText().
-    if (gameMessageKey) {
-      catalog.messages[gameMessageKey] = translations.game
+    if (locale === "en") continue
+
+    if (gamesMessageKey) {
+      catalog.messages[gamesMessageKey] = translations.games
     } else {
-      catalog.additional.Games = translations.game
+      catalog.additional.Games = translations.games
     }
   }
 }
