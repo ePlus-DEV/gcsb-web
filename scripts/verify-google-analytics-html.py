@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Verify that Google Analytics is configured but not preloaded before consent."""
+"""Verify that production Google Analytics loads by default with a notice marker."""
 
 from __future__ import annotations
 
 import argparse
 from html.parser import HTMLParser
 from pathlib import Path
+from urllib.parse import parse_qs, urlparse
 
 
 class AnalyticsMarkupCollector(HTMLParser):
@@ -76,51 +77,60 @@ def main() -> None:
         if (attrs.get("src") or "").split("?", 1)[0]
         == "https://www.googletagmanager.com/gtag/js"
     ]
-    if loader_scripts:
+    if len(loader_scripts) != 1:
         raise SystemExit(
-            "Google Analytics must not be present in the initial static HTML; "
-            f"found {len(loader_scripts)} loader script(s)."
+            "Expected exactly one default Google Analytics loader; "
+            f"found {len(loader_scripts)}."
+        )
+
+    loader_src = loader_scripts[0].get("src") or ""
+    loader_id = parse_qs(urlparse(loader_src).query).get("id", [])
+    if loader_id != [args.expected_id]:
+        raise SystemExit(
+            f"Expected Google Analytics loader ID {args.expected_id}; "
+            f"found {loader_id}."
         )
 
     inline_initializers = [
         body
         for _attrs, body in collector.scripts
-        if 'gtag("config"' in body or "gtag('config'" in body
+        if ("gtag(\"config\"" in body or "gtag('config'" in body)
+        and args.expected_id in body
     ]
-    if inline_initializers:
+    if len(inline_initializers) != 1:
         raise SystemExit(
-            "Google Analytics configuration must run only after consent; "
-            "an inline initializer was found in the initial HTML."
+            "Expected exactly one default Google Analytics initializer for "
+            f"{args.expected_id}; found {len(inline_initializers)}."
         )
 
     analytics_ids = get_meta_content(collector.meta, "google-analytics-id")
     if analytics_ids != [args.expected_id]:
         raise SystemExit(
-            "Expected one consent-gated Google Analytics ID marker for "
-            f"{args.expected_id}; found {analytics_ids}."
+            f"Expected one Google Analytics ID marker for {args.expected_id}; "
+            f"found {analytics_ids}."
         )
 
-    consent_markers = get_meta_content(collector.meta, "analytics-consent")
-    if consent_markers != ["required"]:
+    analytics_modes = get_meta_content(collector.meta, "analytics-mode")
+    if analytics_modes != ["always-enabled"]:
         raise SystemExit(
-            "Expected one analytics consent marker with content='required'; "
-            f"found {consent_markers}."
+            "Expected analytics-mode='always-enabled'; "
+            f"found {analytics_modes}."
         )
 
     storage_markers = get_meta_content(
         collector.meta,
-        "analytics-consent-storage",
+        "cookie-notice-storage",
     )
-    if storage_markers != ["arcade-cookie-consent-v1"]:
+    if storage_markers != ["arcade-cookie-notice-v1"]:
         raise SystemExit(
-            "Expected one analytics consent storage marker; "
+            "Expected one cookie notice storage marker; "
             f"found {storage_markers}."
         )
 
     print(
         "Verified that Google Analytics "
         + args.expected_id
-        + " is configured but not loaded before consent."
+        + " loads by default and the cookie notice marker is present."
     )
 
 
