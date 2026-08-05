@@ -32,6 +32,7 @@ import { DASHBOARD_STORAGE_KEY, formatNumber, numeric } from "./model"
 
 const SYNC_INTERVAL_MS = 1_500
 const BONUS_MILESTONE_POINTS = 10
+const PARTICIPATION_STORAGE_PREFIX = "arcade-facilitator-participation-v1"
 const BONUS_GUIDE_URL =
   "https://rsvp.withgoogle.com/events/arcade-facilitator/bonus-milestone"
 const BONUS_FORM_URL = "https://forms.gle/MMfH5RKp83TfRtXj9"
@@ -108,10 +109,13 @@ type Counts = {
 type StatusFilter = "missing" | "completed" | "all"
 type TrackFilter = "all" | FacilitatorTrack
 
+type EvaluatedSyllabus = ReturnType<typeof evaluateFacilitatorSyllabus>
+
 function readDashboard(): StoredDashboard | null {
   try {
     const value = window.localStorage.getItem(DASHBOARD_STORAGE_KEY)
     if (!value) return null
+
     const parsed = JSON.parse(value) as unknown
     return typeof parsed === "object" && parsed !== null
       ? (parsed as StoredDashboard)
@@ -119,6 +123,11 @@ function readDashboard(): StoredDashboard | null {
   } catch {
     return null
   }
+}
+
+function getParticipationStorageKey(profileUrl?: string): string {
+  const profileKey = profileUrl?.trim() || "default-profile"
+  return `${PARTICIPATION_STORAGE_PREFIX}:${profileKey}`
 }
 
 function milestoneComplete(
@@ -175,6 +184,7 @@ function titleMatchesAliases(title: string, aliases: readonly string[]): boolean
 export default function FacilitatorPanel() {
   const [open, setOpen] = useState(false)
   const [dashboard, setDashboard] = useState<StoredDashboard | null>(null)
+  const [isParticipating, setIsParticipating] = useState(false)
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("missing")
   const [trackFilter, setTrackFilter] = useState<TrackFilter>("all")
   const [search, setSearch] = useState("")
@@ -184,9 +194,11 @@ export default function FacilitatorPanel() {
 
   useEffect(() => {
     let previous = ""
+
     const sync = () => {
       const raw = window.localStorage.getItem(DASHBOARD_STORAGE_KEY) ?? ""
       if (raw === previous) return
+
       previous = raw
       setDashboard(readDashboard())
     }
@@ -203,8 +215,23 @@ export default function FacilitatorPanel() {
     }
   }, [])
 
+  const participationStorageKey = getParticipationStorageKey(
+    dashboard?.profileUrl,
+  )
+
+  useEffect(() => {
+    try {
+      setIsParticipating(
+        window.localStorage.getItem(participationStorageKey) === "true",
+      )
+    } catch {
+      setIsParticipating(false)
+    }
+  }, [participationStorageKey])
+
   useEffect(() => {
     if (!open) return
+
     const drawer = drawerRef.current
     if (!drawer) return
 
@@ -218,6 +245,7 @@ export default function FacilitatorPanel() {
         setOpen(false)
         return
       }
+
       if (event.key !== "Tab") return
 
       const focusableElements = getFocusableElements(drawer)
@@ -249,6 +277,7 @@ export default function FacilitatorPanel() {
     }
 
     document.addEventListener("keydown", onKeyDown)
+
     return () => {
       window.cancelAnimationFrame(focusFrame)
       document.body.style.overflow = previousOverflow
@@ -275,6 +304,7 @@ export default function FacilitatorPanel() {
     ],
     [result],
   )
+
   const syllabus = useMemo(
     () => evaluateFacilitatorSyllabus(earnedBadges),
     [earnedBadges],
@@ -290,6 +320,7 @@ export default function FacilitatorPanel() {
     const searchMatches =
       !normalizedSearch ||
       normalizeFacilitatorBadgeTitle(badge.title).includes(normalizedSearch)
+
     return statusMatches && trackMatches && searchMatches
   })
 
@@ -301,8 +332,9 @@ export default function FacilitatorPanel() {
     MILESTONES.find((item) => !milestoneComplete(counts, item.requirements)) ??
     MILESTONES.at(-1)!
   const milestoneBonus = currentMilestone?.bonus ?? 0
+  const appliedMilestoneBonus = isParticipating ? milestoneBonus : 0
   const overallArcadePoints = numeric(result?.arcadePoints?.totalPoints)
-  const estimatedTotal = overallArcadePoints + milestoneBonus
+  const estimatedTotal = overallArcadePoints + appliedMilestoneBonus
   const hasFacilitatorData = Boolean(result?.faciCounts)
   const completedUltimate = currentMilestone?.id === "ultimate"
   const completedMilestoneOne = milestoneComplete(
@@ -335,6 +367,19 @@ export default function FacilitatorPanel() {
   ].filter(Boolean).length
   const readyForBonusManualSteps = completedBonusProfileChecks === 4
 
+  const updateParticipation = (participating: boolean) => {
+    setIsParticipating(participating)
+
+    try {
+      window.localStorage.setItem(
+        participationStorageKey,
+        participating ? "true" : "false",
+      )
+    } catch {
+      // Keep the in-memory preference when storage is unavailable.
+    }
+  }
+
   const goToCalculator = () => {
     setOpen(false)
     window.requestAnimationFrame(() =>
@@ -345,22 +390,42 @@ export default function FacilitatorPanel() {
     )
   }
 
+  const launcherClassName = [
+    "facilitator-launcher",
+    result
+      ? isParticipating
+        ? "is-participating"
+        : "needs-confirmation"
+      : "",
+  ]
+    .filter(Boolean)
+    .join(" ")
+
   return (
     <>
       <button
         ref={launcherRef}
-        className="facilitator-launcher"
+        className={launcherClassName}
         type="button"
         onClick={() => setOpen(true)}
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-controls="facilitator-dialog"
+        aria-label={
+          result && !isParticipating
+            ? "Open Facilitator Program tracker and confirm participation"
+            : "Open Facilitator Program tracker"
+        }
       >
         <GraduationCap />
         <span>
-          <strong>Facilitator</strong>
+          <strong>Facilitator Program</strong>
           <small aria-live="polite">
-            {result ? `${missingCount} syllabus badges left` : "Program tracker"}
+            {!result
+              ? "Program tracker"
+              : isParticipating
+                ? `+${milestoneBonus} bonus · ${missingCount} badges left`
+                : "Enable to include bonus points"}
           </small>
         </span>
         <ChevronRight />
@@ -392,8 +457,8 @@ export default function FacilitatorPanel() {
                 </p>
                 <h2 id="facilitator-title">Facilitator Program</h2>
                 <span id="facilitator-description">
-                  Track Facilitator milestone bonuses and find syllabus badges
-                  that are still missing.
+                  Confirm program participation, track milestone bonuses, and
+                  find syllabus badges that are still missing.
                 </span>
               </div>
               <button
@@ -410,37 +475,59 @@ export default function FacilitatorPanel() {
               <div className="facilitator-empty">
                 <GraduationCap />
                 <strong>Analyze a public profile first</strong>
-                <p>The tracker uses the same public-profile result as the calculator.</p>
+                <p>
+                  The tracker uses the same public-profile result as the
+                  calculator.
+                </p>
                 <button type="button" onClick={goToCalculator}>
                   Go to calculator
                 </button>
               </div>
             ) : (
               <div className="facilitator-content">
+                <ParticipationControl
+                  participating={isParticipating}
+                  onChange={updateParticipation}
+                />
+
                 <div className="facilitator-score-grid">
                   <article>
                     <span>Overall Arcade points</span>
                     <strong>{formatNumber(overallArcadePoints)}</strong>
-                    <small>Includes regular points from games and skill badges</small>
+                    <small>
+                      Includes regular points earned from games and skill badges
+                    </small>
                   </article>
                   <article className="is-bonus">
                     <span>Facilitator bonus</span>
-                    <strong>+{formatNumber(milestoneBonus)}</strong>
-                    <small>Highest completed milestone only</small>
+                    <strong>
+                      {isParticipating
+                        ? `+${formatNumber(milestoneBonus)}`
+                        : "Off"}
+                    </strong>
+                    <small>
+                      {isParticipating
+                        ? "Highest completed milestone only"
+                        : `Potential +${milestoneBonus}; participation is not enabled`}
+                    </small>
                   </article>
                   <article className="is-total">
                     <span>Estimated total after bonus</span>
                     <strong>{formatNumber(estimatedTotal)}</strong>
-                    <small>Optional +10 Bonus Milestone not included</small>
+                    <small>
+                      {isParticipating
+                        ? "Optional +10 Bonus Milestone not included"
+                        : "No Facilitator bonus included"}
+                    </small>
                   </article>
                 </div>
 
                 <div className="facilitator-warning">
                   <CircleHelp />
                   <span>
-                    Facilitator game and skill-badge counts only determine the
-                    milestone bonus. Their regular Arcade points are already in
-                    the overall score and are not added twice.
+                    {isParticipating
+                      ? "Facilitator game and skill-badge counts determine the milestone bonus only. Their regular Arcade points are already included in the overall score and are not added twice."
+                      : "Facilitator calculations are in preview mode. Enable participation above only when this player is enrolled in the Facilitator Program; otherwise no Facilitator bonus is added."}
                   </span>
                 </div>
 
@@ -477,7 +564,11 @@ export default function FacilitatorPanel() {
                           : `Progress toward ${nextMilestone.label}`}
                       </p>
                     </div>
-                    <span>{currentMilestone?.label ?? "Not started"}</span>
+                    <span>
+                      {isParticipating
+                        ? currentMilestone?.label ?? "Not started"
+                        : "Preview only"}
+                    </span>
                   </div>
                   <div className="facilitator-activity-grid">
                     <Activity
@@ -502,7 +593,7 @@ export default function FacilitatorPanel() {
                       <p>
                         Progress follows Google&apos;s official combined completed
                         requirements display. Only the highest milestone bonus
-                        applies.
+                        applies when participation is enabled.
                       </p>
                     </div>
                   </div>
@@ -540,7 +631,9 @@ export default function FacilitatorPanel() {
                                 Badges
                               </small>
                             </div>
-                            {current ? <em>Current</em> : null}
+                            {current ? (
+                              <em>{isParticipating ? "Current" : "Preview"}</em>
+                            ) : null}
                           </div>
 
                           <MilestoneProgressBar
@@ -555,15 +648,21 @@ export default function FacilitatorPanel() {
                             <div>
                               <dt>Games</dt>
                               <dd>
-                                {Math.min(counts.games, milestone.requirements.games)} /{" "}
-                                {milestone.requirements.games}
+                                {Math.min(
+                                  counts.games,
+                                  milestone.requirements.games,
+                                )}{" "}
+                                / {milestone.requirements.games}
                               </dd>
                             </div>
                             <div>
                               <dt>Skills</dt>
                               <dd>
-                                {Math.min(counts.skills, milestone.requirements.skills)} /{" "}
-                                {milestone.requirements.skills}
+                                {Math.min(
+                                  counts.skills,
+                                  milestone.requirements.skills,
+                                )}{" "}
+                                / {milestone.requirements.skills}
                               </dd>
                             </div>
                             <div>
@@ -589,14 +688,16 @@ export default function FacilitatorPanel() {
                   completedGearSkills={completedGearSkills}
                   gearSkillStatuses={gearSkillStatuses}
                   readyForBonusManualSteps={readyForBonusManualSteps}
+                  participating={isParticipating}
                 />
 
                 <p className="facilitator-disclaimer">
-                  Facilitator milestones add bonus points to the existing Arcade
-                  total; game and skill-badge points are not counted twice. The
-                  optional Bonus Milestone adds +{BONUS_MILESTONE_POINTS} after
-                  Google verifies the form. Final recognition remains subject to
-                  Google&apos;s program records.
+                  Facilitator bonuses are included only after the player confirms
+                  participation above. Game and skill-badge points are never
+                  counted twice. The optional Bonus Milestone adds +
+                  {BONUS_MILESTONE_POINTS} after Google verifies the submitted
+                  form. Final recognition remains subject to Google&apos;s program
+                  records.
                 </p>
               </div>
             )}
@@ -604,6 +705,53 @@ export default function FacilitatorPanel() {
         </div>
       ) : null}
     </>
+  )
+}
+
+function ParticipationControl({
+  participating,
+  onChange,
+}: {
+  participating: boolean
+  onChange: (participating: boolean) => void
+}) {
+  return (
+    <section
+      className={`facilitator-participation-card${
+        participating ? " is-active" : ""
+      }`}
+      role="group"
+      aria-labelledby="facilitator-participation-title"
+    >
+      <div className="facilitator-participation-heading">
+        <span className="facilitator-participation-icon" aria-hidden="true">
+          <BadgeCheck />
+        </span>
+        <div className="facilitator-participation-copy">
+          <strong id="facilitator-participation-title">
+            Participating in Facilitator Program
+          </strong>
+          <small>
+            Turn this on only for players who officially enrolled in the program.
+          </small>
+        </div>
+        <label className="facilitator-participation-toggle">
+          <input
+            type="checkbox"
+            checked={participating}
+            onChange={(event) => onChange(event.target.checked)}
+            aria-label="Include Facilitator Program bonus in the estimated total"
+          />
+          <span aria-hidden="true" />
+          <em>{participating ? "Enabled" : "Disabled"}</em>
+        </label>
+      </div>
+      <p>
+        The preference is saved on this device for the current public profile.
+        When disabled, milestone progress remains visible as a preview but no
+        Facilitator bonus is added to the total.
+      </p>
+    </section>
   )
 }
 
@@ -634,7 +782,9 @@ function MilestoneProgressBar({
     <div className="facilitator-syllabus-progress" style={containerStyle}>
       <span style={labelStyle}>
         <b style={{ color }}>{percent}% completed</b>
-        <strong style={{ color }}>{completed}/{total}</strong>
+        <strong style={{ color }}>
+          {completed}/{total}
+        </strong>
       </span>
       <i
         role="progressbar"
@@ -662,8 +812,8 @@ function SyllabusSection({
   setStatusFilter,
   setSearch,
 }: {
-  syllabus: ReturnType<typeof evaluateFacilitatorSyllabus>
-  visibleBadges: ReturnType<typeof evaluateFacilitatorSyllabus>
+  syllabus: EvaluatedSyllabus
+  visibleBadges: EvaluatedSyllabus
   completedCount: number
   missingCount: number
   trackFilter: TrackFilter
@@ -680,18 +830,26 @@ function SyllabusSection({
           <h3>2026 syllabus badge checklist</h3>
           <p>Compare the profile with all 51 listed skill badges.</p>
         </div>
-        <span>{completedCount} / {FACILITATOR_SYLLABUS_2026.length}</span>
+        <span>
+          {completedCount} / {FACILITATOR_SYLLABUS_2026.length}
+        </span>
       </div>
 
       <div className="facilitator-syllabus-summary">
         <article className="is-completed">
-          <CheckCircle2 /><span>Completed</span><strong>{completedCount}</strong>
+          <CheckCircle2 />
+          <span>Completed</span>
+          <strong>{completedCount}</strong>
         </article>
         <article className="is-missing">
-          <CircleHelp /><span>Not completed</span><strong>{missingCount}</strong>
+          <CircleHelp />
+          <span>Not completed</span>
+          <strong>{missingCount}</strong>
         </article>
         <article>
-          <Trophy /><span>Ultimate target</span><strong>51 + 15</strong>
+          <Trophy />
+          <span>Ultimate target</span>
+          <strong>51 + 15</strong>
           <small>66 eligible skill badges total</small>
         </article>
       </div>
@@ -708,7 +866,14 @@ function SyllabusSection({
           aria-valuemax={FACILITATOR_SYLLABUS_2026.length}
           aria-valuenow={completedCount}
         >
-          <b style={{ width: `${percentage(completedCount, FACILITATOR_SYLLABUS_2026.length)}%` }} />
+          <b
+            style={{
+              width: `${percentage(
+                completedCount,
+                FACILITATOR_SYLLABUS_2026.length,
+              )}%`,
+            }}
+          />
         </i>
       </div>
 
@@ -730,7 +895,9 @@ function SyllabusSection({
               key={track.id}
               active={trackFilter === track.id}
               label={track.label}
-              count={`${badges.filter((badge) => badge.completed).length}/${badges.length}`}
+              count={`${
+                badges.filter((badge) => badge.completed).length
+              }/${badges.length}`}
               title={track.description}
               onClick={() => setTrackFilter(track.id)}
             />
@@ -744,7 +911,9 @@ function SyllabusSection({
           <input
             type="search"
             value={search}
-            onChange={(event: ChangeEvent<HTMLInputElement>) => setSearch(event.target.value)}
+            onChange={(event: ChangeEvent<HTMLInputElement>) =>
+              setSearch(event.target.value)
+            }
             placeholder="Search syllabus badges"
             aria-label="Search Facilitator syllabus badges"
           />
@@ -765,30 +934,51 @@ function SyllabusSection({
       </div>
 
       <div className="facilitator-syllabus-list">
-        {visibleBadges.length ? visibleBadges.map((badge) => (
-          <article key={badge.courseTemplateId} className={badge.completed ? "is-completed" : "is-missing"}>
-            <span className="facilitator-badge-status" aria-hidden="true">
-              {badge.completed ? <CheckCircle2 /> : <CircleHelp />}
-            </span>
-            <div>
-              <small>{FACILITATOR_TRACKS.find((track) => track.id === badge.track)?.label}</small>
-              <strong>{badge.title}</strong>
-              <p>
-                {badge.labs} {badge.labs === 1 ? "lab" : "labs"}
-                <span aria-hidden="true">•</span>
-                {badge.credits} {badge.credits === 1 ? "credit" : "credits"}
-                {badge.completed && badge.earnedBadge?.dateEarned ? (
-                  <><span aria-hidden="true">•</span>Earned {badge.earnedBadge.dateEarned}</>
-                ) : null}
-              </p>
-            </div>
-            <a href={badge.url} target="_blank" rel="noreferrer noopener" aria-label={`Open ${badge.title}`} title={`Open ${badge.title}`}>
-              <ExternalLink />
-            </a>
-          </article>
-        )) : (
+        {visibleBadges.length ? (
+          visibleBadges.map((badge) => (
+            <article
+              key={badge.courseTemplateId}
+              className={badge.completed ? "is-completed" : "is-missing"}
+            >
+              <span className="facilitator-badge-status" aria-hidden="true">
+                {badge.completed ? <CheckCircle2 /> : <CircleHelp />}
+              </span>
+              <div>
+                <small>
+                  {
+                    FACILITATOR_TRACKS.find(
+                      (track) => track.id === badge.track,
+                    )?.label
+                  }
+                </small>
+                <strong>{badge.title}</strong>
+                <p>
+                  {badge.labs} {badge.labs === 1 ? "lab" : "labs"}
+                  <span aria-hidden="true">•</span>
+                  {badge.credits} {badge.credits === 1 ? "credit" : "credits"}
+                  {badge.completed && badge.earnedBadge?.dateEarned ? (
+                    <>
+                      <span aria-hidden="true">•</span>
+                      Earned {badge.earnedBadge.dateEarned}
+                    </>
+                  ) : null}
+                </p>
+              </div>
+              <a
+                href={badge.url}
+                target="_blank"
+                rel="noreferrer noopener"
+                aria-label={`Open ${badge.title}`}
+                title={`Open ${badge.title}`}
+              >
+                <ExternalLink />
+              </a>
+            </article>
+          ))
+        ) : (
           <div className="facilitator-syllabus-empty">
-            <Search /><strong>No badges match these filters</strong>
+            <Search />
+            <strong>No badges match these filters</strong>
             <p>Clear the search or select another track/status.</p>
           </div>
         )}
@@ -810,6 +1000,7 @@ function BonusMilestoneSection({
   completedGearSkills,
   gearSkillStatuses,
   readyForBonusManualSteps,
+  participating,
 }: {
   completedBonusProfileChecks: number
   hasGearSignupBadge: boolean
@@ -818,15 +1009,23 @@ function BonusMilestoneSection({
   completedGearSkills: number
   gearSkillStatuses: Array<{ title: string; completed: boolean }>
   readyForBonusManualSteps: boolean
+  participating: boolean
 }) {
   return (
     <section className="facilitator-section">
       <div className="facilitator-section-title">
         <div>
           <h3>Bonus Milestone</h3>
-          <p>Earn an extra +{BONUS_MILESTONE_POINTS} bonus points through GEAR and AI agent verification.</p>
+          <p>
+            Earn an extra +{BONUS_MILESTONE_POINTS} bonus points through GEAR and
+            AI agent verification.
+          </p>
         </div>
-        <span>{completedBonusProfileChecks} / 4 profile checks</span>
+        <span>
+          {participating
+            ? `${completedBonusProfileChecks} / 4 profile checks`
+            : "Participation off"}
+        </span>
       </div>
 
       <div className="facilitator-syllabus-progress">
@@ -834,15 +1033,37 @@ function BonusMilestoneSection({
           <b>{completedBonusProfileChecks}</b> of 4 requirements can be checked
           from the public profile. Agent verification is manual.
         </span>
-        <i role="progressbar" aria-label="Bonus Milestone profile-checkable progress" aria-valuemin={0} aria-valuemax={4} aria-valuenow={completedBonusProfileChecks}>
-          <b style={{ width: `${percentage(completedBonusProfileChecks, 4)}%` }} />
+        <i
+          role="progressbar"
+          aria-label="Bonus Milestone profile-checkable progress"
+          aria-valuemin={0}
+          aria-valuemax={4}
+          aria-valuenow={completedBonusProfileChecks}
+        >
+          <b
+            style={{
+              width: `${percentage(completedBonusProfileChecks, 4)}%`,
+            }}
+          />
         </i>
       </div>
 
       <div className="facilitator-milestones">
-        <BonusCriterion completed={hasGearSignupBadge} title="GEAR Sign-up badge" detail="Earn the GEAR program enrolment badge." />
-        <BonusCriterion completed={hasArcadeGearBadge} title="Arcade - GEAR badge" detail="Earn the Arcade - GEAR badge on your developer profile." />
-        <BonusCriterion completed={completedMilestoneOne} title="Complete Milestone 1" detail="Reach at least 6 Arcade Games and 18 Skill Badges." />
+        <BonusCriterion
+          completed={hasGearSignupBadge}
+          title="GEAR Sign-up badge"
+          detail="Earn the GEAR program enrolment badge."
+        />
+        <BonusCriterion
+          completed={hasArcadeGearBadge}
+          title="Arcade - GEAR badge"
+          detail="Earn the Arcade - GEAR badge on your developer profile."
+        />
+        <BonusCriterion
+          completed={completedMilestoneOne}
+          title="Complete Milestone 1"
+          detail="Reach at least 6 Arcade Games and 18 Skill Badges."
+        />
         <BonusCriterion
           completed={completedGearSkills === GEAR_SKILL_BADGES.length}
           title="Complete all 4 GEAR skill badges"
@@ -850,10 +1071,15 @@ function BonusMilestoneSection({
         />
         <article>
           <div className="facilitator-milestone-heading">
-            <span><CircleHelp /></span>
+            <span>
+              <CircleHelp />
+            </span>
             <div>
               <strong>Build and submit your AI agent</strong>
-              <small>Free Trial, agent creation, Project Name and Billing ID verification cannot be detected from a public profile.</small>
+              <small>
+                Free Trial, agent creation, Project Name and Billing ID
+                verification cannot be detected from a public profile.
+              </small>
             </div>
             <em>Manual</em>
           </div>
@@ -862,33 +1088,57 @@ function BonusMilestoneSection({
 
       <div className="facilitator-syllabus-list">
         {gearSkillStatuses.map((badge) => (
-          <article key={badge.title} className={badge.completed ? "is-completed" : "is-missing"}>
+          <article
+            key={badge.title}
+            className={badge.completed ? "is-completed" : "is-missing"}
+          >
             <span className="facilitator-badge-status" aria-hidden="true">
               {badge.completed ? <CheckCircle2 /> : <CircleHelp />}
             </span>
             <div>
-              <small>GEAR skill badge</small><strong>{badge.title}</strong>
+              <small>GEAR skill badge</small>
+              <strong>{badge.title}</strong>
               <p>{badge.completed ? "Completed" : "Not found"}</p>
             </div>
           </article>
         ))}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}>
-        <BonusLink href={BONUS_GUIDE_URL} secondary>Read official guide</BonusLink>
-        <BonusLink href={BONUS_FORM_URL}>Submit verification form</BonusLink>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+          gap: 8,
+        }}
+      >
+        <BonusLink href={BONUS_GUIDE_URL} secondary>
+          Read official guide
+        </BonusLink>
+        <BonusLink href={BONUS_FORM_URL}>
+          Submit verification form
+        </BonusLink>
       </div>
 
       <p className="facilitator-syllabus-note">
-        {readyForBonusManualSteps
-          ? "All profile-checkable requirements appear complete. Follow the guide, build your AI agent, then submit the verification form."
-          : "Complete the remaining profile requirements first. Google recommends finishing enrolment before starting the Bonus Milestone steps."}
+        {!participating
+          ? "This section is shown for reference only because Facilitator participation is disabled for this profile."
+          : readyForBonusManualSteps
+            ? "All profile-checkable requirements appear complete. Follow the guide, build your AI agent, then submit the verification form."
+            : "Complete the remaining profile requirements first. Google recommends finishing enrolment before starting the Bonus Milestone steps."}
       </p>
     </section>
   )
 }
 
-function BonusLink({ href, children, secondary = false }: { href: string; children: ReactNode; secondary?: boolean }) {
+function BonusLink({
+  href,
+  children,
+  secondary = false,
+}: {
+  href: string
+  children: ReactNode
+  secondary?: boolean
+}) {
   return (
     <a
       href={href}
@@ -901,9 +1151,13 @@ function BonusLink({ href, children, secondary = false }: { href: string; childr
         gap: 8,
         minHeight: 42,
         padding: "0 12px",
-        border: secondary ? "1px solid rgba(34, 211, 238, .35)" : "1px solid rgba(124, 92, 246, .48)",
+        border: secondary
+          ? "1px solid rgba(34, 211, 238, .35)"
+          : "1px solid rgba(124, 92, 246, .48)",
         borderRadius: 9,
-        background: secondary ? "rgba(34, 211, 238, .08)" : "linear-gradient(135deg, rgba(98, 53, 220, .9), rgba(139, 63, 224, .9))",
+        background: secondary
+          ? "rgba(34, 211, 238, .08)"
+          : "linear-gradient(135deg, rgba(98, 53, 220, .9), rgba(139, 63, 224, .9))",
         color: secondary ? "#67e8f9" : "#fff",
         fontSize: ".68rem",
         fontWeight: 800,
@@ -915,31 +1169,83 @@ function BonusLink({ href, children, secondary = false }: { href: string; childr
   )
 }
 
-function TrackButton({ active, label, count, title, onClick }: { active: boolean; label: string; count: string; title?: string; onClick: () => void }) {
+function TrackButton({
+  active,
+  label,
+  count,
+  title,
+  onClick,
+}: {
+  active: boolean
+  label: string
+  count: string
+  title?: string
+  onClick: () => void
+}) {
   return (
-    <button type="button" className={active ? "is-active" : ""} aria-pressed={active} title={title} onClick={onClick}>
-      <strong>{label}</strong><small>{count}</small>
+    <button
+      type="button"
+      className={active ? "is-active" : ""}
+      aria-pressed={active}
+      title={title}
+      onClick={onClick}
+    >
+      <strong>{label}</strong>
+      <small>{count}</small>
     </button>
   )
 }
 
-function BonusCriterion({ completed, title, detail }: { completed: boolean; title: string; detail: string }) {
+function BonusCriterion({
+  completed,
+  title,
+  detail,
+}: {
+  completed: boolean
+  title: string
+  detail: string
+}) {
   return (
     <article className={completed ? "is-completed" : ""}>
       <div className="facilitator-milestone-heading">
         <span>{completed ? <CheckCircle2 /> : <CircleHelp />}</span>
-        <div><strong>{title}</strong><small>{detail}</small></div>
+        <div>
+          <strong>{title}</strong>
+          <small>{detail}</small>
+        </div>
         <em>{completed ? "Confirmed" : "Pending"}</em>
       </div>
     </article>
   )
 }
 
-function Activity({ icon, label, current, target }: { icon: ReactNode; label: string; current: number; target: number }) {
+function Activity({
+  icon,
+  label,
+  current,
+  target,
+}: {
+  icon: ReactNode
+  label: string
+  current: number
+  target: number
+}) {
   return (
     <article className={current >= target ? "is-completed" : ""}>
-      <div><span>{icon}</span><strong>{label}</strong><b>{current} / {target}</b></div>
-      <i role="progressbar" aria-label={`${label} progress`} aria-valuemin={0} aria-valuemax={target} aria-valuenow={Math.min(current, target)}>
+      <div>
+        <span>{icon}</span>
+        <strong>{label}</strong>
+        <b>
+          {current} / {target}
+        </b>
+      </div>
+      <i
+        role="progressbar"
+        aria-label={`${label} progress`}
+        aria-valuemin={0}
+        aria-valuemax={target}
+        aria-valuenow={Math.min(current, target)}
+      >
         <b style={{ width: `${percentage(current, target)}%` }} />
       </i>
     </article>
