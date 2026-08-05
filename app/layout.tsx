@@ -29,7 +29,11 @@ const fontAwesomeUrl =
 const fontAwesomeIntegrity =
   "sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
 const googleAnalyticsIdPattern = /^G-[A-Z0-9]+$/
-const analyticsEnabled = process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === "true"
+const analyticsRequested =
+  process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === "true"
+const cookieNoticePreviewMode =
+  process.env.NEXT_PUBLIC_COOKIE_CONSENT_PREVIEW === "true"
+const analyticsEnabled = analyticsRequested && !cookieNoticePreviewMode
 const configuredGoogleAnalyticsId = (process.env.NEXT_PUBLIC_GA_ID ?? "")
   .trim()
   .toUpperCase()
@@ -50,6 +54,12 @@ if (
 }
 
 const googleAnalyticsId = analyticsEnabled ? configuredGoogleAnalyticsId : ""
+const googleAnalyticsBootstrap = googleAnalyticsId
+  ? `window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag("js", new Date());
+gtag("config", ${JSON.stringify(googleAnalyticsId)}, { anonymize_ip: true });`
+  : ""
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -130,13 +140,25 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           crossOrigin="anonymous"
           referrerPolicy="no-referrer"
         />
+        {cookieNoticePreviewMode ? (
+          <meta name="cookie-notice-preview" content="true" />
+        ) : null}
         {googleAnalyticsId ? (
           <>
             <meta name="google-analytics-id" content={googleAnalyticsId} />
-            <meta name="analytics-consent" content="required" />
+            <meta name="analytics-mode" content="always-enabled" />
             <meta
-              name="analytics-consent-storage"
-              content="arcade-cookie-consent-v1"
+              name="cookie-notice-storage"
+              content="arcade-cookie-notice-v1"
+            />
+            <script
+              id="google-analytics"
+              async
+              src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}
+            />
+            <script
+              id="google-analytics-bootstrap"
+              dangerouslySetInnerHTML={{ __html: googleAnalyticsBootstrap }}
             />
           </>
         ) : null}
@@ -152,7 +174,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <WebsiteLanguage />
           <ThemeToggle />
           {children}
-          <CookieConsent googleAnalyticsId={googleAnalyticsId} />
+          <CookieConsent
+            analyticsEnabled={Boolean(googleAnalyticsId)}
+            previewMode={cookieNoticePreviewMode}
+          />
         </ThemeProvider>
       </body>
     </html>

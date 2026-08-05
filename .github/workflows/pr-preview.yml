@@ -94,6 +94,7 @@ jobs:
           NEXT_PUBLIC_BASE_PATH: "/pr-preview/pr-${{ github.event.number }}"
           NEXT_PUBLIC_ENABLE_ANALYTICS: "false"
           NEXT_PUBLIC_GA_ID: ""
+          NEXT_PUBLIC_COOKIE_CONSENT_PREVIEW: "true"
         run: |
           yarn install --frozen-lockfile --non-interactive
           yarn build
@@ -109,8 +110,13 @@ jobs:
           set -euo pipefail
           test -f out/index.html
           grep -q "${PREVIEW_PATH}/_next/" out/index.html
+          grep -q 'name="cookie-notice-preview" content="true"' out/index.html
           if grep -R -F -q "G-SJNYKL2864" out; then
             echo "Preview output contains the production Google Analytics ID."
+            exit 1
+          fi
+          if grep -R -F -q "www.googletagmanager.com/gtag/js" out; then
+            echo "Preview output contains a Google Analytics loader."
             exit 1
           fi
           if grep -q "/${REPO_NAME}/pr-preview/" out/index.html; then
@@ -198,7 +204,7 @@ jobs:
             const removed = process.env.PR_ACTION === 'closed'
             const body = removed
               ? `${marker}\n## 🧹 PR preview removed\n\nThe preview for this pull request was removed after the PR was closed.`
-              : `${marker}\n## 🚀 PR preview ready\n\n[Open the live preview](${previewUrl})\n\n- Commit: \`${process.env.HEAD_SHA.slice(0, 7)}\`\n- Assets are built for the custom-domain path\n- Updates automatically when new commits are pushed\n- Removed automatically when this pull request is closed`
+              : `${marker}\n## 🚀 PR preview ready\n\n[Open the live preview](${previewUrl})\n\n- Commit: \`${process.env.HEAD_SHA.slice(0, 7)}\`\n- Assets are built for the custom-domain path\n- Cookie notice UI uses isolated preview storage\n- Google Analytics remains disabled in previews\n- Updates automatically when new commits are pushed\n- Removed automatically when this pull request is closed`
 
             const comments = await github.paginate(github.rest.issues.listComments, {
               owner: context.repo.owner,

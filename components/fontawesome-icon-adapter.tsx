@@ -76,6 +76,7 @@ export const ArrowLeft = createFontAwesomeIcon("ArrowLeft", "fa-solid fa-arrow-l
 export const ArrowRight = createFontAwesomeIcon("ArrowRight", "fa-solid fa-arrow-right")
 export const ArrowUp = createFontAwesomeIcon("ArrowUp", "fa-solid fa-arrow-up")
 export const BadgeCheck = createFontAwesomeIcon("BadgeCheck", "fa-solid fa-certificate")
+export const BarChart3 = createFontAwesomeIcon("BarChart3", "fa-solid fa-chart-column")
 export const Bell = createFontAwesomeIcon("Bell", "fa-solid fa-bell")
 export const BookOpen = createFontAwesomeIcon("BookOpen", "fa-solid fa-book-open")
 export const BookOpenCheck = createFontAwesomeIcon("BookOpenCheck", "fa-solid fa-book-open-reader")
