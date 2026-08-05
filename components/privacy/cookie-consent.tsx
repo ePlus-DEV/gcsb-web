@@ -15,7 +15,8 @@ type ConsentChoice = "accepted" | "rejected"
 type AnalyticsWindow = Window & {
   dataLayer?: unknown[][]
   gtag?: (...args: unknown[]) => void
-} & Record<string, unknown>
+  __arcadeGaConfigured?: string
+}
 
 const COPY = {
   en: {
@@ -46,6 +47,14 @@ const COPY = {
 
 function getAnalyticsWindow(): AnalyticsWindow {
   return window as AnalyticsWindow
+}
+
+function setAnalyticsDisabled(
+  googleAnalyticsId: string,
+  disabled: boolean,
+): void {
+  const analyticsFlags = window as unknown as Record<string, unknown>
+  analyticsFlags[`ga-disable-${googleAnalyticsId}`] = disabled
 }
 
 function readStoredChoice(): ConsentChoice | null {
@@ -98,7 +107,7 @@ function disableAnalytics(googleAnalyticsId: string): void {
   if (!googleAnalyticsId) return
 
   const analyticsWindow = getAnalyticsWindow()
-  analyticsWindow[`ga-disable-${googleAnalyticsId}`] = true
+  setAnalyticsDisabled(googleAnalyticsId, true)
   analyticsWindow.gtag?.("consent", "update", {
     analytics_storage: "denied",
   })
@@ -109,21 +118,23 @@ function enableAnalytics(googleAnalyticsId: string): void {
   if (!googleAnalyticsId) return
 
   const analyticsWindow = getAnalyticsWindow()
-  analyticsWindow[`ga-disable-${googleAnalyticsId}`] = false
+  setAnalyticsDisabled(googleAnalyticsId, false)
   analyticsWindow.dataLayer = analyticsWindow.dataLayer ?? []
-  analyticsWindow.gtag =
+
+  const gtag =
     analyticsWindow.gtag ??
     ((...args: unknown[]) => {
       analyticsWindow.dataLayer?.push(args)
     })
+  analyticsWindow.gtag = gtag
 
-  analyticsWindow.gtag("consent", "update", {
+  gtag("consent", "update", {
     analytics_storage: "granted",
   })
 
   if (analyticsWindow.__arcadeGaConfigured !== googleAnalyticsId) {
-    analyticsWindow.gtag("js", new Date())
-    analyticsWindow.gtag("config", googleAnalyticsId, {
+    gtag("js", new Date())
+    gtag("config", googleAnalyticsId, {
       anonymize_ip: true,
     })
     analyticsWindow.__arcadeGaConfigured = googleAnalyticsId
