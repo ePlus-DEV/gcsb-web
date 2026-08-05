@@ -42,7 +42,7 @@ jobs:
           NEXT_STATIC_EXPORT: "true"
           NEXT_PUBLIC_BASE_PATH: ""
           NEXT_PUBLIC_ENABLE_ANALYTICS: "true"
-          NEXT_PUBLIC_GA_IDS: "G-SJNYKL2864,G-41VM0C9NGM"
+          NEXT_PUBLIC_GA_ID: "G-SJNYKL2864"
         run: yarn build
 
       - name: Verify production asset paths and analytics
@@ -53,9 +53,7 @@ jobs:
           grep -q 'src="/_next/' out/index.html
           python3 scripts/verify-google-analytics-html.py \
             out/index.html \
-            G-SJNYKL2864 \
-            G-SJNYKL2864 \
-            G-41VM0C9NGM
+            G-SJNYKL2864
           if grep -q '/gcsb-web/_next/' out/index.html; then
             echo "Production still contains the repository-name base path."
             exit 1

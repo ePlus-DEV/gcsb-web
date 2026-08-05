@@ -1,118 +1,93 @@
 #!/usr/bin/env python3
-"""Verify the Google Analytics bootstraps emitted by Next.js static export."""
+"""Verify the direct Google Analytics scripts in a static HTML export."""
 
 from __future__ import annotations
 
 import argparse
-import json
 import re
 from html.parser import HTMLParser
 from pathlib import Path
-from typing import Any
 
 
 class ScriptCollector(HTMLParser):
-    """Collect inline script contents from an HTML document."""
+    """Collect script attributes and inline bodies from an HTML document."""
 
     def __init__(self) -> None:
         super().__init__()
-        self.scripts: list[str] = []
-        self._current_script: list[str] | None = None
+        self.scripts: list[tuple[dict[str, str | None], str]] = []
+        self._current_attrs: dict[str, str | None] | None = None
+        self._current_body: list[str] = []
 
     def handle_starttag(
         self,
         tag: str,
         attrs: list[tuple[str, str | None]],
     ) -> None:
-        del attrs
-        if tag.lower() == "script":
-            self._current_script = []
+        if tag.lower() != "script":
+            return
+        self._current_attrs = dict(attrs)
+        self._current_body = []
 
     def handle_data(self, data: str) -> None:
-        if self._current_script is not None:
-            self._current_script.append(data)
+        if self._current_attrs is not None:
+            self._current_body.append(data)
 
     def handle_endtag(self, tag: str) -> None:
-        if tag.lower() == "script" and self._current_script is not None:
-            self.scripts.append("".join(self._current_script))
-            self._current_script = None
-
-
-def parse_next_script_payloads(html: str) -> list[list[Any]]:
-    """Decode JSON payloads queued through Next.js' self.__next_s bootstrap."""
-
-    collector = ScriptCollector()
-    collector.feed(html)
-    payloads: list[list[Any]] = []
-
-    for script in collector.scripts:
-        if "self.__next_s" not in script:
-            continue
-
-        match = re.search(r"\.push\((.*)\)\s*;?\s*$", script, re.DOTALL)
-        if not match:
-            continue
-
-        try:
-            payload = json.loads(match.group(1))
-        except json.JSONDecodeError:
-            continue
-
-        if isinstance(payload, list):
-            payloads.append(payload)
-
-    return payloads
+        if tag.lower() != "script" or self._current_attrs is None:
+            return
+        self.scripts.append(
+            (self._current_attrs, "".join(self._current_body)),
+        )
+        self._current_attrs = None
+        self._current_body = []
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("html_path", type=Path)
-    parser.add_argument("primary_id")
-    parser.add_argument("expected_ids", nargs="+")
+    parser.add_argument("expected_id")
     args = parser.parse_args()
 
-    expected_ids = list(dict.fromkeys(args.expected_ids))
-    if not expected_ids or expected_ids[0] != args.primary_id:
-        raise SystemExit("The primary GA ID must be the first expected ID.")
+    collector = ScriptCollector()
+    collector.feed(args.html_path.read_text(encoding="utf-8"))
 
-    html = args.html_path.read_text(encoding="utf-8")
-    payloads = parse_next_script_payloads(html)
-    primary_url = (
-        "https://www.googletagmanager.com/gtag/js?id=" + args.primary_id
+    expected_url = (
+        "https://www.googletagmanager.com/gtag/js?id=" + args.expected_id
     )
-
-    loader_payloads = [
-        payload
-        for payload in payloads
-        if len(payload) == 2
-        and payload[0] == primary_url
-        and isinstance(payload[1], dict)
-        and payload[1].get("id") == "google-analytics"
+    loader_scripts = [
+        attrs
+        for attrs, _body in collector.scripts
+        if (attrs.get("src") or "").split("?", 1)[0]
+        == "https://www.googletagmanager.com/gtag/js"
     ]
-    if len(loader_payloads) != 1:
+    if len(loader_scripts) != 1:
         raise SystemExit(
-            f"Expected exactly one Next.js GA loader for {primary_url}; "
-            f"found {len(loader_payloads)}."
+            "Expected exactly one direct GA loader; "
+            f"found {len(loader_scripts)}."
+        )
+    if (
+        loader_scripts[0].get("id") != "google-analytics"
+        or loader_scripts[0].get("src") != expected_url
+        or "async" not in loader_scripts[0]
+    ):
+        raise SystemExit(
+            "The direct Google Analytics loader must use the expected ID, "
+            "source URL, and async attribute."
         )
 
-    init_payloads = [
-        payload
-        for payload in payloads
-        if len(payload) == 2
-        and payload[0] == 0
-        and isinstance(payload[1], dict)
-        and payload[1].get("id") == "google-analytics-init"
+    init_scripts = [
+        body
+        for attrs, body in collector.scripts
+        if attrs.get("id") == "google-analytics-init"
+        and not attrs.get("src")
     ]
-    if len(init_payloads) != 1:
+    if len(init_scripts) != 1:
         raise SystemExit(
-            "Expected exactly one Next.js Google Analytics init bootstrap; "
-            f"found {len(init_payloads)}."
+            "Expected exactly one direct Google Analytics init script; "
+            f"found {len(init_scripts)}."
         )
 
-    init_script = init_payloads[0][1].get("children")
-    if not isinstance(init_script, str):
-        raise SystemExit("The Google Analytics init bootstrap has no script body.")
-
+    init_script = init_scripts[0]
     if init_script.count('gtag("js", new Date());') != 1:
         raise SystemExit("Expected exactly one gtag JavaScript initialization call.")
 
@@ -120,15 +95,15 @@ def main() -> None:
         r'gtag\("config", "(G-[A-Z0-9]+)"\);',
         init_script,
     )
-    if configured_ids != expected_ids:
+    if configured_ids != [args.expected_id]:
         raise SystemExit(
-            "Unexpected GA configuration order or duplicates. "
-            f"Expected {expected_ids}, found {configured_ids}."
+            "Expected exactly one GA configuration call for "
+            f"{args.expected_id}; found {configured_ids}."
         )
 
     print(
-        "Verified one Google Analytics loader and config calls for: "
-        + ", ".join(configured_ids)
+        "Verified one direct Google Analytics loader and config call for: "
+        + args.expected_id
     )
 
 
