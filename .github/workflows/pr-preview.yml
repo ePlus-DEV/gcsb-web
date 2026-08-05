@@ -114,8 +114,8 @@ jobs:
             echo "Preview output contains the production Google Analytics ID."
             exit 1
           fi
-          if ! grep -R -F -q "arcade-cookie-consent-preview-v1" out; then
-            echo "Preview output does not contain the isolated cookie-consent UI."
+          if ! grep -R -F -q "arcade-cookie-notice-preview-v1" out; then
+            echo "Preview output does not contain the isolated cookie notice UI."
             exit 1
           fi
           if grep -q "/${REPO_NAME}/pr-preview/" out/index.html; then
@@ -203,7 +203,7 @@ jobs:
             const removed = process.env.PR_ACTION === 'closed'
             const body = removed
               ? `${marker}\n## 🧹 PR preview removed\n\nThe preview for this pull request was removed after the PR was closed.`
-              : `${marker}\n## 🚀 PR preview ready\n\n[Open the live preview](${previewUrl})\n\n- Commit: \`${process.env.HEAD_SHA.slice(0, 7)}\`\n- Assets are built for the custom-domain path\n- Cookie consent UI is enabled with isolated preview storage\n- Google Analytics remains disabled in previews\n- Updates automatically when new commits are pushed\n- Removed automatically when this pull request is closed`
+              : `${marker}\n## 🚀 PR preview ready\n\n[Open the live preview](${previewUrl})\n\n- Commit: \`${process.env.HEAD_SHA.slice(0, 7)}\`\n- Assets are built for the custom-domain path\n- Cookie notice UI uses isolated preview storage\n- Google Analytics remains disabled in previews\n- Updates automatically when new commits are pushed\n- Removed automatically when this pull request is closed`
 
             const comments = await github.paginate(github.rest.issues.listComments, {
               owner: context.repo.owner,
