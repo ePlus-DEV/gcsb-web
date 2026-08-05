@@ -175,6 +175,14 @@ export function translateWebsiteText(
   return translateDynamicText(source, sourceCatalog, targetCatalog)
 }
 
+function facilitatorTemplate(
+  targetCatalog: WebsiteCatalog,
+  key: string,
+  fallback: string,
+): string {
+  return targetCatalog.additional[`__facilitator:${key}`] ?? fallback
+}
+
 /** Translates UI strings whose values contain runtime numbers or labels. */
 function translateDynamicText(
   source: string,
@@ -182,7 +190,66 @@ function translateDynamicText(
   targetCatalog: WebsiteCatalog,
 ): string {
   const messages = targetCatalog.dynamic
-  let match = source.match(/^Member since (.+)$/)
+  let match = source.match(/^\+([\d,.]+) bonus · ([\d,.]+) badges left$/)
+  if (match) {
+    return facilitatorTemplate(
+      targetCatalog,
+      "bonusBadgesLeft",
+      "+{bonus} bonus · {count} badges left",
+    )
+      .replace("{bonus}", match[1])
+      .replace("{count}", match[2])
+  }
+
+  match = source.match(/^Potential \+([\d,.]+); participation is not enabled$/)
+  if (match) {
+    return facilitatorTemplate(
+      targetCatalog,
+      "potentialBonus",
+      "Potential +{bonus}; participation is not enabled",
+    ).replace("{bonus}", match[1])
+  }
+
+  match = source.match(/^(\d+)% completed$/)
+  if (match) {
+    return facilitatorTemplate(
+      targetCatalog,
+      "percentCompleted",
+      "{percent}% completed",
+    ).replace("{percent}", match[1])
+  }
+
+  match = source.match(/^(\d+) of (\d+) syllabus badges completed$/)
+  if (match) {
+    return facilitatorTemplate(
+      targetCatalog,
+      "syllabusProgress",
+      "{count} of {total} syllabus badges completed",
+    )
+      .replace("{count}", match[1])
+      .replace("{total}", match[2])
+  }
+
+  match = source.match(/^Earned (.+)$/)
+  if (match) {
+    return facilitatorTemplate(targetCatalog, "earned", "Earned {value}").replace(
+      "{value}",
+      match[1],
+    )
+  }
+
+  match = source.match(/^(\d+) \/ (\d+) profile checks$/)
+  if (match) {
+    return facilitatorTemplate(
+      targetCatalog,
+      "profileChecks",
+      "{count} / {total} profile checks",
+    )
+      .replace("{count}", match[1])
+      .replace("{total}", match[2])
+  }
+
+  match = source.match(/^Member since (.+)$/)
   if (match) return messages.memberSince.replace("{value}", match[1])
 
   match = source.match(/^(\d+) badges? in this view$/)
