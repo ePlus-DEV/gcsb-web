@@ -1,4 +1,5 @@
 import { facilitatorTranslationsAsian } from "./facilitator-translations-asian.mjs"
+import { facilitatorTranslationsFragments } from "./facilitator-translations-fragments.mjs"
 import { facilitatorTranslationsWestern } from "./facilitator-translations-western.mjs"
 
 const SOURCE = {
@@ -84,6 +85,20 @@ const SOURCE = {
   openTrackerConfirm:
     "Open Facilitator Program tracker and confirm participation",
   searchBadges: "Search syllabus badges",
+  filterTrack: "Filter syllabus by learning track",
+  filterStatus: "Filter syllabus by completion status",
+  earnExtra: "Earn an extra +",
+  foundProfile: "found on the public profile.",
+  completeAny: "Complete any",
+  arcadeGamesAnd: "Arcade Games and",
+  syllabusBadgesCompleted: "syllabus badges completed",
+  profileChecksLabel: "profile checks",
+  of: "of",
+  earnedLabel: "Earned",
+  lab: "lab",
+  labs: "labs",
+  credit: "credit",
+  credits: "credits",
 }
 
 const DYNAMIC_FALLBACKS = {
@@ -103,7 +118,10 @@ const translations = {
 export function applyFacilitatorTranslations(catalogs) {
   for (const [locale, catalog] of Object.entries(catalogs)) {
     catalog.additional ??= {}
-    const target = translations[locale] ?? {}
+    const target = {
+      ...(translations[locale] ?? {}),
+      ...(facilitatorTranslationsFragments[locale] ?? {}),
+    }
 
     for (const [key, source] of Object.entries(SOURCE)) {
       catalog.additional[source] = target[key] ?? source
