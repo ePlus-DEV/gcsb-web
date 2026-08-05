@@ -1,3 +1,8 @@
 .facilitator-launcher[hidden] {
   display: none !important;
 }
+
+/* The visible launcher already contains a translated program title. */
+.facilitator-launcher::before {
+  content: none !important;
+}
