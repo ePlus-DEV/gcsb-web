@@ -17,6 +17,7 @@ import "./styles/theme-modes.css"
 import "./styles/header-compact.css"
 import "./styles/theme-light-components.css"
 import "./styles/facilitator-participation.css"
+import "./styles/facilitator-launcher-visibility.css"
 import "./styles/internal-page-theme.css"
 import "./styles/cookie-consent.css"
 
