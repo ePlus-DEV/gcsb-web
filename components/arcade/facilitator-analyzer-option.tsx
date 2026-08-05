@@ -16,6 +16,8 @@ const ANALYZER_SELECTOR = ".profile-analyzer-card"
 const INPUT_SELECTOR =
   'input[aria-label="Google Skills public profile URL"]'
 const HELP_ROW_SELECTOR = ".analyzer-help-row"
+const DRAWER_TOGGLE_SELECTOR =
+  'input[aria-label="Include Facilitator Program bonus in the estimated total"]'
 
 function readStoredProfileUrl(): string {
   try {
@@ -147,6 +149,24 @@ export default function FacilitatorAnalyzerOption() {
       )
     }
   }, [profileUrl])
+
+  useEffect(() => {
+    if (!profileUrl) return
+
+    const syncDrawerToggle = () => {
+      const drawerToggle =
+        document.querySelector<HTMLInputElement>(DRAWER_TOGGLE_SELECTOR)
+      if (!drawerToggle || drawerToggle.checked === participating) return
+
+      drawerToggle.click()
+    }
+
+    syncDrawerToggle()
+    const observer = new MutationObserver(syncDrawerToggle)
+    observer.observe(document.body, { childList: true, subtree: true })
+
+    return () => observer.disconnect()
+  }, [participating, profileUrl])
 
   if (!portalTarget) return null
 
