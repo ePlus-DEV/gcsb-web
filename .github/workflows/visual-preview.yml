@@ -62,6 +62,12 @@ jobs:
             await page.goto('http://127.0.0.1:3000', { waitUntil: 'networkidle' })
             await page.getByRole('button', { name: 'Analyze profile' }).waitFor()
 
+            const facilitatorLauncher = page.locator('.facilitator-launcher')
+            await facilitatorLauncher.waitFor({ state: 'attached' })
+            if (await facilitatorLauncher.isVisible()) {
+              throw new Error('Facilitator launcher is visible before participation is enabled')
+            }
+
             const languageTrigger = page.locator('.website-language-trigger')
             await languageTrigger.waitFor()
             const languageIcon = languageTrigger.locator(':is(.fa-icon, svg)').first()
@@ -109,9 +115,15 @@ jobs:
             await lightPage.locator('html.light').waitFor()
             await lightPage.getByRole('button', { name: 'Analyze profile' }).waitFor()
 
+            const lightLauncher = lightPage.locator('.facilitator-launcher')
+            await lightLauncher.waitFor({ state: 'attached' })
+            if (await lightLauncher.isVisible()) {
+              throw new Error('Light-theme Facilitator launcher is visible before opt-in')
+            }
+
             const lightSurfaceSelectors = [
               '.website-language-trigger',
-              '.facilitator-launcher',
+              '.analyzer-facilitator-option',
               '.dashboard-empty-state',
             ]
             for (const selector of lightSurfaceSelectors) {
@@ -143,7 +155,7 @@ jobs:
             })
             await lightPage.locator('.website-language-trigger').click()
 
-            await lightPage.getByRole('button', { name: /Facilitator/i }).click()
+            await lightPage.getByRole('button', { name: 'View program details' }).click()
             await lightPage.locator('.facilitator-drawer').waitFor()
             await lightPage.screenshot({
               path: 'screenshots/arcade-desktop-light-facilitator-1440x900.png',
@@ -181,6 +193,11 @@ jobs:
             })
             await lightMobilePage.locator('html.light').waitFor()
             await lightMobilePage.getByRole('button', { name: 'Analyze profile' }).waitFor()
+            const lightMobileLauncher = lightMobilePage.locator('.facilitator-launcher')
+            await lightMobileLauncher.waitFor({ state: 'attached' })
+            if (await lightMobileLauncher.isVisible()) {
+              throw new Error('Mobile Facilitator launcher is visible before opt-in')
+            }
             await lightMobilePage.locator('.website-language-trigger').click()
             await lightMobilePage.locator('.website-language-menu').waitFor()
             await lightMobilePage.screenshot({
@@ -197,6 +214,11 @@ jobs:
             await page.setViewportSize({ width: 390, height: 844 })
             await page.goto('http://127.0.0.1:3000', { waitUntil: 'networkidle' })
             await page.getByRole('button', { name: 'Analyze profile' }).waitFor()
+            const mobileLauncher = page.locator('.facilitator-launcher')
+            await mobileLauncher.waitFor({ state: 'attached' })
+            if (await mobileLauncher.isVisible()) {
+              throw new Error('Mobile Facilitator launcher is visible before opt-in')
+            }
             await page.screenshot({
               path: 'screenshots/arcade-mobile-empty-390x844.png',
               fullPage: false,
