@@ -122,12 +122,19 @@ export function applyFacilitatorTranslations(catalogs) {
       ...(translations[locale] ?? {}),
       ...(facilitatorTranslationsFragments[locale] ?? {}),
     }
+    const requireTranslation = locale !== "en"
 
     for (const [key, source] of Object.entries(SOURCE)) {
+      if (requireTranslation && !Object.hasOwn(target, key)) {
+        throw new Error(`Missing Facilitator translation ${locale}.${key}`)
+      }
       catalog.additional[source] = target[key] ?? source
     }
 
     for (const [key, fallback] of Object.entries(DYNAMIC_FALLBACKS)) {
+      if (requireTranslation && !Object.hasOwn(target, key)) {
+        throw new Error(`Missing Facilitator dynamic translation ${locale}.${key}`)
+      }
       catalog.additional[`__facilitator:${key}`] = target[key] ?? fallback
     }
   }
