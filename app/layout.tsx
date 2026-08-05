@@ -10,11 +10,14 @@ import "./styles/redesign-results.css"
 import "./styles/redesign-components.css"
 import "./styles/redesign-responsive.css"
 import "./styles/facilitator-panel.css"
+import "./styles/facilitator-syllabus.css"
 import "./styles/fontawesome-icons.css"
 import "./styles/website-language.css"
 import "./styles/theme-modes.css"
 import "./styles/header-compact.css"
 import "./styles/theme-light-components.css"
+import "./styles/facilitator-participation.css"
+import "./styles/facilitator-launcher-visibility.css"
 import "./styles/internal-page-theme.css"
 import "./styles/cookie-consent.css"
 
@@ -37,6 +40,40 @@ const analyticsEnabled = analyticsRequested && !cookieNoticePreviewMode
 const configuredGoogleAnalyticsId = (process.env.NEXT_PUBLIC_GA_ID ?? "")
   .trim()
   .toUpperCase()
+const websiteCatalogBuildVersion =
+  process.env.GITHUB_SHA ??
+  process.env.VERCEL_GIT_COMMIT_SHA ??
+  process.env.NEXT_PUBLIC_BUILD_VERSION ??
+  "local"
+const websiteCatalogCacheBootstrap = `(() => {
+  const version = ${JSON.stringify(websiteCatalogBuildVersion)};
+  const originalFetch = window.fetch.bind(window);
+
+  window.fetch = (input, init) => {
+    const rawUrl =
+      typeof input === "string"
+        ? input
+        : input instanceof URL
+          ? input.toString()
+          : input instanceof Request
+            ? input.url
+            : "";
+
+    let url;
+    try {
+      url = new URL(rawUrl, window.location.href);
+    } catch {
+      return originalFetch(input, init);
+    }
+
+    if (!url.pathname.includes("/i18n/") || !url.pathname.endsWith(".json")) {
+      return originalFetch(input, init);
+    }
+
+    url.searchParams.set("v", version);
+    return originalFetch(url.toString(), { ...init, cache: "no-store" });
+  };
+})();`
 
 if (analyticsEnabled && configuredGoogleAnalyticsId.length === 0) {
   throw new Error(
@@ -129,6 +166,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       suppressHydrationWarning
     >
       <head>
+        <script
+          id="website-catalog-cache-buster"
+          dangerouslySetInnerHTML={{ __html: websiteCatalogCacheBootstrap }}
+        />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://cdnjs.cloudflare.com" />

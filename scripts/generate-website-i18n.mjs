@@ -1,6 +1,11 @@
 import { gunzipSync } from "node:zlib"
 import { mkdir, readFile, readdir, writeFile } from "node:fs/promises"
 import path from "node:path"
+import { applyFacilitatorLabelTranslations } from "./apply-facilitator-label-translations.mjs"
+import { applyCompleteFacilitatorTranslations } from "./facilitator-translations-complete.mjs"
+import { applyFacilitatorRuntimeFragments } from "./facilitator-translations-runtime-fragments.mjs"
+import { applyVietnameseFacilitatorPolish } from "./facilitator-translations-vi-polish.mjs"
+import { applyFacilitatorTranslations } from "./facilitator-translations.mjs"
 
 const root = process.cwd()
 const sourceDir = path.join(root, "public", "i18n")
@@ -34,6 +39,12 @@ for (const [locale, catalog] of Object.entries(catalogs)) {
         ? "Máy tính điểm Google Cloud Arcade & Theo dõi huy hiệu 2026"
         : fallbackTitle
 }
+
+applyFacilitatorTranslations(catalogs)
+applyFacilitatorLabelTranslations(catalogs)
+applyCompleteFacilitatorTranslations(catalogs)
+applyVietnameseFacilitatorPolish(catalogs)
+applyFacilitatorRuntimeFragments(catalogs)
 
 const englishMessages = catalogs.en?.messages
 if (!englishMessages) {
