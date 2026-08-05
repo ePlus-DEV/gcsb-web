@@ -2,7 +2,6 @@
 
 import {
   BadgeCheck,
-  BookOpenCheck,
   CheckCircle2,
   ChevronRight,
   CircleHelp,
@@ -31,6 +30,7 @@ import type { ArcadeApiResponse } from "./model"
 import { DASHBOARD_STORAGE_KEY, formatNumber, numeric } from "./model"
 
 const SYNC_INTERVAL_MS = 1_500
+const BONUS_MILESTONE_POINTS = 10
 const FOCUSABLE_SELECTOR = [
   "a[href]",
   "button:not([disabled])",
@@ -44,26 +44,26 @@ const MILESTONES = [
   {
     id: "1",
     label: "Milestone 1",
-    bonus: 2,
-    requirements: { games: 6, trivia: 5, skills: 14, labFree: 6 },
+    bonus: 5,
+    requirements: { games: 6, skills: 18 },
   },
   {
     id: "2",
     label: "Milestone 2",
-    bonus: 8,
-    requirements: { games: 8, trivia: 6, skills: 28, labFree: 12 },
+    bonus: 15,
+    requirements: { games: 8, skills: 34 },
   },
   {
     id: "3",
     label: "Milestone 3",
-    bonus: 15,
-    requirements: { games: 10, trivia: 7, skills: 38, labFree: 18 },
+    bonus: 25,
+    requirements: { games: 10, skills: 50 },
   },
   {
     id: "ultimate",
-    label: "Ultimate",
-    bonus: 25,
-    requirements: { games: 12, trivia: 8, skills: 52, labFree: 24 },
+    label: "Ultimate Milestone",
+    bonus: 35,
+    requirements: { games: 12, skills: 66 },
   },
 ] as const
 
@@ -74,9 +74,7 @@ type StoredDashboard = {
 
 type Counts = {
   games: number
-  trivia: number
   skills: number
-  labFree: number
 }
 
 type StatusFilter = "missing" | "completed" | "all"
@@ -100,12 +98,11 @@ function milestoneComplete(
   counts: Counts,
   target: (typeof MILESTONES)[number]["requirements"],
 ): boolean {
-  return (
-    counts.games >= target.games &&
-    counts.trivia >= target.trivia &&
-    counts.skills >= target.skills &&
-    counts.labFree >= target.labFree
-  )
+  return counts.games >= target.games && counts.skills >= target.skills
+}
+
+function calculateArcadePoints(counts: Counts): number {
+  return counts.games + Math.floor(counts.skills / 2)
 }
 
 function percentage(current: number, target: number): number {
@@ -163,9 +160,7 @@ export default function FacilitatorPanel() {
 
     const previousOverflow = document.body.style.overflow
     document.body.style.overflow = "hidden"
-    const focusFrame = window.requestAnimationFrame(() => {
-      closeRef.current?.focus()
-    })
+    const focusFrame = window.requestAnimationFrame(() => closeRef.current?.focus())
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -189,7 +184,10 @@ export default function FacilitatorPanel() {
       const focusIsOutsideDrawer =
         !(activeElement instanceof Node) || !drawer.contains(activeElement)
 
-      if (event.shiftKey && (activeElement === firstElement || focusIsOutsideDrawer)) {
+      if (
+        event.shiftKey &&
+        (activeElement === firstElement || focusIsOutsideDrawer)
+      ) {
         event.preventDefault()
         lastElement.focus()
       } else if (
@@ -215,9 +213,7 @@ export default function FacilitatorPanel() {
   const counts = useMemo<Counts>(
     () => ({
       games: numeric(result?.faciCounts?.faciGame),
-      trivia: numeric(result?.faciCounts?.faciTrivia),
       skills: numeric(result?.faciCounts?.faciSkill),
-      labFree: numeric(result?.faciCounts?.faciCompletion),
     }),
     [result],
   )
@@ -253,8 +249,12 @@ export default function FacilitatorPanel() {
   const nextMilestone =
     MILESTONES.find((item) => !milestoneComplete(counts, item.requirements)) ??
     MILESTONES.at(-1)!
-  const bonus = currentMilestone?.bonus ?? 0
-  const arcadePoints = numeric(result?.arcadePoints?.totalPoints)
+  const milestoneBonus = currentMilestone?.bonus ?? 0
+  const skillPoints = Math.floor(counts.skills / 2)
+  const facilitatorArcadePoints = calculateArcadePoints(counts)
+  const estimatedTotal = facilitatorArcadePoints + milestoneBonus
+  const hasFacilitatorData = Boolean(result?.faciCounts)
+  const completedUltimate = currentMilestone?.id === "ultimate"
 
   const goToCalculator = () => {
     setOpen(false)
@@ -313,8 +313,8 @@ export default function FacilitatorPanel() {
                 </p>
                 <h2 id="facilitator-title">Facilitator Program</h2>
                 <span id="facilitator-description">
-                  Track program activities and find syllabus badges that are
-                  still missing.
+                  Track program activities, calculate points, and find syllabus
+                  badges that are still missing.
                 </span>
               </div>
               <button
@@ -332,7 +332,7 @@ export default function FacilitatorPanel() {
                 <GraduationCap />
                 <strong>Analyze a public profile first</strong>
                 <p>
-                  The checklist uses the same public-profile result as the
+                  The tracker uses the same public-profile result as the
                   calculator.
                 </p>
                 <button type="button" onClick={goToCalculator}>
@@ -343,28 +343,41 @@ export default function FacilitatorPanel() {
               <div className="facilitator-content">
                 <div className="facilitator-score-grid">
                   <article>
-                    <span>Arcade score</span>
-                    <strong>{formatNumber(arcadePoints)}</strong>
-                    <small>Regular Arcade points</small>
+                    <span>Facilitator Arcade points</span>
+                    <strong>{formatNumber(facilitatorArcadePoints)}</strong>
+                    <small>
+                      {counts.games} game pts + {skillPoints} skill pts
+                    </small>
                   </article>
                   <article className="is-bonus">
-                    <span>Facilitator bonus</span>
-                    <strong>+{formatNumber(bonus)}</strong>
-                    <small>Highest completed milestone</small>
+                    <span>Milestone bonus</span>
+                    <strong>+{formatNumber(milestoneBonus)}</strong>
+                    <small>Highest completed milestone only</small>
                   </article>
                   <article className="is-total">
-                    <span>Estimated combined score</span>
-                    <strong>{formatNumber(arcadePoints + bonus)}</strong>
-                    <small>Arcade score + Facilitator bonus</small>
+                    <span>Estimated total</span>
+                    <strong>{formatNumber(estimatedTotal)}</strong>
+                    <small>Optional +10 Bonus Milestone not included</small>
                   </article>
                 </div>
 
-                {!result.faciCounts ? (
+                <div className="facilitator-warning">
+                  <CircleHelp />
+                  <span>
+                    Point formula: each eligible game badge earns 1 point and
+                    every 2 eligible skill badges earn 1 point. The optional
+                    Bonus Milestone adds +{BONUS_MILESTONE_POINTS} points when
+                    completed.
+                  </span>
+                </div>
+
+                {!hasFacilitatorData ? (
                   <div className="facilitator-warning">
                     <CircleHelp />
                     <span>
-                      Facilitator activity totals are unavailable, but the
-                      syllabus checklist still works from earned badge titles.
+                      Facilitator activity totals are unavailable. Badge checklist
+                      matching still works, but the point estimate remains 0 until
+                      the API returns <code>faciCounts</code>.
                     </span>
                   </div>
                 ) : null}
@@ -393,9 +406,9 @@ export default function FacilitatorPanel() {
                     </article>
                     <article>
                       <Trophy />
-                      <span>Top target</span>
+                      <span>Ultimate target</span>
                       <strong>51 + 15</strong>
-                      <small>15 additional catalog badges</small>
+                      <small>66 eligible skill badges total</small>
                     </article>
                   </div>
 
@@ -548,35 +561,27 @@ export default function FacilitatorPanel() {
                 <section className="facilitator-section">
                   <div className="facilitator-section-title">
                     <div>
-                      <h3>Activity progress</h3>
-                      <p>Progress toward {nextMilestone.label}</p>
+                      <h3>Milestone progress</h3>
+                      <p>
+                        {completedUltimate
+                          ? "All standard milestones completed"
+                          : `Progress toward ${nextMilestone.label}`}
+                      </p>
                     </div>
                     <span>{currentMilestone?.label ?? "Not started"}</span>
                   </div>
                   <div className="facilitator-activity-grid">
                     <Activity
                       icon={<Gamepad2 />}
-                      label="Games"
+                      label="Arcade games"
                       current={counts.games}
                       target={nextMilestone.requirements.games}
-                    />
-                    <Activity
-                      icon={<Trophy />}
-                      label="Trivia"
-                      current={counts.trivia}
-                      target={nextMilestone.requirements.trivia}
                     />
                     <Activity
                       icon={<BadgeCheck />}
                       label="Skill badges"
                       current={counts.skills}
                       target={nextMilestone.requirements.skills}
-                    />
-                    <Activity
-                      icon={<BookOpenCheck />}
-                      label="Lab-free courses"
-                      current={counts.labFree}
-                      target={nextMilestone.requirements.labFree}
                     />
                   </div>
                 </section>
@@ -585,7 +590,10 @@ export default function FacilitatorPanel() {
                   <div className="facilitator-section-title">
                     <div>
                       <h3>Facilitator milestones</h3>
-                      <p>Only the highest completed milestone bonus applies.</p>
+                      <p>
+                        Standard milestone bonuses are not cumulative; only the
+                        highest completed milestone applies.
+                      </p>
                     </div>
                   </div>
                   <div className="facilitator-milestones">
@@ -595,6 +603,9 @@ export default function FacilitatorPanel() {
                         milestone.requirements,
                       )
                       const current = currentMilestone?.id === milestone.id
+                      const basePoints = calculateArcadePoints(
+                        milestone.requirements,
+                      )
 
                       return (
                         <article
@@ -609,7 +620,10 @@ export default function FacilitatorPanel() {
                             </span>
                             <div>
                               <strong>{milestone.label}</strong>
-                              <small>+{milestone.bonus} bonus points</small>
+                              <small>
+                                {basePoints} Arcade + {milestone.bonus} Bonus ={" "}
+                                {basePoints + milestone.bonus} points
+                              </small>
                             </div>
                             {current ? <em>Current</em> : null}
                           </div>
@@ -619,16 +633,16 @@ export default function FacilitatorPanel() {
                               <dd>{milestone.requirements.games}</dd>
                             </div>
                             <div>
-                              <dt>Trivia</dt>
-                              <dd>{milestone.requirements.trivia}</dd>
-                            </div>
-                            <div>
                               <dt>Skills</dt>
                               <dd>{milestone.requirements.skills}</dd>
                             </div>
                             <div>
-                              <dt>Lab-free</dt>
-                              <dd>{milestone.requirements.labFree}</dd>
+                              <dt>Arcade</dt>
+                              <dd>{basePoints}</dd>
+                            </div>
+                            <div>
+                              <dt>Bonus</dt>
+                              <dd>+{milestone.bonus}</dd>
                             </div>
                           </dl>
                         </article>
@@ -638,8 +652,11 @@ export default function FacilitatorPanel() {
                 </section>
 
                 <p className="facilitator-disclaimer">
-                  This is an estimate from public-profile data. Final recognition
-                  remains subject to Google&apos;s program records.
+                  The optional Bonus Milestone can add +{BONUS_MILESTONE_POINTS}{" "}
+                  more points and is not included automatically. Google also
+                  requires the program enrolment badges for milestone bonus
+                  eligibility. Final recognition remains subject to Google&apos;s
+                  program records.
                 </p>
               </div>
             )}
