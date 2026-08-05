@@ -1,6 +1,6 @@
 "use client"
 
-import { Settings } from "lucide-react"
+import { Info } from "lucide-react"
 import { COOKIE_PREFERENCES_EVENT } from "@/components/privacy/cookie-consent"
 
 export default function CookiePreferencesButton() {
@@ -10,7 +10,7 @@ export default function CookiePreferencesButton() {
       className="cookie-preferences-trigger"
       onClick={() => window.dispatchEvent(new Event(COOKIE_PREFERENCES_EVENT))}
     >
-      <Settings /> Manage cookie preferences
+      <Info /> Review cookie information
     </button>
   )
 }
