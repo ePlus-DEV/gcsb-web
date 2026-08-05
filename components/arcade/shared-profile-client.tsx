@@ -1,15 +1,30 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
+import { useSearchParams } from "next/navigation"
 import { API_URL, type ArcadeApiResponse, numeric } from "@/components/arcade/model"
 
 const PROFILE_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+const REQUEST_TIMEOUT_MS = 20_000
 
 type State =
   | { status: "loading" }
   | { status: "error"; message: string }
   | { status: "ready"; data: ArcadeApiResponse; profileUrl: string }
 
+/** Returns an HTTPS URL or null for invalid and unsafe values. */
+function safeHttpsUrl(value?: string): string | null {
+  if (!value) return null
+
+  try {
+    const url = new URL(value)
+    return url.protocol === "https:" ? url.toString() : null
+  } catch {
+    return null
+  }
+}
+
+/** Provides the shared-profile page styles. */
 function Styles() {
   return <style>{`
     .shared-profile-page { min-height: 100vh; display: grid; place-items: center; padding: 2rem; background: radial-gradient(circle at top, #172554, #020617 65%); color: #f8fafc; }
@@ -31,12 +46,11 @@ function Styles() {
   `}</style>
 }
 
-export default function SharedProfileClient() {
+/** Fetches and renders one profile selected from the reactive query string. */
+function SharedProfileContent() {
+  const searchParams = useSearchParams()
+  const profileId = (searchParams.get("id") ?? "").trim()
   const [state, setState] = useState<State>({ status: "loading" })
-  const profileId = useMemo(() => {
-    if (typeof window === "undefined") return ""
-    return new URLSearchParams(window.location.search).get("id")?.trim() ?? ""
-  }, [])
 
   useEffect(() => {
     if (!PROFILE_ID_PATTERN.test(profileId)) {
@@ -44,37 +58,81 @@ export default function SharedProfileClient() {
       return
     }
 
+    setState({ status: "loading" })
     const controller = new AbortController()
     const profileUrl = `https://www.skills.google/public_profiles/${profileId}`
+    let timedOut = false
+    const timeout = window.setTimeout(() => {
+      timedOut = true
+      controller.abort()
+    }, REQUEST_TIMEOUT_MS)
 
-    void fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url: profileUrl, season: "2026" }),
-      signal: controller.signal,
-    })
-      .then(async (response) => {
-        const payload = await response.json() as ArcadeApiResponse
-        if (!response.ok || !payload.success) throw new Error(payload.message || "The shared profile could not be loaded.")
+    async function loadProfile() {
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url: profileUrl, season: "2026" }),
+          signal: controller.signal,
+        })
+
+        let payload: ArcadeApiResponse | null = null
+        try {
+          payload = await response.json() as ArcadeApiResponse
+        } catch {
+          // Gateways can return HTML or an empty body. Use the stable message below.
+        }
+
+        if (!response.ok || !payload?.success) {
+          throw new Error(payload?.message || "The shared profile could not be loaded.")
+        }
+
         setState({ status: "ready", data: payload, profileUrl })
-      })
-      .catch((error: unknown) => {
-        if (error instanceof DOMException && error.name === "AbortError") return
-        setState({ status: "error", message: error instanceof Error ? error.message : "The shared profile could not be loaded." })
-      })
+      } catch (error: unknown) {
+        if (error instanceof DOMException && error.name === "AbortError") {
+          if (timedOut) {
+            setState({ status: "error", message: "The request timed out after 20 seconds. Please try again." })
+          }
+          return
+        }
 
-    return () => controller.abort()
+        setState({
+          status: "error",
+          message: error instanceof Error && error.message
+            ? error.message
+            : "The shared profile could not be loaded.",
+        })
+      } finally {
+        window.clearTimeout(timeout)
+      }
+    }
+
+    void loadProfile()
+
+    return () => {
+      window.clearTimeout(timeout)
+      controller.abort()
+    }
   }, [profileId])
 
-  if (state.status === "loading") return <main className="shared-profile-page"><Styles /><div className="shared-profile-card"><p>Loading shared profile…</p></div></main>
+  if (state.status === "loading") {
+    return <main className="shared-profile-page"><Styles /><div className="shared-profile-card"><p>Loading shared profile…</p></div></main>
+  }
 
   if (state.status === "error") {
     return <main className="shared-profile-page"><Styles /><div className="shared-profile-card"><h1>Profile unavailable</h1><p>{state.message}</p><a className="shared-profile-primary" href="../">Check your own profile</a></div></main>
   }
 
   const profile = state.data.userDetails?.[0]
+  const profileImage = safeHttpsUrl(profile?.profileImage)
   const points = numeric(state.data.arcadePoints?.totalPoints)
-  const badges = state.data.badges ?? [...(state.data.game ?? []), ...(state.data.trivia ?? []), ...(state.data.skill ?? []), ...(state.data.completion ?? []), ...(state.data.special ?? [])]
+  const badges = state.data.badges ?? [
+    ...(state.data.game ?? []),
+    ...(state.data.trivia ?? []),
+    ...(state.data.skill ?? []),
+    ...(state.data.completion ?? []),
+    ...(state.data.special ?? []),
+  ]
 
   return (
     <main className="shared-profile-page">
@@ -82,7 +140,7 @@ export default function SharedProfileClient() {
       <article className="shared-profile-card">
         <p className="shared-profile-kicker">Shared Google Cloud Arcade profile</p>
         <div className="shared-profile-heading">
-          {profile?.profileImage ? <img src={profile.profileImage} alt="" /> : null}
+          {profileImage ? <img src={profileImage} alt="" referrerPolicy="no-referrer" /> : null}
           <div><h1>{profile?.userName || "Google Skills learner"}</h1><p>{profile?.memberSince ? `Member since ${profile.memberSince}` : "Public Google Skills profile"}</p></div>
         </div>
         <div className="shared-profile-stats">
@@ -96,5 +154,14 @@ export default function SharedProfileClient() {
         </div>
       </article>
     </main>
+  )
+}
+
+/** Supplies the Suspense boundary required by static App Router exports. */
+export default function SharedProfileClient() {
+  return (
+    <Suspense fallback={<main className="shared-profile-page"><Styles /><div className="shared-profile-card"><p>Loading shared profile…</p></div></main>}>
+      <SharedProfileContent />
+    </Suspense>
   )
 }
