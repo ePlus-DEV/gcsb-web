@@ -110,12 +110,13 @@ jobs:
           set -euo pipefail
           test -f out/index.html
           grep -q "${PREVIEW_PATH}/_next/" out/index.html
+          grep -q 'name="cookie-notice-preview" content="true"' out/index.html
           if grep -R -F -q "G-SJNYKL2864" out; then
             echo "Preview output contains the production Google Analytics ID."
             exit 1
           fi
-          if ! grep -R -F -q "arcade-cookie-notice-preview-v1" out; then
-            echo "Preview output does not contain the isolated cookie notice UI."
+          if grep -R -F -q "www.googletagmanager.com/gtag/js" out; then
+            echo "Preview output contains a Google Analytics loader."
             exit 1
           fi
           if grep -q "/${REPO_NAME}/pr-preview/" out/index.html; then
