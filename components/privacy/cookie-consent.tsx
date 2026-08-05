@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { BarChart3, Check, ChevronDown, ShieldCheck, X } from "lucide-react"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { getWebsiteLocaleFromPathname } from "@/lib/website-i18n"
 
 export const COOKIE_PREFERENCES_EVENT = "arcade:open-cookie-preferences"
@@ -16,7 +16,7 @@ const COPY = {
     eyebrow: "Cookie information",
     title: "We use cookies and analytics",
     description:
-      "Essential browser storage supports core features. Google Analytics is enabled to measure anonymous usage and improve the service.",
+      "Essential storage supports core features. Google Analytics measures anonymous usage so we can improve the service.",
     usageTitle: "Cookie usage details",
     essentialTitle: "Essential storage",
     essentialStatus: "Always active",
@@ -42,7 +42,7 @@ const COPY = {
     eyebrow: "Thông tin cookie",
     title: "Chúng tôi sử dụng cookie và analytics",
     description:
-      "Bộ nhớ thiết yếu hỗ trợ các chức năng chính. Google Analytics luôn được bật để đo lường dữ liệu sử dụng ẩn danh và cải thiện dịch vụ.",
+      "Bộ nhớ thiết yếu hỗ trợ chức năng chính. Google Analytics đo lường dữ liệu sử dụng ẩn danh để cải thiện dịch vụ.",
     usageTitle: "Chi tiết sử dụng cookie",
     essentialTitle: "Bộ nhớ thiết yếu",
     essentialStatus: "Luôn hoạt động",
@@ -54,7 +54,7 @@ const COPY = {
     analyticsDescription:
       "Thu thập dữ liệu tổng hợp như lượt xem trang và thông tin trình duyệt hoặc thiết bị. Dịch vụ này không truy cập tài khoản Google hay dữ liệu hồ sơ riêng tư của bạn.",
     preview:
-      "Chế độ xem trước: popup được hiển thị để kiểm tra giao diện nhưng Google Analytics không được tải tại URL preview.",
+      "Chế độ xem trước: banner được hiển thị để kiểm tra giao diện nhưng Google Analytics không được tải tại URL preview.",
     moreTitle: "Thông tin thêm",
     moreDescription:
       "Xem Chính sách quyền riêng tư để biết chi tiết về dữ liệu được lưu, dịch vụ bên thứ ba và phương thức liên hệ.",
@@ -92,7 +92,6 @@ export default function CookieConsent({
   previewMode = false,
 }: CookieConsentProps) {
   const pathname = usePathname()
-  const dialogRef = useRef<HTMLElement>(null)
   const [isOpen, setIsOpen] = useState(false)
   const [showDetails, setShowDetails] = useState(false)
   const copy = useMemo(
@@ -110,9 +109,8 @@ export default function CookieConsent({
   useEffect(() => {
     if (!noticeEnabled) return
 
-    const shouldOpen = !readAcknowledgement(storageKey)
     setShowDetails(false)
-    setIsOpen(shouldOpen)
+    setIsOpen(!readAcknowledgement(storageKey))
 
     const openNotice = () => {
       setShowDetails(false)
@@ -125,21 +123,6 @@ export default function CookieConsent({
     }
   }, [noticeEnabled, storageKey])
 
-  useEffect(() => {
-    if (!isOpen) return
-
-    dialogRef.current?.focus()
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") return
-      storeAcknowledgement(storageKey)
-      setShowDetails(false)
-      setIsOpen(false)
-    }
-
-    window.addEventListener("keydown", handleKeyDown)
-    return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [isOpen, storageKey])
-
   function acknowledgeNotice() {
     storeAcknowledgement(storageKey)
     setShowDetails(false)
@@ -151,19 +134,42 @@ export default function CookieConsent({
   return (
     <div className="cookie-consent-layer">
       <section
-        ref={dialogRef}
         className={`cookie-consent-card${showDetails ? " is-expanded" : ""}`}
-        role="dialog"
-        aria-modal="true"
+        role="region"
         aria-labelledby="cookie-consent-title"
         aria-describedby="cookie-consent-description"
-        tabIndex={-1}
       >
-        <header className="cookie-consent-header">
-          <div>
+        <div className="cookie-consent-main">
+          <div className="cookie-consent-icon" aria-hidden="true">
+            <ShieldCheck />
+          </div>
+
+          <div className="cookie-consent-copy">
             <span className="cookie-consent-eyebrow">{copy.eyebrow}</span>
             <h2 id="cookie-consent-title">{copy.title}</h2>
+            <p id="cookie-consent-description">{copy.description}</p>
           </div>
+
+          <div className="cookie-consent-actions">
+            <button
+              type="button"
+              className="cookie-consent-detail-button"
+              aria-expanded={showDetails}
+              aria-controls="cookie-consent-details"
+              onClick={() => setShowDetails((visible) => !visible)}
+            >
+              <ChevronDown aria-hidden="true" />
+              {showDetails ? copy.hideDetails : copy.showDetails}
+            </button>
+            <button
+              type="button"
+              className="cookie-consent-button"
+              onClick={acknowledgeNotice}
+            >
+              {copy.acknowledge}
+            </button>
+          </div>
+
           <button
             type="button"
             className="cookie-consent-close"
@@ -172,100 +178,76 @@ export default function CookieConsent({
           >
             <X />
           </button>
-        </header>
-
-        <div className="cookie-consent-body">
-          <p id="cookie-consent-description" className="cookie-consent-intro">
-            {copy.description}
-          </p>
-
-          {previewMode ? (
-            <p className="cookie-consent-preview" role="status">
-              {copy.preview}
-            </p>
-          ) : null}
-
-          {showDetails ? (
-            <div id="cookie-consent-details" className="cookie-consent-details">
-              <h3>{copy.usageTitle}</h3>
-
-              <div className="cookie-consent-categories">
-                <details className="cookie-consent-category">
-                  <summary>
-                    <span className="cookie-category-chevron" aria-hidden="true">
-                      <ChevronDown />
-                    </span>
-                    <span className="cookie-category-name">
-                      <ShieldCheck />
-                      {copy.essentialTitle}
-                    </span>
-                    <span className="cookie-category-status">
-                      {copy.essentialStatus}
-                    </span>
-                    <span className="cookie-category-switch is-on" aria-hidden="true">
-                      <Check />
-                    </span>
-                  </summary>
-                  <p>{copy.essentialDescription}</p>
-                </details>
-
-                <details className="cookie-consent-category">
-                  <summary>
-                    <span className="cookie-category-chevron" aria-hidden="true">
-                      <ChevronDown />
-                    </span>
-                    <span className="cookie-category-name">
-                      <BarChart3 />
-                      {copy.analyticsTitle}
-                    </span>
-                    <span className="cookie-category-status">
-                      {previewMode
-                        ? copy.analyticsPreviewStatus
-                        : copy.analyticsStatus}
-                    </span>
-                    <span
-                      className={
-                        previewMode
-                          ? "cookie-category-switch is-preview"
-                          : "cookie-category-switch is-on"
-                      }
-                      aria-hidden="true"
-                    >
-                      <Check />
-                    </span>
-                  </summary>
-                  <p>{copy.analyticsDescription}</p>
-                </details>
-              </div>
-
-              <div className="cookie-consent-more">
-                <strong>{copy.moreTitle}</strong>
-                <p>{copy.moreDescription}</p>
-                <Link href="/privacy/">{copy.privacy}</Link>
-              </div>
-            </div>
-          ) : null}
         </div>
 
-        <footer className="cookie-consent-footer">
-          <button
-            type="button"
-            className="cookie-consent-detail-button"
-            aria-expanded={showDetails}
-            aria-controls="cookie-consent-details"
-            onClick={() => setShowDetails((visible) => !visible)}
-          >
-            <ChevronDown aria-hidden="true" />
-            {showDetails ? copy.hideDetails : copy.showDetails}
-          </button>
-          <button
-            type="button"
-            className="cookie-consent-button"
-            onClick={acknowledgeNotice}
-          >
-            {copy.acknowledge}
-          </button>
-        </footer>
+        {showDetails ? (
+          <div id="cookie-consent-details" className="cookie-consent-details">
+            <h3>{copy.usageTitle}</h3>
+
+            <div className="cookie-consent-categories">
+              <details className="cookie-consent-category">
+                <summary>
+                  <span className="cookie-category-chevron" aria-hidden="true">
+                    <ChevronDown />
+                  </span>
+                  <span className="cookie-category-name">
+                    <ShieldCheck />
+                    {copy.essentialTitle}
+                  </span>
+                  <span className="cookie-category-status">
+                    {copy.essentialStatus}
+                  </span>
+                  <span className="cookie-category-switch is-on" aria-hidden="true">
+                    <Check />
+                  </span>
+                </summary>
+                <p>{copy.essentialDescription}</p>
+              </details>
+
+              <details className="cookie-consent-category">
+                <summary>
+                  <span className="cookie-category-chevron" aria-hidden="true">
+                    <ChevronDown />
+                  </span>
+                  <span className="cookie-category-name">
+                    <BarChart3 />
+                    {copy.analyticsTitle}
+                  </span>
+                  <span className="cookie-category-status">
+                    {previewMode
+                      ? copy.analyticsPreviewStatus
+                      : copy.analyticsStatus}
+                  </span>
+                  <span
+                    className={
+                      previewMode
+                        ? "cookie-category-switch is-preview"
+                        : "cookie-category-switch is-on"
+                    }
+                    aria-hidden="true"
+                  >
+                    <Check />
+                  </span>
+                </summary>
+                <p>{copy.analyticsDescription}</p>
+              </details>
+            </div>
+
+            {previewMode ? (
+              <p className="cookie-consent-preview" role="status">
+                {copy.preview}
+              </p>
+            ) : null}
+
+            <div className="cookie-consent-more">
+              <div>
+                <strong>{copy.moreTitle}</strong>
+                <p>{copy.moreDescription}</p>
+              </div>
+              <Link href="/privacy/">{copy.privacy}</Link>
+            </div>
+          </div>
+        ) : null}
       </section>
     </div>
   )
