@@ -29,9 +29,11 @@ const fontAwesomeUrl =
 const fontAwesomeIntegrity =
   "sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
 const googleAnalyticsIdPattern = /^G-[A-Z0-9]+$/
-const analyticsEnabled = process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === "true"
+const analyticsRequested =
+  process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === "true"
 const cookieNoticePreviewMode =
   process.env.NEXT_PUBLIC_COOKIE_CONSENT_PREVIEW === "true"
+const analyticsEnabled = analyticsRequested && !cookieNoticePreviewMode
 const configuredGoogleAnalyticsId = (process.env.NEXT_PUBLIC_GA_ID ?? "")
   .trim()
   .toUpperCase()
@@ -138,6 +140,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           crossOrigin="anonymous"
           referrerPolicy="no-referrer"
         />
+        {cookieNoticePreviewMode ? (
+          <meta name="cookie-notice-preview" content="true" />
+        ) : null}
         {googleAnalyticsId ? (
           <>
             <meta name="google-analytics-id" content={googleAnalyticsId} />
