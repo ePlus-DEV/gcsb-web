@@ -121,9 +121,18 @@ jobs:
               'Take Your Google Cloud & AI Skills to the Next Level',
             ]
 
+            const lines = text
+              .split('\n')
+              .map((line) => line.trim())
+              .filter(Boolean)
             const leaks = forbiddenEnglishUi.filter((value) => text.includes(value))
+            if (lines.includes('Game')) leaks.push('Game')
+            if (lines.some((line) => /^\d+% completed$/.test(line))) {
+              leaks.push('{percent}% completed')
+            }
+
             if (leaks.length) {
-              throw new Error(`Untranslated Facilitator UI: ${leaks.join(', ')}`)
+              throw new Error(`Untranslated Facilitator UI: ${[...new Set(leaks)].join(', ')}`)
             }
 
             await browser.close()
