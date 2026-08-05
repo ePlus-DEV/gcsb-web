@@ -124,7 +124,7 @@ function milestoneComplete(
   return counts.games >= target.games && counts.skills >= target.skills
 }
 
-function calculateArcadePoints(counts: Counts): number {
+function regularArcadePointsForActivities(counts: Counts): number {
   return counts.games + Math.floor(counts.skills / 2)
 }
 
@@ -289,9 +289,8 @@ export default function FacilitatorPanel() {
     MILESTONES.find((item) => !milestoneComplete(counts, item.requirements)) ??
     MILESTONES.at(-1)!
   const milestoneBonus = currentMilestone?.bonus ?? 0
-  const skillPoints = Math.floor(counts.skills / 2)
-  const facilitatorArcadePoints = calculateArcadePoints(counts)
-  const estimatedTotal = facilitatorArcadePoints + milestoneBonus
+  const overallArcadePoints = numeric(result?.arcadePoints?.totalPoints)
+  const estimatedTotal = overallArcadePoints + milestoneBonus
   const hasFacilitatorData = Boolean(result?.faciCounts)
   const completedUltimate = currentMilestone?.id === "ultimate"
   const completedMilestoneOne = milestoneComplete(
@@ -381,8 +380,8 @@ export default function FacilitatorPanel() {
                 </p>
                 <h2 id="facilitator-title">Facilitator Program</h2>
                 <span id="facilitator-description">
-                  Track program activities, calculate points, and find syllabus
-                  badges that are still missing.
+                  Track Facilitator milestone bonuses and find syllabus badges
+                  that are still missing.
                 </span>
               </div>
               <button
@@ -411,19 +410,19 @@ export default function FacilitatorPanel() {
               <div className="facilitator-content">
                 <div className="facilitator-score-grid">
                   <article>
-                    <span>Facilitator Arcade points</span>
-                    <strong>{formatNumber(facilitatorArcadePoints)}</strong>
+                    <span>Overall Arcade points</span>
+                    <strong>{formatNumber(overallArcadePoints)}</strong>
                     <small>
-                      {counts.games} game pts + {skillPoints} skill pts
+                      Includes regular points earned from games and skill badges
                     </small>
                   </article>
                   <article className="is-bonus">
-                    <span>Milestone bonus</span>
+                    <span>Facilitator bonus</span>
                     <strong>+{formatNumber(milestoneBonus)}</strong>
                     <small>Highest completed milestone only</small>
                   </article>
                   <article className="is-total">
-                    <span>Estimated total</span>
+                    <span>Estimated total after bonus</span>
                     <strong>{formatNumber(estimatedTotal)}</strong>
                     <small>Optional +10 Bonus Milestone not included</small>
                   </article>
@@ -432,10 +431,10 @@ export default function FacilitatorPanel() {
                 <div className="facilitator-warning">
                   <CircleHelp />
                   <span>
-                    Point formula: each eligible game badge earns 1 point and
-                    every 2 eligible skill badges earn 1 point. The optional
-                    Bonus Milestone adds +{BONUS_MILESTONE_POINTS} points when
-                    completed.
+                    Facilitator game and skill-badge counts are used only to
+                    determine the milestone bonus. Their regular Arcade points
+                    are already included in the overall score and are not added a
+                    second time.
                   </span>
                 </div>
 
@@ -443,9 +442,9 @@ export default function FacilitatorPanel() {
                   <div className="facilitator-warning">
                     <CircleHelp />
                     <span>
-                      Facilitator activity totals are unavailable. Badge checklist
-                      matching still works, but the point estimate remains 0 until
-                      the API returns <code>faciCounts</code>.
+                      Facilitator activity totals are unavailable, so the
+                      milestone bonus cannot be estimated yet. The overall Arcade
+                      score and badge checklist can still be shown.
                     </span>
                   </div>
                 ) : null}
@@ -659,8 +658,9 @@ export default function FacilitatorPanel() {
                     <div>
                       <h3>Facilitator milestones</h3>
                       <p>
-                        Standard milestone bonuses are not cumulative; only the
-                        highest completed milestone applies.
+                        Facilitator contributes only the bonus shown for the
+                        highest milestone reached; standard activity points are
+                        part of the regular Arcade score.
                       </p>
                     </div>
                   </div>
@@ -671,7 +671,7 @@ export default function FacilitatorPanel() {
                         milestone.requirements,
                       )
                       const current = currentMilestone?.id === milestone.id
-                      const basePoints = calculateArcadePoints(
+                      const regularPoints = regularArcadePointsForActivities(
                         milestone.requirements,
                       )
 
@@ -689,8 +689,7 @@ export default function FacilitatorPanel() {
                             <div>
                               <strong>{milestone.label}</strong>
                               <small>
-                                {basePoints} Arcade + {milestone.bonus} Bonus ={" "}
-                                {basePoints + milestone.bonus} points
+                                +{milestone.bonus} Facilitator bonus points
                               </small>
                             </div>
                             {current ? <em>Current</em> : null}
@@ -705,11 +704,11 @@ export default function FacilitatorPanel() {
                               <dd>{milestone.requirements.skills}</dd>
                             </div>
                             <div>
-                              <dt>Arcade</dt>
-                              <dd>{basePoints}</dd>
+                              <dt>Regular Arcade</dt>
+                              <dd>{regularPoints}</dd>
                             </div>
                             <div>
-                              <dt>Bonus</dt>
+                              <dt>Facilitator bonus</dt>
                               <dd>+{milestone.bonus}</dd>
                             </div>
                           </dl>
@@ -724,7 +723,7 @@ export default function FacilitatorPanel() {
                     <div>
                       <h3>Bonus Milestone</h3>
                       <p>
-                        Earn an extra +{BONUS_MILESTONE_POINTS} points by
+                        Earn an extra +{BONUS_MILESTONE_POINTS} bonus points by
                         completing the GEAR and AI agent verification steps.
                       </p>
                     </div>
@@ -874,11 +873,11 @@ export default function FacilitatorPanel() {
                 </section>
 
                 <p className="facilitator-disclaimer">
-                  The optional Bonus Milestone can add +{BONUS_MILESTONE_POINTS}{" "}
-                  more points and is not included automatically. Public-profile
-                  matching cannot confirm Free Trial signup, AI agent creation,
-                  or verification-form approval. Final recognition remains
-                  subject to Google&apos;s program records.
+                  Facilitator milestones add bonus points to the existing Arcade
+                  total; game and skill-badge points are not counted twice. The
+                  optional Bonus Milestone can add +{BONUS_MILESTONE_POINTS} more
+                  bonus points after Google verifies the submitted form. Final
+                  recognition remains subject to Google&apos;s program records.
                 </p>
               </div>
             )}
