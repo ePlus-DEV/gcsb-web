@@ -1,5 +1,6 @@
 export const FACILITATOR_PARTICIPATION_EVENT =
   "arcade-facilitator-participation-change"
+export const FACILITATOR_PANEL_OPEN_EVENT = "arcade-facilitator-panel-open"
 
 const PARTICIPATION_STORAGE_PREFIX =
   "arcade-facilitator-participation-v1"
