@@ -16,7 +16,6 @@ export default function ShareProfileEnhancer() {
 
     function installButton() {
       if (disposed || document.querySelector("[data-share-profile-button]")) return
-
       const target = document.querySelector(".profile-name-block")
       if (!target) return
 
@@ -35,10 +34,8 @@ export default function ShareProfileEnhancer() {
           if (!match?.[1]) throw new Error("Profile ID unavailable")
 
           const url = `${window.location.origin}${getLocalePrefix()}/profile/?id=${match[1]}`
-          const title = "Google Cloud Arcade profile"
-
           if (navigator.share) {
-            await navigator.share({ title, url })
+            await navigator.share({ title: "Google Cloud Arcade profile", url })
             return
           }
 
@@ -65,5 +62,20 @@ export default function ShareProfileEnhancer() {
     }
   }, [])
 
-  return null
+  return (
+    <style>{`
+      .share-profile-button {
+        margin-top: .65rem;
+        border: 1px solid rgba(255,255,255,.2);
+        border-radius: 999px;
+        background: rgba(255,255,255,.08);
+        color: inherit;
+        padding: .5rem .85rem;
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .share-profile-button:hover { background: rgba(255,255,255,.14); }
+    `}</style>
+  )
 }
