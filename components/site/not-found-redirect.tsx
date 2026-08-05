@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
-import { ArrowLeft, Gamepad2, Home, TimerReset } from "lucide-react"
+import { ArrowLeft, Clock, Gamepad2, Home } from "lucide-react"
 import { WEBSITE_LOCALES } from "@/lib/website-i18n"
 
 const REDIRECT_DELAY_SECONDS = 5
@@ -91,7 +91,7 @@ export default function NotFoundRedirect() {
           </div>
 
           <div className="relative mx-auto mb-7 flex h-28 w-28 items-center justify-center rounded-full border border-cyan-300/20 bg-cyan-300/10 shadow-[0_0_50px_rgba(34,211,238,.12)]">
-            <TimerReset className="absolute h-12 w-12 text-cyan-200/20" aria-hidden="true" />
+            <Clock className="absolute h-12 w-12 text-cyan-200/20" aria-hidden="true" />
             <span className="relative text-4xl font-extrabold text-white" aria-hidden="true">
               {secondsRemaining}
             </span>
