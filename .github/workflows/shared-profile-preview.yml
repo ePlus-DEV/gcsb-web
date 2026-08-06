@@ -111,8 +111,12 @@ jobs:
             if ((await page.locator('.shared-badge').count()) !== 6) {
               throw new Error('Shared profile badge grid did not render all mock badges')
             }
+            if ((await page.locator('.shared-summary-grid > .shared-panel').count()) !== 2) {
+              throw new Error('Shared profile summary must contain tier and badge breakdown panels')
+            }
             await page.locator('.shared-hero').waitFor()
-            await page.locator('.shared-tier-visual').waitFor()
+            await page.getByRole('heading', { name: 'Arcade tier' }).waitFor()
+            await page.getByRole('heading', { name: 'Badge breakdown' }).waitFor()
             await page.locator('.shared-badges-panel').waitFor()
 
             await page.screenshot({
