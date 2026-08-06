@@ -5,7 +5,7 @@ import {
   ExternalLink,
   Gamepad2,
   LoaderCircle,
-  Share2,
+  Share,
   Sparkles,
   Star,
   Trophy,
@@ -210,7 +210,7 @@ function SharedProfileContent() {
           <em>PRO</em>
         </a>
         <nav className="arcade-nav"><a className="active" href="#score">Score</a><a href="#badges">Badges</a></nav>
-        <div className="arcade-header-actions"><button className="header-store-link is-chrome" type="button" onClick={shareProfile}><Share2 /><span>{copied ? "Copied" : "Share"}</span></button></div>
+        <div className="arcade-header-actions"><button className="header-store-link is-chrome" type="button" onClick={shareProfile}><Share /><span>{copied ? "Copied" : "Share"}</span></button></div>
       </header>
 
       <section className="dashboard-shell" aria-label="Shared Arcade score">
@@ -233,7 +233,7 @@ function SharedProfileContent() {
                   <div className="public-progress-track" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(tier.progress)}><div className="public-progress-fill" style={{ width: `${tier.progress}%` }} /></div>
                   <p className="public-progress-note">{tier.next ? `${formatNumber(tier.remaining)} points remaining` : tier.current ? tierRangeLabel(tier.current) : `${OFFICIAL_MILESTONES[0].points} points to the first tier`}</p>
                 </div>
-                <div className="public-profile-actions"><button className="is-primary" type="button" onClick={shareProfile}><Share2 /> Share score</button><a href={state.profileUrl} target="_blank" rel="noreferrer noopener">Google Skills <ExternalLink /></a></div>
+                <div className="public-profile-actions"><button className="is-primary" type="button" onClick={shareProfile}><Share /> Share score</button><a href={state.profileUrl} target="_blank" rel="noreferrer noopener">Google Skills <ExternalLink /></a></div>
               </div>
             </div>
           </article>
