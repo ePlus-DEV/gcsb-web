@@ -16,6 +16,8 @@ const ANALYZER_SELECTOR = ".profile-analyzer-card"
 const INPUT_SELECTOR = 'input[aria-label="Google Skills public profile URL"]'
 const HELP_ROW_SELECTOR = ".analyzer-help-row"
 const AUTO_FETCH_STORAGE_KEY = "gcsb-auto-fetch-latest-profile"
+const BADGE_DATE_SELECTOR = ".earned-badge time"
+const BADGE_DATE_SOURCE_ATTRIBUTE = "data-source-date"
 const SUPPORTED_LOCALES = new Set([
   "ar", "de", "es", "fr", "hi", "it", "ja", "ko", "pt-br", "ru", "vi", "zh-cn",
 ])
@@ -122,14 +124,28 @@ const COPY: Record<string, Copy> = {
   },
 }
 
+function normalizeLocale(value: string | null | undefined): string {
+  const normalized = value?.trim().toLowerCase().replace("_", "-") ?? ""
+  if (normalized === "pt" || normalized.startsWith("pt-")) return "pt-br"
+  if (normalized === "zh" || normalized.startsWith("zh-")) return "zh-cn"
+  const language = normalized.split("-")[0]
+  return SUPPORTED_LOCALES.has(normalized)
+    ? normalized
+    : SUPPORTED_LOCALES.has(language)
+      ? language
+      : "en"
+}
+
 function getLocale(): string {
   if (typeof window === "undefined") return "en"
   const basePath = (process.env.NEXT_PUBLIC_BASE_PATH ?? "").replace(/\/$/, "")
   const pathname = basePath && window.location.pathname.startsWith(basePath)
     ? window.location.pathname.slice(basePath.length)
     : window.location.pathname
-  const segment = pathname.split("/").filter(Boolean)[0]?.toLowerCase()
-  return segment && SUPPORTED_LOCALES.has(segment) ? segment : "en"
+  const segment = pathname.split("/").filter(Boolean)[0]
+  const pathLocale = normalizeLocale(segment)
+  if (pathLocale !== "en" || /^en(?:[-_]|$)/i.test(segment ?? "")) return pathLocale
+  return normalizeLocale(document.documentElement.lang)
 }
 
 function readStoredProfileUrl(): string {
@@ -171,6 +187,28 @@ function setInputValue(input: HTMLInputElement, value: string): void {
   input.dispatchEvent(new Event("change", { bubbles: true }))
 }
 
+function localizeBadgeDates(locale: string): void {
+  const formatter = new Intl.DateTimeFormat(locale, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  })
+
+  document.querySelectorAll<HTMLElement>(BADGE_DATE_SELECTOR).forEach((element) => {
+    const source = element.getAttribute(BADGE_DATE_SOURCE_ATTRIBUTE) || element.textContent?.trim()
+    if (!source || source === "Earned badge") return
+
+    const parsed = new Date(source)
+    if (Number.isNaN(parsed.getTime())) return
+
+    if (!element.hasAttribute(BADGE_DATE_SOURCE_ATTRIBUTE)) {
+      element.setAttribute(BADGE_DATE_SOURCE_ATTRIBUTE, parsed.toISOString())
+    }
+    const formatted = formatter.format(parsed)
+    if (element.textContent !== formatted) element.textContent = formatted
+  })
+}
+
 export default function FacilitatorAnalyzerOption() {
   const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null)
   const [inputProfileUrl, setInputProfileUrl] = useState("")
@@ -180,11 +218,31 @@ export default function FacilitatorAnalyzerOption() {
   const [autoFetchLoaded, setAutoFetchLoaded] = useState(false)
   const [locale, setLocale] = useState("en")
   const autoFetchAttempted = useRef(false)
+  const previousProfileUrl = useRef("")
   const copy = COPY[locale] ?? COPY.en
 
   useEffect(() => {
-    setLocale(getLocale())
+    const syncLocale = () => setLocale(getLocale())
+    syncLocale()
+    const observer = new MutationObserver(syncLocale)
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["lang"],
+    })
+    window.addEventListener("popstate", syncLocale)
+    return () => {
+      observer.disconnect()
+      window.removeEventListener("popstate", syncLocale)
+    }
   }, [])
+
+  useEffect(() => {
+    const syncDates = () => localizeBadgeDates(locale)
+    syncDates()
+    const observer = new MutationObserver(syncDates)
+    observer.observe(document.body, { childList: true, subtree: true })
+    return () => observer.disconnect()
+  }, [locale])
 
   useEffect(() => {
     let currentInput: HTMLInputElement | null = null
@@ -236,13 +294,31 @@ export default function FacilitatorAnalyzerOption() {
     }
   }, [])
 
-  const profileUrl = useMemo(() => validProfileUrl(inputProfileUrl) || validProfileUrl(storedProfileUrl), [inputProfileUrl, storedProfileUrl])
+  const profileUrl = useMemo(
+    () => validProfileUrl(inputProfileUrl) || validProfileUrl(storedProfileUrl),
+    [inputProfileUrl, storedProfileUrl],
+  )
 
   useEffect(() => {
-    if (!profileUrl) {
-      setParticipating(false)
+    const previous = previousProfileUrl.current
+    previousProfileUrl.current = profileUrl
+
+    if (profileUrl) {
+      if (previous && previous !== profileUrl) autoFetchAttempted.current = false
       return
     }
+    if (!previous) return
+
+    autoFetchAttempted.current = false
+    setParticipating(false)
+    if (autoFetchLatest) {
+      setAutoFetchLatest(false)
+      writeAutoFetchPreference(false)
+    }
+  }, [autoFetchLatest, profileUrl])
+
+  useEffect(() => {
+    if (!profileUrl) return
     const sync = () => setParticipating(readFacilitatorParticipation(profileUrl))
     const onParticipationChange = (event: Event) => {
       const detail = (event as CustomEvent<FacilitatorParticipationDetail>).detail
@@ -298,10 +374,11 @@ export default function FacilitatorAnalyzerOption() {
         <span className="analyzer-facilitator-switch" aria-hidden="true" />
       </label>
 
-      <label className={`analyzer-facilitator-option${autoFetchLatest ? " is-active" : ""}`}>
+      <label className={`analyzer-facilitator-option${autoFetchLatest ? " is-active" : ""}${profileUrl ? "" : " is-disabled"}`}>
         <input
           type="checkbox"
           checked={autoFetchLatest}
+          disabled={!profileUrl}
           onChange={(event) => {
             const checked = event.target.checked
             autoFetchAttempted.current = false
@@ -313,7 +390,9 @@ export default function FacilitatorAnalyzerOption() {
         <span className="analyzer-facilitator-icon" aria-hidden="true"><RefreshCcw /></span>
         <span className="analyzer-facilitator-copy">
           <strong>{copy.autoFetch}</strong>
-          <small id="analyzer-auto-fetch-description">{copy.autoFetchDescription}</small>
+          <small id="analyzer-auto-fetch-description">
+            {profileUrl ? copy.autoFetchDescription : copy.pasteValid}
+          </small>
         </span>
         <span className="analyzer-facilitator-switch" aria-hidden="true" />
       </label>

@@ -85,9 +85,12 @@ jobs:
             await facilitatorOption.waitFor()
             await autoFetchOption.waitFor()
             await autoFetchOption.getByText(
-              'Refresh the saved profile once whenever this page is opened.',
+              'Paste a valid public profile URL to enable this option.',
               { exact: true },
             ).waitFor()
+            if (!(await autoFetchOption.locator('input[type="checkbox"]').isDisabled())) {
+              throw new Error('Auto-fetch switch should be disabled without a valid profile URL')
+            }
 
             if (await page.getByText('View program details', { exact: true }).count()) {
               throw new Error('Removed program details action is still rendered')
@@ -173,11 +176,17 @@ jobs:
             await page.waitForURL((url) => /\/vi\/?$/.test(url.pathname))
             await page.locator('html[lang="vi"][dir="ltr"][data-locale="vi"]').waitFor()
             await page.getByRole('button', { name: 'Phân tích hồ sơ' }).waitFor()
-            await page.getByText('Tự động lấy dữ liệu mới nhất', { exact: true }).waitFor()
-            await page.getByText(
-              'Tự làm mới hồ sơ đã lưu một lần mỗi khi mở trang.',
+            const viAutoFetchOption = page.locator('.analyzer-facilitator-option').filter({
+              hasText: 'Tự động lấy dữ liệu mới nhất',
+            })
+            await viAutoFetchOption.waitFor()
+            await viAutoFetchOption.getByText(
+              'Dán URL hồ sơ công khai hợp lệ để bật tùy chọn này.',
               { exact: true },
             ).waitFor()
+            if (!(await viAutoFetchOption.locator('input[type="checkbox"]').isDisabled())) {
+              throw new Error('Vietnamese auto-fetch switch should be disabled without a valid profile URL')
+            }
             await assertNoHorizontalOverflow(page, 'Vietnamese mobile homepage')
             await page.screenshot({
               path: 'screenshots/arcade-mobile-vi-390x844.png',
