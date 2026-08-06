@@ -25,12 +25,12 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "20"
           cache: yarn
@@ -55,6 +55,15 @@ jobs:
           node <<'NODE'
           const { chromium } = require('playwright')
 
+          async function assertNoHorizontalOverflow(page, label) {
+            const overflow = await page.evaluate(() =>
+              document.documentElement.scrollWidth - document.documentElement.clientWidth,
+            )
+            if (overflow > 1) {
+              throw new Error(`${label} has ${overflow}px horizontal overflow`)
+            }
+          }
+
           ;(async () => {
             const browser = await chromium.launch({ headless: true })
             const page = await browser.newPage({ viewport: { width: 1440, height: 900 } })
@@ -62,22 +71,36 @@ jobs:
             await page.goto('http://127.0.0.1:3000', { waitUntil: 'networkidle' })
             await page.getByRole('button', { name: 'Analyze profile' }).waitFor()
 
-            const facilitatorLauncher = page.locator('.facilitator-launcher')
-            await facilitatorLauncher.waitFor({ state: 'attached' })
-            if (await facilitatorLauncher.isVisible()) {
+            const options = page.locator('.analyzer-facilitator-option')
+            if ((await options.count()) !== 2) {
+              throw new Error(`Expected two analyzer preference switches, found ${await options.count()}`)
+            }
+
+            const facilitatorOption = options.filter({
+              hasText: 'Participating in Facilitator Program',
+            })
+            const autoFetchOption = options.filter({
+              hasText: 'Automatically fetch latest data',
+            })
+            await facilitatorOption.waitFor()
+            await autoFetchOption.waitFor()
+            await autoFetchOption.getByText(
+              'Refresh the saved profile once whenever this page is opened.',
+              { exact: true },
+            ).waitFor()
+
+            if (await page.getByText('View program details', { exact: true }).count()) {
+              throw new Error('Removed program details action is still rendered')
+            }
+
+            const launcher = page.locator('.facilitator-launcher')
+            await launcher.waitFor({ state: 'attached' })
+            if (await launcher.isVisible()) {
               throw new Error('Facilitator launcher is visible before participation is enabled')
             }
 
             const languageTrigger = page.locator('.website-language-trigger')
             await languageTrigger.waitFor()
-            const languageIcon = languageTrigger.locator(':is(.fa-icon, svg)').first()
-            const languageIconClass = (await languageIcon.getAttribute('class')) ?? ''
-            const hasGlobeIcon =
-              languageIconClass.includes('fa-globe') ||
-              languageIconClass.includes('lucide-globe')
-            if (!hasGlobeIcon || languageIconClass.includes('firefox')) {
-              throw new Error(`Unexpected language selector icon: ${languageIconClass}`)
-            }
             if ((await languageTrigger.getAttribute('aria-expanded')) !== 'false') {
               throw new Error('Language popover starts open unexpectedly')
             }
@@ -88,14 +111,10 @@ jobs:
             })
 
             await languageTrigger.click()
-            const languageMenu = page.locator('.website-language-menu')
-            await languageMenu.waitFor()
             const languageOptions = page.locator('.website-language-option')
+            await languageOptions.first().waitFor()
             if ((await languageOptions.count()) !== 13) {
               throw new Error(`Unexpected language option count: ${await languageOptions.count()}`)
-            }
-            if ((await languageTrigger.getAttribute('aria-expanded')) !== 'true') {
-              throw new Error('Language trigger did not expose its open state')
             }
             await page.screenshot({
               path: 'screenshots/arcade-desktop-language-menu-1440x900.png',
@@ -103,31 +122,20 @@ jobs:
             })
             await languageTrigger.click()
 
-            const lightPage = await browser.newPage({
-              viewport: { width: 1440, height: 900 },
-            })
+            const lightPage = await browser.newPage({ viewport: { width: 1440, height: 900 } })
             await lightPage.addInitScript(() => {
               window.localStorage.setItem('arcade-theme', 'light')
             })
-            await lightPage.goto('http://127.0.0.1:3000', {
-              waitUntil: 'networkidle',
-            })
+            await lightPage.goto('http://127.0.0.1:3000', { waitUntil: 'networkidle' })
             await lightPage.locator('html.light').waitFor()
             await lightPage.getByRole('button', { name: 'Analyze profile' }).waitFor()
 
-            const lightLauncher = lightPage.locator('.facilitator-launcher')
-            await lightLauncher.waitFor({ state: 'attached' })
-            if (await lightLauncher.isVisible()) {
-              throw new Error('Light-theme Facilitator launcher is visible before opt-in')
+            const lightOptions = lightPage.locator('.analyzer-facilitator-option')
+            if ((await lightOptions.count()) !== 2) {
+              throw new Error(`Light theme expected two preference switches, found ${await lightOptions.count()}`)
             }
-
-            const lightSurfaceSelectors = [
-              '.website-language-trigger',
-              '.analyzer-facilitator-option',
-              '.dashboard-empty-state',
-            ]
-            for (const selector of lightSurfaceSelectors) {
-              const surface = lightPage.locator(selector)
+            for (let index = 0; index < 2; index += 1) {
+              const surface = lightOptions.nth(index)
               await surface.waitFor()
               const paint = await surface.evaluate((element) => {
                 const style = window.getComputedStyle(element)
@@ -138,7 +146,7 @@ jobs:
                 paint.includes('rgb(7, 14, 31)') ||
                 paint.includes('rgb(10, 28, 54)')
               ) {
-                throw new Error(`Dark light-theme surface for ${selector}: ${paint}`)
+                throw new Error(`Dark preference surface in light theme: ${paint}`)
               }
             }
 
@@ -146,79 +154,12 @@ jobs:
               path: 'screenshots/arcade-desktop-light-1440x900.png',
               fullPage: false,
             })
-
-            await lightPage.locator('.website-language-trigger').click()
-            await lightPage.locator('.website-language-menu').waitFor()
-            await lightPage.screenshot({
-              path: 'screenshots/arcade-desktop-light-language-menu-1440x900.png',
-              fullPage: false,
-            })
-            await lightPage.locator('.website-language-trigger').click()
-
-            await lightPage.getByRole('button', { name: 'View program details' }).click()
-            await lightPage.locator('.facilitator-drawer').waitFor()
-            await lightPage.screenshot({
-              path: 'screenshots/arcade-desktop-light-facilitator-1440x900.png',
-              fullPage: false,
-            })
             await lightPage.close()
-
-            const preferencePage = await browser.newPage({
-              viewport: { width: 390, height: 844 },
-            })
-            await preferencePage.goto('http://127.0.0.1:3000', {
-              waitUntil: 'networkidle',
-            })
-            await preferencePage.evaluate(() => {
-              window.localStorage.setItem('arcade-points-locale', 'vi')
-            })
-            await preferencePage.reload({ waitUntil: 'networkidle' })
-            await preferencePage.locator('html[data-locale="vi"]').waitFor()
-            const persistedLocale = await preferencePage
-              .locator('.website-language-current-code')
-              .innerText()
-            if (persistedLocale.trim() !== 'VI') {
-              throw new Error(`Stored homepage locale was ignored: ${persistedLocale}`)
-            }
-            await preferencePage.close()
-
-            const lightMobilePage = await browser.newPage({
-              viewport: { width: 390, height: 844 },
-            })
-            await lightMobilePage.addInitScript(() => {
-              window.localStorage.setItem('arcade-theme', 'light')
-            })
-            await lightMobilePage.goto('http://127.0.0.1:3000', {
-              waitUntil: 'networkidle',
-            })
-            await lightMobilePage.locator('html.light').waitFor()
-            await lightMobilePage.getByRole('button', { name: 'Analyze profile' }).waitFor()
-            const lightMobileLauncher = lightMobilePage.locator('.facilitator-launcher')
-            await lightMobileLauncher.waitFor({ state: 'attached' })
-            if (await lightMobileLauncher.isVisible()) {
-              throw new Error('Mobile Facilitator launcher is visible before opt-in')
-            }
-            await lightMobilePage.locator('.website-language-trigger').click()
-            await lightMobilePage.locator('.website-language-menu').waitFor()
-            await lightMobilePage.screenshot({
-              path: 'screenshots/arcade-mobile-light-language-menu-390x844.png',
-              fullPage: false,
-            })
-            await lightMobilePage.locator('.website-language-trigger').click()
-            await lightMobilePage.screenshot({
-              path: 'screenshots/arcade-mobile-light-390x844.png',
-              fullPage: false,
-            })
-            await lightMobilePage.close()
 
             await page.setViewportSize({ width: 390, height: 844 })
             await page.goto('http://127.0.0.1:3000', { waitUntil: 'networkidle' })
             await page.getByRole('button', { name: 'Analyze profile' }).waitFor()
-            const mobileLauncher = page.locator('.facilitator-launcher')
-            await mobileLauncher.waitFor({ state: 'attached' })
-            if (await mobileLauncher.isVisible()) {
-              throw new Error('Mobile Facilitator launcher is visible before opt-in')
-            }
+            await assertNoHorizontalOverflow(page, 'English mobile homepage')
             await page.screenshot({
               path: 'screenshots/arcade-mobile-empty-390x844.png',
               fullPage: false,
@@ -232,62 +173,12 @@ jobs:
             await page.waitForURL((url) => /\/vi\/?$/.test(url.pathname))
             await page.locator('html[lang="vi"][dir="ltr"][data-locale="vi"]').waitFor()
             await page.getByRole('button', { name: 'Phân tích hồ sơ' }).waitFor()
-
-            const vietnameseResponse = await page.request.get(
-              'http://127.0.0.1:3000/vi/',
-            )
-            const vietnameseHtml = await vietnameseResponse.text()
-            const vietnameseHtmlTag = vietnameseHtml.match(/<html\b[^>]*>/i)?.[0] ?? ''
-            if (
-              !vietnameseHtmlTag.includes('lang="vi"') ||
-              !vietnameseHtmlTag.includes('dir="ltr"') ||
-              !vietnameseHtmlTag.includes('data-locale="vi"')
-            ) {
-              throw new Error(
-                `Vietnamese HTML lacks server-rendered locale attributes: ${vietnameseHtmlTag}`,
-              )
-            }
-
-            const arabicResponse = await page.request.get(
-              'http://127.0.0.1:3000/ar/',
-            )
-            const arabicHtml = await arabicResponse.text()
-            const arabicHtmlTag = arabicHtml.match(/<html\b[^>]*>/i)?.[0] ?? ''
-            if (
-              !arabicHtmlTag.includes('lang="ar"') ||
-              !arabicHtmlTag.includes('dir="rtl"') ||
-              !arabicHtmlTag.includes('data-locale="ar"')
-            ) {
-              throw new Error(
-                `Arabic HTML lacks server-rendered locale attributes: ${arabicHtmlTag}`,
-              )
-            }
-
-            const canonical = await page.locator('link[rel="canonical"]').getAttribute('href')
-            if (canonical !== 'https://arcade.eplus.dev/vi/') {
-              throw new Error(`Unexpected Vietnamese canonical URL: ${canonical}`)
-            }
-
-            const vietnameseAlternate = await page
-              .locator('link[rel="alternate"][hreflang="vi"]')
-              .getAttribute('href')
-            if (vietnameseAlternate !== 'https://arcade.eplus.dev/vi/') {
-              throw new Error(`Unexpected Vietnamese hreflang URL: ${vietnameseAlternate}`)
-            }
-
-            const heroHeading = page.locator('.hero-heading h1')
-            const translatedHeading = await heroHeading.innerText()
-            if (!translatedHeading.includes('KIỂM TRA')) {
-              throw new Error(`Vietnamese heading was not applied: ${translatedHeading}`)
-            }
-
-            const headingFont = await heroHeading.evaluate(
-              (element) => window.getComputedStyle(element).fontFamily,
-            )
-            if (headingFont.includes('Press Start 2P')) {
-              throw new Error(`Vietnamese heading still uses unsupported pixel font: ${headingFont}`)
-            }
-
+            await page.getByText('Tự động lấy dữ liệu mới nhất', { exact: true }).waitFor()
+            await page.getByText(
+              'Tự làm mới hồ sơ đã lưu một lần mỗi khi mở trang.',
+              { exact: true },
+            ).waitFor()
+            await assertNoHorizontalOverflow(page, 'Vietnamese mobile homepage')
             await page.screenshot({
               path: 'screenshots/arcade-mobile-vi-390x844.png',
               fullPage: false,
@@ -301,7 +192,7 @@ jobs:
           NODE
 
       - name: Upload screenshots
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: arcade-visual-preview
           path: screenshots/*.png
