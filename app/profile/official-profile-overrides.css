@@ -1,0 +1,191 @@
+/* Public profile pages inherit the same theme tokens and controls as the main dashboard. */
+.public-profile-page,
+.official-profile-page {
+  color-scheme: light dark;
+}
+
+/* Never hide the global theme control on shared profile routes. */
+body:has(.public-profile-page) .website-theme-toggle,
+body:has(.official-profile-page) .website-theme-toggle {
+  display: inline-grid !important;
+}
+
+/* Public-score additions in dark mode. */
+html.dark .public-score-main {
+  border-color: rgba(124, 92, 255, 0.18);
+  background: linear-gradient(135deg, rgba(124, 92, 255, 0.14), rgba(30, 34, 66, 0.35));
+}
+
+html.dark .public-tier-card {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(16, 19, 40, 0.46);
+}
+
+html.dark .public-breakdown-item {
+  border-color: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.035);
+}
+
+html.dark .public-progress-track {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+html.dark .public-profile-actions a,
+html.dark .public-profile-actions button {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Matching light-mode treatment using the homepage palette. */
+html.light .public-score-main {
+  border-color: rgba(124, 58, 237, 0.17);
+  background: linear-gradient(135deg, #faf5ff, #eef4ff 58%, #ffffff);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+html.light .public-profile-avatar {
+  border-color: rgba(79, 70, 229, 0.38);
+  background: linear-gradient(145deg, #e0e7ff, #f3e8ff);
+  color: #4338ca;
+}
+
+html.light .public-profile-person h1,
+html.light .public-score-number strong,
+html.light .public-tier-name strong,
+html.light .public-breakdown-item strong {
+  color: #172033;
+}
+
+html.light .public-profile-person p,
+html.light .public-score-number span,
+html.light .public-tier-name span,
+html.light .public-progress-head,
+html.light .public-progress-note,
+html.light .public-breakdown-item span {
+  color: #64748b;
+}
+
+html.light .public-tier-card {
+  border-color: rgba(100, 116, 139, 0.16);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 12px 28px rgba(51, 65, 85, 0.08);
+}
+
+html.light .public-progress-track {
+  background: #dbe3f2;
+}
+
+html.light .public-progress-fill {
+  background: linear-gradient(90deg, #6d28d9, #0891b2);
+}
+
+html.light .public-breakdown-item {
+  border-color: rgba(100, 116, 139, 0.14);
+  background: rgba(255, 255, 255, 0.86);
+}
+
+html.light .public-profile-actions a,
+html.light .public-profile-actions button {
+  border-color: rgba(100, 116, 139, 0.2);
+  background: #ffffff;
+  color: #334155;
+}
+
+html.light .public-profile-actions a:hover,
+html.light .public-profile-actions button:hover {
+  border-color: rgba(124, 58, 237, 0.35);
+  background: #f5f3ff;
+  color: #6d28d9;
+}
+
+html.light .public-profile-actions .is-primary {
+  border-color: transparent;
+  background: linear-gradient(135deg, #6d28d9, #4f46e5);
+  color: #ffffff;
+}
+
+html.light .public-profile-loading .dashboard-panel {
+  border-color: rgba(100, 116, 139, 0.16);
+  background: rgba(255, 255, 255, 0.94);
+  color: #172033;
+}
+
+/* Keep the summary icon and text blocks vertically aligned. */
+.shared-stat {
+  align-items: center !important;
+}
+
+.shared-stat-icon {
+  margin: 0 !important;
+  display: inline-grid !important;
+  place-items: center !important;
+  align-self: center;
+  line-height: 0;
+}
+
+.shared-stat-icon svg {
+  display: block;
+  width: 21px;
+  height: 21px;
+  margin: 0;
+  flex: none;
+}
+
+.shared-stat > div {
+  min-width: 0;
+  display: grid;
+  align-content: center;
+  gap: 0.33rem;
+}
+
+.shared-stat > div > strong,
+.shared-stat > div > span {
+  margin: 0 !important;
+}
+
+/* Keep the legacy official-profile layout responsive if an old preview is cached. */
+.official-profile-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.official-badges-panel {
+  order: 1;
+  width: 100%;
+}
+
+.official-profile-sidebar {
+  order: 2;
+  position: static;
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.official-badge-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+@media (max-width: 1080px) {
+  .official-badge-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 820px) {
+  .official-badge-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .official-profile-sidebar {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .official-badge-grid {
+    grid-template-columns: 1fr;
+  }
+}
