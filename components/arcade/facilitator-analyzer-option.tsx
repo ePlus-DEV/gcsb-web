@@ -122,14 +122,28 @@ const COPY: Record<string, Copy> = {
   },
 }
 
+function normalizeLocale(value: string | null | undefined): string {
+  const normalized = value?.trim().toLowerCase().replace("_", "-") ?? ""
+  if (normalized === "pt" || normalized.startsWith("pt-")) return "pt-br"
+  if (normalized === "zh" || normalized.startsWith("zh-")) return "zh-cn"
+  const language = normalized.split("-")[0]
+  return SUPPORTED_LOCALES.has(normalized)
+    ? normalized
+    : SUPPORTED_LOCALES.has(language)
+      ? language
+      : "en"
+}
+
 function getLocale(): string {
   if (typeof window === "undefined") return "en"
   const basePath = (process.env.NEXT_PUBLIC_BASE_PATH ?? "").replace(/\/$/, "")
   const pathname = basePath && window.location.pathname.startsWith(basePath)
     ? window.location.pathname.slice(basePath.length)
     : window.location.pathname
-  const segment = pathname.split("/").filter(Boolean)[0]?.toLowerCase()
-  return segment && SUPPORTED_LOCALES.has(segment) ? segment : "en"
+  const segment = pathname.split("/").filter(Boolean)[0]
+  const pathLocale = normalizeLocale(segment)
+  if (pathLocale !== "en" || segment?.toLowerCase() === "en") return pathLocale
+  return normalizeLocale(document.documentElement.lang)
 }
 
 function readStoredProfileUrl(): string {
@@ -183,7 +197,18 @@ export default function FacilitatorAnalyzerOption() {
   const copy = COPY[locale] ?? COPY.en
 
   useEffect(() => {
-    setLocale(getLocale())
+    const syncLocale = () => setLocale(getLocale())
+    syncLocale()
+    const observer = new MutationObserver(syncLocale)
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["lang"],
+    })
+    window.addEventListener("popstate", syncLocale)
+    return () => {
+      observer.disconnect()
+      window.removeEventListener("popstate", syncLocale)
+    }
   }, [])
 
   useEffect(() => {
@@ -236,13 +261,23 @@ export default function FacilitatorAnalyzerOption() {
     }
   }, [])
 
-  const profileUrl = useMemo(() => validProfileUrl(inputProfileUrl) || validProfileUrl(storedProfileUrl), [inputProfileUrl, storedProfileUrl])
+  const profileUrl = useMemo(
+    () => validProfileUrl(inputProfileUrl) || validProfileUrl(storedProfileUrl),
+    [inputProfileUrl, storedProfileUrl],
+  )
 
   useEffect(() => {
-    if (!profileUrl) {
-      setParticipating(false)
-      return
+    if (profileUrl) return
+    autoFetchAttempted.current = false
+    setParticipating(false)
+    if (autoFetchLatest) {
+      setAutoFetchLatest(false)
+      writeAutoFetchPreference(false)
     }
+  }, [autoFetchLatest, profileUrl])
+
+  useEffect(() => {
+    if (!profileUrl) return
     const sync = () => setParticipating(readFacilitatorParticipation(profileUrl))
     const onParticipationChange = (event: Event) => {
       const detail = (event as CustomEvent<FacilitatorParticipationDetail>).detail
@@ -298,10 +333,11 @@ export default function FacilitatorAnalyzerOption() {
         <span className="analyzer-facilitator-switch" aria-hidden="true" />
       </label>
 
-      <label className={`analyzer-facilitator-option${autoFetchLatest ? " is-active" : ""}`}>
+      <label className={`analyzer-facilitator-option${autoFetchLatest ? " is-active" : ""}${profileUrl ? "" : " is-disabled"}`}>
         <input
           type="checkbox"
           checked={autoFetchLatest}
+          disabled={!profileUrl}
           onChange={(event) => {
             const checked = event.target.checked
             autoFetchAttempted.current = false
@@ -313,7 +349,9 @@ export default function FacilitatorAnalyzerOption() {
         <span className="analyzer-facilitator-icon" aria-hidden="true"><RefreshCcw /></span>
         <span className="analyzer-facilitator-copy">
           <strong>{copy.autoFetch}</strong>
-          <small id="analyzer-auto-fetch-description">{copy.autoFetchDescription}</small>
+          <small id="analyzer-auto-fetch-description">
+            {profileUrl ? copy.autoFetchDescription : copy.pasteValid}
+          </small>
         </span>
         <span className="analyzer-facilitator-switch" aria-hidden="true" />
       </label>
