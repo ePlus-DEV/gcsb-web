@@ -9,15 +9,8 @@ import { WEBSITE_LOCALES } from "@/lib/website-i18n"
 const REDIRECT_DELAY_SECONDS = 5
 const PROFILE_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
-function getPathWithoutBase(pathname: string): string {
-  const basePath = (process.env.NEXT_PUBLIC_BASE_PATH || "").replace(/\/$/, "")
-  return basePath && pathname.startsWith(basePath)
-    ? pathname.slice(basePath.length)
-    : pathname
-}
-
 function getProfileRedirectHref(pathname: string): string | null {
-  const segments = getPathWithoutBase(pathname).split("/").filter(Boolean)
+  const segments = pathname.split("/").filter(Boolean)
   const route = segments[0]?.toLowerCase()
   const profileId = segments[1]
   const isProfileRoute = route === "profiles" || route === "public_profiles"
@@ -29,7 +22,7 @@ function getProfileRedirectHref(pathname: string): string | null {
 
 /** Keeps 404 redirects inside the locale that was requested, when possible. */
 function getLocalizedHomeHref(pathname: string): string {
-  const firstSegment = getPathWithoutBase(pathname).split("/").filter(Boolean)[0]
+  const firstSegment = pathname.split("/").filter(Boolean)[0]
   const locale = WEBSITE_LOCALES.find(
     (item) =>
       item.path && item.path.toLowerCase() === firstSegment?.toLowerCase(),
