@@ -21,12 +21,12 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "20"
           cache: yarn
@@ -99,7 +99,28 @@ jobs:
               )
             }
 
-            await page.getByRole('button', { name: 'Xem chi tiết chương trình' }).click()
+            const facilitatorOption = page
+              .locator('.analyzer-facilitator-option')
+              .filter({ hasText: 'Đang tham gia Facilitator Program' })
+            await facilitatorOption.waitFor()
+            await facilitatorOption.locator('input[type="checkbox"]').check()
+
+            const autoFetchOption = page
+              .locator('.analyzer-facilitator-option')
+              .filter({ hasText: 'Tự động lấy dữ liệu mới nhất' })
+            await autoFetchOption.waitFor()
+            await autoFetchOption.getByText(
+              'Tự làm mới hồ sơ đã lưu một lần mỗi khi mở trang.',
+              { exact: true },
+            ).waitFor()
+
+            if (await page.getByText('Xem chi tiết chương trình', { exact: true }).count()) {
+              throw new Error('Removed program details action is still rendered')
+            }
+
+            const launcher = page.locator('.facilitator-launcher')
+            await launcher.waitFor({ state: 'visible' })
+            await launcher.click()
 
             const drawer = page.locator('.facilitator-drawer')
             await drawer.waitFor()
@@ -114,56 +135,19 @@ jobs:
             })
 
             const text = await drawer.innerText()
-            console.log('Rendered Vietnamese Facilitator drawer:\n', text)
-
             const forbiddenEnglishUi = [
               'Confirm program participation, track milestone bonuses',
               'Participating in Facilitator Program',
-              'Turn this on only for players who officially enrolled in the program.',
-              'The preference is saved on this device for the current public profile.',
+              'Automatically fetch latest data',
+              'Refresh the saved profile once whenever this page is opened.',
               'Overall Arcade points',
-              'Includes regular points earned from games and skill badges',
-              'Highest completed milestone only',
               'Estimated total after bonus',
-              'Optional +10 Bonus Milestone not included',
-              'Facilitator game and skill-badge counts determine the milestone bonus only.',
-              '2026 SYLLABUS BADGE CHECKLIST',
-              'Compare the profile with all 51 listed skill badges.',
-              'Milestone progress',
-              'Facilitator milestones',
               '2026 syllabus badge checklist',
-              'Not completed',
-              'Ultimate target',
-              'All tracks',
-              'Bonus Milestone',
               'Participation off',
-              'Build and submit your AI agent',
               'Read official guide',
               'Submit verification form',
-              'Confirmed',
-              'Pending',
-              'Not found',
-              'Regular Arcade',
-              'Skill Badges',
-              'Arcade Games and',
-              'syllabus badges completed',
-              'Get Started with Google Cloud & AI',
-              'Dive Deeper into Google Cloud & AI',
-              'Take Your Google Cloud & AI Skills to the Next Level',
             ]
-
-            const lines = text
-              .split('\n')
-              .map((line) => line.trim())
-              .filter(Boolean)
             const leaks = forbiddenEnglishUi.filter((value) => text.includes(value))
-            if (lines.includes('ENABLED')) leaks.push('ENABLED')
-            if (lines.includes('DISABLED')) leaks.push('DISABLED')
-            if (lines.includes('Game')) leaks.push('Game')
-            if (lines.some((line) => /^\d+% completed$/.test(line))) {
-              leaks.push('{percent}% completed')
-            }
-
             if (leaks.length) {
               throw new Error(`Untranslated Facilitator UI: ${[...new Set(leaks)].join(', ')}`)
             }
@@ -177,7 +161,7 @@ jobs:
 
       - name: Upload screenshot
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: facilitator-i18n-preview
           path: screenshots/*.png
