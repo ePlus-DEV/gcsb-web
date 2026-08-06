@@ -128,6 +128,7 @@ export const RefreshCcw = createFontAwesomeIcon("RefreshCcw", "fa-solid fa-rotat
 export const RotateCcw = createFontAwesomeIcon("RotateCcw", "fa-solid fa-rotate-left")
 export const Search = createFontAwesomeIcon("Search", "fa-solid fa-magnifying-glass")
 export const Settings = createFontAwesomeIcon("Settings", "fa-solid fa-gear")
+export const Share = createFontAwesomeIcon("Share", "fa-solid fa-share-nodes")
 export const Shield = createFontAwesomeIcon("Shield", "fa-solid fa-shield")
 export const ShieldCheck = createFontAwesomeIcon("ShieldCheck", "fa-solid fa-shield-halved")
 export const Sparkles = createFontAwesomeIcon("Sparkles", "fa-solid fa-wand-magic-sparkles")
