@@ -1,0 +1,151 @@
+name: Shared Profile Preview
+
+on:
+  pull_request:
+    paths:
+      - "app/profile/**"
+      - "app/[locale]/profile/**"
+      - "components/arcade/shared-profile-client.tsx"
+      - "components/fontawesome-icon-adapter.tsx"
+      - ".github/workflows/shared-profile-preview.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  profile-screenshots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --non-interactive
+
+      - name: Build
+        run: yarn build
+
+      - name: Install Chromium
+        run: yarn playwright install --with-deps chromium
+
+      - name: Start production server
+        run: |
+          yarn start --hostname 127.0.0.1 --port 3000 > /tmp/gcsb-web-profile.log 2>&1 &
+          yarn wait-on http://127.0.0.1:3000
+
+      - name: Capture official-style shared profile
+        run: |
+          mkdir -p screenshots
+          node <<'NODE'
+          const { chromium } = require('playwright')
+
+          const profileId = 'f41c688e-40d2-489d-9850-000000000001'
+          const badge = (title, dateEarned, points, color) => ({
+            title,
+            dateEarned,
+            points,
+            imageURL: `data:image/svg+xml,${encodeURIComponent(`
+              <svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180">
+                <circle cx="90" cy="90" r="76" fill="${color}"/>
+                <circle cx="90" cy="90" r="55" fill="white" fill-opacity=".92"/>
+                <path d="M90 48l12 25 28 4-20 20 5 28-25-13-25 13 5-28-20-20 28-4z" fill="${color}"/>
+              </svg>
+            `)}`,
+            badgeURL: 'https://www.skills.google/',
+          })
+
+          const payload = {
+            success: true,
+            userDetails: [{
+              userName: 'Nguyen Hoang',
+              memberSince: '2024',
+              profileImage: '',
+            }],
+            arcadePoints: { totalPoints: 72.5 },
+            game: [
+              badge('Arcade Adventure: Cloud Foundations', 'Aug 2, 2026', 1, '#4285f4'),
+              badge('Arcade Voyage: Build with AI', 'Jul 29, 2026', 1, '#34a853'),
+            ],
+            skill: [
+              badge('Build Infrastructure with Terraform on Google Cloud', 'Aug 1, 2026', 0.5, '#ea4335'),
+              badge('Develop Serverless Apps with Firebase', 'Jul 27, 2026', 0.5, '#fbbc04'),
+              badge('Create ML Models with BigQuery ML', 'Jul 24, 2026', 0.5, '#7c4dff'),
+              badge('Deploy Kubernetes Applications on Google Cloud', 'Jul 20, 2026', 0.5, '#00acc1'),
+            ],
+            trivia: [],
+            completion: [],
+            special: [],
+          }
+          payload.badges = [...payload.game, ...payload.skill]
+
+          ;(async () => {
+            const browser = await chromium.launch({ headless: true })
+            const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } })
+            await context.route('https://hub.eplus.dev/api/arcade-public', async (route) => {
+              await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify(payload),
+              })
+            })
+
+            const page = await context.newPage()
+            await page.goto(`http://127.0.0.1:3000/profile/?id=${profileId}`, {
+              waitUntil: 'networkidle',
+            })
+            await page.getByRole('heading', { name: 'Nguyen Hoang' }).waitFor()
+
+            if ((await page.locator('.official-profile-stat').count()) !== 4) {
+              throw new Error('Shared profile summary does not contain four official-style stats')
+            }
+            if ((await page.locator('.official-badge-card').count()) !== 6) {
+              throw new Error('Shared profile badge grid did not render all mock badges')
+            }
+            await page.locator('.official-profile-cover').waitFor()
+            await page.locator('.official-profile-sidebar').waitFor()
+            await page.locator('.official-badges-panel').waitFor()
+
+            await page.screenshot({
+              path: 'screenshots/shared-profile-desktop-1440x1000.png',
+              fullPage: true,
+            })
+
+            await page.setViewportSize({ width: 390, height: 844 })
+            await page.reload({ waitUntil: 'networkidle' })
+            await page.getByRole('heading', { name: 'Nguyen Hoang' }).waitFor()
+
+            const overflow = await page.evaluate(() =>
+              document.documentElement.scrollWidth - document.documentElement.clientWidth,
+            )
+            if (overflow > 1) {
+              throw new Error(`Shared profile has ${overflow}px horizontal overflow on mobile`)
+            }
+
+            await page.screenshot({
+              path: 'screenshots/shared-profile-mobile-390x844.png',
+              fullPage: true,
+            })
+
+            await browser.close()
+          })().catch((error) => {
+            console.error(error)
+            process.exit(1)
+          })
+          NODE
+
+      - name: Upload shared profile screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: shared-profile-screenshots
+          path: screenshots/*.png
+          if-no-files-found: error
