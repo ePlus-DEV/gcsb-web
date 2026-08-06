@@ -168,6 +168,44 @@ jobs:
               throw new Error(`Untranslated Facilitator UI: ${[...new Set(leaks)].join(', ')}`)
             }
 
+            const mutationQueueResult = await page.evaluate(async () => {
+              const first = document.createElement('span')
+              const second = document.createElement('span')
+              first.dataset.i18nMutationProbe = 'first'
+              second.dataset.i18nMutationProbe = 'second'
+              document.body.append(first, second)
+
+              await new Promise((resolve) => requestAnimationFrame(() => resolve()))
+              await new Promise((resolve) => requestAnimationFrame(() => resolve()))
+
+              first.textContent = 'Overall Arcade points'
+              await Promise.resolve()
+              second.textContent = 'Estimated total after bonus'
+
+              await new Promise((resolve) => requestAnimationFrame(() => resolve()))
+              await new Promise((resolve) => requestAnimationFrame(() => resolve()))
+
+              const result = [first.textContent, second.textContent]
+              first.remove()
+              second.remove()
+              return result
+            })
+
+            const expectedMutationTranslations = [
+              'Tổng điểm Arcade hiện có',
+              'Tổng ước tính sau điểm thưởng',
+            ]
+            if (
+              mutationQueueResult.length !== expectedMutationTranslations.length ||
+              mutationQueueResult.some(
+                (value, index) => value !== expectedMutationTranslations[index],
+              )
+            ) {
+              throw new Error(
+                `Queued DOM translations were dropped: ${JSON.stringify(mutationQueueResult)}`,
+              )
+            }
+
             await browser.close()
           })().catch((error) => {
             console.error(error)
