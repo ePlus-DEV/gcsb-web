@@ -1,10 +1,9 @@
 "use client"
 
-import { CircleHelp, GraduationCap } from "lucide-react"
+import { GraduationCap, RefreshCcw } from "lucide-react"
 import { createPortal } from "react-dom"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import {
-  FACILITATOR_PANEL_OPEN_EVENT,
   FACILITATOR_PARTICIPATION_EVENT,
   normalizeFacilitatorProfileUrl,
   readFacilitatorParticipation,
@@ -17,7 +16,9 @@ const ANALYZER_SELECTOR = ".profile-analyzer-card"
 const INPUT_SELECTOR =
   'input[aria-label="Google Skills public profile URL"]'
 const HELP_ROW_SELECTOR = ".analyzer-help-row"
+const AUTO_FETCH_STORAGE_KEY = "gcsb-auto-fetch-latest-profile"
 
+/** Reads the last successfully analyzed public profile URL. */
 function readStoredProfileUrl(): string {
   try {
     const raw = window.localStorage.getItem(DASHBOARD_STORAGE_KEY)
@@ -30,16 +31,50 @@ function readStoredProfileUrl(): string {
   }
 }
 
+/** Normalizes a public profile URL and rejects unsupported values. */
 function validProfileUrl(value: string): string {
   const normalized = normalizeFacilitatorProfileUrl(value)
   return PROFILE_URL_PATTERN.test(normalized) ? normalized : ""
 }
 
+/** Reads whether the user wants fresh profile data fetched on page entry. */
+function readAutoFetchPreference(): boolean {
+  try {
+    return window.localStorage.getItem(AUTO_FETCH_STORAGE_KEY) === "true"
+  } catch {
+    return false
+  }
+}
+
+/** Persists the automatic refresh preference when storage is available. */
+function writeAutoFetchPreference(enabled: boolean): void {
+  try {
+    window.localStorage.setItem(AUTO_FETCH_STORAGE_KEY, String(enabled))
+  } catch {
+    // The toggle still works for the current page when storage is unavailable.
+  }
+}
+
+/** Updates a controlled text input through its native setter. */
+function setInputValue(input: HTMLInputElement, value: string): void {
+  const setter = Object.getOwnPropertyDescriptor(
+    HTMLInputElement.prototype,
+    "value",
+  )?.set
+  setter?.call(input, value)
+  input.dispatchEvent(new Event("input", { bubbles: true }))
+  input.dispatchEvent(new Event("change", { bubbles: true }))
+}
+
+/** Adds Facilitator and automatic-refresh preferences to the profile analyzer. */
 export default function FacilitatorAnalyzerOption() {
   const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null)
   const [inputProfileUrl, setInputProfileUrl] = useState("")
   const [storedProfileUrl, setStoredProfileUrl] = useState("")
   const [participating, setParticipating] = useState(false)
+  const [autoFetchLatest, setAutoFetchLatest] = useState(false)
+  const [autoFetchLoaded, setAutoFetchLoaded] = useState(false)
+  const autoFetchAttempted = useRef(false)
 
   useEffect(() => {
     let currentInput: HTMLInputElement | null = null
@@ -80,6 +115,11 @@ export default function FacilitatorAnalyzerOption() {
       currentInput?.removeEventListener("input", syncInputValue)
       slot?.remove()
     }
+  }, [])
+
+  useEffect(() => {
+    setAutoFetchLatest(readAutoFetchPreference())
+    setAutoFetchLoaded(true)
   }, [])
 
   useEffect(() => {
@@ -149,6 +189,27 @@ export default function FacilitatorAnalyzerOption() {
     }
   }, [profileUrl])
 
+  useEffect(() => {
+    if (
+      !autoFetchLoaded ||
+      !autoFetchLatest ||
+      !portalTarget ||
+      !profileUrl ||
+      autoFetchAttempted.current
+    ) {
+      return
+    }
+
+    const analyzer = document.querySelector<HTMLElement>(ANALYZER_SELECTOR)
+    const input = analyzer?.querySelector<HTMLInputElement>(INPUT_SELECTOR)
+    const form = input?.closest("form")
+    if (!input || !form) return
+
+    autoFetchAttempted.current = true
+    setInputValue(input, profileUrl)
+    window.setTimeout(() => form.requestSubmit(), 0)
+  }, [autoFetchLatest, autoFetchLoaded, portalTarget, profileUrl])
+
   if (!portalTarget) return null
 
   return createPortal(
@@ -183,32 +244,33 @@ export default function FacilitatorAnalyzerOption() {
         <span className="analyzer-facilitator-switch" aria-hidden="true" />
       </label>
 
-      <button
-        className="analyzer-facilitator-details"
-        type="button"
-        onClick={() =>
-          window.dispatchEvent(new Event(FACILITATOR_PANEL_OPEN_EVENT))
-        }
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          justifyContent: "center",
-          justifySelf: "end",
-          gap: 6,
-          minHeight: 30,
-          padding: "0 10px",
-          border: "1px solid rgba(139, 92, 246, 0.25)",
-          borderRadius: 7,
-          background: "rgba(124, 58, 237, 0.08)",
-          color: "#bda7ee",
-          fontSize: "0.62rem",
-          fontWeight: 700,
-          cursor: "pointer",
-        }}
+      <label
+        className={`analyzer-facilitator-option${
+          autoFetchLatest ? " is-active" : ""
+        }`}
       >
-        <CircleHelp style={{ width: 14, height: 14 }} />
-        View program details
-      </button>
+        <input
+          type="checkbox"
+          checked={autoFetchLatest}
+          onChange={(event) => {
+            const checked = event.target.checked
+            autoFetchAttempted.current = false
+            setAutoFetchLatest(checked)
+            writeAutoFetchPreference(checked)
+          }}
+          aria-describedby="analyzer-auto-fetch-description"
+        />
+        <span className="analyzer-facilitator-icon" aria-hidden="true">
+          <RefreshCcw />
+        </span>
+        <span className="analyzer-facilitator-copy">
+          <strong>Automatically fetch latest data</strong>
+          <small id="analyzer-auto-fetch-description">
+            Refresh the saved profile once whenever this page is opened.
+          </small>
+        </span>
+        <span className="analyzer-facilitator-switch" aria-hidden="true" />
+      </label>
     </div>,
     portalTarget,
   )
