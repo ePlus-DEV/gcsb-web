@@ -43,7 +43,7 @@ jobs:
           yarn start --hostname 127.0.0.1 --port 3000 > /tmp/gcsb-web-profile.log 2>&1 &
           yarn wait-on http://127.0.0.1:3000
 
-      - name: Capture official-style shared profile
+      - name: Capture shared profile dashboard
         run: |
           mkdir -p screenshots
           node <<'NODE'
@@ -105,15 +105,15 @@ jobs:
             })
             await page.getByRole('heading', { name: 'Nguyen Hoang' }).waitFor()
 
-            if ((await page.locator('.official-profile-stat').count()) !== 4) {
-              throw new Error('Shared profile summary does not contain four official-style stats')
+            if ((await page.locator('.shared-stat').count()) !== 4) {
+              throw new Error('Shared profile summary does not contain four stats')
             }
-            if ((await page.locator('.official-badge-card').count()) !== 6) {
+            if ((await page.locator('.shared-badge').count()) !== 6) {
               throw new Error('Shared profile badge grid did not render all mock badges')
             }
-            await page.locator('.official-profile-cover').waitFor()
-            await page.locator('.official-profile-sidebar').waitFor()
-            await page.locator('.official-badges-panel').waitFor()
+            await page.locator('.shared-hero').waitFor()
+            await page.locator('.shared-tier-visual').waitFor()
+            await page.locator('.shared-badges-panel').waitFor()
 
             await page.screenshot({
               path: 'screenshots/shared-profile-desktop-1440x1000.png',
