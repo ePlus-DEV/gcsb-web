@@ -16,6 +16,8 @@ const ANALYZER_SELECTOR = ".profile-analyzer-card"
 const INPUT_SELECTOR = 'input[aria-label="Google Skills public profile URL"]'
 const HELP_ROW_SELECTOR = ".analyzer-help-row"
 const AUTO_FETCH_STORAGE_KEY = "gcsb-auto-fetch-latest-profile"
+const BADGE_DATE_SELECTOR = ".earned-badge time"
+const BADGE_DATE_SOURCE_ATTRIBUTE = "data-source-date"
 const SUPPORTED_LOCALES = new Set([
   "ar", "de", "es", "fr", "hi", "it", "ja", "ko", "pt-br", "ru", "vi", "zh-cn",
 ])
@@ -185,6 +187,28 @@ function setInputValue(input: HTMLInputElement, value: string): void {
   input.dispatchEvent(new Event("change", { bubbles: true }))
 }
 
+function localizeBadgeDates(locale: string): void {
+  const formatter = new Intl.DateTimeFormat(locale, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  })
+
+  document.querySelectorAll<HTMLElement>(BADGE_DATE_SELECTOR).forEach((element) => {
+    const source = element.getAttribute(BADGE_DATE_SOURCE_ATTRIBUTE) || element.textContent?.trim()
+    if (!source || source === "Earned badge") return
+
+    const parsed = new Date(source)
+    if (Number.isNaN(parsed.getTime())) return
+
+    if (!element.hasAttribute(BADGE_DATE_SOURCE_ATTRIBUTE)) {
+      element.setAttribute(BADGE_DATE_SOURCE_ATTRIBUTE, parsed.toISOString())
+    }
+    const formatted = formatter.format(parsed)
+    if (element.textContent !== formatted) element.textContent = formatted
+  })
+}
+
 export default function FacilitatorAnalyzerOption() {
   const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null)
   const [inputProfileUrl, setInputProfileUrl] = useState("")
@@ -210,6 +234,14 @@ export default function FacilitatorAnalyzerOption() {
       window.removeEventListener("popstate", syncLocale)
     }
   }, [])
+
+  useEffect(() => {
+    const syncDates = () => localizeBadgeDates(locale)
+    syncDates()
+    const observer = new MutationObserver(syncDates)
+    observer.observe(document.body, { childList: true, subtree: true })
+    return () => observer.disconnect()
+  }, [locale])
 
   useEffect(() => {
     let currentInput: HTMLInputElement | null = null
@@ -294,7 +326,7 @@ export default function FacilitatorAnalyzerOption() {
       window.clearInterval(timer)
       window.removeEventListener("focus", sync)
       window.removeEventListener("storage", sync)
-      window.removeEventListener(FACILITATOR_PARTICIPATION_EVENT, onParticipationChange)
+      window.removeEventListener(FACILATOR_PARTICIPATION_EVENT, onParticipationChange)
     }
   }, [profileUrl])
 
