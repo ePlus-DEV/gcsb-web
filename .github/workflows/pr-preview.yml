@@ -15,8 +15,6 @@ on:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
   pull-requests: write
 
 concurrency:
@@ -30,15 +28,12 @@ jobs:
     timeout-minutes: 25
     environment:
       name: pr-preview
-      url: ${{ steps.deployment.outputs.page_url }}pr-preview/pr-${{ github.event.number }}/
+      url: https://arcade.eplus.dev/pr-preview/pr-${{ github.event.number }}/
 
     steps:
       - name: Checkout production source
         uses: actions/checkout@v4
         with:
-          # Always rebuild the latest base branch. The immutable base SHA stored
-          # on the PR points to the commit before merge and would revert the
-          # production root when the closed-event cleanup runs.
           ref: ${{ github.event.pull_request.base.ref }}
           path: production-source
           persist-credentials: false
@@ -62,8 +57,6 @@ jobs:
         working-directory: production-source
         env:
           NEXT_PUBLIC_ENABLE_ANALYTICS: "true"
-          # main still reads the plural variable until this PR is merged.
-          # Both names intentionally contain the same single Measurement ID.
           NEXT_PUBLIC_GA_ID: "G-SJNYKL2864"
           NEXT_PUBLIC_GA_IDS: "G-SJNYKL2864"
         shell: bash
@@ -71,8 +64,6 @@ jobs:
           set -euo pipefail
           yarn install --frozen-lockfile --non-interactive
 
-          # arcade.eplus.dev is a custom Pages domain, so production assets
-          # must be rooted at / rather than /gcsb-web.
           cat > next.config.mjs <<'CONFIG'
           /** @type {import('next').NextConfig} */
           const nextConfig = {
@@ -142,7 +133,6 @@ jobs:
             mkdir -p published-site
           fi
 
-          # Refresh the production root while preserving previews from other PRs.
           mkdir -p published-site/pr-preview
           find published-site -mindepth 1 -maxdepth 1 \
             ! -name pr-preview -exec rm -rf {} +
@@ -158,7 +148,7 @@ jobs:
 
           touch published-site/.nojekyll
 
-      - name: Save Pages content branch
+      - name: Publish Pages content branch
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.number }}
@@ -177,20 +167,10 @@ jobs:
             "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" \
             gh-pages
 
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v4
-        with:
-          path: published-site
-          include-hidden-files: true
-
-      - name: Deploy GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-
       - name: Add preview link to pull request
         uses: actions/github-script@v7
         env:
-          PAGE_ROOT: ${{ steps.deployment.outputs.page_url }}
+          PAGE_ROOT: https://arcade.eplus.dev/
           PR_ACTION: ${{ github.event.action }}
           PR_NUMBER: ${{ github.event.number }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}

@@ -3,22 +3,9 @@
 import { useEffect } from "react"
 import { DASHBOARD_STORAGE_KEY } from "@/components/arcade/model"
 
-const PROFILE_ID_PATTERN = /public_profiles\/([0-9a-f-]{36})/i
+const PROFILE_ID_PATTERN =
+  /public_profiles\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(?:[/?#]|$)/i
 const BASE_PATH = (process.env.NEXT_PUBLIC_BASE_PATH ?? "").replace(/\/$/, "")
-const LOCALE_SEGMENTS = new Set([
-  "ar", "de", "es", "fr", "hi", "it", "ja", "ko", "pt-br", "ru", "vi", "zh-cn",
-])
-
-function getShareRoute(): string {
-  const pathname = window.location.pathname
-  const relativePath = BASE_PATH && pathname.startsWith(BASE_PATH)
-    ? pathname.slice(BASE_PATH.length)
-    : pathname
-  const segment = relativePath.split("/").filter(Boolean)[0]?.toLowerCase()
-  const localePrefix = segment && LOCALE_SEGMENTS.has(segment) ? `/${segment}` : ""
-
-  return `${BASE_PATH}${localePrefix}/profile/`
-}
 
 function getShareUrl(): string {
   const raw = window.localStorage.getItem(DASHBOARD_STORAGE_KEY)
@@ -26,7 +13,7 @@ function getShareUrl(): string {
   const match = parsed?.profileUrl?.match(PROFILE_ID_PATTERN)
   if (!match?.[1]) throw new Error("Profile ID unavailable")
 
-  return `${window.location.origin}${getShareRoute()}?id=${match[1]}`
+  return `${window.location.origin}${BASE_PATH}/profiles/${match[1]}`
 }
 
 export default function ShareProfileEnhancer() {
