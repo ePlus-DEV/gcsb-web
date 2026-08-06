@@ -326,7 +326,7 @@ export default function FacilitatorAnalyzerOption() {
       window.clearInterval(timer)
       window.removeEventListener("focus", sync)
       window.removeEventListener("storage", sync)
-      window.removeEventListener(FACILATOR_PARTICIPATION_EVENT, onParticipationChange)
+      window.removeEventListener(FACILITATOR_PARTICIPATION_EVENT, onParticipationChange)
     }
   }, [profileUrl])
 
