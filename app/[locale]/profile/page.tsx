@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import SharedProfileClient from "@/components/arcade/shared-profile-client"
 import { WEBSITE_LOCALES } from "@/lib/website-i18n"
+import "../../profile/official-profile-overrides.css"
 
 export const dynamicParams = false
 
