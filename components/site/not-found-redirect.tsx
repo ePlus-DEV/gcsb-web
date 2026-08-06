@@ -3,19 +3,30 @@
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
-import { ArrowLeft, Clock, Gamepad2, Home } from "lucide-react"
+import { ArrowLeft, Clock, Gamepad2, Home, LoaderCircle } from "lucide-react"
 import { WEBSITE_LOCALES } from "@/lib/website-i18n"
 
 const REDIRECT_DELAY_SECONDS = 5
+const PROFILE_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+function getPathWithoutBase(pathname: string): string {
+  const basePath = (process.env.NEXT_PUBLIC_BASE_PATH || "").replace(/\/$/, "")
+  return basePath && pathname.startsWith(basePath)
+    ? pathname.slice(basePath.length)
+    : pathname
+}
+
+function getProfileRedirectHref(pathname: string): string | null {
+  const basePath = (process.env.NEXT_PUBLIC_BASE_PATH || "").replace(/\/$/, "")
+  const segments = getPathWithoutBase(pathname).split("/").filter(Boolean)
+  if (segments.length !== 1 || !PROFILE_ID_PATTERN.test(segments[0])) return null
+
+  return `${basePath}/profile/?id=${segments[0]}`
+}
 
 /** Keeps 404 redirects inside the locale that was requested, when possible. */
 function getLocalizedHomeHref(pathname: string): string {
-  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ""
-  const pathWithoutBase =
-    basePath && pathname.startsWith(basePath)
-      ? pathname.slice(basePath.length)
-      : pathname
-  const firstSegment = pathWithoutBase.split("/").filter(Boolean)[0]
+  const firstSegment = getPathWithoutBase(pathname).split("/").filter(Boolean)[0]
   const locale = WEBSITE_LOCALES.find(
     (item) =>
       item.path && item.path.toLowerCase() === firstSegment?.toLowerCase(),
@@ -27,6 +38,10 @@ function getLocalizedHomeHref(pathname: string): string {
 export default function NotFoundRedirect() {
   const pathname = usePathname()
   const router = useRouter()
+  const profileRedirectHref = useMemo(
+    () => getProfileRedirectHref(pathname ?? "/"),
+    [pathname],
+  )
   const homeHref = useMemo(
     () => getLocalizedHomeHref(pathname ?? "/"),
     [pathname],
@@ -36,6 +51,11 @@ export default function NotFoundRedirect() {
   )
 
   useEffect(() => {
+    if (profileRedirectHref) {
+      router.replace(profileRedirectHref)
+      return
+    }
+
     setSecondsRemaining(REDIRECT_DELAY_SECONDS)
 
     const countdownId = window.setInterval(() => {
@@ -49,7 +69,19 @@ export default function NotFoundRedirect() {
       window.clearInterval(countdownId)
       window.clearTimeout(redirectId)
     }
-  }, [homeHref, router])
+  }, [homeHref, profileRedirectHref, router])
+
+  if (profileRedirectHref) {
+    return (
+      <main className="arcade-dashboard-page flex min-h-screen items-center justify-center px-4">
+        <div className="arcade-stars" aria-hidden="true" />
+        <section className="relative rounded-3xl border border-white/10 bg-slate-950/70 px-8 py-10 text-center shadow-2xl shadow-black/30 backdrop-blur-xl">
+          <LoaderCircle className="mx-auto h-10 w-10 animate-spin text-cyan-300" aria-hidden="true" />
+          <h1 className="mt-5 text-2xl font-bold text-white">Loading shared profile…</h1>
+        </section>
+      </main>
+    )
+  }
 
   const progress =
     ((REDIRECT_DELAY_SECONDS - secondsRemaining) / REDIRECT_DELAY_SECONDS) * 100
