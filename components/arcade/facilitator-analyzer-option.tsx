@@ -144,7 +144,7 @@ function getLocale(): string {
     : window.location.pathname
   const segment = pathname.split("/").filter(Boolean)[0]
   const pathLocale = normalizeLocale(segment)
-  if (pathLocale !== "en" || segment?.toLowerCase() === "en") return pathLocale
+  if (pathLocale !== "en" || /^en(?:[-_]|$)/i.test(segment ?? "")) return pathLocale
   return normalizeLocale(document.documentElement.lang)
 }
 
@@ -218,6 +218,7 @@ export default function FacilitatorAnalyzerOption() {
   const [autoFetchLoaded, setAutoFetchLoaded] = useState(false)
   const [locale, setLocale] = useState("en")
   const autoFetchAttempted = useRef(false)
+  const previousProfileUrl = useRef("")
   const copy = COPY[locale] ?? COPY.en
 
   useEffect(() => {
@@ -299,7 +300,15 @@ export default function FacilitatorAnalyzerOption() {
   )
 
   useEffect(() => {
-    if (profileUrl) return
+    const previous = previousProfileUrl.current
+    previousProfileUrl.current = profileUrl
+
+    if (profileUrl) {
+      if (previous && previous !== profileUrl) autoFetchAttempted.current = false
+      return
+    }
+    if (!previous) return
+
     autoFetchAttempted.current = false
     setParticipating(false)
     if (autoFetchLatest) {
