@@ -3,7 +3,8 @@
 import { useEffect } from "react"
 import { DASHBOARD_STORAGE_KEY } from "@/components/arcade/model"
 
-const PROFILE_ID_PATTERN = /public_profiles\/([0-9a-f-]{36})/i
+const PROFILE_ID_PATTERN =
+  /public_profiles\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(?:[/?#]|$)/i
 const BASE_PATH = (process.env.NEXT_PUBLIC_BASE_PATH ?? "").replace(/\/$/, "")
 
 function getShareUrl(): string {
