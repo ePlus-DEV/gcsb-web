@@ -181,28 +181,37 @@ export default function WebsiteLanguage() {
 
     translateTree(document.body, catalogs.source, catalogs.target)
 
-    let scheduled = false
-    const observer = new MutationObserver((mutations) => {
-      if (scheduled) return
-      scheduled = true
+    const pendingNodes = new Set<Node>()
+    let animationFrame: number | null = null
 
-      window.requestAnimationFrame(() => {
-        scheduled = false
-        for (const mutation of mutations) {
-          if (mutation.type === "characterData") {
-            translateTree(mutation.target, catalogs.source, catalogs.target)
-          } else if (mutation.type === "attributes") {
-            translateAttributes(
-              mutation.target as Element,
-              catalogs.source,
-              catalogs.target,
-            )
-          }
-          for (const addedNode of mutation.addedNodes) {
-            translateTree(addedNode, catalogs.source, catalogs.target)
-          }
+    const flushTranslations = () => {
+      animationFrame = null
+      const nodes = Array.from(pendingNodes)
+      pendingNodes.clear()
+
+      for (const node of nodes) {
+        if (!node.isConnected && node.nodeType !== Node.TEXT_NODE) continue
+        translateTree(node, catalogs.source, catalogs.target)
+      }
+    }
+
+    const scheduleTranslations = () => {
+      if (animationFrame !== null) return
+      animationFrame = window.requestAnimationFrame(flushTranslations)
+    }
+
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.type === "characterData" || mutation.type === "attributes") {
+          pendingNodes.add(mutation.target)
         }
-      })
+
+        for (const addedNode of mutation.addedNodes) {
+          pendingNodes.add(addedNode)
+        }
+      }
+
+      if (pendingNodes.size > 0) scheduleTranslations()
     })
 
     observer.observe(document.body, {
@@ -212,7 +221,14 @@ export default function WebsiteLanguage() {
       characterData: true,
       subtree: true,
     })
-    return () => observer.disconnect()
+
+    return () => {
+      observer.disconnect()
+      if (animationFrame !== null) {
+        window.cancelAnimationFrame(animationFrame)
+      }
+      pendingNodes.clear()
+    }
   }, [catalogs, locale, ready])
 
   useEffect(() => {
