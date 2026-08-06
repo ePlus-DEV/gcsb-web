@@ -9,7 +9,6 @@ const LOCALE_SEGMENTS = new Set([
   "ar", "de", "es", "fr", "hi", "it", "ja", "ko", "pt-br", "ru", "vi", "zh-cn",
 ])
 
-/** Builds the basePath- and locale-aware shared profile route. */
 function getShareRoute(): string {
   const pathname = window.location.pathname
   const relativePath = BASE_PATH && pathname.startsWith(BASE_PATH)
@@ -21,74 +20,79 @@ function getShareRoute(): string {
   return `${BASE_PATH}${localePrefix}/profile/`
 }
 
-/** Adds a compact share action above the analyzed dashboard. */
+function getShareUrl(): string {
+  const raw = window.localStorage.getItem(DASHBOARD_STORAGE_KEY)
+  const parsed = raw ? JSON.parse(raw) as { profileUrl?: string } : null
+  const match = parsed?.profileUrl?.match(PROFILE_ID_PATTERN)
+  if (!match?.[1]) throw new Error("Profile ID unavailable")
+
+  return `${window.location.origin}${getShareRoute()}?id=${match[1]}`
+}
+
 export default function ShareProfileEnhancer() {
   useEffect(() => {
     let disposed = false
     let observer: MutationObserver | null = null
+    let resetTimer: number | null = null
 
     function installShareAction(): boolean {
       if (disposed || document.querySelector("[data-share-profile-action]")) return true
 
       const dashboard = document.querySelector(".dashboard-shell")
-      if (!dashboard) return false
+      const profilePanel = dashboard?.querySelector<HTMLElement>(".dashboard-panel")
+      if (!dashboard || !profilePanel) return false
 
-      const actionBar = document.createElement("div")
-      actionBar.dataset.shareProfileAction = "true"
-      actionBar.className = "share-profile-action-bar"
-      actionBar.innerHTML = `
-        <span class="share-profile-action-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><path d="M18 8a3 3 0 1 0-2.83-4A3 3 0 0 0 15 5c0 .2.02.4.06.58L8.91 9.1A3 3 0 0 0 7 8.5a3 3 0 1 0 1.91 5.4l6.15 3.52A3 3 0 0 0 15 18a3 3 0 1 0 .91-2.16L9.76 12.3a3 3 0 0 0 0-.6l6.15-3.54A3 3 0 0 0 18 8Z"/></svg>
-        </span>
-        <div class="share-profile-action-copy">
-          <strong>Share your Arcade profile</strong>
-          <span>Create a public link to this score and badge summary.</span>
-        </div>
-        <button class="share-profile-action-button" type="button" aria-label="Share this Arcade profile">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a3 3 0 1 0-2.83-4A3 3 0 0 0 15 5c0 .2.02.4.06.58L8.91 9.1A3 3 0 0 0 7 8.5a3 3 0 1 0 1.91 5.4l6.15 3.52A3 3 0 0 0 15 18a3 3 0 1 0 .91-2.16L9.76 12.3a3 3 0 0 0 0-.6l6.15-3.54A3 3 0 0 0 18 8Z"/></svg>
-          <span>Share profile</span>
-        </button>
+      profilePanel.classList.add("has-profile-share-action")
+
+      const button = document.createElement("button")
+      button.dataset.shareProfileAction = "true"
+      button.className = "profile-share-fab"
+      button.type = "button"
+      button.setAttribute("aria-label", "Share this Arcade profile")
+      button.innerHTML = `
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a3 3 0 1 0-2.83-4A3 3 0 0 0 15 5c0 .2.02.4.06.58L8.91 9.1A3 3 0 0 0 7 8.5a3 3 0 1 0 1.91 5.4l6.15 3.52A3 3 0 0 0 15 18a3 3 0 1 0 .91-2.16L9.76 12.3a3 3 0 0 0 0-.6l6.15-3.54A3 3 0 0 0 18 8Z"/></svg>
+        <span>Share</span>
       `
 
-      const button = actionBar.querySelector<HTMLButtonElement>("button")
-      const label = actionBar.querySelector<HTMLSpanElement>("button span")
-      if (!button || !label) return false
+      const label = button.querySelector<HTMLSpanElement>("span")
+      if (!label) return false
+
+      const resetState = () => {
+        label.textContent = "Share"
+        button.classList.remove("is-success", "is-error")
+      }
+
+      const scheduleReset = () => {
+        if (resetTimer !== null) window.clearTimeout(resetTimer)
+        resetTimer = window.setTimeout(resetState, 1800)
+      }
 
       button.addEventListener("click", async () => {
-        const defaultLabel = "Share profile"
-
         try {
-          const raw = window.localStorage.getItem(DASHBOARD_STORAGE_KEY)
-          const parsed = raw ? JSON.parse(raw) as { profileUrl?: string } : null
-          const match = parsed?.profileUrl?.match(PROFILE_ID_PATTERN)
-          if (!match?.[1]) throw new Error("Profile ID unavailable")
+          const url = getShareUrl()
 
-          const url = `${window.location.origin}${getShareRoute()}?id=${match[1]}`
           if (navigator.share) {
-            await navigator.share({ title: "Google Cloud Arcade profile", url })
-            return
+            try {
+              await navigator.share({ title: "Google Cloud Arcade profile", url })
+              return
+            } catch (error) {
+              if (error instanceof DOMException && error.name === "AbortError") return
+            }
           }
 
+          if (!navigator.clipboard?.writeText) throw new Error("Clipboard unavailable")
           await navigator.clipboard.writeText(url)
-          label.textContent = "Link copied"
+          label.textContent = "Copied"
           button.classList.add("is-success")
-          window.setTimeout(() => {
-            label.textContent = defaultLabel
-            button.classList.remove("is-success")
-          }, 1800)
-        } catch (error) {
-          if (error instanceof DOMException && error.name === "AbortError") return
-
-          label.textContent = "Unable to share"
+          scheduleReset()
+        } catch {
+          label.textContent = "Failed"
           button.classList.add("is-error")
-          window.setTimeout(() => {
-            label.textContent = defaultLabel
-            button.classList.remove("is-error")
-          }, 1800)
+          scheduleReset()
         }
       })
 
-      dashboard.prepend(actionBar)
+      profilePanel.append(button)
       observer?.disconnect()
       observer = null
       return true
@@ -102,134 +106,99 @@ export default function ShareProfileEnhancer() {
     return () => {
       disposed = true
       observer?.disconnect()
+      if (resetTimer !== null) window.clearTimeout(resetTimer)
+      document.querySelector("[data-share-profile-action]")?.remove()
+      document.querySelector(".has-profile-share-action")?.classList.remove("has-profile-share-action")
     }
   }, [])
 
   return (
     <style>{`
-      .share-profile-action-bar {
+      .has-profile-share-action {
         position: relative;
-        isolation: isolate;
-        overflow: hidden;
-        display: grid;
-        grid-template-columns: auto minmax(0, 1fr) auto;
-        align-items: center;
-        gap: .85rem;
-        margin-bottom: 1rem;
-        padding: .8rem .9rem;
-        border: 1px solid rgba(124, 141, 255, .22);
-        border-radius: 18px;
-        background:
-          radial-gradient(circle at 92% 20%, rgba(63, 199, 241, .12), transparent 30%),
-          linear-gradient(120deg, rgba(44, 35, 100, .54), rgba(12, 18, 39, .82));
-        box-shadow:
-          0 14px 38px rgba(0, 0, 0, .16),
-          inset 0 1px 0 rgba(255, 255, 255, .045);
       }
-      .share-profile-action-bar::after {
-        content: "";
+      .has-profile-share-action > :first-child {
+        padding-right: 6.25rem;
+      }
+      .profile-share-fab {
         position: absolute;
-        z-index: -1;
-        width: 150px;
-        height: 150px;
-        right: -74px;
-        top: -86px;
-        border-radius: 50%;
-        border: 34px solid rgba(124, 92, 255, .07);
-        pointer-events: none;
-      }
-      .share-profile-action-icon {
-        width: 42px;
-        height: 42px;
-        display: grid;
-        place-items: center;
-        border: 1px solid rgba(128, 191, 255, .22);
-        border-radius: 13px;
-        color: #8ee8ff;
-        background: rgba(66, 177, 224, .09);
-      }
-      .share-profile-action-icon svg {
-        width: 18px;
-        height: 18px;
-        fill: currentColor;
-      }
-      .share-profile-action-copy { min-width: 0; }
-      .share-profile-action-copy strong,
-      .share-profile-action-copy span { display: block; }
-      .share-profile-action-copy strong {
-        color: #fff;
-        font-size: .9rem;
-        letter-spacing: -.01em;
-      }
-      .share-profile-action-copy span {
-        margin-top: .18rem;
-        color: rgba(203, 213, 225, .68);
-        font-size: .76rem;
-      }
-      .share-profile-action-button {
-        position: relative;
-        z-index: 1;
-        flex: 0 0 auto;
+        top: .85rem;
+        right: .85rem;
+        z-index: 2;
+        min-height: 34px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: .48rem;
-        min-height: 40px;
-        border: 1px solid rgba(167, 139, 250, .42);
-        border-radius: 12px;
-        background: linear-gradient(135deg, #7658f6, #3978ef);
-        color: #fff;
-        padding: .58rem .82rem;
+        gap: .4rem;
+        border: 1px solid rgba(129, 154, 255, .28);
+        border-radius: 10px;
+        padding: .42rem .65rem;
+        background: rgba(61, 76, 155, .16);
+        color: #a9c7ff;
         font: inherit;
-        font-size: .8rem;
-        font-weight: 850;
+        font-size: .72rem;
+        font-weight: 800;
         cursor: pointer;
-        box-shadow: 0 10px 24px rgba(73, 74, 214, .24);
-        transition: transform .18s ease, filter .18s ease, box-shadow .18s ease;
+        box-shadow: none;
+        transition: background .18s ease, border-color .18s ease, color .18s ease, transform .18s ease;
       }
-      .share-profile-action-button:hover {
-        filter: brightness(1.08);
+      .profile-share-fab:hover {
+        border-color: rgba(116, 154, 255, .58);
+        background: rgba(67, 92, 190, .26);
+        color: #fff;
         transform: translateY(-1px);
-        box-shadow: 0 14px 30px rgba(73, 74, 214, .3);
       }
-      .share-profile-action-button:focus-visible {
-        outline: 3px solid rgba(132, 204, 255, .35);
+      .profile-share-fab:focus-visible {
+        outline: 3px solid rgba(132, 204, 255, .3);
         outline-offset: 2px;
       }
-      .share-profile-action-button svg {
-        width: 15px;
-        height: 15px;
+      .profile-share-fab svg {
+        width: 14px;
+        height: 14px;
+        flex: 0 0 14px;
         fill: currentColor;
       }
-      .share-profile-action-button.is-success {
-        background: linear-gradient(135deg, #059669, #047857);
-        border-color: #34d399;
+      .profile-share-fab.is-success {
+        border-color: rgba(52, 211, 153, .5);
+        background: rgba(5, 150, 105, .18);
+        color: #6ee7b7;
       }
-      .share-profile-action-button.is-error {
-        background: linear-gradient(135deg, #dc2626, #b91c1c);
-        border-color: #f87171;
+      .profile-share-fab.is-error {
+        border-color: rgba(248, 113, 113, .5);
+        background: rgba(220, 38, 38, .16);
+        color: #fca5a5;
       }
-      html[data-theme="light"] .share-profile-action-bar {
-        border-color: rgba(88, 89, 160, .16);
-        background:
-          radial-gradient(circle at 92% 20%, rgba(66, 217, 255, .12), transparent 30%),
-          linear-gradient(120deg, rgba(255, 255, 255, .94), rgba(244, 247, 255, .9));
-        box-shadow: 0 14px 34px rgba(54, 63, 110, .09), inset 0 1px 0 #fff;
+      html[data-theme="light"] .profile-share-fab {
+        border-color: rgba(79, 70, 229, .18);
+        background: rgba(79, 70, 229, .06);
+        color: #4f46e5;
       }
-      html[data-theme="light"] .share-profile-action-copy strong { color: #181c35; }
-      html[data-theme="light"] .share-profile-action-copy span { color: rgba(52, 62, 94, .68); }
-      @media (max-width: 640px) {
-        .share-profile-action-bar {
-          grid-template-columns: auto minmax(0, 1fr);
-          padding: .8rem;
+      html[data-theme="light"] .profile-share-fab:hover {
+        border-color: rgba(79, 70, 229, .34);
+        background: rgba(79, 70, 229, .1);
+      }
+      @media (max-width: 520px) {
+        .has-profile-share-action > :first-child {
+          padding-right: 3.5rem;
         }
-        .share-profile-action-button {
-          grid-column: 1 / -1;
-          width: 100%;
+        .profile-share-fab {
+          width: 34px;
+          height: 34px;
+          min-height: 34px;
+          padding: 0;
+          border-radius: 50%;
+        }
+        .profile-share-fab span {
+          position: absolute;
+          width: 1px;
+          height: 1px;
+          overflow: hidden;
+          clip: rect(0 0 0 0);
+          white-space: nowrap;
         }
       }
       @media (prefers-reduced-motion: reduce) {
-        .share-profile-action-button { transition: none; }
+        .profile-share-fab { transition: none; }
       }
     `}</style>
   )
