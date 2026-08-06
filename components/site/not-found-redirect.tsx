@@ -17,7 +17,6 @@ function getPathWithoutBase(pathname: string): string {
 }
 
 function getProfileRedirectHref(pathname: string): string | null {
-  const basePath = (process.env.NEXT_PUBLIC_BASE_PATH || "").replace(/\/$/, "")
   const segments = getPathWithoutBase(pathname).split("/").filter(Boolean)
   const route = segments[0]?.toLowerCase()
   const profileId = segments[1]
@@ -25,7 +24,7 @@ function getProfileRedirectHref(pathname: string): string | null {
 
   if (segments.length !== 2 || !isProfileRoute || !PROFILE_ID_PATTERN.test(profileId)) return null
 
-  return `${basePath}/profile/?id=${profileId}`
+  return `/profile/?id=${profileId}`
 }
 
 /** Keeps 404 redirects inside the locale that was requested, when possible. */
