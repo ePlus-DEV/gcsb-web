@@ -6,7 +6,6 @@ import {
   Gamepad2,
   LoaderCircle,
   Share,
-  Sparkles,
   Star,
   Trophy,
 } from "lucide-react"
@@ -33,6 +32,7 @@ type State =
 
 function safeHttpsUrl(value?: string): string | null {
   if (!value) return null
+
   try {
     const url = new URL(value)
     return url.protocol === "https:" ? url.toString() : null
@@ -74,703 +74,773 @@ function getTierProgress(points: number) {
 
 function SharedProfileStyles() {
   return <style>{`
-    .public-profile-page {
-      --shared-surface: rgba(9, 15, 36, .78);
-      --shared-surface-strong: rgba(14, 22, 50, .94);
-      --shared-surface-soft: rgba(255, 255, 255, .045);
-      --shared-border: rgba(148, 163, 255, .16);
-      --shared-border-strong: rgba(124, 92, 255, .34);
-      --shared-text: #f8fafc;
-      --shared-muted: rgba(203, 213, 225, .7);
-      --shared-purple: #8b6cff;
-      --shared-cyan: #42d9ff;
-      --shared-gold: #f5c451;
+    .official-profile-page {
+      --official-bg: #f8fafd;
+      --official-surface: #ffffff;
+      --official-surface-soft: #f1f4f9;
+      --official-text: #202124;
+      --official-muted: #5f6368;
+      --official-border: #dadce0;
+      --official-blue: #1a73e8;
+      --official-blue-soft: #e8f0fe;
+      --official-green: #188038;
+      --official-yellow: #f9ab00;
       min-height: 100vh;
-      color: var(--shared-text);
-      background:
-        radial-gradient(circle at 8% 6%, rgba(81, 64, 214, .22), transparent 28%),
-        radial-gradient(circle at 92% 14%, rgba(16, 185, 214, .16), transparent 26%),
-        linear-gradient(180deg, #050918 0%, #080d20 48%, #050817 100%);
-      position: relative;
-      isolation: isolate;
-      overflow-x: hidden;
+      color: var(--official-text);
+      background: var(--official-bg);
+      font-family: Arial, Helvetica, sans-serif;
     }
-    .public-profile-page::before,
-    .public-profile-page::after {
-      content: "";
-      position: fixed;
-      z-index: -1;
-      pointer-events: none;
-      filter: blur(18px);
-      opacity: .75;
+
+    html.dark .official-profile-page {
+      --official-bg: #0f1115;
+      --official-surface: #17191f;
+      --official-surface-soft: #202329;
+      --official-text: #f1f3f4;
+      --official-muted: #bdc1c6;
+      --official-border: #3c4043;
+      --official-blue: #8ab4f8;
+      --official-blue-soft: rgba(138, 180, 248, .13);
+      --official-green: #81c995;
+      --official-yellow: #fdd663;
     }
-    .public-profile-page::before {
-      width: 440px;
-      height: 440px;
-      left: -220px;
-      top: 38vh;
-      border-radius: 50%;
-      border: 90px solid rgba(124, 92, 255, .08);
-    }
-    .public-profile-page::after {
-      width: 360px;
-      height: 360px;
-      right: -180px;
-      bottom: 4vh;
-      border-radius: 50%;
-      background: rgba(35, 196, 226, .06);
-    }
-    .public-profile-page .arcade-stars { opacity: .34; }
-    .public-profile-page .arcade-header {
+
+    .official-profile-header {
       position: sticky;
       top: 0;
       z-index: 30;
+      border-bottom: 1px solid var(--official-border);
+      background: color-mix(in srgb, var(--official-surface) 94%, transparent);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .official-profile-header-inner {
       width: min(1180px, calc(100% - 2rem));
+      min-height: 64px;
       margin: 0 auto;
-      padding: .9rem 0;
-      background: rgba(5, 9, 24, .72);
-      border-bottom: 1px solid rgba(148, 163, 255, .1);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
     }
-    .public-profile-page .arcade-nav {
-      border: 1px solid rgba(148, 163, 255, .12);
-      border-radius: 999px;
-      padding: .25rem;
-      background: rgba(255, 255, 255, .03);
+
+    .official-profile-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: .7rem;
+      color: var(--official-text);
+      text-decoration: none;
+      white-space: nowrap;
     }
-    .public-profile-page .arcade-nav a {
-      border-radius: 999px;
-      padding: .5rem .85rem;
-    }
-    .public-profile-page .arcade-nav a.active {
-      background: rgba(124, 92, 255, .14);
-      color: #dcd5ff;
-    }
-    .public-profile-page .header-store-link {
-      border: 1px solid rgba(124, 92, 255, .36);
-      background: linear-gradient(135deg, rgba(124, 92, 255, .9), rgba(58, 108, 255, .9));
-      box-shadow: 0 12px 30px rgba(60, 74, 214, .24);
-    }
-    .shared-profile-shell {
-      width: min(1180px, calc(100% - 2rem));
-      margin: 0 auto;
-      padding: 1.5rem 0 4rem;
-    }
-    .shared-card {
-      border: 1px solid var(--shared-border);
-      border-radius: 24px;
-      background: linear-gradient(145deg, rgba(14, 22, 50, .9), rgba(8, 14, 32, .78));
-      box-shadow:
-        0 24px 70px rgba(0, 0, 0, .28),
-        inset 0 1px 0 rgba(255, 255, 255, .045);
-    }
-    .shared-hero {
+
+    .official-profile-brand-mark {
+      position: relative;
+      width: 30px;
+      height: 24px;
       display: grid;
-      grid-template-columns: minmax(0, 1.32fr) minmax(320px, .68fr);
-      gap: 1rem;
-      align-items: stretch;
+      grid-template-columns: repeat(2, 10px);
+      grid-template-rows: repeat(2, 10px);
+      gap: 3px;
+      transform: rotate(45deg);
     }
-    .shared-score-card {
-      position: relative;
-      overflow: hidden;
-      min-height: 390px;
-      padding: clamp(1.35rem, 3vw, 2rem);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
+
+    .official-profile-brand-mark i {
+      display: block;
+      border-radius: 3px;
     }
-    .shared-score-card::before {
-      content: "";
-      position: absolute;
-      width: 320px;
-      height: 320px;
-      right: -120px;
-      top: -135px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(66, 217, 255, .18), rgba(124, 92, 255, .06) 46%, transparent 72%);
-      pointer-events: none;
+
+    .official-profile-brand-mark i:nth-child(1) { background: #4285f4; }
+    .official-profile-brand-mark i:nth-child(2) { background: #ea4335; }
+    .official-profile-brand-mark i:nth-child(3) { background: #34a853; }
+    .official-profile-brand-mark i:nth-child(4) { background: #fbbc04; }
+
+    .official-profile-brand-copy strong,
+    .official-profile-brand-copy small {
+      display: block;
     }
-    .shared-score-card::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(115deg, rgba(124, 92, 255, .08), transparent 48%);
-      pointer-events: none;
+
+    .official-profile-brand-copy strong {
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: -.01em;
     }
-    .shared-kicker,
-    .shared-profile-row,
-    .shared-score-block,
-    .shared-hero-actions {
-      position: relative;
-      z-index: 1;
-    }
-    .shared-kicker {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: .75rem;
-      color: #9feaff;
-      font-size: .76rem;
-      font-weight: 900;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-    }
-    .shared-kicker > span:first-child {
-      display: inline-flex;
-      align-items: center;
-      gap: .5rem;
-    }
-    .shared-kicker svg { width: 17px; height: 17px; }
-    .shared-public-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: .4rem;
-      min-height: 30px;
-      padding: .35rem .65rem;
-      border: 1px solid rgba(52, 211, 153, .24);
-      border-radius: 999px;
-      color: #7ee9b8;
-      background: rgba(16, 185, 129, .08);
+
+    .official-profile-brand-copy small {
+      margin-top: .05rem;
+      color: var(--official-muted);
       font-size: .7rem;
-      letter-spacing: .04em;
     }
-    .shared-public-pill::before {
-      content: "";
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: #34d399;
-      box-shadow: 0 0 14px rgba(52, 211, 153, .8);
-    }
-    .shared-profile-row {
+
+    .official-profile-nav {
       display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin-top: 1.6rem;
+      align-self: stretch;
+      align-items: stretch;
+      margin-left: auto;
     }
-    .shared-profile-avatar {
-      width: 72px;
-      height: 72px;
-      flex: 0 0 72px;
-      border-radius: 22px;
-      object-fit: cover;
-      border: 2px solid rgba(124, 92, 255, .48);
-      background: rgba(255, 255, 255, .05);
-      box-shadow: 0 12px 34px rgba(40, 32, 128, .32);
-    }
-    .shared-profile-avatar-fallback {
+
+    .official-profile-nav a {
+      position: relative;
+      min-width: 84px;
       display: grid;
       place-items: center;
-      font-size: 1.65rem;
-      font-weight: 900;
-      color: #fff;
-      background: linear-gradient(135deg, #7558f8, #287ccf);
+      color: var(--official-muted);
+      text-decoration: none;
+      font-size: .86rem;
+      font-weight: 600;
     }
-    .shared-profile-row h1 {
-      margin: 0;
-      font-size: clamp(1.35rem, 3vw, 2rem);
-      line-height: 1.15;
-      letter-spacing: -.025em;
+
+    .official-profile-nav a:hover,
+    .official-profile-nav a.is-active {
+      color: var(--official-blue);
     }
-    .shared-profile-row p {
-      margin: .38rem 0 0;
-      color: var(--shared-muted);
-      font-size: .88rem;
+
+    .official-profile-nav a.is-active::after {
+      content: "";
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      bottom: 0;
+      height: 3px;
+      border-radius: 3px 3px 0 0;
+      background: var(--official-blue);
     }
-    .shared-score-block {
-      margin: 2.1rem 0 1.4rem;
-    }
-    .shared-score-block span {
-      display: block;
-      margin-bottom: .55rem;
-      color: var(--shared-muted);
-      font-size: .76rem;
-      font-weight: 900;
-      letter-spacing: .13em;
-      text-transform: uppercase;
-    }
-    .shared-score-block strong {
-      display: block;
-      font-size: clamp(4.7rem, 10vw, 7.6rem);
-      line-height: .82;
-      letter-spacing: -.08em;
-      background: linear-gradient(135deg, #fff 22%, #a9dfff 64%, #bfa7ff 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      text-shadow: 0 16px 44px rgba(79, 123, 255, .16);
-    }
-    .shared-hero-actions,
-    .shared-tier-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: .65rem;
-    }
-    .shared-action {
-      min-height: 44px;
+
+    .official-header-share,
+    .official-button {
+      min-height: 40px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: .5rem;
-      padding: .68rem .95rem;
-      border: 1px solid rgba(148, 163, 255, .18);
-      border-radius: 13px;
-      background: rgba(255, 255, 255, .045);
-      color: inherit;
+      gap: .45rem;
+      border: 1px solid var(--official-border);
+      border-radius: 6px;
+      padding: .55rem .85rem;
+      background: var(--official-surface);
+      color: var(--official-blue);
       text-decoration: none;
       font: inherit;
-      font-size: .83rem;
-      font-weight: 850;
+      font-size: .84rem;
+      font-weight: 600;
       cursor: pointer;
-      transition: transform .18s ease, border-color .18s ease, background .18s ease;
+      transition: background .16s ease, box-shadow .16s ease, border-color .16s ease;
     }
-    .shared-action:hover {
-      transform: translateY(-1px);
-      border-color: rgba(148, 163, 255, .34);
-      background: rgba(255, 255, 255, .075);
+
+    .official-header-share:hover,
+    .official-button:hover {
+      border-color: color-mix(in srgb, var(--official-blue) 52%, var(--official-border));
+      background: var(--official-blue-soft);
+      box-shadow: 0 1px 2px rgba(60, 64, 67, .12);
     }
-    .shared-action.is-primary {
-      border-color: transparent;
-      background: linear-gradient(135deg, #7d5cff, #397ef5);
-      box-shadow: 0 12px 26px rgba(76, 75, 220, .28);
+
+    .official-button.is-primary {
+      border-color: var(--official-blue);
+      background: var(--official-blue);
+      color: #fff;
     }
-    .shared-action svg { width: 16px; height: 16px; }
-    .shared-tier-card {
-      position: relative;
+
+    html.dark .official-button.is-primary { color: #202124; }
+
+    .official-header-share svg,
+    .official-button svg {
+      width: 17px;
+      height: 17px;
+    }
+
+    .official-profile-main {
+      width: min(1120px, calc(100% - 2rem));
+      margin: 0 auto;
+      padding: 2rem 0 4rem;
+    }
+
+    .official-profile-card {
       overflow: hidden;
-      padding: 1.4rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
+      border: 1px solid var(--official-border);
+      border-radius: 12px;
+      background: var(--official-surface);
+      box-shadow: 0 1px 2px rgba(60, 64, 67, .08);
+    }
+
+    .official-profile-cover {
+      position: relative;
+      height: 126px;
+      overflow: hidden;
       background:
-        radial-gradient(circle at 85% 8%, rgba(245, 196, 81, .12), transparent 34%),
-        linear-gradient(145deg, rgba(22, 27, 55, .96), rgba(10, 15, 34, .88));
+        linear-gradient(110deg, rgba(66, 133, 244, .16), transparent 54%),
+        var(--official-blue-soft);
     }
-    .shared-tier-icon {
-      width: 62px;
-      height: 62px;
-      display: grid;
-      place-items: center;
-      border: 1px solid rgba(245, 196, 81, .28);
-      border-radius: 20px;
-      color: var(--shared-gold);
-      background: rgba(245, 196, 81, .08);
-      box-shadow: 0 16px 40px rgba(174, 118, 20, .12);
+
+    .official-profile-cover::before,
+    .official-profile-cover::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      border: 24px solid rgba(255, 255, 255, .35);
     }
-    .shared-tier-icon svg { width: 28px; height: 28px; }
-    .shared-tier-label {
-      display: block;
-      margin-top: 1.5rem;
-      color: var(--shared-muted);
-      font-size: .73rem;
-      font-weight: 900;
-      letter-spacing: .12em;
-      text-transform: uppercase;
+
+    html.dark .official-profile-cover::before,
+    html.dark .official-profile-cover::after {
+      border-color: rgba(138, 180, 248, .08);
     }
-    .shared-tier-card h2 {
-      margin: .35rem 0 0;
-      font-size: clamp(1.8rem, 4vw, 2.7rem);
-      line-height: 1;
-      letter-spacing: -.04em;
+
+    .official-profile-cover::before {
+      width: 180px;
+      height: 180px;
+      right: 8%;
+      top: -90px;
     }
-    .shared-tier-range {
-      margin: .65rem 0 0;
-      color: var(--shared-muted);
-      font-size: .82rem;
+
+    .official-profile-cover::after {
+      width: 110px;
+      height: 110px;
+      right: 24%;
+      bottom: -80px;
     }
-    .shared-progress-head {
+
+    .official-cover-dots {
+      position: absolute;
+      inset: 0;
+      opacity: .5;
+      background-image: radial-gradient(rgba(26, 115, 232, .25) 1px, transparent 1px);
+      background-size: 22px 22px;
+    }
+
+    .official-profile-identity {
+      position: relative;
+      min-height: 144px;
       display: flex;
       align-items: flex-end;
-      justify-content: space-between;
-      gap: .75rem;
-      margin-top: 2rem;
-      color: var(--shared-muted);
+      gap: 1.25rem;
+      padding: 0 1.75rem 1.5rem;
+    }
+
+    .official-profile-avatar {
+      width: 116px;
+      height: 116px;
+      flex: 0 0 116px;
+      margin-top: -58px;
+      border: 5px solid var(--official-surface);
+      border-radius: 50%;
+      object-fit: cover;
+      background: var(--official-surface-soft);
+      box-shadow: 0 1px 4px rgba(60, 64, 67, .28);
+    }
+
+    .official-profile-avatar-fallback {
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background: #1a73e8;
+      font-size: 2.25rem;
+      font-weight: 500;
+    }
+
+    .official-profile-name {
+      min-width: 0;
+      flex: 1 1 auto;
+      padding-bottom: .2rem;
+    }
+
+    .official-profile-name h1 {
+      margin: 0;
+      overflow-wrap: anywhere;
+      font-size: clamp(1.55rem, 3vw, 2.15rem);
+      line-height: 1.16;
+      font-weight: 500;
+      letter-spacing: -.025em;
+    }
+
+    .official-profile-name p {
+      margin: .45rem 0 0;
+      color: var(--official-muted);
+      font-size: .9rem;
+    }
+
+    .official-profile-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: .55rem;
+      padding-bottom: .15rem;
+    }
+
+    .official-profile-stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      border-top: 1px solid var(--official-border);
+    }
+
+    .official-profile-stat {
+      min-width: 0;
+      padding: 1.15rem 1.35rem;
+      border-right: 1px solid var(--official-border);
+    }
+
+    .official-profile-stat:last-child { border-right: 0; }
+
+    .official-profile-stat strong,
+    .official-profile-stat span {
+      display: block;
+    }
+
+    .official-profile-stat strong {
+      font-size: 1.45rem;
+      line-height: 1.1;
+      font-weight: 500;
+    }
+
+    .official-profile-stat span {
+      margin-top: .32rem;
+      color: var(--official-muted);
       font-size: .78rem;
     }
-    .shared-progress-head strong { color: var(--shared-text); }
-    .shared-progress-track {
-      height: 12px;
-      margin: .75rem 0 .65rem;
-      padding: 2px;
-      border: 1px solid rgba(148, 163, 255, .13);
-      border-radius: 999px;
-      background: rgba(255, 255, 255, .035);
-      overflow: hidden;
+
+    .official-profile-tabs {
+      display: flex;
+      gap: 1.5rem;
+      margin: 1.4rem 0;
+      border-bottom: 1px solid var(--official-border);
     }
-    .shared-progress-fill {
+
+    .official-profile-tabs a {
+      position: relative;
+      padding: .8rem .15rem .9rem;
+      color: var(--official-muted);
+      text-decoration: none;
+      font-size: .9rem;
+      font-weight: 600;
+    }
+
+    .official-profile-tabs a.is-active {
+      color: var(--official-blue);
+    }
+
+    .official-profile-tabs a.is-active::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -1px;
+      height: 3px;
+      border-radius: 3px 3px 0 0;
+      background: var(--official-blue);
+    }
+
+    .official-profile-content {
+      display: grid;
+      grid-template-columns: 290px minmax(0, 1fr);
+      gap: 1.35rem;
+      align-items: start;
+    }
+
+    .official-profile-sidebar {
+      display: grid;
+      gap: 1rem;
+      position: sticky;
+      top: 84px;
+    }
+
+    .official-info-card {
+      border: 1px solid var(--official-border);
+      border-radius: 10px;
+      background: var(--official-surface);
+      padding: 1.15rem;
+    }
+
+    .official-info-card h2 {
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .official-info-card h2 svg {
+      width: 19px;
+      height: 19px;
+      color: var(--official-blue);
+    }
+
+    .official-tier-name {
+      margin: 1rem 0 .25rem;
+      font-size: 1.35rem;
+      font-weight: 500;
+    }
+
+    .official-tier-range,
+    .official-tier-note,
+    .official-unofficial-note {
+      margin: 0;
+      color: var(--official-muted);
+      font-size: .78rem;
+      line-height: 1.55;
+    }
+
+    .official-progress-head {
+      display: flex;
+      justify-content: space-between;
+      gap: .75rem;
+      margin-top: 1.15rem;
+      color: var(--official-muted);
+      font-size: .75rem;
+    }
+
+    .official-progress-head strong { color: var(--official-text); }
+
+    .official-progress-track {
+      height: 8px;
+      margin: .55rem 0 .6rem;
+      overflow: hidden;
+      border-radius: 999px;
+      background: var(--official-surface-soft);
+    }
+
+    .official-progress-fill {
       height: 100%;
       border-radius: inherit;
-      background: linear-gradient(90deg, #7d5cff, #42d9ff);
-      box-shadow: 0 0 16px rgba(66, 217, 255, .28);
+      background: var(--official-blue);
     }
-    .shared-progress-note {
-      margin: 0;
-      color: var(--shared-muted);
-      font-size: .8rem;
+
+    .official-unofficial-note {
+      margin-top: 1rem;
+      padding-top: .9rem;
+      border-top: 1px solid var(--official-border);
     }
-    .shared-overview-grid {
+
+    .official-breakdown {
       display: grid;
-      grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
-      gap: 1rem;
+      gap: .72rem;
       margin-top: 1rem;
     }
-    .shared-section {
-      padding: 1.3rem;
+
+    .official-breakdown-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .75rem;
+      font-size: .82rem;
     }
-    .shared-section-heading {
+
+    .official-breakdown-row span { color: var(--official-muted); }
+    .official-breakdown-row strong { font-weight: 600; }
+
+    .official-badges-panel {
+      min-width: 0;
+      border: 1px solid var(--official-border);
+      border-radius: 10px;
+      background: var(--official-surface);
+      padding: 1.35rem;
+    }
+
+    .official-section-heading {
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
       gap: 1rem;
-      margin-bottom: 1rem;
+      margin-bottom: 1.2rem;
     }
-    .shared-section-title {
-      display: flex;
-      align-items: center;
-      gap: .65rem;
-      font-size: .9rem;
-      font-weight: 900;
-      letter-spacing: .02em;
+
+    .official-section-heading h2 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 500;
     }
-    .shared-section-title > span {
-      width: 34px;
-      height: 34px;
-      display: grid;
-      place-items: center;
-      border: 1px solid rgba(124, 92, 255, .2);
-      border-radius: 11px;
-      color: #b9a9ff;
-      background: rgba(124, 92, 255, .08);
+
+    .official-section-heading p {
+      margin: .35rem 0 0;
+      color: var(--official-muted);
+      font-size: .82rem;
     }
-    .shared-section-title svg { width: 16px; height: 16px; }
-    .shared-section-heading p {
-      margin: .3rem 0 0;
-      color: var(--shared-muted);
-      font-size: .78rem;
+
+    .official-badge-count {
+      flex: 0 0 auto;
+      padding: .38rem .65rem;
+      border-radius: 999px;
+      color: var(--official-blue);
+      background: var(--official-blue-soft);
+      font-size: .75rem;
+      font-weight: 600;
     }
-    .shared-stat-grid {
+
+    .official-badge-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: .7rem;
+      gap: 1rem;
     }
-    .shared-stat {
-      min-height: 112px;
-      padding: 1rem;
-      border: 1px solid rgba(148, 163, 255, .11);
-      border-radius: 17px;
-      background: rgba(255, 255, 255, .032);
-    }
-    .shared-stat strong {
-      display: block;
-      font-size: 1.9rem;
-      line-height: 1;
-      letter-spacing: -.04em;
-    }
-    .shared-stat span {
-      display: block;
-      margin-top: .55rem;
-      color: var(--shared-muted);
-      font-size: .76rem;
-      line-height: 1.35;
-    }
-    .shared-breakdown-grid {
-      display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: .65rem;
-    }
-    .shared-breakdown-item {
-      min-height: 104px;
-      padding: .95rem .8rem;
-      border: 1px solid rgba(148, 163, 255, .1);
-      border-radius: 16px;
-      background: linear-gradient(145deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .015));
-      text-align: center;
-    }
-    .shared-breakdown-item strong {
-      display: block;
-      font-size: 1.65rem;
-      line-height: 1;
-    }
-    .shared-breakdown-item span {
-      display: block;
-      margin-top: .55rem;
-      color: var(--shared-muted);
-      font-size: .71rem;
-      line-height: 1.3;
-    }
-    .shared-badges-section {
-      margin-top: 1rem;
-      padding: 1.35rem;
-    }
-    .shared-badge-total {
-      min-height: 32px;
-      display: inline-flex;
-      align-items: center;
-      padding: .35rem .7rem;
-      border: 1px solid rgba(66, 217, 255, .16);
-      border-radius: 999px;
-      color: #9feaff;
-      background: rgba(66, 217, 255, .055);
-      font-size: .72rem;
-      font-weight: 850;
-    }
-    .shared-badge-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: .8rem;
-    }
-    .shared-badge-card {
+
+    .official-badge-card {
       min-width: 0;
-      min-height: 220px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--official-border);
+      border-radius: 9px;
+      background: var(--official-surface);
+      color: inherit;
+      text-decoration: none;
+      transition: box-shadow .18s ease, transform .18s ease, border-color .18s ease;
+    }
+
+    .official-badge-card:hover {
+      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--official-blue) 36%, var(--official-border));
+      box-shadow: 0 4px 14px rgba(60, 64, 67, .16);
+    }
+
+    .official-badge-art {
+      min-height: 148px;
+      display: grid;
+      place-items: center;
+      padding: 1.15rem;
+      background: var(--official-surface-soft);
+    }
+
+    .official-badge-art img {
+      width: 112px;
+      height: 112px;
+      object-fit: contain;
+      filter: drop-shadow(0 3px 4px rgba(60, 64, 67, .12));
+    }
+
+    .official-badge-art svg {
+      width: 44px;
+      height: 44px;
+      color: var(--official-blue);
+    }
+
+    .official-badge-body {
+      flex: 1 1 auto;
       display: flex;
       flex-direction: column;
       padding: 1rem;
-      border: 1px solid rgba(148, 163, 255, .11);
-      border-radius: 19px;
-      background: linear-gradient(155deg, rgba(255, 255, 255, .045), rgba(255, 255, 255, .018));
-      color: inherit;
-      text-decoration: none;
-      transition: transform .2s ease, border-color .2s ease, background .2s ease;
     }
-    a.shared-badge-card:hover {
-      transform: translateY(-3px);
-      border-color: rgba(124, 92, 255, .32);
-      background: linear-gradient(155deg, rgba(124, 92, 255, .09), rgba(255, 255, 255, .02));
+
+    .official-badge-type {
+      color: var(--official-blue);
+      font-size: .67rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
     }
-    .shared-badge-art {
-      height: 104px;
-      display: grid;
-      place-items: center;
-      margin-bottom: .85rem;
-      border-radius: 15px;
-      background:
-        radial-gradient(circle at 50% 20%, rgba(124, 92, 255, .14), transparent 60%),
-        rgba(255, 255, 255, .025);
+
+    .official-badge-card h3 {
+      margin: .45rem 0 0;
+      overflow-wrap: anywhere;
+      font-size: .94rem;
+      line-height: 1.38;
+      font-weight: 600;
     }
-    .shared-badge-art img {
-      width: 88px;
-      height: 88px;
-      object-fit: contain;
-    }
-    .shared-badge-art svg {
-      width: 34px;
-      height: 34px;
-      color: #b7a6ff;
-    }
-    .shared-badge-card h3 {
-      margin: 0;
-      min-height: 2.6em;
-      font-size: .86rem;
-      line-height: 1.3;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-    .shared-badge-meta {
+
+    .official-badge-meta {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: .6rem;
       margin-top: auto;
-      padding-top: .9rem;
-      color: var(--shared-muted);
-      font-size: .7rem;
+      padding-top: 1rem;
+      color: var(--official-muted);
+      font-size: .72rem;
     }
-    .shared-badge-meta strong { color: #9feaff; }
-    .shared-empty {
-      min-height: 180px;
+
+    .official-badge-points {
+      flex: 0 0 auto;
+      padding: .25rem .45rem;
+      border-radius: 4px;
+      color: var(--official-green);
+      background: color-mix(in srgb, var(--official-green) 10%, transparent);
+      font-weight: 600;
+    }
+
+    .official-badge-open {
+      display: inline-flex;
+      align-items: center;
+      gap: .3rem;
+      margin-top: .9rem;
+      padding-top: .8rem;
+      border-top: 1px solid var(--official-border);
+      color: var(--official-blue);
+      font-size: .75rem;
+      font-weight: 600;
+    }
+
+    .official-badge-open svg { width: 13px; height: 13px; }
+
+    .official-empty-badges {
+      min-height: 240px;
       display: grid;
       place-items: center;
-      color: var(--shared-muted);
       text-align: center;
+      color: var(--official-muted);
     }
-    .shared-cta {
-      margin-top: 1rem;
-      padding: 1.2rem 1.3rem;
+
+    .official-empty-badges svg {
+      width: 44px;
+      height: 44px;
+      margin-bottom: .75rem;
+      color: var(--official-blue);
+    }
+
+    .official-profile-cta {
+      margin-top: 1.35rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 1rem;
-      overflow: hidden;
-      position: relative;
+      border: 1px solid var(--official-border);
+      border-radius: 10px;
+      background: var(--official-surface);
+      padding: 1.1rem 1.25rem;
     }
-    .shared-cta::after {
-      content: "";
-      position: absolute;
-      width: 180px;
-      height: 180px;
-      right: -70px;
-      top: -80px;
-      border-radius: 50%;
-      background: rgba(124, 92, 255, .1);
-      pointer-events: none;
+
+    .official-profile-cta strong,
+    .official-profile-cta span { display: block; }
+
+    .official-profile-cta strong {
+      font-size: .95rem;
+      font-weight: 600;
     }
-    .shared-cta-copy {
-      min-width: 0;
-      display: flex;
-      align-items: center;
-      gap: .85rem;
-      position: relative;
-      z-index: 1;
+
+    .official-profile-cta span {
+      margin-top: .2rem;
+      color: var(--official-muted);
+      font-size: .78rem;
     }
-    .shared-cta-icon {
-      width: 46px;
-      height: 46px;
-      flex: 0 0 46px;
-      display: grid;
-      place-items: center;
-      border: 1px solid rgba(245, 196, 81, .24);
-      border-radius: 15px;
-      color: var(--shared-gold);
-      background: rgba(245, 196, 81, .07);
-    }
-    .shared-cta-copy strong,
-    .shared-cta-copy span { display: block; }
-    .shared-cta-copy strong { font-size: .94rem; }
-    .shared-cta-copy span {
-      margin-top: .28rem;
-      color: var(--shared-muted);
-      font-size: .79rem;
-    }
-    .shared-status-page {
+
+    .official-profile-loading {
       min-height: 100vh;
       display: grid;
       place-items: center;
       padding: 1rem;
+      background: var(--official-bg, #f8fafd);
     }
-    .shared-status-card {
+
+    .official-profile-loading-card {
       width: min(480px, 100%);
+      border: 1px solid var(--official-border, #dadce0);
+      border-radius: 12px;
+      background: var(--official-surface, #fff);
       padding: 2rem;
+      color: var(--official-text, #202124);
       text-align: center;
+      box-shadow: 0 2px 10px rgba(60, 64, 67, .12);
     }
-    .shared-status-icon {
-      width: 58px;
-      height: 58px;
-      display: grid;
-      place-items: center;
-      margin: 0 auto 1rem;
-      border: 1px solid rgba(124, 92, 255, .28);
-      border-radius: 19px;
-      color: #b9a9ff;
-      background: rgba(124, 92, 255, .08);
+
+    .official-profile-loading-card svg {
+      width: 36px;
+      height: 36px;
+      color: var(--official-blue, #1a73e8);
     }
-    .shared-status-icon svg { width: 25px; height: 25px; }
-    .shared-status-page.is-loading .shared-status-icon svg { animation: spin 1s linear infinite; }
-    .shared-status-card h1 { margin: 0; font-size: 1.35rem; }
-    .shared-status-card p {
-      margin: .65rem auto 0;
-      max-width: 34ch;
-      color: var(--shared-muted);
+
+    .official-profile-loading-card .is-spinning { animation: spin 1s linear infinite; }
+
+    .official-profile-loading-card h1 {
+      margin: 1rem 0 .4rem;
+      font-size: 1.3rem;
+      font-weight: 500;
+    }
+
+    .official-profile-loading-card p {
+      margin: 0;
+      color: var(--official-muted, #5f6368);
       font-size: .86rem;
-      line-height: 1.6;
+      line-height: 1.55;
     }
-    .shared-status-card .shared-action { margin-top: 1rem; }
-    html[data-theme="light"] .public-profile-page {
-      --shared-surface: rgba(255, 255, 255, .86);
-      --shared-surface-strong: #fff;
-      --shared-surface-soft: rgba(15, 23, 42, .035);
-      --shared-border: rgba(70, 78, 130, .14);
-      --shared-border-strong: rgba(99, 74, 214, .24);
-      --shared-text: #11162d;
-      --shared-muted: rgba(52, 62, 94, .7);
-      background:
-        radial-gradient(circle at 8% 6%, rgba(124, 92, 255, .13), transparent 30%),
-        radial-gradient(circle at 92% 12%, rgba(66, 217, 255, .12), transparent 28%),
-        linear-gradient(180deg, #f6f8ff 0%, #eef2ff 55%, #f8faff 100%);
-    }
-    html[data-theme="light"] .public-profile-page .arcade-header {
-      background: rgba(247, 249, 255, .78);
-    }
-    html[data-theme="light"] .shared-card {
-      background: linear-gradient(145deg, rgba(255, 255, 255, .94), rgba(246, 248, 255, .86));
-      box-shadow: 0 24px 60px rgba(52, 62, 110, .1), inset 0 1px 0 #fff;
-    }
-    html[data-theme="light"] .shared-tier-card {
-      background:
-        radial-gradient(circle at 85% 8%, rgba(245, 196, 81, .16), transparent 34%),
-        linear-gradient(145deg, #fff, #f6f8ff);
-    }
-    html[data-theme="light"] .shared-score-block strong {
-      background: linear-gradient(135deg, #151b36 20%, #4167c8 68%, #7653d9 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-    }
-    html[data-theme="light"] .shared-stat,
-    html[data-theme="light"] .shared-breakdown-item,
-    html[data-theme="light"] .shared-badge-card {
-      background: rgba(63, 72, 128, .03);
-    }
-    @media (max-width: 980px) {
-      .shared-hero,
-      .shared-overview-grid { grid-template-columns: 1fr; }
-      .shared-tier-card { min-height: 300px; }
-      .shared-badge-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    }
-    @media (max-width: 760px) {
-      .public-profile-page .arcade-nav { display: none; }
-      .shared-breakdown-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-      .shared-badge-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
-    @media (max-width: 640px) {
-      .public-profile-page .arcade-header,
-      .shared-profile-shell { width: min(100% - 1rem, 1180px); }
-      .public-profile-page .arcade-header { padding-block: .7rem; }
-      .public-profile-page .arcade-header-actions .header-store-link span { display: none; }
-      .public-profile-page .arcade-header-actions .header-store-link {
-        width: 42px;
-        min-width: 42px;
-        padding-inline: 0;
+
+    .official-profile-loading-card .official-button { margin-top: 1.25rem; }
+
+    @media (max-width: 960px) {
+      .official-profile-content { grid-template-columns: 1fr; }
+      .official-profile-sidebar {
+        position: static;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
-      .shared-profile-shell { padding-top: .75rem; }
-      .shared-card { border-radius: 20px; }
-      .shared-score-card { min-height: 360px; padding: 1.1rem; }
-      .shared-kicker { align-items: flex-start; flex-direction: column; }
-      .shared-profile-row { margin-top: 1.15rem; }
-      .shared-profile-avatar {
-        width: 60px;
-        height: 60px;
-        flex-basis: 60px;
-        border-radius: 18px;
-      }
-      .shared-score-block { margin: 1.65rem 0 1.2rem; }
-      .shared-score-block strong { font-size: clamp(4.2rem, 25vw, 6.4rem); }
-      .shared-hero-actions .shared-action { flex: 1 1 calc(50% - .35rem); }
-      .shared-tier-card,
-      .shared-section,
-      .shared-badges-section { padding: 1.05rem; }
-      .shared-stat-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-      .shared-stat { min-height: 100px; padding: .85rem .7rem; }
-      .shared-stat strong { font-size: 1.55rem; }
-      .shared-breakdown-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .shared-breakdown-item { min-height: 92px; }
-      .shared-badge-grid { gap: .6rem; }
-      .shared-badge-card { min-height: 206px; padding: .8rem; border-radius: 16px; }
-      .shared-badge-art { height: 92px; }
-      .shared-badge-art img { width: 76px; height: 76px; }
-      .shared-cta { align-items: stretch; flex-direction: column; padding: 1rem; }
-      .shared-cta .shared-action { width: 100%; position: relative; z-index: 1; }
+      .official-badge-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
-    @media (max-width: 420px) {
-      .shared-stat-grid { grid-template-columns: 1fr; }
-      .shared-stat {
+
+    @media (max-width: 720px) {
+      .official-profile-header-inner,
+      .official-profile-main {
+        width: min(100% - 1.25rem, 1120px);
+      }
+      .official-profile-header-inner { min-height: 58px; gap: .65rem; }
+      .official-profile-brand-copy small,
+      .official-profile-nav { display: none; }
+      .official-header-share { margin-left: auto; }
+      .official-profile-main { padding-top: .8rem; }
+      .official-profile-cover { height: 96px; }
+      .official-profile-identity {
         min-height: 0;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1rem;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: .8rem 1rem;
+        padding: 0 1rem 1rem;
       }
-      .shared-stat span { margin-top: 0; text-align: right; }
-      .shared-badge-grid { grid-template-columns: 1fr; }
-      .shared-badge-card { min-height: 190px; }
+      .official-profile-avatar {
+        width: 92px;
+        height: 92px;
+        flex-basis: 92px;
+        margin-top: -46px;
+        border-width: 4px;
+      }
+      .official-profile-name {
+        flex-basis: calc(100% - 108px);
+        padding-top: .7rem;
+      }
+      .official-profile-actions {
+        width: 100%;
+        justify-content: stretch;
+      }
+      .official-profile-actions .official-button { flex: 1 1 0; }
+      .official-profile-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .official-profile-stat:nth-child(2) { border-right: 0; }
+      .official-profile-stat:nth-child(-n + 2) { border-bottom: 1px solid var(--official-border); }
+      .official-profile-sidebar { grid-template-columns: 1fr; }
+      .official-badges-panel { padding: 1rem; }
+      .official-profile-cta {
+        align-items: stretch;
+        flex-direction: column;
+      }
+      .official-profile-cta .official-button { width: 100%; }
     }
+
+    @media (max-width: 520px) {
+      .official-header-share span { display: none; }
+      .official-header-share { width: 40px; padding-inline: 0; }
+      .official-profile-brand-copy strong { font-size: .92rem; }
+      .official-profile-name h1 { font-size: 1.35rem; }
+      .official-profile-name p { font-size: .78rem; }
+      .official-profile-stat { padding: .9rem 1rem; }
+      .official-profile-stat strong { font-size: 1.25rem; }
+      .official-profile-tabs { margin: 1rem 0; }
+      .official-badge-grid { grid-template-columns: 1fr; }
+      .official-badge-card { display: grid; grid-template-columns: 112px minmax(0, 1fr); }
+      .official-badge-art { min-height: 100%; padding: .8rem; }
+      .official-badge-art img { width: 84px; height: 84px; }
+      .official-badge-body { min-width: 0; padding: .85rem; }
+      .official-badge-card h3 { font-size: .86rem; }
+      .official-badge-meta { padding-top: .7rem; }
+      .official-badge-open { margin-top: .65rem; padding-top: .6rem; }
+    }
+
     @media (prefers-reduced-motion: reduce) {
-      .shared-action,
-      .shared-badge-card { transition: none; }
-      .shared-status-page.is-loading .shared-status-icon svg { animation: none; }
+      .official-badge-card,
+      .official-button,
+      .official-header-share { transition: none; }
+      .official-badge-card:hover { transform: none; }
     }
   `}</style>
+}
+
+function LoadingState() {
+  return (
+    <main className="official-profile-page official-profile-loading">
+      <SharedProfileStyles />
+      <article className="official-profile-loading-card">
+        <LoaderCircle className="is-spinning" />
+        <h1>Loading public profile</h1>
+        <p>Fetching the latest profile information and earned badges.</p>
+      </article>
+    </main>
+  )
 }
 
 function SharedProfileContent() {
@@ -802,15 +872,18 @@ function SharedProfileContent() {
           body: JSON.stringify({ url: profileUrl, season: "2026" }),
           signal: controller.signal,
         })
+
         let payload: ArcadeApiResponse | null = null
         try {
           payload = await response.json() as ArcadeApiResponse
         } catch {
-          // Keep the stable error below when the response is not JSON.
+          // Use the stable error message below when the response is not JSON.
         }
+
         if (!response.ok || !payload?.success) {
           throw new Error(payload?.message || "The profile could not be loaded.")
         }
+
         setState({ status: "ready", data: payload, profileUrl })
       } catch (error: unknown) {
         if (error instanceof DOMException && error.name === "AbortError") {
@@ -819,6 +892,7 @@ function SharedProfileContent() {
           }
           return
         }
+
         setState({
           status: "error",
           message: error instanceof Error ? error.message : "The profile could not be loaded.",
@@ -834,30 +908,17 @@ function SharedProfileContent() {
     }
   }, [profileId])
 
-  if (state.status === "loading") {
-    return (
-      <main className="public-profile-page shared-status-page is-loading">
-        <SharedProfileStyles />
-        <div className="arcade-stars" aria-hidden="true" />
-        <article className="shared-card shared-status-card">
-          <span className="shared-status-icon"><LoaderCircle /></span>
-          <h1>Loading Arcade score…</h1>
-          <p>Fetching points, badges and tier information.</p>
-        </article>
-      </main>
-    )
-  }
+  if (state.status === "loading") return <LoadingState />
 
   if (state.status === "error") {
     return (
-      <main className="public-profile-page shared-status-page">
+      <main className="official-profile-page official-profile-loading">
         <SharedProfileStyles />
-        <div className="arcade-stars" aria-hidden="true" />
-        <article className="shared-card shared-status-card">
-          <span className="shared-status-icon"><Trophy /></span>
-          <h1>Score unavailable</h1>
+        <article className="official-profile-loading-card">
+          <Trophy />
+          <h1>Profile unavailable</h1>
           <p>{state.message}</p>
-          <a className="shared-action is-primary" href={getDashboardHref()}>
+          <a className="official-button is-primary" href={getDashboardHref()}>
             Check another profile
           </a>
         </article>
@@ -869,13 +930,6 @@ function SharedProfileContent() {
   const profileName = profile?.userName || "Google Skills learner"
   const profileImage = safeHttpsUrl(profile?.profileImage)
   const points = numeric(state.data.arcadePoints?.totalPoints)
-  const groups = [
-    { label: "Skill badges", value: state.data.skill?.length ?? 0 },
-    { label: "Arcade games", value: state.data.game?.length ?? 0 },
-    { label: "Trivia", value: state.data.trivia?.length ?? 0 },
-    { label: "Completion", value: state.data.completion?.length ?? 0 },
-    { label: "Special", value: state.data.special?.length ?? 0 },
-  ]
   const badges = state.data.badges ?? [
     ...(state.data.game ?? []),
     ...(state.data.trivia ?? []),
@@ -884,274 +938,273 @@ function SharedProfileContent() {
     ...(state.data.special ?? []),
   ]
   const tier = getTierProgress(points)
-  const recentBadges = badges.slice(0, 8)
+  const groups = [
+    { label: "Skill badges", value: state.data.skill?.length ?? 0 },
+    { label: "Arcade games", value: state.data.game?.length ?? 0 },
+    { label: "Trivia badges", value: state.data.trivia?.length ?? 0 },
+    { label: "Special badges", value: state.data.special?.length ?? 0 },
+  ]
 
   async function shareProfile() {
     const url = window.location.href
-    const title = `${profileName} · ${formatNumber(points)} Arcade points`
-    const text = `${profileName} has ${formatNumber(points)} Arcade points, ${badges.length} badges and is currently ${tier.current?.league ?? "not yet ranked"}.`
+    const title = `${profileName} · Google Skills profile`
+    const text = `${profileName} has earned ${badges.length} badges and ${formatNumber(points)} Arcade points.`
 
     try {
       if (navigator.share) {
         await navigator.share({ title, text, url })
-      } else {
-        await navigator.clipboard.writeText(url)
-        setCopied(true)
-        window.setTimeout(() => setCopied(false), 1800)
+        return
       }
+
+      await navigator.clipboard.writeText(url)
+      setCopied(true)
+      window.setTimeout(() => setCopied(false), 1800)
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") return
     }
   }
 
   return (
-    <main className="arcade-dashboard-page public-profile-page">
+    <main className="official-profile-page">
       <SharedProfileStyles />
-      <div className="arcade-stars" aria-hidden="true" />
 
-      <header className="arcade-header">
-        <a className="arcade-brand" href={getDashboardHref()} aria-label="Arcade Points home">
-          <span className="arcade-brand-mark"><Gamepad2 /></span>
-          <span className="arcade-brand-copy"><strong>ARCADE</strong><b>POINTS</b></span>
-          <em>PRO</em>
-        </a>
-        <nav className="arcade-nav" aria-label="Profile sections">
-          <a className="active" href="#score">Score</a>
-          <a href="#badges">Badges</a>
-        </nav>
-        <div className="arcade-header-actions">
-          <button className="header-store-link is-chrome" type="button" onClick={shareProfile}>
+      <header className="official-profile-header">
+        <div className="official-profile-header-inner">
+          <a className="official-profile-brand" href={getDashboardHref()} aria-label="Arcade Points home">
+            <span className="official-profile-brand-mark" aria-hidden="true">
+              <i /><i /><i /><i />
+            </span>
+            <span className="official-profile-brand-copy">
+              <strong>Google Cloud Skills</strong>
+              <small>Arcade profile by ePlus.DEV</small>
+            </span>
+          </a>
+
+          <nav className="official-profile-nav" aria-label="Profile sections">
+            <a className="is-active" href="#profile">Profile</a>
+            <a href="#badges">Badges</a>
+          </nav>
+
+          <button className="official-header-share" type="button" onClick={shareProfile}>
             <Share />
-            <span aria-live="polite">{copied ? "Copied" : "Share"}</span>
+            <span>{copied ? "Copied" : "Share"}</span>
           </button>
         </div>
       </header>
 
-      <section className="shared-profile-shell" aria-label="Shared Arcade score">
-        <div className="shared-hero" id="score">
-          <article className="shared-card shared-score-card">
-            <div className="shared-kicker">
-              <span><Sparkles /> Google Cloud Arcade 2026</span>
-              <span className="shared-public-pill">Public score</span>
+      <div className="official-profile-main">
+        <section id="profile" className="official-profile-card">
+          <div className="official-profile-cover" aria-hidden="true">
+            <span className="official-cover-dots" />
+          </div>
+
+          <div className="official-profile-identity">
+            {profileImage ? (
+              <img
+                className="official-profile-avatar"
+                src={profileImage}
+                alt={`${profileName} profile`}
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <span className="official-profile-avatar official-profile-avatar-fallback" aria-hidden="true">
+                {profileName.slice(0, 1).toUpperCase()}
+              </span>
+            )}
+
+            <div className="official-profile-name">
+              <h1>{profileName}</h1>
+              <p>
+                {profile?.memberSince
+                  ? `Google Skills member since ${profile.memberSince}`
+                  : "Google Skills public profile"}
+              </p>
             </div>
 
-            <div className="shared-profile-row">
-              {profileImage ? (
-                <img
-                  className="shared-profile-avatar"
-                  src={profileImage}
-                  alt={`${profileName} profile`}
-                  referrerPolicy="no-referrer"
-                />
-              ) : (
-                <span className="shared-profile-avatar shared-profile-avatar-fallback">
-                  {profileName.slice(0, 1).toUpperCase()}
-                </span>
-              )}
-              <div>
-                <h1>{profileName}</h1>
-                <p>
-                  {profile?.memberSince
-                    ? `Member since ${profile.memberSince}`
-                    : "Google Skills public profile"}
-                </p>
-              </div>
-            </div>
-
-            <div className="shared-score-block">
-              <span>Total Arcade points</span>
-              <strong>{formatNumber(points)}</strong>
-            </div>
-
-            <div className="shared-hero-actions">
-              <button className="shared-action is-primary" type="button" onClick={shareProfile}>
-                <Share /> {copied ? "Link copied" : "Share score"}
+            <div className="official-profile-actions">
+              <button className="official-button is-primary" type="button" onClick={shareProfile}>
+                <Share /> {copied ? "Link copied" : "Share profile"}
               </button>
               <a
-                className="shared-action"
+                className="official-button"
                 href={state.profileUrl}
                 target="_blank"
                 rel="noreferrer noopener"
               >
-                Google Skills <ExternalLink />
+                View on Google Skills <ExternalLink />
               </a>
             </div>
-          </article>
+          </div>
 
-          <aside className="shared-card shared-tier-card">
-            <div>
-              <span className="shared-tier-icon"><Trophy /></span>
-              <span className="shared-tier-label">Current tier</span>
-              <h2>{tier.current?.league ?? "No tier yet"}</h2>
-              <p className="shared-tier-range">
-                {tier.current ? tierRangeLabel(tier.current) : "Keep earning points to unlock your first tier."}
+          <div className="official-profile-stats" aria-label="Profile summary">
+            <div className="official-profile-stat">
+              <strong>{formatNumber(points)}</strong>
+              <span>Arcade points</span>
+            </div>
+            <div className="official-profile-stat">
+              <strong>{formatNumber(badges.length)}</strong>
+              <span>Badges earned</span>
+            </div>
+            <div className="official-profile-stat">
+              <strong>{formatNumber(state.data.skill?.length ?? 0)}</strong>
+              <span>Skill badges</span>
+            </div>
+            <div className="official-profile-stat">
+              <strong>{formatNumber(state.data.game?.length ?? 0)}</strong>
+              <span>Arcade games</span>
+            </div>
+          </div>
+        </section>
+
+        <nav className="official-profile-tabs" aria-label="Public profile navigation">
+          <a className="is-active" href="#badges">Badges</a>
+          <a href="#arcade-summary">Arcade summary</a>
+        </nav>
+
+        <div className="official-profile-content">
+          <aside id="arcade-summary" className="official-profile-sidebar">
+            <section className="official-info-card">
+              <h2><Trophy /> Arcade tier</h2>
+              <div className="official-tier-name">{tier.current?.league ?? "No tier yet"}</div>
+              <p className="official-tier-range">
+                {tier.current ? tierRangeLabel(tier.current) : "Start earning Arcade points to reach the first tier."}
               </p>
 
-              <div className="shared-progress-head">
+              <div className="official-progress-head">
                 <span>{tier.next ? `Next: ${tier.next.league}` : "Highest tier reached"}</span>
                 <strong>
                   {tier.next
-                    ? `${formatNumber(points)} / ${tier.next.points}`
+                    ? `${formatNumber(points)} / ${formatNumber(tier.next.points)}`
                     : `${formatNumber(points)} pts`}
                 </strong>
               </div>
               <div
-                className="shared-progress-track"
+                className="official-progress-track"
                 role="progressbar"
-                aria-label="Tier progress"
+                aria-label="Arcade tier progress"
                 aria-valuemin={0}
                 aria-valuemax={100}
                 aria-valuenow={Math.round(tier.progress)}
               >
-                <div className="shared-progress-fill" style={{ width: `${tier.progress}%` }} />
+                <div className="official-progress-fill" style={{ width: `${tier.progress}%` }} />
               </div>
-              <p className="shared-progress-note">
+              <p className="official-tier-note">
                 {tier.next
                   ? `${formatNumber(tier.remaining)} points remaining`
-                  : tier.current
-                    ? "You reached the highest listed tier."
-                    : `${OFFICIAL_MILESTONES[0].points} points to the first tier`}
+                  : "The highest listed Arcade tier has been reached."}
               </p>
-            </div>
+              <p className="official-unofficial-note">
+                Arcade points and tier estimates are calculated by ePlus.DEV. Google Skills remains the source of truth for profile badges.
+              </p>
+            </section>
+
+            <section className="official-info-card">
+              <h2><Star /> Badge breakdown</h2>
+              <div className="official-breakdown">
+                {groups.map((group) => (
+                  <div className="official-breakdown-row" key={group.label}>
+                    <span>{group.label}</span>
+                    <strong>{formatNumber(group.value)}</strong>
+                  </div>
+                ))}
+              </div>
+            </section>
           </aside>
+
+          <section id="badges" className="official-badges-panel">
+            <div className="official-section-heading">
+              <div>
+                <h2>Earned badges</h2>
+                <p>Achievements displayed from this public Google Skills profile.</p>
+              </div>
+              <span className="official-badge-count">{badges.length} badges</span>
+            </div>
+
+            {badges.length ? (
+              <div className="official-badge-grid">
+                {badges.map((badge: ArcadeBadge, index) => {
+                  const image = safeHttpsUrl(badge.imageURL)
+                  const href = safeHttpsUrl(badge.badgeURL)
+                  const pointsLabel = badge.points === "-*"
+                    ? "Special"
+                    : `+${formatNumber(numeric(badge.points))} pts`
+
+                  const card = (
+                    <>
+                      <div className="official-badge-art">
+                        {image ? (
+                          <img
+                            src={image}
+                            alt=""
+                            loading="lazy"
+                            referrerPolicy="no-referrer"
+                          />
+                        ) : (
+                          <BadgeCheck />
+                        )}
+                      </div>
+                      <div className="official-badge-body">
+                        <span className="official-badge-type">Google Skills badge</span>
+                        <h3>{badge.title}</h3>
+                        <div className="official-badge-meta">
+                          <time>{badge.dateEarned || "Earned badge"}</time>
+                          <span className="official-badge-points">{pointsLabel}</span>
+                        </div>
+                        {href ? (
+                          <span className="official-badge-open">
+                            View achievement <ExternalLink />
+                          </span>
+                        ) : null}
+                      </div>
+                    </>
+                  )
+
+                  return href ? (
+                    <a
+                      className="official-badge-card"
+                      key={`${badge.title}-${index}`}
+                      href={href}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                    >
+                      {card}
+                    </a>
+                  ) : (
+                    <article className="official-badge-card" key={`${badge.title}-${index}`}>
+                      {card}
+                    </article>
+                  )
+                })}
+              </div>
+            ) : (
+              <div className="official-empty-badges">
+                <div>
+                  <BadgeCheck />
+                  <strong>No public badges found</strong>
+                  <p>This profile does not currently expose any earned badges.</p>
+                </div>
+              </div>
+            )}
+          </section>
         </div>
 
-        <div className="shared-overview-grid">
-          <article className="shared-card shared-section">
-            <div className="shared-section-heading">
-              <div>
-                <div className="shared-section-title">
-                  <span><BadgeCheck /></span> Score summary
-                </div>
-                <p>A quick overview of this public profile.</p>
-              </div>
-            </div>
-            <div className="shared-stat-grid">
-              <div className="shared-stat">
-                <strong>{badges.length}</strong>
-                <span>Total badges</span>
-              </div>
-              <div className="shared-stat">
-                <strong>{state.data.skill?.length ?? 0}</strong>
-                <span>Skill badges</span>
-              </div>
-              <div className="shared-stat">
-                <strong>{state.data.game?.length ?? 0}</strong>
-                <span>Arcade games</span>
-              </div>
-            </div>
-          </article>
-
-          <article className="shared-card shared-section">
-            <div className="shared-section-heading">
-              <div>
-                <div className="shared-section-title">
-                  <span><Star /></span> Badge breakdown
-                </div>
-                <p>Achievements grouped by Arcade category.</p>
-              </div>
-            </div>
-            <div className="shared-breakdown-grid">
-              {groups.map((group) => (
-                <div className="shared-breakdown-item" key={group.label}>
-                  <strong>{group.value}</strong>
-                  <span>{group.label}</span>
-                </div>
-              ))}
-            </div>
-          </article>
-        </div>
-
-        <article id="badges" className="shared-card shared-badges-section">
-          <div className="shared-section-heading">
-            <div>
-              <div className="shared-section-title">
-                <span><BadgeCheck /></span> Recent achievements
-              </div>
-              <p>Latest badges visible on this public profile.</p>
-            </div>
-            <span className="shared-badge-total">{badges.length} badges earned</span>
+        <section className="official-profile-cta">
+          <div>
+            <strong>Check your own Arcade progress</strong>
+            <span>Analyze a public Google Skills profile and review its Arcade score.</span>
           </div>
-
-          {recentBadges.length ? (
-            <div className="shared-badge-grid">
-              {recentBadges.map((badge: ArcadeBadge, index) => {
-                const image = safeHttpsUrl(badge.imageURL)
-                const href = safeHttpsUrl(badge.badgeURL)
-                const card = (
-                  <>
-                    <div className="shared-badge-art">
-                      {image ? (
-                        <img src={image} alt="" loading="lazy" referrerPolicy="no-referrer" />
-                      ) : (
-                        <BadgeCheck />
-                      )}
-                    </div>
-                    <h3>{badge.title}</h3>
-                    <div className="shared-badge-meta">
-                      <strong>
-                        {badge.points === "-*"
-                          ? "Special scoring rule"
-                          : `+${formatNumber(numeric(badge.points))} pts`}
-                      </strong>
-                      <time>{badge.dateEarned || "Earned badge"}</time>
-                    </div>
-                  </>
-                )
-
-                return href ? (
-                  <a
-                    className="shared-badge-card"
-                    key={`${badge.title}-${index}`}
-                    href={href}
-                    target="_blank"
-                    rel="noreferrer noopener"
-                  >
-                    {card}
-                  </a>
-                ) : (
-                  <article className="shared-badge-card" key={`${badge.title}-${index}`}>
-                    {card}
-                  </article>
-                )
-              })}
-            </div>
-          ) : (
-            <div className="shared-empty">No Arcade badges found for this profile.</div>
-          )}
-        </article>
-
-        <article className="shared-card shared-cta">
-          <div className="shared-cta-copy">
-            <span className="shared-cta-icon"><Trophy /></span>
-            <div>
-              <strong>Check your own Arcade score</strong>
-              <span>Analyze your public Google Skills profile using the same dashboard.</span>
-            </div>
-          </div>
-          <a className="shared-action is-primary" href={getDashboardHref()}>
+          <a className="official-button is-primary" href={getDashboardHref()}>
             Analyze profile <ExternalLink />
           </a>
-        </article>
-      </section>
+        </section>
+      </div>
     </main>
   )
 }
 
 export default function SharedProfileClient() {
   return (
-    <Suspense
-      fallback={(
-        <main className="public-profile-page shared-status-page is-loading">
-          <SharedProfileStyles />
-          <div className="arcade-stars" aria-hidden="true" />
-          <article className="shared-card shared-status-card">
-            <span className="shared-status-icon"><LoaderCircle /></span>
-            <h1>Loading Arcade score…</h1>
-          </article>
-        </main>
-      )}
-    >
+    <Suspense fallback={<LoadingState />}>
       <SharedProfileContent />
     </Suspense>
   )
