@@ -27,7 +27,7 @@ test("Facilitator standard milestone bonuses stay 5, 15, 25 and 35", () => {
   )
 })
 
-test("profile score applies only the highest completed standard milestone bonus", () => {
+test("score uses only the highest completed standard milestone bonus", () => {
   assert.equal(facilitator.getFacilitatorMilestoneBonus({ games: 6, skills: 18 }), 5)
   assert.equal(facilitator.getFacilitatorMilestoneBonus({ games: 8, skills: 34 }), 15)
   assert.equal(facilitator.getFacilitatorMilestoneBonus({ games: 10, skills: 50 }), 25)
