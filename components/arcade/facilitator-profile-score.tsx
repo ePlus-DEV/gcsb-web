@@ -1,6 +1,6 @@
 "use client"
 
-import { ExternalLink } from "lucide-react"
+import { ExternalLink, GraduationCap } from "lucide-react"
 import { createPortal } from "react-dom"
 import { useEffect, useMemo, useRef, useState } from "react"
 import {
@@ -118,29 +118,28 @@ export default function FacilitatorProfileScore({
     const result = dashboard?.result
     if (!result?.faciCounts) return null
 
-    const counts = {
+    const milestone = getHighestFacilitatorMilestone({
       games: numeric(result.faciCounts.faciGame),
       skills: numeric(result.faciCounts.faciSkill),
-    }
-    const milestone = getHighestFacilitatorMilestone(counts)
+    })
     const earnedPoints = numeric(result.arcadePoints?.totalPoints)
     const milestoneBonus = milestone?.bonus ?? 0
-    const appliedBonus = participating ? milestoneBonus : 0
 
     return {
-      earnedPoints,
       milestone,
-      appliedBonus,
-      totalPoints: earnedPoints + appliedBonus,
+      milestoneBonus,
+      totalPoints: earnedPoints + milestoneBonus,
     }
-  }, [dashboard, participating])
+  }, [dashboard])
 
-  const dashboardProfileUrl = dashboard?.profileUrl?.trim().replace(/\/$/, "") ?? ""
+  const dashboardProfileUrl =
+    dashboard?.profileUrl?.trim().replace(/\/$/, "") ?? ""
   const activeProfileUrl = profileUrl.trim().replace(/\/$/, "")
 
   if (
     !host ||
-    !score ||
+    !participating ||
+    !score?.milestone ||
     !activeProfileUrl ||
     !dashboardProfileUrl ||
     dashboardProfileUrl !== activeProfileUrl
@@ -151,146 +150,148 @@ export default function FacilitatorProfileScore({
   const openFacilitatorPanel = () => {
     window.dispatchEvent(new Event(FACILITATOR_PANEL_OPEN_EVENT))
   }
-  const bonusMilestoneNote = `Optional +${FACILITATOR_BONUS_MILESTONE_POINTS} Bonus Milestone not included`
 
   return createPortal(
     <>
       <style>{`
         .facilitator-profile-score-card {
           margin-top: 12px;
-          padding: 11px 12px;
+          padding: 10px 12px;
           border: 1px solid rgba(139, 92, 246, .25);
           border-radius: 12px;
           background: linear-gradient(135deg, rgba(79, 70, 229, .08), rgba(236, 72, 153, .06));
         }
-        .facilitator-profile-score-equation {
-          display: grid;
-          grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
-          align-items: center;
-          gap: 7px;
-        }
-        .facilitator-profile-score-part {
-          min-width: 0;
-          text-align: center;
-        }
-        .facilitator-profile-score-part span {
-          display: block;
-          margin-bottom: 2px;
-          color: #94a3b8;
-          font-size: .58rem;
-          font-weight: 750;
-          line-height: 1.2;
-        }
-        .facilitator-profile-score-part strong {
-          display: block;
-          color: #e2e8f0;
-          font-size: .92rem;
-          font-weight: 900;
-          line-height: 1.15;
-        }
-        .facilitator-profile-score-part.is-bonus strong { color: #c084fc; }
-        .facilitator-profile-score-part.is-total strong { color: #67e8f9; }
-        .facilitator-profile-score-operator {
-          color: #64748b;
-          font-size: .8rem;
-          font-weight: 900;
-        }
-        .facilitator-profile-score-meta {
+        .facilitator-profile-score-head {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 8px;
-          margin-top: 9px;
-          padding-top: 8px;
-          border-top: 1px solid rgba(148, 163, 184, .14);
+          gap: 10px;
         }
-        .facilitator-profile-score-meta > span {
+        .facilitator-profile-score-title {
           min-width: 0;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .facilitator-profile-score-title > svg {
+          width: 16px;
+          height: 16px;
+          flex: 0 0 auto;
+          color: #a78bfa;
+        }
+        .facilitator-profile-score-title > span {
+          min-width: 0;
+          display: flex;
+          align-items: baseline;
+          gap: 6px;
+          flex-wrap: wrap;
+        }
+        .facilitator-profile-score-title strong {
+          color: #e2e8f0;
+          font-size: .68rem;
+          font-weight: 850;
+        }
+        .facilitator-profile-score-title small {
           color: #94a3b8;
-          font-size: .58rem;
-          font-weight: 650;
-          line-height: 1.35;
+          font-size: .57rem;
+          font-weight: 700;
         }
-        .facilitator-profile-score-meta b { color: #cbd5e1; }
-        .facilitator-profile-score-note {
-          color: inherit;
-          font: inherit;
-          font-style: normal;
-        }
-        .facilitator-profile-score-meta button {
+        .facilitator-profile-score-head button {
           display: inline-flex;
           flex: 0 0 auto;
           align-items: center;
           justify-content: center;
-          width: 24px;
-          height: 24px;
+          width: 26px;
+          height: 26px;
           padding: 0;
           border: 0;
-          border-radius: 6px;
+          border-radius: 7px;
           background: transparent;
           color: #a78bfa;
           cursor: pointer;
         }
-        .facilitator-profile-score-meta button:hover,
-        .facilitator-profile-score-meta button:focus-visible {
+        .facilitator-profile-score-head button:hover,
+        .facilitator-profile-score-head button:focus-visible {
           background: rgba(167, 139, 250, .1);
         }
-        .facilitator-profile-score-meta button svg { width: 13px; height: 13px; }
+        .facilitator-profile-score-head button svg { width: 13px; height: 13px; }
+        .facilitator-profile-score-values {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 8px;
+          margin-top: 8px;
+        }
+        .facilitator-profile-score-value {
+          min-width: 0;
+          display: flex;
+          align-items: baseline;
+          justify-content: space-between;
+          gap: 8px;
+          padding: 7px 8px;
+          border-radius: 8px;
+          background: rgba(15, 23, 42, .22);
+        }
+        .facilitator-profile-score-value span {
+          min-width: 0;
+          color: #94a3b8;
+          font-size: .56rem;
+          font-weight: 700;
+          line-height: 1.25;
+        }
+        .facilitator-profile-score-value strong {
+          flex: 0 0 auto;
+          color: #c084fc;
+          font-size: .88rem;
+          font-weight: 900;
+          line-height: 1;
+        }
+        .facilitator-profile-score-value.is-total strong { color: #67e8f9; }
+        .facilitator-profile-score-note {
+          margin: 7px 0 0;
+          color: #7f8da9;
+          font-size: .54rem;
+          font-weight: 650;
+          line-height: 1.35;
+        }
         .light .facilitator-profile-score-card {
           border-color: rgba(124, 58, 237, .18);
           background: linear-gradient(135deg, rgba(79, 70, 229, .055), rgba(236, 72, 153, .04));
         }
-        .light .facilitator-profile-score-part span,
-        .light .facilitator-profile-score-meta > span { color: #64748b; }
-        .light .facilitator-profile-score-part strong { color: #1e293b; }
-        .light .facilitator-profile-score-part.is-bonus strong { color: #9333ea; }
-        .light .facilitator-profile-score-part.is-total strong { color: #0369a1; }
-        .light .facilitator-profile-score-meta b { color: #475569; }
+        .light .facilitator-profile-score-title strong { color: #1e293b; }
+        .light .facilitator-profile-score-title small,
+        .light .facilitator-profile-score-value span,
+        .light .facilitator-profile-score-note { color: #64748b; }
+        .light .facilitator-profile-score-value { background: rgba(241, 245, 249, .72); }
+        .light .facilitator-profile-score-value strong { color: #9333ea; }
+        .light .facilitator-profile-score-value.is-total strong { color: #0369a1; }
         @media (max-width: 680px) {
-          .facilitator-profile-score-card { margin-top: 10px; padding: 10px; }
-          .facilitator-profile-score-equation { gap: 5px; }
-          .facilitator-profile-score-part span { font-size: .54rem; }
-          .facilitator-profile-score-part strong { font-size: .82rem; }
-          .facilitator-profile-score-meta { align-items: flex-start; }
-          .facilitator-profile-score-meta > span { font-size: .54rem; }
-          .facilitator-profile-score-meta button { width: 26px; height: 26px; }
+          .facilitator-profile-score-card { margin-top: 10px; padding: 9px 10px; }
+          .facilitator-profile-score-title strong { font-size: .64rem; }
+          .facilitator-profile-score-title small { font-size: .54rem; }
+          .facilitator-profile-score-values { gap: 6px; }
+          .facilitator-profile-score-value {
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 3px;
+          }
+          .facilitator-profile-score-value span { font-size: .52rem; }
+          .facilitator-profile-score-value strong { font-size: .82rem; }
+          .facilitator-profile-score-note { font-size: .51rem; }
         }
       `}</style>
 
-      <div className="facilitator-profile-score-card" aria-label="Facilitator score summary">
-        <div className="facilitator-profile-score-equation">
-          <div className="facilitator-profile-score-part">
-            <span>Overall Arcade points</span>
-            <strong>{formatNumber(score.earnedPoints)}</strong>
+      <div
+        className="facilitator-profile-score-card"
+        aria-label="Facilitator score summary"
+      >
+        <div className="facilitator-profile-score-head">
+          <div className="facilitator-profile-score-title">
+            <GraduationCap aria-hidden="true" />
+            <span>
+              <strong>Facilitator Program</strong>
+              <small>{score.milestone.label}</small>
+            </span>
           </div>
-          <b className="facilitator-profile-score-operator" aria-hidden="true">+</b>
-          <div className="facilitator-profile-score-part is-bonus">
-            <span>Facilitator bonus</span>
-            <strong>{participating ? `+${formatNumber(score.appliedBonus)}` : "Off"}</strong>
-          </div>
-          <b className="facilitator-profile-score-operator" aria-hidden="true">=</b>
-          <div className="facilitator-profile-score-part is-total">
-            <span>Estimated total after bonus</span>
-            <strong>{formatNumber(score.totalPoints)}</strong>
-          </div>
-        </div>
-
-        <div className="facilitator-profile-score-meta">
-          <span>
-            {participating ? (
-              <>
-                <b>{score.milestone?.label ?? "No milestone yet"}</b>
-                {" · "}
-                <em className="facilitator-profile-score-note">{bonusMilestoneNote}</em>
-              </>
-            ) : (
-              <>
-                Enable to include bonus points
-                {" · "}
-                <em className="facilitator-profile-score-note">{bonusMilestoneNote}</em>
-              </>
-            )}
-          </span>
           <button
             type="button"
             onClick={openFacilitatorPanel}
@@ -300,6 +301,21 @@ export default function FacilitatorProfileScore({
             <ExternalLink />
           </button>
         </div>
+
+        <div className="facilitator-profile-score-values">
+          <div className="facilitator-profile-score-value">
+            <span>Facilitator bonus</span>
+            <strong>+{formatNumber(score.milestoneBonus)}</strong>
+          </div>
+          <div className="facilitator-profile-score-value is-total">
+            <span>Estimated total after bonus</span>
+            <strong>{formatNumber(score.totalPoints)}</strong>
+          </div>
+        </div>
+
+        <p className="facilitator-profile-score-note">
+          Optional +{FACILITATOR_BONUS_MILESTONE_POINTS} Bonus Milestone not included
+        </p>
       </div>
     </>,
     host,
