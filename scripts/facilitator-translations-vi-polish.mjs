@@ -76,7 +76,7 @@ const VI_OVERRIDES = {
   "Arcade Games and": "trò chơi Arcade và",
   "syllabus badges completed": "huy hiệu trong giáo trình đã hoàn thành",
   "profile checks": "mục kiểm tra hồ sơ",
-  "Earned": "Đạt ngày",
+  "Earned": "Đạt được",
   "Facilitator syllabus badge progress": "Tiến độ huy hiệu giáo trình Facilitator",
   "Bonus Milestone profile-checkable progress": "Tiến độ có thể kiểm tra của Cột mốc thưởng",
   "Include Facilitator Program bonus in the estimated total":
@@ -88,7 +88,7 @@ const VI_DYNAMIC_OVERRIDES = {
   "__facilitator:potentialBonus": "Có thể nhận +{bonus}; chưa bật tham gia",
   "__facilitator:percentCompleted": "Đã hoàn thành {percent}%",
   "__facilitator:syllabusProgress": "Đã hoàn thành {count}/{total} huy hiệu trong giáo trình",
-  "__facilitator:earned": "Đạt ngày {value}",
+  "__facilitator:earned": "Đạt được vào ngày {value}",
   "__facilitator:profileChecks": "{count}/{total} mục kiểm tra hồ sơ",
 }
 
