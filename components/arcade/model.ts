@@ -61,6 +61,7 @@ export type MonthlyArcadeGame = {
   imageUrl: string | null
   accessCode: string | null
   deadline: string | null
+  deadlineTimeZone: string | null
   description: string | null
   points: number | null
   joinUrl: string | null
