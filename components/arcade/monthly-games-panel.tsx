@@ -285,7 +285,7 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
                   )}
 
                   <div className="monthly-game-facts">
-                    {game.points !== null && <span className="monthly-game-points"><Trophy /> {game.points} Arcade point{game.points === 1 ? "" : "s"}</span>}
+                    {game.points !== null && <span className="monthly-game-points"><Trophy /> Arcade point{game.points === 1 ? "" : "s"}: {game.points}</span>}
                     {game.spotsRemaining !== null && <span><Circle /> {formatInteger(game.spotsRemaining)} spots left</span>}
                   </div>
 
