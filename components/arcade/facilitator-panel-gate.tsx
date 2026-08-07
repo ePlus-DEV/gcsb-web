@@ -91,8 +91,14 @@ export default function FacilitatorPanelGate() {
         document.querySelector<HTMLButtonElement>(".facilitator-launcher")
       if (!launcher) return
 
+      const inlineSummaryVisible = Boolean(
+        document.querySelector(".facilitator-profile-score-card"),
+      )
+
       launcher.hidden =
-        !participating || !launcher.classList.contains("is-participating")
+        inlineSummaryVisible ||
+        !participating ||
+        !launcher.classList.contains("is-participating")
     }
 
     updateLauncherVisibility()
