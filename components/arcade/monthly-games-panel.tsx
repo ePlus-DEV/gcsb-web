@@ -3,11 +3,10 @@
 import {
   BadgeCheck,
   Circle,
-  Clock3,
+  Clock,
   ExternalLink,
   Gamepad2,
   LoaderCircle,
-  MapPin,
   Trophy,
 } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
@@ -210,8 +209,8 @@ export default function MonthlyGamesPanel({ badges }: MonthlyGamesPanelProps) {
                 <div className="monthly-game-meta">
                   {game.accessCode && <span><code>{game.accessCode}</code> Access code</span>}
                   {game.points !== null && <span><Trophy /> {game.points} Arcade point{game.points === 1 ? "" : "s"}</span>}
-                  {game.spotsRemaining !== null && <span><MapPin /> {formatInteger(game.spotsRemaining)} spots left</span>}
-                  <span><Clock3 /> {formatDeadline(game.deadline)}</span>
+                  {game.spotsRemaining !== null && <span><Circle /> {formatInteger(game.spotsRemaining)} spots left</span>}
+                  <span><Clock /> {formatDeadline(game.deadline)}</span>
                 </div>
 
                 {game.joinUrl && (
