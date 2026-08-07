@@ -13,17 +13,13 @@ on:
       - ".github/workflows/pr-preview.yml"
       - ".github/workflows/nextjs.yml"
 
-permissions:
-  contents: write
-  pull-requests: write
-  pages: write
-  id-token: write
-
 jobs:
   preview-status:
     if: github.event.pull_request.head.repo.full_name == github.repository && github.event.action != 'closed'
     runs-on: ubuntu-latest
     timeout-minutes: 2
+    permissions:
+      pull-requests: write
     steps:
       - name: Mark PR preview as building
         uses: actions/github-script@v7
@@ -54,6 +50,11 @@ jobs:
     if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    permissions:
+      contents: write
+      pull-requests: write
+      pages: write
+      id-token: write
     concurrency:
       group: gcsb-pages-content-v3
       cancel-in-progress: false
