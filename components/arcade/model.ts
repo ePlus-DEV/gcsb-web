@@ -56,6 +56,18 @@ export type ArcadeMilestone = {
   spotsLeft: number | null
 }
 
+export type MonthlyArcadeGame = {
+  title: string
+  imageUrl: string | null
+  accessCode: string | null
+  deadline: string | null
+  deadlineTimeZone: string | null
+  description: string | null
+  points: number | null
+  joinUrl: string | null
+  spotsRemaining: number | null
+}
+
 export type CalculatorSnapshot = {
   profileUrl: string
   currentPoints: number
@@ -79,6 +91,10 @@ export const API_URL =
 export const ARCADE_MILESTONES_URL =
   process.env.NEXT_PUBLIC_ARCADE_MILESTONES_URL ??
   "https://raw.githubusercontent.com/hoangsvit/arcade-crawler/main/data/arcade_milestones.json"
+
+export const ARCADE_MONTHLY_GAMES_URL =
+  process.env.NEXT_PUBLIC_ARCADE_MONTHLY_GAMES_URL ??
+  "https://raw.githubusercontent.com/hoangsvit/arcade-crawler/main/data/arcade_monthly_games.json"
 
 export const DASHBOARD_STORAGE_KEY = "eplus-arcade-dashboard-v1"
 export const STORAGE_KEY = "eplus-arcade-calculator-v2"

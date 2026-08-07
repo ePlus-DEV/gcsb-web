@@ -13,19 +13,51 @@ on:
       - ".github/workflows/pr-preview.yml"
       - ".github/workflows/nextjs.yml"
 
-permissions:
-  contents: write
-  pull-requests: write
-
-concurrency:
-  group: gcsb-pages-content
-  cancel-in-progress: false
-
 jobs:
+  preview-status:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Mark PR preview as building
+        uses: actions/github-script@v7
+        env:
+          PAGE_ROOT: https://arcade.eplus.dev/
+          PR_NUMBER: ${{ github.event.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        with:
+          script: |
+            const marker = '<!-- gcsb-pr-preview -->'
+            const root = process.env.PAGE_ROOT.endsWith('/') ? process.env.PAGE_ROOT : `${process.env.PAGE_ROOT}/`
+            const previewUrl = `${root}pr-preview/pr-${process.env.PR_NUMBER}/`
+            const body = `${marker}\n## ⏳ PR preview building\n\nThe preview is queued or currently building.\n\n- Preview URL: ${previewUrl}\n- Commit: \`${process.env.HEAD_SHA.slice(0, 7)}\`\n- This comment will update automatically when deployment finishes.`
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              per_page: 100,
+            })
+            const existing = comments.find((comment) => comment.body?.includes(marker))
+            if (existing) {
+              await github.rest.issues.updateComment({ owner: context.repo.owner, repo: context.repo.repo, comment_id: existing.id, body })
+            } else {
+              await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.issue.number, body })
+            }
+
   preview:
     if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    permissions:
+      contents: write
+      pull-requests: write
+      pages: write
+      id-token: write
+    concurrency:
+      group: gcsb-pages-content-v3
+      cancel-in-progress: false
     environment:
       name: pr-preview
       url: https://arcade.eplus.dev/pr-preview/pr-${{ github.event.number }}/
@@ -63,7 +95,6 @@ jobs:
         run: |
           set -euo pipefail
           yarn install --frozen-lockfile --non-interactive
-
           cat > next.config.mjs <<'CONFIG'
           /** @type {import('next').NextConfig} */
           const nextConfig = {
@@ -71,10 +102,8 @@ jobs:
             trailingSlash: true,
             images: { unoptimized: true },
           }
-
           export default nextConfig
           CONFIG
-
           yarn build
 
       - name: Build pull request preview
@@ -90,7 +119,7 @@ jobs:
           yarn install --frozen-lockfile --non-interactive
           yarn build
 
-      - name: Verify preview asset paths and analytics isolation
+      - name: Verify preview output
         if: github.event.action != 'closed'
         working-directory: preview-source
         env:
@@ -102,18 +131,9 @@ jobs:
           test -f out/index.html
           grep -q "${PREVIEW_PATH}/_next/" out/index.html
           grep -q 'name="cookie-notice-preview" content="true"' out/index.html
-          if grep -R -F -q "G-SJNYKL2864" out; then
-            echo "Preview output contains the production Google Analytics ID."
-            exit 1
-          fi
-          if grep -R -F -q "www.googletagmanager.com/gtag/js" out; then
-            echo "Preview output contains a Google Analytics loader."
-            exit 1
-          fi
-          if grep -q "/${REPO_NAME}/pr-preview/" out/index.html; then
-            echo "Preview still contains the repository-name base path."
-            exit 1
-          fi
+          if grep -R -F -q "G-SJNYKL2864" out; then exit 1; fi
+          if grep -R -F -q "www.googletagmanager.com/gtag/js" out; then exit 1; fi
+          if grep -q "/${REPO_NAME}/pr-preview/" out/index.html; then exit 1; fi
 
       - name: Assemble production and preview content
         env:
@@ -123,32 +143,24 @@ jobs:
         run: |
           set -euo pipefail
           rm -rf published-site
-
-          if git ls-remote --exit-code --heads \
-            "https://github.com/${GITHUB_REPOSITORY}.git" gh-pages >/dev/null 2>&1; then
-            git clone --depth 1 --branch gh-pages \
-              "https://github.com/${GITHUB_REPOSITORY}.git" published-site
+          if git ls-remote --exit-code --heads "https://github.com/${GITHUB_REPOSITORY}.git" gh-pages >/dev/null 2>&1; then
+            git clone --depth 1 --branch gh-pages "https://github.com/${GITHUB_REPOSITORY}.git" published-site
             rm -rf published-site/.git
           else
             mkdir -p published-site
           fi
-
           mkdir -p published-site/pr-preview
-          find published-site -mindepth 1 -maxdepth 1 \
-            ! -name pr-preview -exec rm -rf {} +
+          find published-site -mindepth 1 -maxdepth 1 ! -name pr-preview -exec rm -rf {} +
           cp -a production-source/out/. published-site/
-
           preview_dir="published-site/pr-preview/pr-${PR_NUMBER}"
           rm -rf "${preview_dir}"
-
           if [ "${PR_ACTION}" != "closed" ]; then
             mkdir -p "${preview_dir}"
             cp -a preview-source/out/. "${preview_dir}/"
           fi
-
           touch published-site/.nojekyll
 
-      - name: Publish Pages content branch
+      - name: Save complete Pages content
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.number }}
@@ -163,9 +175,17 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
           git commit -m "preview: ${PR_ACTION} PR #${PR_NUMBER}"
-          git push --force \
-            "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" \
-            gh-pages
+          git push --force "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" gh-pages
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: published-site
+          include-hidden-files: true
+
+      - name: Deploy GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
 
       - name: Add preview link to pull request
         uses: actions/github-script@v7
@@ -177,15 +197,12 @@ jobs:
         with:
           script: |
             const marker = '<!-- gcsb-pr-preview -->'
-            const root = process.env.PAGE_ROOT.endsWith('/')
-              ? process.env.PAGE_ROOT
-              : `${process.env.PAGE_ROOT}/`
+            const root = process.env.PAGE_ROOT.endsWith('/') ? process.env.PAGE_ROOT : `${process.env.PAGE_ROOT}/`
             const previewUrl = `${root}pr-preview/pr-${process.env.PR_NUMBER}/`
             const removed = process.env.PR_ACTION === 'closed'
             const body = removed
               ? `${marker}\n## 🧹 PR preview removed\n\nThe preview for this pull request was removed after the PR was closed.`
-              : `${marker}\n## 🚀 PR preview ready\n\n[Open the live preview](${previewUrl})\n\n- Commit: \`${process.env.HEAD_SHA.slice(0, 7)}\`\n- Assets are built for the custom-domain path\n- Cookie notice UI uses isolated preview storage\n- Google Analytics remains disabled in previews\n- Updates automatically when new commits are pushed\n- Removed automatically when this pull request is closed`
-
+              : `${marker}\n## 🚀 PR preview ready\n\n[Open the live preview](${previewUrl})\n\n- Commit: \`${process.env.HEAD_SHA.slice(0, 7)}\`\n- Pages artifact deployed successfully\n- Google Analytics remains disabled in previews\n- Updates automatically when new commits are pushed`
             const comments = await github.paginate(github.rest.issues.listComments, {
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -193,19 +210,8 @@ jobs:
               per_page: 100,
             })
             const existing = comments.find((comment) => comment.body?.includes(marker))
-
             if (existing) {
-              await github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: existing.id,
-                body,
-              })
+              await github.rest.issues.updateComment({ owner: context.repo.owner, repo: context.repo.repo, comment_id: existing.id, body })
             } else {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                body,
-              })
+              await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.issue.number, body })
             }

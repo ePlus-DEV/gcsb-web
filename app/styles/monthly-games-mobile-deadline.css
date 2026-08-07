@@ -1,0 +1,157 @@
+.monthly-game-deadline{
+  position:relative;
+  display:grid!important;
+  grid-template-columns:auto auto minmax(0,1fr)!important;
+  align-items:center!important;
+  gap:5px 7px!important;
+  width:100%;
+  min-width:0;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:none!important;
+  color:#f87171!important;
+  font:inherit;
+  text-align:left;
+  cursor:help;
+}
+
+.monthly-game-deadline svg{
+  grid-column:1!important;
+  grid-row:1!important;
+  width:13px;
+  height:13px;
+  color:#ef4444!important;
+}
+
+.monthly-game-deadline strong{
+  grid-column:2!important;
+  grid-row:1!important;
+  color:#f87171!important;
+  font-size:.59rem;
+  font-weight:800;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+
+.monthly-game-deadline time{
+  grid-column:3!important;
+  grid-row:1!important;
+  min-width:0;
+  justify-self:end!important;
+  overflow:hidden!important;
+  color:#cbd5e1!important;
+  font-size:.64rem;
+  font-weight:750;
+  text-align:right!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+}
+
+.monthly-deadline-tooltip{
+  position:absolute;
+  right:0;
+  bottom:calc(100% + 8px);
+  z-index:30;
+  width:max-content;
+  max-width:min(320px,calc(100vw - 40px));
+  padding:7px 9px;
+  border:1px solid rgba(148,163,184,.2);
+  border-radius:8px;
+  background:#0f172a;
+  box-shadow:0 10px 28px rgba(2,6,23,.35);
+  color:#f8fafc;
+  font-size:.62rem;
+  font-weight:650;
+  line-height:1.35;
+  white-space:normal;
+  opacity:0;
+  visibility:hidden;
+  transform:translateY(3px);
+  transition:opacity .14s ease,transform .14s ease,visibility .14s ease;
+  pointer-events:none;
+}
+
+.monthly-game-deadline:hover .monthly-deadline-tooltip,
+.monthly-game-deadline:focus-visible .monthly-deadline-tooltip,
+.monthly-game-deadline.is-open .monthly-deadline-tooltip{
+  opacity:1;
+  visibility:visible;
+  transform:translateY(0);
+}
+
+.monthly-game-deadline:focus-visible{
+  outline:2px solid rgba(248,113,113,.55);
+  outline-offset:4px;
+  border-radius:4px!important;
+}
+
+.light .monthly-game-deadline{
+  background:none!important;
+  border:0!important;
+  color:#dc2626!important;
+}
+
+.light .monthly-game-deadline svg,
+.light .monthly-game-deadline strong{
+  color:#dc2626!important;
+}
+
+.light .monthly-game-deadline time{
+  color:#475569!important;
+}
+
+.light .monthly-deadline-tooltip{
+  border-color:#e2e8f0;
+  background:#fff;
+  box-shadow:0 10px 24px rgba(15,23,42,.14);
+  color:#334155;
+}
+
+@media (max-width:680px){
+  .monthly-game-deadline{
+    grid-template-columns:auto auto minmax(0,1fr)!important;
+    gap:4px 6px!important;
+    min-height:32px;
+    cursor:pointer;
+  }
+
+  .monthly-game-deadline time{
+    grid-column:3!important;
+    grid-row:1!important;
+    justify-self:end!important;
+    max-width:100%;
+    padding-left:0!important;
+    font-size:.62rem;
+    text-align:right!important;
+  }
+
+  .monthly-deadline-tooltip{
+    left:0;
+    right:auto;
+    bottom:calc(100% + 6px);
+    width:max-content;
+    max-width:min(280px,calc(100vw - 48px));
+    font-size:.6rem;
+  }
+}
+
+@media (max-width:380px){
+  .monthly-game-deadline{
+    grid-template-columns:auto auto minmax(0,1fr)!important;
+  }
+
+  .monthly-game-deadline time{
+    grid-column:3!important;
+    grid-row:1!important;
+    justify-self:end!important;
+    padding-left:0!important;
+    font-size:.57rem;
+    text-align:right!important;
+  }
+
+  .monthly-deadline-tooltip{
+    max-width:calc(100vw - 40px);
+  }
+}

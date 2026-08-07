@@ -6,6 +6,7 @@ import { applyCompleteFacilitatorTranslations } from "./facilitator-translations
 import { applyFacilitatorRuntimeFragments } from "./facilitator-translations-runtime-fragments.mjs"
 import { applyVietnameseFacilitatorPolish } from "./facilitator-translations-vi-polish.mjs"
 import { applyFacilitatorTranslations } from "./facilitator-translations.mjs"
+import { applyMonthlyGamesTranslations } from "./monthly-games-translations.mjs"
 import { applyPublicProfileTranslations } from "./public-profile-translations.mjs"
 
 const root = process.cwd()
@@ -47,6 +48,7 @@ applyCompleteFacilitatorTranslations(catalogs)
 applyVietnameseFacilitatorPolish(catalogs)
 applyFacilitatorRuntimeFragments(catalogs)
 applyPublicProfileTranslations(catalogs)
+applyMonthlyGamesTranslations(catalogs)
 
 const englishMessages = catalogs.en?.messages
 if (!englishMessages) {
