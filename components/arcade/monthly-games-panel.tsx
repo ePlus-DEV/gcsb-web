@@ -91,7 +91,7 @@ function parseMonthlyGames(payload: unknown): MonthlyArcadeGame[] {
   })
 }
 
-function currentLocale(): string | undefined {
+function readCurrentLocale(): string | undefined {
   if (typeof document === "undefined") return undefined
 
   const host = document.querySelector<HTMLElement>(".monthly-games-host")
@@ -99,20 +99,20 @@ function currentLocale(): string | undefined {
   return localizedAncestor?.lang || document.documentElement.lang || undefined
 }
 
-function formatDeadline(value: string | null): string {
+function formatDeadline(value: string | null, locale?: string): string {
   if (!value) return "Deadline unavailable"
 
   const parsed = new Date(value)
   if (Number.isNaN(parsed.getTime())) return "Deadline unavailable"
 
-  return new Intl.DateTimeFormat(currentLocale(), {
+  return new Intl.DateTimeFormat(locale, {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(parsed)
 }
 
-function currentMonthHeading(): string {
-  return new Intl.DateTimeFormat(currentLocale(), {
+function currentMonthHeading(locale?: string): string {
+  return new Intl.DateTimeFormat(locale, {
     month: "long",
     year: "numeric",
   }).format(new Date())
@@ -123,6 +123,19 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
   const [loading, setLoading] = useState(true)
   const [loadFailed, setLoadFailed] = useState(false)
   const [copiedCode, setCopiedCode] = useState<string | null>(null)
+  const [locale, setLocale] = useState<string | undefined>(undefined)
+
+  useEffect(() => {
+    const syncLocale = () => setLocale(readCurrentLocale())
+    syncLocale()
+
+    const observer = new MutationObserver(syncLocale)
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["lang", "data-locale"],
+    })
+    return () => observer.disconnect()
+  }, [])
 
   useEffect(() => {
     let active = true
@@ -201,7 +214,7 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
       <div className="monthly-games-heading">
         <div>
           <span className="monthly-games-kicker"><Gamepad2 /> This month</span>
-          <h2 id="monthly-games-title">{currentMonthHeading()}</h2>
+          <h2 id="monthly-games-title">{currentMonthHeading(locale)}</h2>
           <p>Track the active Arcade games against badges already present on this public profile.</p>
         </div>
         <div className={hasProfile ? "monthly-progress-summary" : "monthly-progress-summary is-pending"}>
@@ -263,7 +276,7 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
                   )}
                   {game.points !== null && <span><Trophy /> {game.points} Arcade point{game.points === 1 ? "" : "s"}</span>}
                   {game.spotsRemaining !== null && <span><Circle /> {formatInteger(game.spotsRemaining)} spots left</span>}
-                  <span className="monthly-game-deadline"><Clock /><strong>Deadline</strong><time>{formatDeadline(game.deadline)}</time></span>
+                  <span className="monthly-game-deadline"><Clock /><strong>Deadline</strong><time>{formatDeadline(game.deadline, locale)}</time></span>
                 </div>
 
                 {game.joinUrl && (
