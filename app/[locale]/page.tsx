@@ -5,6 +5,7 @@ import { notFound } from "next/navigation"
 import { cache } from "react"
 import FacilitatorAnalyzerOption from "@/components/arcade/facilitator-analyzer-option"
 import FacilitatorPanelGate from "@/components/arcade/facilitator-panel-gate"
+import MonthlyGamesPanelGate from "@/components/arcade/monthly-games-panel-gate"
 import ShareProfileEnhancer from "@/components/arcade/share-profile-enhancer"
 import ArcadeRouteLinks from "@/components/app/arcade-route-links"
 import SeoContent from "@/components/seo/seo-content"
@@ -80,6 +81,7 @@ export default async function LocalizedPage({ params }: LocalizedPageProps) {
     <>
       <section className="sr-only" lang={localeInfo.htmlLang}><h1>{title}</h1><p>{description}</p></section>
       <RedesignCalculator />
+      <MonthlyGamesPanelGate />
       <ShareProfileEnhancer />
       <FacilitatorAnalyzerOption />
       <ArcadeRouteLinks />
