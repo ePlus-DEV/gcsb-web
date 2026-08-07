@@ -41,6 +41,18 @@ function safeHttpsUrl(value: unknown): string | null {
   }
 }
 
+function optionalNumber(value: unknown): number | null {
+  if (
+    (typeof value !== "number" && typeof value !== "string") ||
+    String(value).trim() === ""
+  ) {
+    return null
+  }
+
+  const parsed = Number(value)
+  return Number.isFinite(parsed) ? parsed : null
+}
+
 function parseMonthlyGames(payload: unknown): MonthlyArcadeGame[] {
   if (!Array.isArray(payload)) return []
 
@@ -49,9 +61,6 @@ function parseMonthlyGames(payload: unknown): MonthlyArcadeGame[] {
     const candidate = item as Record<string, unknown>
     const title = typeof candidate.title === "string" ? candidate.title.trim() : ""
     if (!title) return []
-
-    const numericPoints = Number(candidate.points)
-    const numericSpots = Number(candidate.spotsRemaining)
 
     return [{
       title,
@@ -68,11 +77,17 @@ function parseMonthlyGames(payload: unknown): MonthlyArcadeGame[] {
         typeof candidate.description === "string" && candidate.description.trim()
           ? candidate.description.trim()
           : null,
-      points: Number.isFinite(numericPoints) ? numericPoints : null,
+      points: optionalNumber(candidate.points),
       joinUrl: safeHttpsUrl(candidate.joinUrl),
-      spotsRemaining: Number.isFinite(numericSpots) ? numericSpots : null,
+      spotsRemaining: optionalNumber(candidate.spotsRemaining),
     }]
   })
+}
+
+function currentLocale(): string | undefined {
+  return typeof document !== "undefined" && document.documentElement.lang
+    ? document.documentElement.lang
+    : undefined
 }
 
 function formatDeadline(value: string | null): string {
@@ -81,33 +96,17 @@ function formatDeadline(value: string | null): string {
   const parsed = new Date(value)
   if (Number.isNaN(parsed.getTime())) return "Deadline unavailable"
 
-  const locale =
-    typeof document !== "undefined" && document.documentElement.lang
-      ? document.documentElement.lang
-      : undefined
-
-  return new Intl.DateTimeFormat(locale, {
+  return new Intl.DateTimeFormat(currentLocale(), {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(parsed)
 }
 
-function monthHeading(games: MonthlyArcadeGame[]): string {
-  const deadline = games
-    .map((game) => game.deadline && new Date(game.deadline))
-    .find((date): date is Date => Boolean(date && !Number.isNaN(date.getTime())))
-
-  if (!deadline) return "Current Arcade games"
-
-  const locale =
-    typeof document !== "undefined" && document.documentElement.lang
-      ? document.documentElement.lang
-      : undefined
-
-  return new Intl.DateTimeFormat(locale, {
+function currentMonthHeading(): string {
+  return new Intl.DateTimeFormat(currentLocale(), {
     month: "long",
     year: "numeric",
-  }).format(deadline)
+  }).format(new Date())
 }
 
 export default function MonthlyGamesPanel({ badges }: MonthlyGamesPanelProps) {
@@ -176,7 +175,7 @@ export default function MonthlyGamesPanel({ badges }: MonthlyGamesPanelProps) {
       <div className="monthly-games-heading">
         <div>
           <span className="monthly-games-kicker"><Gamepad2 /> This month</span>
-          <h2 id="monthly-games-title">{monthHeading(games)}</h2>
+          <h2 id="monthly-games-title">{currentMonthHeading()}</h2>
           <p>Track the active Arcade games against badges already present on this public profile.</p>
         </div>
         <div className="monthly-progress-summary">
