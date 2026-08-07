@@ -261,22 +261,34 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
 
                 <div className="monthly-game-meta">
                   {game.accessCode && (
-                    <button
-                      className={copiedCode === game.accessCode ? "monthly-access-code is-copied" : "monthly-access-code"}
-                      type="button"
-                      onClick={() => void copyAccessCode(game.accessCode as string)}
-                      aria-label="Copy access code"
-                      title="Copy access code"
-                    >
-                      <span>Access code</span>
-                      <code>{game.accessCode}</code>
-                      {copiedCode === game.accessCode ? <Check /> : <Copy />}
-                      <em>{copiedCode === game.accessCode ? "Copied" : "Copy"}</em>
-                    </button>
+                    <div className="monthly-access-row">
+                      <div className="monthly-access-value">
+                        <span>Access code</span>
+                        <code>{game.accessCode}</code>
+                      </div>
+                      <button
+                        className={copiedCode === game.accessCode ? "monthly-copy-button is-copied" : "monthly-copy-button"}
+                        type="button"
+                        onClick={() => void copyAccessCode(game.accessCode as string)}
+                        aria-label="Copy access code"
+                        title="Copy access code"
+                      >
+                        {copiedCode === game.accessCode ? <Check /> : <Copy />}
+                        <span>{copiedCode === game.accessCode ? "Copied" : "Copy"}</span>
+                      </button>
+                    </div>
                   )}
-                  {game.points !== null && <span><Trophy /> {game.points} Arcade point{game.points === 1 ? "" : "s"}</span>}
-                  {game.spotsRemaining !== null && <span><Circle /> {formatInteger(game.spotsRemaining)} spots left</span>}
-                  <span className="monthly-game-deadline"><Clock /><strong>Deadline</strong><time>{formatDeadline(game.deadline, locale)}</time></span>
+
+                  <div className="monthly-game-facts">
+                    {game.points !== null && <span><Trophy /> {game.points} Arcade point{game.points === 1 ? "" : "s"}</span>}
+                    {game.spotsRemaining !== null && <span><Circle /> {formatInteger(game.spotsRemaining)} spots left</span>}
+                  </div>
+
+                  <span className="monthly-game-deadline">
+                    <Clock />
+                    <strong>Deadline</strong>
+                    <time>{formatDeadline(game.deadline, locale)}</time>
+                  </span>
                 </div>
 
                 {game.joinUrl && (
