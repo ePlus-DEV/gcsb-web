@@ -3,13 +3,13 @@ const VI_OVERRIDES = {
   "Facilitator Program": "Chương trình Facilitator",
   "Program tracker": "Theo dõi chương trình",
   "Confirm program participation, track milestone bonuses, and find syllabus badges that are still missing.":
-    "Xác nhận tham gia chương trình, theo dõi điểm thưởng cột mốc và tìm các huy hiệu còn thiếu trong giáo trình.",
+    "Xác nhận bạn có tham gia chương trình, theo dõi điểm thưởng theo cột mốc và xem những huy hiệu giáo trình còn thiếu.",
   "Includes regular points earned from games and skill badges":
-    "Đã bao gồm điểm thông thường từ trò chơi và huy hiệu kỹ năng",
+    "Đã bao gồm điểm Arcade cơ bản từ trò chơi và huy hiệu kỹ năng",
   "Optional +10 Bonus Milestone not included":
     "Chưa bao gồm 10 điểm của Cột mốc thưởng tùy chọn",
   "Facilitator game and skill-badge counts determine the milestone bonus only. Their regular Arcade points are already included in the overall score and are not added twice.":
-    "Số trò chơi và huy hiệu kỹ năng của Facilitator chỉ dùng để xác định điểm thưởng cột mốc. Điểm Arcade thông thường đã nằm trong tổng điểm và không được cộng hai lần.",
+    "Số trò chơi và huy hiệu kỹ năng của Facilitator chỉ dùng để xác định điểm thưởng cột mốc. Điểm Arcade cơ bản đã nằm trong tổng điểm và không được cộng hai lần.",
   "2026 syllabus badge checklist": "Danh sách huy hiệu giáo trình 2026",
   "Compare the profile with all 51 listed skill badges.":
     "Đối chiếu hồ sơ với toàn bộ 51 huy hiệu kỹ năng trong giáo trình.",
@@ -25,19 +25,19 @@ const VI_OVERRIDES = {
   "Facilitator milestones": "Các cột mốc Facilitator",
   "Bonus Milestone": "Cột mốc thưởng",
   "bonus points through GEAR and AI agent verification.":
-    "điểm thưởng thông qua GEAR và xác minh tác nhân AI.",
+    "điểm thưởng thông qua GEAR và xác minh AI agent.",
   "requirements can be checked from the public profile. Agent verification is manual.":
-    "yêu cầu có thể kiểm tra từ hồ sơ công khai. Việc xác minh tác nhân AI cần thực hiện thủ công.",
+    "yêu cầu có thể kiểm tra từ hồ sơ công khai. Việc xác minh AI agent cần thực hiện thủ công.",
   "of 4 requirements can be checked from the public profile. Agent verification is manual.":
-    "trên 4 yêu cầu có thể kiểm tra từ hồ sơ công khai. Việc xác minh tác nhân AI cần thực hiện thủ công.",
+    "trên 4 yêu cầu có thể kiểm tra từ hồ sơ công khai. Việc xác minh AI agent cần thực hiện thủ công.",
   "Reach at least 6 Arcade Games and 18 Skill Badges.":
     "Đạt ít nhất 6 trò chơi Arcade và 18 huy hiệu kỹ năng.",
   "Complete all 4 GEAR skill badges": "Hoàn thành đủ 4 huy hiệu kỹ năng GEAR",
-  "Build and submit your AI agent": "Tạo và gửi tác nhân AI của bạn",
+  "Build and submit your AI agent": "Tạo và gửi AI agent của bạn",
   "Free Trial, agent creation, Project Name and Billing ID verification cannot be detected from a public profile.":
-    "Không thể xác định trạng thái dùng thử miễn phí, việc tạo tác nhân AI, tên dự án và mã tài khoản thanh toán từ hồ sơ công khai.",
+    "Không thể xác định trạng thái dùng thử miễn phí, việc tạo AI agent, tên dự án và mã tài khoản thanh toán từ hồ sơ công khai.",
   "All profile-checkable requirements appear complete. Follow the guide, build your AI agent, then submit the verification form.":
-    "Các yêu cầu có thể kiểm tra từ hồ sơ đã hoàn tất. Hãy làm theo hướng dẫn, tạo tác nhân AI rồi gửi biểu mẫu xác minh.",
+    "Các yêu cầu có thể kiểm tra từ hồ sơ đã hoàn tất. Hãy làm theo hướng dẫn, tạo AI agent rồi gửi biểu mẫu xác minh.",
   "Complete the remaining profile requirements first. Google recommends finishing enrolment before starting the Bonus Milestone steps.":
     "Hãy hoàn tất các yêu cầu hồ sơ còn thiếu trước. Google khuyến nghị hoàn tất đăng ký trước khi bắt đầu các bước của Cột mốc thưởng.",
   "Facilitator bonuses are included only after the player confirms participation above. Game and skill-badge points are never counted twice. The optional Bonus Milestone adds +":
@@ -63,20 +63,20 @@ const VI_OVERRIDES = {
   "Ultimate Milestone": "Cột mốc cuối cùng",
   "Games": "Trò chơi",
   "Skills": "Kỹ năng",
-  "Regular Arcade": "Điểm Arcade thông thường",
+  "Regular Arcade": "Điểm Arcade cơ bản",
   "GEAR skill badge": "Huy hiệu kỹ năng GEAR",
   "Manual": "Thủ công",
   "Confirmed": "Đã xác nhận",
   "Pending": "Đang chờ",
   "lab": "bài thực hành",
   "labs": "bài thực hành",
-  "credit": "tín dụng",
-  "credits": "tín dụng",
+  "credit": "credit",
+  "credits": "credit",
   "Complete any": "Hoàn thành bất kỳ",
   "Arcade Games and": "trò chơi Arcade và",
   "syllabus badges completed": "huy hiệu trong giáo trình đã hoàn thành",
-  "profile checks": "kiểm tra hồ sơ",
-  "Earned": "Hoàn thành ngày",
+  "profile checks": "mục kiểm tra hồ sơ",
+  "Earned": "Đạt được",
   "Facilitator syllabus badge progress": "Tiến độ huy hiệu giáo trình Facilitator",
   "Bonus Milestone profile-checkable progress": "Tiến độ có thể kiểm tra của Cột mốc thưởng",
   "Include Facilitator Program bonus in the estimated total":
@@ -88,8 +88,8 @@ const VI_DYNAMIC_OVERRIDES = {
   "__facilitator:potentialBonus": "Có thể nhận +{bonus}; chưa bật tham gia",
   "__facilitator:percentCompleted": "Đã hoàn thành {percent}%",
   "__facilitator:syllabusProgress": "Đã hoàn thành {count}/{total} huy hiệu trong giáo trình",
-  "__facilitator:earned": "Hoàn thành ngày {value}",
-  "__facilitator:profileChecks": "{count}/{total} kiểm tra hồ sơ",
+  "__facilitator:earned": "Đạt được vào ngày {value}",
+  "__facilitator:profileChecks": "{count}/{total} mục kiểm tra hồ sơ",
 }
 
 export function applyVietnameseFacilitatorPolish(catalogs) {

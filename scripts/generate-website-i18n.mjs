@@ -1,6 +1,7 @@
 import { gunzipSync } from "node:zlib"
 import { mkdir, readFile, readdir, writeFile } from "node:fs/promises"
 import path from "node:path"
+import { applyCoreUiTranslationPolish } from "./core-ui-translations-polish.mjs"
 import { applyFacilitatorLabelTranslations } from "./apply-facilitator-label-translations.mjs"
 import { applyCompleteFacilitatorTranslations } from "./facilitator-translations-complete.mjs"
 import { applyFacilitatorRuntimeFragments } from "./facilitator-translations-runtime-fragments.mjs"
@@ -49,6 +50,7 @@ applyVietnameseFacilitatorPolish(catalogs)
 applyFacilitatorRuntimeFragments(catalogs)
 applyPublicProfileTranslations(catalogs)
 applyMonthlyGamesTranslations(catalogs)
+applyCoreUiTranslationPolish(catalogs)
 
 const englishMessages = catalogs.en?.messages
 if (!englishMessages) {
