@@ -151,19 +151,30 @@ function formatDeadlineCountdown(
   if (!Number.isFinite(deadlineMs)) return "—"
 
   const diffMs = deadlineMs - nowMs
-  const absoluteMs = Math.abs(diffMs)
-  const relative = new Intl.RelativeTimeFormat(locale, { numeric: "always" })
-  const direction = diffMs < 0 ? -1 : 1
-
-  if (absoluteMs >= 86_400_000) {
-    return relative.format(direction * Math.ceil(absoluteMs / 86_400_000), "day")
+  if (diffMs <= 0) {
+    const minutesAgo = Math.max(1, Math.floor(Math.abs(diffMs) / 60_000))
+    return new Intl.RelativeTimeFormat(locale, { numeric: "always" })
+      .format(-minutesAgo, "minute")
   }
 
-  if (absoluteMs >= 3_600_000) {
-    return relative.format(direction * Math.ceil(absoluteMs / 3_600_000), "hour")
-  }
+  const totalMinutes = Math.max(1, Math.floor(diffMs / 60_000))
+  const days = Math.floor(totalMinutes / 1_440)
+  const hours = Math.floor((totalMinutes % 1_440) / 60)
+  const minutes = totalMinutes % 60
+  const formatUnit = (amount: number, unit: "day" | "hour" | "minute") =>
+    new Intl.NumberFormat(locale, {
+      style: "unit",
+      unit,
+      unitDisplay: "short",
+      maximumFractionDigits: 0,
+    }).format(amount)
 
-  return relative.format(direction * Math.max(1, Math.ceil(absoluteMs / 60_000)), "minute")
+  const parts: string[] = []
+  if (days > 0) parts.push(formatUnit(days, "day"))
+  if (hours > 0 || days > 0) parts.push(formatUnit(hours, "hour"))
+  parts.push(formatUnit(minutes, "minute"))
+
+  return parts.join(" ")
 }
 
 function currentMonthHeading(locale?: string): string {
