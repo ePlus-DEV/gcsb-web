@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import FacilitatorPanel from "./facilitator-panel"
+import FacilitatorProfileScore from "./facilitator-profile-score"
 import {
   FACILITATOR_PANEL_OPEN_EVENT,
   FACILITATOR_PARTICIPATION_EVENT,
@@ -153,8 +154,14 @@ export default function FacilitatorPanelGate() {
   }, [])
 
   return (
-    <FacilitatorPanel
-      key={`${normalizeFacilitatorProfileUrl(profileUrl)}:${participating}`}
-    />
+    <>
+      <FacilitatorProfileScore
+        profileUrl={profileUrl}
+        participating={participating}
+      />
+      <FacilitatorPanel
+        key={`${normalizeFacilitatorProfileUrl(profileUrl)}:${participating}`}
+      />
+    </>
   )
 }
