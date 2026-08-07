@@ -198,9 +198,14 @@ export default function MonthlyGamesPanel({ badges }: MonthlyGamesPanelProps) {
       <div className="monthly-games-grid">
         {games.map((game, index) => {
           const completed = isCompleted(earnedTitleSet, game.title)
+          const stableKey =
+            game.joinUrl ??
+            game.accessCode ??
+            normalizeBadgeTitle(game.title) ||
+            "game"
 
           return (
-            <article className={completed ? "monthly-game-card is-complete" : "monthly-game-card"} key={`${game.joinUrl ?? game.accessCode ?? normalizeBadgeTitle(game.title) || "game"}-${index}`}>
+            <article className={completed ? "monthly-game-card is-complete" : "monthly-game-card"} key={`${stableKey}-${index}`}>
               <div className="monthly-game-art">
                 {game.imageUrl ? (
                   <img src={game.imageUrl} alt="" loading="lazy" />
