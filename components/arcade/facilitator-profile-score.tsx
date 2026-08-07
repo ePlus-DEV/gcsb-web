@@ -1,6 +1,6 @@
 "use client"
 
-import { ExternalLink, Sparkles } from "lucide-react"
+import { ExternalLink } from "lucide-react"
 import { createPortal } from "react-dom"
 import { useEffect, useMemo, useRef, useState } from "react"
 import {
@@ -130,7 +130,6 @@ export default function FacilitatorProfileScore({
     return {
       earnedPoints,
       milestone,
-      milestoneBonus,
       appliedBonus,
       totalPoints: earnedPoints + appliedBonus,
     }
@@ -152,6 +151,7 @@ export default function FacilitatorProfileScore({
   const openFacilitatorPanel = () => {
     window.dispatchEvent(new Event(FACILITATOR_PANEL_OPEN_EVENT))
   }
+  const bonusMilestoneNote = `Optional +${FACILITATOR_BONUS_MILESTONE_POINTS} Bonus Milestone not included`
 
   return createPortal(
     <>
@@ -204,7 +204,7 @@ export default function FacilitatorProfileScore({
           padding-top: 8px;
           border-top: 1px solid rgba(148, 163, 184, .14);
         }
-        .facilitator-profile-score-meta span {
+        .facilitator-profile-score-meta > span {
           min-width: 0;
           color: #94a3b8;
           font-size: .58rem;
@@ -212,27 +212,36 @@ export default function FacilitatorProfileScore({
           line-height: 1.35;
         }
         .facilitator-profile-score-meta b { color: #cbd5e1; }
+        .facilitator-profile-score-note {
+          color: inherit;
+          font: inherit;
+          font-style: normal;
+        }
         .facilitator-profile-score-meta button {
           display: inline-flex;
           flex: 0 0 auto;
           align-items: center;
-          gap: 4px;
+          justify-content: center;
+          width: 24px;
+          height: 24px;
           padding: 0;
           border: 0;
+          border-radius: 6px;
           background: transparent;
           color: #a78bfa;
-          font: inherit;
-          font-size: .58rem;
-          font-weight: 800;
           cursor: pointer;
         }
-        .facilitator-profile-score-meta button svg { width: 11px; height: 11px; }
+        .facilitator-profile-score-meta button:hover,
+        .facilitator-profile-score-meta button:focus-visible {
+          background: rgba(167, 139, 250, .1);
+        }
+        .facilitator-profile-score-meta button svg { width: 13px; height: 13px; }
         .light .facilitator-profile-score-card {
           border-color: rgba(124, 58, 237, .18);
           background: linear-gradient(135deg, rgba(79, 70, 229, .055), rgba(236, 72, 153, .04));
         }
         .light .facilitator-profile-score-part span,
-        .light .facilitator-profile-score-meta span { color: #64748b; }
+        .light .facilitator-profile-score-meta > span { color: #64748b; }
         .light .facilitator-profile-score-part strong { color: #1e293b; }
         .light .facilitator-profile-score-part.is-bonus strong { color: #9333ea; }
         .light .facilitator-profile-score-part.is-total strong { color: #0369a1; }
@@ -243,9 +252,8 @@ export default function FacilitatorProfileScore({
           .facilitator-profile-score-part span { font-size: .54rem; }
           .facilitator-profile-score-part strong { font-size: .82rem; }
           .facilitator-profile-score-meta { align-items: flex-start; }
-          .facilitator-profile-score-meta span { font-size: .54rem; }
-          .facilitator-profile-score-meta button span { display: none; }
-          .facilitator-profile-score-meta button svg { width: 13px; height: 13px; }
+          .facilitator-profile-score-meta > span { font-size: .54rem; }
+          .facilitator-profile-score-meta button { width: 26px; height: 26px; }
         }
       `}</style>
 
@@ -269,12 +277,27 @@ export default function FacilitatorProfileScore({
 
         <div className="facilitator-profile-score-meta">
           <span>
-            {participating
-              ? <><b>{score.milestone?.label ?? "No milestone yet"}</b> · Optional +{FACILITATOR_BONUS_MILESTONE_POINTS} Bonus Milestone not included</>
-              : <>Enable to include bonus points · Optional +{FACILITATOR_BONUS_MILESTONE_POINTS} Bonus Milestone not included</>}
+            {participating ? (
+              <>
+                <b>{score.milestone?.label ?? "No milestone yet"}</b>
+                {" · "}
+                <em className="facilitator-profile-score-note">{bonusMilestoneNote}</em>
+              </>
+            ) : (
+              <>
+                Enable to include bonus points
+                {" · "}
+                <em className="facilitator-profile-score-note">{bonusMilestoneNote}</em>
+              </>
+            )}
           </span>
-          <button type="button" onClick={openFacilitatorPanel}>
-            <span>View program details</span><ExternalLink />
+          <button
+            type="button"
+            onClick={openFacilitatorPanel}
+            aria-label="Open Facilitator Program tracker"
+            title="Open Facilitator Program tracker"
+          >
+            <ExternalLink />
           </button>
         </div>
       </div>
