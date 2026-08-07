@@ -51,3 +51,17 @@ export function getHighestFacilitatorMilestone(
 export function getFacilitatorMilestoneBonus(counts: FacilitatorCounts): number {
   return getHighestFacilitatorMilestone(counts)?.bonus ?? 0
 }
+
+export function getFacilitatorAdjustedPoints(
+  basePoints: number,
+  counts: FacilitatorCounts,
+  participating: boolean,
+) {
+  const bonus = participating ? getFacilitatorMilestoneBonus(counts) : 0
+
+  return {
+    basePoints,
+    bonus,
+    totalPoints: basePoints + bonus,
+  }
+}
