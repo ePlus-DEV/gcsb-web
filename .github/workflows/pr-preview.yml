@@ -67,7 +67,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     concurrency:
-      group: gcsb-pages-content
+      # v2 intentionally escapes the stale gcsb-pages-content queue left by an old pending run.
+      # Keep this global so gh-pages force-pushes remain serialized across PRs.
+      group: gcsb-pages-content-v2
       cancel-in-progress: false
     environment:
       name: pr-preview
