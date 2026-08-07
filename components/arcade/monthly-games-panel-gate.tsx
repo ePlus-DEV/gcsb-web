@@ -57,12 +57,20 @@ function ensureMonthlyGamesHost(): HTMLElement | null {
   const shell = document.querySelector<HTMLElement>(".dashboard-shell")
   if (!shell) return null
 
+  const summary = shell.querySelector<HTMLElement>(":scope > .dashboard-summary-grid")
+  if (!summary) return null
+
   const existing = shell.querySelector<HTMLElement>(`:scope > .${HOST_CLASS_NAME}`)
-  if (existing) return existing
+  if (existing) {
+    if (summary.nextElementSibling !== existing) {
+      summary.insertAdjacentElement("afterend", existing)
+    }
+    return existing
+  }
 
   const host = document.createElement("div")
   host.className = HOST_CLASS_NAME
-  shell.prepend(host)
+  summary.insertAdjacentElement("afterend", host)
   return host
 }
 
