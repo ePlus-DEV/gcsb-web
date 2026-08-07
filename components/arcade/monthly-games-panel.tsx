@@ -140,6 +140,32 @@ function formatDeadline(value: string | null, locale?: string): string {
   return [date, time, timeZone].filter(Boolean).join(" · ")
 }
 
+function formatDeadlineCountdown(
+  value: string | null,
+  locale: string | undefined,
+  nowMs: number,
+): string {
+  if (!value) return "—"
+
+  const deadlineMs = new Date(value).getTime()
+  if (!Number.isFinite(deadlineMs)) return "—"
+
+  const diffMs = deadlineMs - nowMs
+  const absoluteMs = Math.abs(diffMs)
+  const relative = new Intl.RelativeTimeFormat(locale, { numeric: "always" })
+  const direction = diffMs < 0 ? -1 : 1
+
+  if (absoluteMs >= 86_400_000) {
+    return relative.format(direction * Math.ceil(absoluteMs / 86_400_000), "day")
+  }
+
+  if (absoluteMs >= 3_600_000) {
+    return relative.format(direction * Math.ceil(absoluteMs / 3_600_000), "hour")
+  }
+
+  return relative.format(direction * Math.max(1, Math.ceil(absoluteMs / 60_000)), "minute")
+}
+
 function currentMonthHeading(locale?: string): string {
   return new Intl.DateTimeFormat(locale, {
     month: "long",
@@ -152,7 +178,9 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
   const [loading, setLoading] = useState(true)
   const [loadFailed, setLoadFailed] = useState(false)
   const [copiedCode, setCopiedCode] = useState<string | null>(null)
+  const [expandedDeadline, setExpandedDeadline] = useState<string | null>(null)
   const [locale, setLocale] = useState<string | undefined>(undefined)
+  const [nowMs, setNowMs] = useState(() => Date.now())
 
   useEffect(() => {
     const syncLocale = () => setLocale(readCurrentLocale())
@@ -164,6 +192,11 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
       attributeFilter: ["lang", "data-locale"],
     })
     return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setNowMs(Date.now()), 60_000)
+    return () => window.clearInterval(timer)
   }, [])
 
   useEffect(() => {
@@ -269,9 +302,11 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
           const stableKey =
             (game.joinUrl ?? game.accessCode ?? normalizeBadgeTitle(game.title)) ||
             "game"
+          const deadlineKey = `${stableKey}-${index}`
+          const deadlineDetail = formatDeadline(game.deadline, locale)
 
           return (
-            <article className={completed ? "monthly-game-card is-complete" : "monthly-game-card"} key={`${stableKey}-${index}`}>
+            <article className={completed ? "monthly-game-card is-complete" : "monthly-game-card"} key={deadlineKey}>
               <div className="monthly-game-art">
                 {game.imageUrl ? (
                   <img
@@ -318,14 +353,23 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
                     {game.spotsRemaining !== null && <span><Circle /> {formatInteger(game.spotsRemaining)} spots left</span>}
                   </div>
 
-                  <span
-                    className="monthly-game-deadline"
+                  <button
+                    className={expandedDeadline === deadlineKey ? "monthly-game-deadline is-open" : "monthly-game-deadline"}
+                    type="button"
                     data-source-time-zone={game.deadlineTimeZone ?? undefined}
+                    aria-label={`Deadline: ${deadlineDetail}`}
+                    aria-expanded={expandedDeadline === deadlineKey}
+                    onClick={() => setExpandedDeadline((current) => current === deadlineKey ? null : deadlineKey)}
                   >
                     <Clock />
                     <strong>Deadline</strong>
-                    <time dateTime={game.deadline ?? undefined}>{formatDeadline(game.deadline, locale)}</time>
-                  </span>
+                    <time dateTime={game.deadline ?? undefined}>
+                      {formatDeadlineCountdown(game.deadline, locale, nowMs)}
+                    </time>
+                    <span className="monthly-deadline-tooltip" role="tooltip">
+                      {deadlineDetail}
+                    </span>
+                  </button>
                 </div>
 
                 {game.joinUrl && (
