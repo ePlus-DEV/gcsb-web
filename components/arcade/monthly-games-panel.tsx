@@ -48,6 +48,20 @@ function safeHttpsUrl(value: unknown): string | null {
   }
 }
 
+function safeTimeZone(value: unknown): string | null {
+  if (typeof value !== "string") return null
+
+  const timeZone = value.trim()
+  if (!timeZone) return null
+
+  try {
+    new Intl.DateTimeFormat("en-US", { timeZone }).format(0)
+    return timeZone
+  } catch {
+    return null
+  }
+}
+
 function optionalNumber(value: unknown): number | null {
   if (
     (typeof value !== "number" && typeof value !== "string") ||
@@ -80,6 +94,7 @@ function parseMonthlyGames(payload: unknown): MonthlyArcadeGame[] {
         typeof candidate.deadline === "string" && candidate.deadline.trim()
           ? candidate.deadline.trim()
           : null,
+      deadlineTimeZone: safeTimeZone(candidate.deadlineTimeZone),
       description:
         typeof candidate.description === "string" && candidate.description.trim()
           ? candidate.description.trim()
@@ -99,16 +114,32 @@ function readCurrentLocale(): string | undefined {
   return localizedAncestor?.lang || document.documentElement.lang || undefined
 }
 
-function formatDeadline(value: string | null, locale?: string): string {
+function formatDeadline(
+  value: string | null,
+  timeZone: string | null,
+  locale?: string,
+): string {
   if (!value) return "Deadline unavailable"
 
   const parsed = new Date(value)
   if (Number.isNaN(parsed.getTime())) return "Deadline unavailable"
 
-  return new Intl.DateTimeFormat(locale, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(parsed)
+  try {
+    return new Intl.DateTimeFormat(locale, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: timeZone ?? undefined,
+      timeZoneName: timeZone ? "short" : undefined,
+    }).format(parsed)
+  } catch {
+    return new Intl.DateTimeFormat(locale, {
+      dateStyle: "medium",
+      timeStyle: "short",
+    }).format(parsed)
+  }
 }
 
 function currentMonthHeading(locale?: string): string {
@@ -292,7 +323,7 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
                   <span className="monthly-game-deadline">
                     <Clock />
                     <strong>Deadline</strong>
-                    <time>{formatDeadline(game.deadline, locale)}</time>
+                    <time>{formatDeadline(game.deadline, game.deadlineTimeZone, locale)}</time>
                   </span>
                 </div>
 
