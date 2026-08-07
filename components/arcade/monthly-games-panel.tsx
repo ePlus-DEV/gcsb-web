@@ -29,6 +29,11 @@ function normalizeBadgeTitle(value: string): string {
     .trim()
 }
 
+function isCompleted(earned: Set<string>, title: string): boolean {
+  const key = normalizeBadgeTitle(title)
+  return key !== "" && earned.has(key)
+}
+
 function safeHttpsUrl(value: unknown): string | null {
   if (typeof value !== "string") return null
 
@@ -84,9 +89,11 @@ function parseMonthlyGames(payload: unknown): MonthlyArcadeGame[] {
 }
 
 function currentLocale(): string | undefined {
-  return typeof document !== "undefined" && document.documentElement.lang
-    ? document.documentElement.lang
-    : undefined
+  if (typeof document === "undefined") return undefined
+
+  const host = document.querySelector<HTMLElement>(".monthly-games-host")
+  const localizedAncestor = host?.closest<HTMLElement>("[lang]")
+  return localizedAncestor?.lang || document.documentElement.lang || undefined
 }
 
 function formatDeadline(value: string | null): string {
@@ -149,12 +156,16 @@ export default function MonthlyGamesPanel({ badges }: MonthlyGamesPanelProps) {
   }, [])
 
   const earnedTitleSet = useMemo(
-    () => new Set(badges.map((badge) => normalizeBadgeTitle(badge.title))),
+    () => new Set(
+      badges
+        .map((badge) => normalizeBadgeTitle(badge.title))
+        .filter(Boolean),
+    ),
     [badges],
   )
 
   const completedCount = useMemo(
-    () => games.filter((game) => earnedTitleSet.has(normalizeBadgeTitle(game.title))).length,
+    () => games.filter((game) => isCompleted(earnedTitleSet, game.title)).length,
     [earnedTitleSet, games],
   )
 
@@ -185,11 +196,11 @@ export default function MonthlyGamesPanel({ badges }: MonthlyGamesPanelProps) {
       </div>
 
       <div className="monthly-games-grid">
-        {games.map((game) => {
-          const completed = earnedTitleSet.has(normalizeBadgeTitle(game.title))
+        {games.map((game, index) => {
+          const completed = isCompleted(earnedTitleSet, game.title)
 
           return (
-            <article className={completed ? "monthly-game-card is-complete" : "monthly-game-card"} key={`${game.title}-${game.accessCode ?? game.joinUrl ?? "game"}`}>
+            <article className={completed ? "monthly-game-card is-complete" : "monthly-game-card"} key={`${game.joinUrl ?? game.accessCode ?? normalizeBadgeTitle(game.title) || "game"}-${index}`}>
               <div className="monthly-game-art">
                 {game.imageUrl ? (
                   <img src={game.imageUrl} alt="" loading="lazy" />
