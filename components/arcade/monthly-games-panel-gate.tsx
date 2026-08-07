@@ -12,6 +12,7 @@ import {
 const DASHBOARD_SYNC_INTERVAL_MS = 1_000
 const HOST_CLASS_NAME = "monthly-games-host"
 const HOST_ID = "monthly-games"
+const NAV_HREF = `#${HOST_ID}`
 
 function asBadgeArray(value: unknown): ArcadeBadge[] {
   if (!Array.isArray(value)) return []
@@ -57,6 +58,22 @@ function parseStoredBadges(result: ArcadeApiResponse | null): ArcadeBadge[] {
   ]
 }
 
+function ensureMonthlyGamesNavLink() {
+  const nav = document.querySelector<HTMLElement>(".arcade-nav")
+  if (!nav || nav.querySelector(`a[href="${NAV_HREF}"]`)) return
+
+  const link = document.createElement("a")
+  link.href = NAV_HREF
+  link.textContent = "Monthly labs"
+  link.addEventListener("click", () => {
+    const expandedToggle = document.querySelector<HTMLButtonElement>(
+      '.mobile-menu-toggle[aria-expanded="true"]',
+    )
+    expandedToggle?.click()
+  })
+  nav.append(link)
+}
+
 function ensureMonthlyGamesHost(): HTMLElement | null {
   const page = document.querySelector<HTMLElement>(".arcade-dashboard-page")
   if (!page) return null
@@ -91,6 +108,7 @@ export default function MonthlyGamesPanelGate() {
 
   useEffect(() => {
     const sync = () => {
+      ensureMonthlyGamesNavLink()
       const nextHost = ensureMonthlyGamesHost()
       setHost((current) => (current === nextHost ? current : nextHost))
 
