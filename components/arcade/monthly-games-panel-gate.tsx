@@ -11,6 +11,7 @@ import {
 
 const DASHBOARD_SYNC_INTERVAL_MS = 1_000
 const HOST_CLASS_NAME = "monthly-games-host"
+const HOST_ID = "monthly-games"
 
 function asBadgeArray(value: unknown): ArcadeBadge[] {
   if (!Array.isArray(value)) return []
@@ -31,52 +32,61 @@ function readStoredRaw(): string {
   }
 }
 
-function parseStoredBadges(raw: string): ArcadeBadge[] {
-  if (!raw) return []
+function parseStoredResult(raw: string): ArcadeApiResponse | null {
+  if (!raw) return null
 
   try {
     const parsed = JSON.parse(raw) as { result?: ArcadeApiResponse }
     const result = parsed.result
-    if (!result || typeof result !== "object") return []
-
-    if (result.badges !== undefined) return asBadgeArray(result.badges)
-
-    return [
-      ...asBadgeArray(result.game),
-      ...asBadgeArray(result.trivia),
-      ...asBadgeArray(result.skill),
-      ...asBadgeArray(result.completion),
-      ...asBadgeArray(result.special),
-    ]
+    return result && typeof result === "object" ? result : null
   } catch {
-    return []
+    return null
   }
 }
 
+function parseStoredBadges(result: ArcadeApiResponse | null): ArcadeBadge[] {
+  if (!result) return []
+  if (result.badges !== undefined) return asBadgeArray(result.badges)
+
+  return [
+    ...asBadgeArray(result.game),
+    ...asBadgeArray(result.trivia),
+    ...asBadgeArray(result.skill),
+    ...asBadgeArray(result.completion),
+    ...asBadgeArray(result.special),
+  ]
+}
+
 function ensureMonthlyGamesHost(): HTMLElement | null {
-  const shell = document.querySelector<HTMLElement>(".dashboard-shell")
-  if (!shell) return null
+  const page = document.querySelector<HTMLElement>(".arcade-dashboard-page")
+  if (!page) return null
 
-  const summary = shell.querySelector<HTMLElement>(":scope > .dashboard-summary-grid")
-  if (!summary) return null
+  const shell = page.querySelector<HTMLElement>(".dashboard-shell")
+  const summary = shell?.querySelector<HTMLElement>(":scope > .dashboard-summary-grid") ?? null
+  const footer = page.querySelector<HTMLElement>(":scope > .arcade-footer")
+  let host = page.querySelector<HTMLElement>(`.${HOST_CLASS_NAME}`)
 
-  const existing = shell.querySelector<HTMLElement>(`:scope > .${HOST_CLASS_NAME}`)
-  if (existing) {
-    if (summary.nextElementSibling !== existing) {
-      summary.insertAdjacentElement("afterend", existing)
-    }
-    return existing
+  if (!host) {
+    host = document.createElement("div")
+    host.id = HOST_ID
+    host.className = HOST_CLASS_NAME
   }
 
-  const host = document.createElement("div")
-  host.className = HOST_CLASS_NAME
-  summary.insertAdjacentElement("afterend", host)
+  if (summary) {
+    if (summary.nextElementSibling !== host) summary.insertAdjacentElement("afterend", host)
+  } else if (footer) {
+    if (footer.previousElementSibling !== host) footer.insertAdjacentElement("beforebegin", host)
+  } else if (!host.isConnected) {
+    page.append(host)
+  }
+
   return host
 }
 
 export default function MonthlyGamesPanelGate() {
   const [host, setHost] = useState<HTMLElement | null>(null)
   const [badges, setBadges] = useState<ArcadeBadge[]>([])
+  const [hasProfile, setHasProfile] = useState(false)
   const lastRawRef = useRef<string | null>(null)
 
   useEffect(() => {
@@ -88,7 +98,9 @@ export default function MonthlyGamesPanelGate() {
       if (raw === lastRawRef.current) return
 
       lastRawRef.current = raw
-      setBadges(parseStoredBadges(raw))
+      const result = parseStoredResult(raw)
+      setHasProfile(Boolean(result))
+      setBadges(parseStoredBadges(result))
     }
 
     sync()
@@ -114,5 +126,5 @@ export default function MonthlyGamesPanelGate() {
   }, [])
 
   if (!host) return null
-  return createPortal(<MonthlyGamesPanel badges={badges} />, host)
+  return createPortal(<MonthlyGamesPanel badges={badges} hasProfile={hasProfile} />, host)
 }
