@@ -2,8 +2,10 @@
 
 import {
   BadgeCheck,
+  Check,
   Circle,
   Clock,
+  Copy,
   ExternalLink,
   Gamepad2,
   LoaderCircle,
@@ -19,6 +21,7 @@ import {
 
 type MonthlyGamesPanelProps = {
   badges: ArcadeBadge[]
+  hasProfile: boolean
 }
 
 function normalizeBadgeTitle(value: string): string {
@@ -115,10 +118,11 @@ function currentMonthHeading(): string {
   }).format(new Date())
 }
 
-export default function MonthlyGamesPanel({ badges }: MonthlyGamesPanelProps) {
+export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPanelProps) {
   const [games, setGames] = useState<MonthlyArcadeGame[]>([])
   const [loading, setLoading] = useState(true)
   const [loadFailed, setLoadFailed] = useState(false)
+  const [copiedCode, setCopiedCode] = useState<string | null>(null)
 
   useEffect(() => {
     let active = true
@@ -165,9 +169,21 @@ export default function MonthlyGamesPanel({ badges }: MonthlyGamesPanelProps) {
   )
 
   const completedCount = useMemo(
-    () => games.filter((game) => isCompleted(earnedTitleSet, game.title)).length,
-    [earnedTitleSet, games],
+    () => hasProfile
+      ? games.filter((game) => isCompleted(earnedTitleSet, game.title)).length
+      : 0,
+    [earnedTitleSet, games, hasProfile],
   )
+
+  async function copyAccessCode(code: string) {
+    try {
+      await navigator.clipboard.writeText(code)
+      setCopiedCode(code)
+      window.setTimeout(() => setCopiedCode((current) => current === code ? null : current), 1_500)
+    } catch {
+      setCopiedCode(null)
+    }
+  }
 
   if (loading) {
     return (
@@ -188,16 +204,26 @@ export default function MonthlyGamesPanel({ badges }: MonthlyGamesPanelProps) {
           <h2 id="monthly-games-title">{currentMonthHeading()}</h2>
           <p>Track the active Arcade games against badges already present on this public profile.</p>
         </div>
-        <div className="monthly-progress-summary">
-          <strong>{completedCount}/{games.length}</strong>
-          <span>completed</span>
-          <i aria-hidden="true"><b style={{ width: `${games.length ? (completedCount / games.length) * 100 : 0}%` }} /></i>
+        <div className={hasProfile ? "monthly-progress-summary" : "monthly-progress-summary is-pending"}>
+          {hasProfile ? (
+            <>
+              <strong>{completedCount}/{games.length}</strong>
+              <span>completed</span>
+              <i aria-hidden="true"><b style={{ width: `${games.length ? (completedCount / games.length) * 100 : 0}%` }} /></i>
+            </>
+          ) : (
+            <>
+              <strong>—/{games.length}</strong>
+              <span>Analyze profile to track completion</span>
+              <i aria-hidden="true"><b style={{ width: "0%" }} /></i>
+            </>
+          )}
         </div>
       </div>
 
       <div className="monthly-games-grid">
         {games.map((game, index) => {
-          const completed = isCompleted(earnedTitleSet, game.title)
+          const completed = hasProfile && isCompleted(earnedTitleSet, game.title)
           const stableKey =
             (game.joinUrl ?? game.accessCode ?? normalizeBadgeTitle(game.title)) ||
             "game"
@@ -210,9 +236,9 @@ export default function MonthlyGamesPanel({ badges }: MonthlyGamesPanelProps) {
                 ) : (
                   <Gamepad2 />
                 )}
-                <span className={completed ? "monthly-game-status is-complete" : "monthly-game-status"}>
+                <span className={completed ? "monthly-game-status is-complete" : hasProfile ? "monthly-game-status" : "monthly-game-status is-pending"}>
                   {completed ? <BadgeCheck /> : <Circle />}
-                  {completed ? "Completed" : "Not completed"}
+                  {completed ? "Completed" : hasProfile ? "Not completed" : "Analyze profile to check"}
                 </span>
               </div>
 
@@ -221,10 +247,23 @@ export default function MonthlyGamesPanel({ badges }: MonthlyGamesPanelProps) {
                 {game.description && <p className="monthly-game-description">{game.description}</p>}
 
                 <div className="monthly-game-meta">
-                  {game.accessCode && <span><code>{game.accessCode}</code> Access code</span>}
+                  {game.accessCode && (
+                    <button
+                      className={copiedCode === game.accessCode ? "monthly-access-code is-copied" : "monthly-access-code"}
+                      type="button"
+                      onClick={() => void copyAccessCode(game.accessCode as string)}
+                      aria-label="Copy access code"
+                      title="Copy access code"
+                    >
+                      <span>Access code</span>
+                      <code>{game.accessCode}</code>
+                      {copiedCode === game.accessCode ? <Check /> : <Copy />}
+                      <em>{copiedCode === game.accessCode ? "Copied" : "Copy"}</em>
+                    </button>
+                  )}
                   {game.points !== null && <span><Trophy /> {game.points} Arcade point{game.points === 1 ? "" : "s"}</span>}
                   {game.spotsRemaining !== null && <span><Circle /> {formatInteger(game.spotsRemaining)} spots left</span>}
-                  <span><Clock /> {formatDeadline(game.deadline)}</span>
+                  <span className="monthly-game-deadline"><Clock /><strong>Deadline</strong><time>{formatDeadline(game.deadline)}</time></span>
                 </div>
 
                 {game.joinUrl && (
