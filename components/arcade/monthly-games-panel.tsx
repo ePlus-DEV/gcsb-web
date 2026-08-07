@@ -114,32 +114,20 @@ function readCurrentLocale(): string | undefined {
   return localizedAncestor?.lang || document.documentElement.lang || undefined
 }
 
-function formatDeadline(
-  value: string | null,
-  timeZone: string | null,
-  locale?: string,
-): string {
+function formatDeadline(value: string | null, locale?: string): string {
   if (!value) return "Deadline unavailable"
 
   const parsed = new Date(value)
   if (Number.isNaN(parsed.getTime())) return "Deadline unavailable"
 
-  try {
-    return new Intl.DateTimeFormat(locale, {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      timeZone: timeZone ?? undefined,
-      timeZoneName: timeZone ? "short" : undefined,
-    }).format(parsed)
-  } catch {
-    return new Intl.DateTimeFormat(locale, {
-      dateStyle: "medium",
-      timeStyle: "short",
-    }).format(parsed)
-  }
+  return new Intl.DateTimeFormat(locale, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZoneName: "short",
+  }).format(parsed)
 }
 
 function currentMonthHeading(locale?: string): string {
@@ -320,10 +308,13 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
                     {game.spotsRemaining !== null && <span><Circle /> {formatInteger(game.spotsRemaining)} spots left</span>}
                   </div>
 
-                  <span className="monthly-game-deadline">
+                  <span
+                    className="monthly-game-deadline"
+                    data-source-time-zone={game.deadlineTimeZone ?? undefined}
+                  >
                     <Clock />
                     <strong>Deadline</strong>
-                    <time>{formatDeadline(game.deadline, game.deadlineTimeZone, locale)}</time>
+                    <time dateTime={game.deadline ?? undefined}>{formatDeadline(game.deadline, locale)}</time>
                   </span>
                 </div>
 
