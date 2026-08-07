@@ -199,9 +199,7 @@ export default function MonthlyGamesPanel({ badges }: MonthlyGamesPanelProps) {
         {games.map((game, index) => {
           const completed = isCompleted(earnedTitleSet, game.title)
           const stableKey =
-            game.joinUrl ??
-            game.accessCode ??
-            normalizeBadgeTitle(game.title) ||
+            (game.joinUrl ?? game.accessCode ?? normalizeBadgeTitle(game.title)) ||
             "game"
 
           return (
