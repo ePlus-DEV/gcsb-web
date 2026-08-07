@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react"
 import FacilitatorPanel from "./facilitator-panel"
-import FacilitatorProfileScore from "./facilitator-profile-score"
 import {
   FACILITATOR_PANEL_OPEN_EVENT,
   FACILITATOR_PARTICIPATION_EVENT,
@@ -91,14 +90,8 @@ export default function FacilitatorPanelGate() {
         document.querySelector<HTMLButtonElement>(".facilitator-launcher")
       if (!launcher) return
 
-      const inlineSummaryVisible = Boolean(
-        document.querySelector(".facilitator-profile-score-card"),
-      )
-
       launcher.hidden =
-        inlineSummaryVisible ||
-        !participating ||
-        !launcher.classList.contains("is-participating")
+        !participating || !launcher.classList.contains("is-participating")
     }
 
     updateLauncherVisibility()
@@ -159,15 +152,5 @@ export default function FacilitatorPanelGate() {
       window.removeEventListener(FACILITATOR_PANEL_OPEN_EVENT, openPanel)
   }, [])
 
-  return (
-    <>
-      <FacilitatorProfileScore
-        profileUrl={profileUrl}
-        participating={participating}
-      />
-      <FacilitatorPanel
-        key={`${normalizeFacilitatorProfileUrl(profileUrl)}:${participating}`}
-      />
-    </>
-  )
+  return <FacilitatorPanel />
 }
