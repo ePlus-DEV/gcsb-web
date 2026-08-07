@@ -245,21 +245,12 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
             <article className={completed ? "monthly-game-card is-complete" : "monthly-game-card"} key={`${stableKey}-${index}`}>
               <div className="monthly-game-art">
                 {game.imageUrl ? (
-                  <>
-                    <img
-                      className="monthly-game-art-backdrop"
-                      src={game.imageUrl}
-                      alt=""
-                      aria-hidden="true"
-                      loading="lazy"
-                    />
-                    <img
-                      className="monthly-game-art-image"
-                      src={game.imageUrl}
-                      alt=""
-                      loading="lazy"
-                    />
-                  </>
+                  <img
+                    className="monthly-game-art-image"
+                    src={game.imageUrl}
+                    alt=""
+                    loading="lazy"
+                  />
                 ) : (
                   <Gamepad2 />
                 )}
