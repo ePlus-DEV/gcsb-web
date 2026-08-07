@@ -8,17 +8,17 @@
   border:0!important;
   border-radius:0!important;
   background:none!important;
-  color:#fbbf24!important;
+  color:#f87171!important;
 }
 
 .monthly-game-deadline svg{
   width:13px;
   height:13px;
-  color:#f59e0b!important;
+  color:#ef4444!important;
 }
 
 .monthly-game-deadline strong{
-  color:#fbbf24;
+  color:#f87171!important;
   font-size:.59rem;
   font-weight:800;
   letter-spacing:.05em;
@@ -41,12 +41,12 @@
 .light .monthly-game-deadline{
   background:none!important;
   border:0!important;
-  color:#b45309!important;
+  color:#dc2626!important;
 }
 
 .light .monthly-game-deadline svg,
 .light .monthly-game-deadline strong{
-  color:#d97706!important;
+  color:#dc2626!important;
 }
 
 .light .monthly-game-deadline time{
