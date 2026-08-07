@@ -17,20 +17,27 @@
 }
 
 .monthly-game-deadline svg{
+  grid-column:1!important;
+  grid-row:1!important;
   width:13px;
   height:13px;
   color:#ef4444!important;
 }
 
 .monthly-game-deadline strong{
+  grid-column:2!important;
+  grid-row:1!important;
   color:#f87171!important;
   font-size:.59rem;
   font-weight:800;
   letter-spacing:.05em;
   text-transform:uppercase;
+  white-space:nowrap;
 }
 
 .monthly-game-deadline time{
+  grid-column:3!important;
+  grid-row:1!important;
   min-width:0;
   justify-self:end!important;
   overflow:hidden!important;
@@ -111,9 +118,13 @@
   }
 
   .monthly-game-deadline time{
+    grid-column:3!important;
+    grid-row:1!important;
     justify-self:end!important;
     max-width:100%;
+    padding-left:0!important;
     font-size:.62rem;
+    text-align:right!important;
   }
 
   .monthly-deadline-tooltip{
@@ -132,9 +143,11 @@
   }
 
   .monthly-game-deadline time{
+    grid-column:3!important;
+    grid-row:1!important;
     justify-self:end!important;
     padding-left:0!important;
-    font-size:.59rem;
+    font-size:.57rem;
     text-align:right!important;
   }
 
