@@ -352,6 +352,13 @@ export default function RedesignCalculator() {
   const pointsToNextTier = Math.max(0, nextMilestone.points - points)
   const maxTierPoints = milestones[milestones.length - 1]?.points ?? 0
   const hasReachedMaxTier = maxTierPoints > 0 && points >= maxTierPoints
+  const goalStartPoints = hasReachedMaxTier
+    ? maxTierPoints
+    : qualifiedMilestone?.points ?? 0
+  const goalRange = Math.max(1, nextMilestone.points - goalStartPoints)
+  const goalProgress = hasReachedMaxTier
+    ? 100
+    : Math.min(100, Math.max(0, ((points - goalStartPoints) / goalRange) * 100))
 
   async function analyzeProfile(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -804,12 +811,12 @@ export default function RedesignCalculator() {
               <div
                 className="goal-progress"
                 role="progressbar"
-                aria-label={`Progress toward ${nextMilestone.league}`}
-                aria-valuemin={0}
-                aria-valuemax={nextMilestone.points}
-                aria-valuenow={Math.min(points, nextMilestone.points)}
+                aria-label={hasReachedMaxTier ? "Maximum score tier reached" : `Progress toward ${nextMilestone.league}`}
+                aria-valuemin={goalStartPoints}
+                aria-valuemax={hasReachedMaxTier ? maxTierPoints : nextMilestone.points}
+                aria-valuenow={hasReachedMaxTier ? maxTierPoints : Math.min(Math.max(points, goalStartPoints), nextMilestone.points)}
               >
-                <span style={{ width: `${Math.min(100, (points / Math.max(nextMilestone.points, 1)) * 100)}%` }} />
+                <span style={{ width: `${goalProgress}%` }} />
               </div>
             </article>
           </div>
