@@ -34,6 +34,24 @@ test("profile score applies only the highest completed standard milestone bonus"
   assert.equal(facilitator.getFacilitatorMilestoneBonus({ games: 12, skills: 66 }), 35)
 })
 
+test("displayed Arcade points include the active Facilitator milestone bonus", () => {
+  assert.deepEqual(
+    facilitator.getFacilitatorAdjustedPoints(75, { games: 6, skills: 18 }, true),
+    { basePoints: 75, bonus: 5, totalPoints: 80 },
+  )
+  assert.deepEqual(
+    facilitator.getFacilitatorAdjustedPoints(75, { games: 8, skills: 34 }, true),
+    { basePoints: 75, bonus: 15, totalPoints: 90 },
+  )
+})
+
+test("participation off keeps the crawler score unchanged", () => {
+  assert.deepEqual(
+    facilitator.getFacilitatorAdjustedPoints(75, { games: 12, skills: 66 }, false),
+    { basePoints: 75, bonus: 0, totalPoints: 75 },
+  )
+})
+
 test("missing either requirement grants no partial milestone bonus", () => {
   assert.equal(facilitator.getFacilitatorMilestoneBonus({ games: 5, skills: 99 }), 0)
   assert.equal(facilitator.getFacilitatorMilestoneBonus({ games: 99, skills: 17 }), 0)
