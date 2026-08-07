@@ -120,14 +120,24 @@ function formatDeadline(value: string | null, locale?: string): string {
   const parsed = new Date(value)
   if (Number.isNaN(parsed.getTime())) return "Deadline unavailable"
 
-  return new Intl.DateTimeFormat(locale, {
+  const date = new Intl.DateTimeFormat(locale, {
     year: "numeric",
     month: "short",
     day: "numeric",
+  }).format(parsed)
+
+  const time = new Intl.DateTimeFormat(locale, {
     hour: "2-digit",
     minute: "2-digit",
-    timeZoneName: "short",
   }).format(parsed)
+
+  const timeZone = new Intl.DateTimeFormat(locale, {
+    timeZoneName: "short",
+  })
+    .formatToParts(parsed)
+    .find((part) => part.type === "timeZoneName")?.value
+
+  return [date, time, timeZone].filter(Boolean).join(" · ")
 }
 
 function currentMonthHeading(locale?: string): string {
