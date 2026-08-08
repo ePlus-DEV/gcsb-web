@@ -77,6 +77,11 @@ jobs:
             exit 1
           fi
 
+          if [ "$PR_AUTHOR" = "$COMMENT_AUTHOR" ]; then
+            echo "::error::The pull request author cannot request an eplus-bot approval."
+            exit 1
+          fi
+
           if [ "$IS_DRAFT" = "true" ]; then
             echo "::error::Draft pull requests cannot be approved."
             exit 1
@@ -85,6 +90,7 @@ jobs:
           echo "head_sha=$HEAD_SHA" >> "$GITHUB_OUTPUT"
         env:
           PR_NUMBER: ${{ github.event.issue.number }}
+          COMMENT_AUTHOR: ${{ github.event.comment.user.login }}
           GH_TOKEN: ${{ secrets.EPLUS_BOT_TOKEN }}
 
       - name: Wait for current head checks
@@ -104,8 +110,12 @@ jobs:
             CHECKS="$(
               gh pr checks "$PR_NUMBER" \
                 --repo "$GITHUB_REPOSITORY" \
-                --json bucket,name,workflow 2>/dev/null || true
+                --json bucket,name,workflow || true
             )"
+
+            if ! jq -e 'type == "array"' >/dev/null 2>&1 <<<"$CHECKS"; then
+              CHECKS="[]"
+            fi
 
             CI_COUNT="$(
               jq '[.[] | select(.workflow == "CI")] | length' <<<"$CHECKS"
