@@ -56,6 +56,11 @@ const FILTERS: Array<{ value: BadgeFilter; label: string }> = [
   { value: "special", label: "Special" },
 ]
 
+type FacilitatorParticipationState = {
+  profileUrl: string
+  participating: boolean
+}
+
 function getQualifiedMilestone(
   points: number,
   milestones: ArcadeMilestone[],
@@ -177,7 +182,11 @@ export default function RedesignCalculator() {
   const [filter, setFilter] = useState<BadgeFilter>("all")
   const [showAllBadges, setShowAllBadges] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [facilitatorParticipating, setFacilitatorParticipating] = useState(false)
+  const [facilitatorParticipation, setFacilitatorParticipation] =
+    useState<FacilitatorParticipationState>({
+      profileUrl: "",
+      participating: false,
+    })
   const [milestones, setMilestones] = useState<ArcadeMilestone[]>(OFFICIAL_MILESTONES)
   const [milestonesLive, setMilestonesLive] = useState(false)
   const abortControllerRef = useRef<AbortController | null>(null)
@@ -206,9 +215,11 @@ export default function RedesignCalculator() {
 
   useEffect(() => {
     const syncParticipation = () => {
-      setFacilitatorParticipating(
-        readFacilitatorParticipation(committedProfileUrl),
-      )
+      const participationProfileUrl = committedProfileUrl
+      setFacilitatorParticipation({
+        profileUrl: participationProfileUrl,
+        participating: readFacilitatorParticipation(participationProfileUrl),
+      })
     }
 
     syncParticipation()
@@ -327,6 +338,9 @@ export default function RedesignCalculator() {
     ? filteredBadges
     : filteredBadges.slice(0, BADGE_PREVIEW_LIMIT)
 
+  const facilitatorParticipating =
+    facilitatorParticipation.profileUrl === committedProfileUrl &&
+    facilitatorParticipation.participating
   const basePoints = numeric(result?.arcadePoints?.totalPoints)
   const facilitatorScore = getFacilitatorAdjustedPoints(
     basePoints,
