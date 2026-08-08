@@ -8,6 +8,7 @@ import {
   ExternalLink,
   Gamepad2,
   Globe2,
+  GraduationCap,
   LoaderCircle,
   Menu,
   RefreshCcw,
@@ -20,6 +21,8 @@ import {
 } from "lucide-react"
 import type { FormEvent, ReactNode } from "react"
 import { useEffect, useMemo, useRef, useState } from "react"
+import { getFacilitatorAdjustedPoints } from "@/components/arcade/facilitator-points"
+import { readFacilitatorParticipation } from "@/components/arcade/facilitator-participation"
 import {
   API_URL,
   ARCADE_MILESTONES_URL,
@@ -52,6 +55,11 @@ const FILTERS: Array<{ value: BadgeFilter; label: string }> = [
   { value: "trivia", label: "Trivia" },
   { value: "special", label: "Special" },
 ]
+
+type FacilitatorParticipationState = {
+  profileUrl: string
+  participating: boolean
+}
 
 function getQualifiedMilestone(
   points: number,
@@ -174,6 +182,11 @@ export default function RedesignCalculator() {
   const [filter, setFilter] = useState<BadgeFilter>("all")
   const [showAllBadges, setShowAllBadges] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [facilitatorParticipation, setFacilitatorParticipation] =
+    useState<FacilitatorParticipationState>({
+      profileUrl: "",
+      participating: false,
+    })
   const [milestones, setMilestones] = useState<ArcadeMilestone[]>(OFFICIAL_MILESTONES)
   const [milestonesLive, setMilestonesLive] = useState(false)
   const abortControllerRef = useRef<AbortController | null>(null)
@@ -199,6 +212,27 @@ export default function RedesignCalculator() {
       // Storage is optional. The calculator still works without persistence.
     }
   }, [committedProfileUrl, result])
+
+  useEffect(() => {
+    const syncParticipation = () => {
+      const participationProfileUrl = committedProfileUrl
+      setFacilitatorParticipation({
+        profileUrl: participationProfileUrl,
+        participating: readFacilitatorParticipation(participationProfileUrl),
+      })
+    }
+
+    syncParticipation()
+    const timer = window.setInterval(syncParticipation, 750)
+    window.addEventListener("focus", syncParticipation)
+    window.addEventListener("storage", syncParticipation)
+
+    return () => {
+      window.clearInterval(timer)
+      window.removeEventListener("focus", syncParticipation)
+      window.removeEventListener("storage", syncParticipation)
+    }
+  }, [committedProfileUrl])
 
   useEffect(() => {
     let active = true
@@ -304,7 +338,20 @@ export default function RedesignCalculator() {
     ? filteredBadges
     : filteredBadges.slice(0, BADGE_PREVIEW_LIMIT)
 
-  const points = numeric(result?.arcadePoints?.totalPoints)
+  const facilitatorParticipating =
+    facilitatorParticipation.profileUrl === committedProfileUrl &&
+    facilitatorParticipation.participating
+  const basePoints = numeric(result?.arcadePoints?.totalPoints)
+  const facilitatorScore = getFacilitatorAdjustedPoints(
+    basePoints,
+    {
+      games: numeric(result?.faciCounts?.faciGame),
+      skills: numeric(result?.faciCounts?.faciSkill),
+    },
+    facilitatorParticipating,
+  )
+  const facilitatorBonus = facilitatorScore.bonus
+  const points = facilitatorScore.totalPoints
   const profile = result?.userDetails?.[0]
   const profileName = profile?.userName || "Google Skills learner"
   const profileImage = profile?.profileImage
@@ -342,6 +389,17 @@ export default function RedesignCalculator() {
         numeric(result?.arcadePoints?.completionPoints),
       tone: "orange",
     },
+    ...(facilitatorBonus > 0
+      ? [
+          {
+            key: "facilitator",
+            label: "Facilitator bonus",
+            icon: <GraduationCap />,
+            value: facilitatorBonus,
+            tone: "purple",
+          },
+        ]
+      : []),
   ]
 
   const recentBadges = badges.filter((badge) => badge.dateEarned).slice(0, 4)
@@ -609,9 +667,11 @@ export default function RedesignCalculator() {
                 ))}
               </div>
               <p className="panel-link-note">
-                {scoreComplete
-                  ? "All eligible returned badges were classified."
-                  : `${unknownBadgeCount} badge(s) still need scoring review.`}
+                {facilitatorBonus > 0
+                  ? `Includes +${formatNumber(facilitatorBonus)} Facilitator bonus.`
+                  : scoreComplete
+                    ? "All eligible returned badges were classified."
+                    : `${unknownBadgeCount} badge(s) still need scoring review.`}
               </p>
             </article>
 

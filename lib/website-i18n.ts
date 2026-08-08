@@ -86,7 +86,7 @@ export function getWebsiteLocaleHref(locale: WebsiteLocale): string {
   return localeInfo.path ? `/${localeInfo.path}/` : "/"
 }
 
-/** Returns an absolute canonical URL for a localized homepage. */
+/** Returns an absolute canonical URL for a supported locale. */
 export function getWebsiteCanonicalUrl(locale: WebsiteLocale): string {
   return new URL(getWebsiteLocaleHref(locale), WEBSITE_SITE_URL).toString()
 }
@@ -249,7 +249,7 @@ function translateDynamicText(
       .replace("{total}", match[2])
   }
 
-  match = source.match(/^Member since (.+)$/)
+  match = source.match(/^(?:Member since\s+)+(.+)$/i)
   if (match) return messages.memberSince.replace("{value}", match[1])
 
   match = source.match(/^(\d+) badges? in this view$/)
