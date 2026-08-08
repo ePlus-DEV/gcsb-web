@@ -5,7 +5,7 @@ on:
     types: [completed]
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.workflow_run.head_branch || github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.workflow_run.head_sha || github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -24,26 +24,57 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.EPLUS_BOT_TOKEN }}
 
-      - name: Resolve pull request
+      - name: Resolve trusted pull request
         id: pr
         run: |
           PR_NUMBER="${{ github.event.workflow_run.pull_requests[0].number }}"
+
           if [ -z "$PR_NUMBER" ]; then
-            PR_NUMBER="$(gh pr list \
-              --repo "$GITHUB_REPOSITORY" \
-              --state open \
-              --head "$HEAD_BRANCH" \
-              --json number \
-              --jq '.[0].number')"
+            MATCHES="$(
+              gh api \
+                "repos/$GITHUB_REPOSITORY/commits/$HEAD_SHA/pulls" \
+                --jq '[.[] | select(.state == "open") | .number]'
+            )"
+
+            if [ "$(jq 'length' <<<"$MATCHES")" != "1" ]; then
+              echo "::notice::Could not resolve exactly one open pull request for $HEAD_SHA."
+              echo "should_approve=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+
+            PR_NUMBER="$(jq -r '.[0]' <<<"$MATCHES")"
           fi
 
-          test -n "$PR_NUMBER"
-
-          PR_AUTHOR="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" --jq '.user.login')"
+          PR_DATA="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER")"
+          PR_AUTHOR="$(jq -r '.user.login' <<<"$PR_DATA")"
+          PR_ASSOCIATION="$(jq -r '.author_association' <<<"$PR_DATA")"
+          PR_HEAD_SHA="$(jq -r '.head.sha' <<<"$PR_DATA")"
+          IS_DRAFT="$(jq -r '.draft' <<<"$PR_DATA")"
           BOT_LOGIN="$(gh api user --jq .login)"
 
           echo "number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
           echo "author=$PR_AUTHOR" >> "$GITHUB_OUTPUT"
+
+          if [ "$PR_HEAD_SHA" != "$HEAD_SHA" ]; then
+            echo "::notice::Skipping PR #$PR_NUMBER because its current head is not the CI-validated commit."
+            echo "should_approve=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [ "$IS_DRAFT" = "true" ]; then
+            echo "::notice::Skipping draft PR #$PR_NUMBER."
+            echo "should_approve=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          case "$PR_ASSOCIATION" in
+            OWNER|MEMBER|COLLABORATOR) ;;
+            *)
+              echo "::notice::Skipping PR #$PR_NUMBER from untrusted association $PR_ASSOCIATION."
+              echo "should_approve=false" >> "$GITHUB_OUTPUT"
+              exit 0
+              ;;
+          esac
 
           if [ "$PR_AUTHOR" = "$BOT_LOGIN" ]; then
             echo "::notice::Skipping PR #$PR_NUMBER because '$BOT_LOGIN' cannot approve its own pull request."
@@ -52,29 +83,42 @@ jobs:
             echo "should_approve=true" >> "$GITHUB_OUTPUT"
           fi
         env:
-          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
           GH_TOKEN: ${{ secrets.EPLUS_BOT_TOKEN }}
 
       - name: Wait for pull request checks
         if: ${{ steps.pr.outputs.should_approve == 'true' }}
         run: |
           for attempt in {1..60}; do
-            CHECKS="$(gh pr checks "$PR_NUMBER" \
-              --repo "$GITHUB_REPOSITORY" \
-              --json bucket,name,workflow)"
+            CURRENT_HEAD="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" --jq '.head.sha')"
+            if [ "$CURRENT_HEAD" != "$HEAD_SHA" ]; then
+              echo "::error::Pull request head moved from $HEAD_SHA to $CURRENT_HEAD."
+              exit 1
+            fi
 
+            CHECKS="$(
+              gh pr checks "$PR_NUMBER" \
+                --repo "$GITHUB_REPOSITORY" \
+                --json bucket,name,workflow || true
+            )"
+
+            if ! jq -e 'type == "array"' >/dev/null 2>&1 <<<"$CHECKS"; then
+              CHECKS="[]"
+            fi
+
+            CI_COUNT="$(jq '[.[] | select(.workflow == "CI")] | length' <<<"$CHECKS")"
             FAILING_COUNT="$(jq '[.[] | select(.workflow != env.APPROVAL_WORKFLOW and (.bucket == "fail" or .bucket == "cancel"))] | length' <<<"$CHECKS")"
             if [ "$FAILING_COUNT" -gt 0 ]; then
-              jq -r '.[] | select(.workflow != env.APPROVAL_WORKFLOW and (.bucket == "fail" or .bucket == "cancel")) | "::error::\(.workflow): \(.name) failed"' <<<"$CHECKS"
+              jq -r '.[] | select(.workflow != env.APPROVAL_WORKFLOW and (.bucket == "fail" or .bucket == "cancel")) | "::error::\(.workflow // \"status\"): \(.name) failed"' <<<"$CHECKS"
               exit 1
             fi
 
             PENDING_COUNT="$(jq '[.[] | select(.workflow != env.APPROVAL_WORKFLOW and .bucket == "pending")] | length' <<<"$CHECKS")"
-            if [ "$PENDING_COUNT" -eq 0 ]; then
+            if [ "$CI_COUNT" -gt 0 ] && [ "$PENDING_COUNT" -eq 0 ]; then
               exit 0
             fi
 
-            echo "Waiting for $PENDING_COUNT pull request check(s) before approving (attempt $attempt/60)."
+            echo "Waiting for CI and $PENDING_COUNT pull request check(s) before approving (attempt $attempt/60)."
             sleep 10
           done
 
@@ -82,19 +126,31 @@ jobs:
           exit 1
         env:
           PR_NUMBER: ${{ steps.pr.outputs.number }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
           APPROVAL_WORKFLOW: ${{ github.workflow }}
           GH_TOKEN: ${{ secrets.EPLUS_BOT_TOKEN }}
 
-      - name: Approve pull request
+      - name: Approve CI-validated head
         if: ${{ steps.pr.outputs.should_approve == 'true' }}
         run: |
+          CURRENT_HEAD="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" --jq '.head.sha')"
+          if [ "$CURRENT_HEAD" != "$HEAD_SHA" ]; then
+            echo "::error::Head moved from $HEAD_SHA to $CURRENT_HEAD; skipping approval."
+            exit 1
+          fi
+
           APPROVED_FOR_HEAD="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/reviews" \
             --paginate \
             --jq ".[] | select(.user.login == \"eplus-bot\" and .state == \"APPROVED\" and .commit_id == \"$HEAD_SHA\") | .id" \
             | tail -n 1)"
 
           if [ -z "$APPROVED_FOR_HEAD" ]; then
-            gh pr review --approve "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --body "$APPROVAL_REVIEW_BODY"
+            gh api \
+              --method POST \
+              "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/reviews" \
+              -f commit_id="$HEAD_SHA" \
+              -f event="APPROVE" \
+              -f body="$APPROVAL_REVIEW_BODY"
           fi
         env:
           PR_NUMBER: ${{ steps.pr.outputs.number }}
@@ -117,6 +173,7 @@ jobs:
           if [ -n "$COMMENT_ID" ]; then
             OLD_REFRESH_COUNT="$(gh api "repos/$GITHUB_REPOSITORY/issues/comments/$COMMENT_ID" \
               --jq '.body' \
+              | tr -d '\r' \
               | sed -n 's/^Approval refresh: #\([0-9][0-9]*\)$/\1/p' \
               | tail -n 1)"
 
