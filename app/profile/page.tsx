@@ -6,7 +6,7 @@ import "./official-profile-overrides.css"
 export const metadata: Metadata = {
   title: "Arcade Score",
   description: "View shared Google Cloud Arcade points, badges and tier progress.",
-  robots: { index: false, follow: true },
+  robots: { index: true, follow: true },
 }
 
 export default function SharedProfilePage() {
