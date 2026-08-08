@@ -13,7 +13,7 @@ type SeoContentProps = {
   description?: string
 }
 
-/** Renders localized WebSite, Organization, and WebApplication JSON-LD. */
+/** Renders localized WebSite, WebPage, Organization, and WebApplication JSON-LD. */
 export default function SeoContent({
   locale = "en",
   title = "Arcade Points by ePlus.DEV",
@@ -21,15 +21,38 @@ export default function SeoContent({
 }: SeoContentProps) {
   const localeInfo = getWebsiteLocaleInfo(locale)
   const pageUrl = getWebsiteCanonicalUrl(locale)
+  const websiteId = `${pageUrl}#website`
+  const webpageId = `${pageUrl}#webpage`
+  const applicationId = `${pageUrl}#application`
   const structuredData = {
     "@context": "https://schema.org",
     "@graph": [
       {
         "@type": "WebSite",
-        "@id": `${pageUrl}#website`,
+        "@id": websiteId,
         url: pageUrl,
         name: title,
         description,
+        publisher: {
+          "@id": "https://eplus.dev/#organization",
+        },
+        inLanguage: localeInfo.htmlLang,
+      },
+      {
+        "@type": "WebPage",
+        "@id": webpageId,
+        url: pageUrl,
+        name: title,
+        description,
+        isPartOf: {
+          "@id": websiteId,
+        },
+        mainEntity: {
+          "@id": applicationId,
+        },
+        about: {
+          "@id": applicationId,
+        },
         publisher: {
           "@id": "https://eplus.dev/#organization",
         },
@@ -43,31 +66,36 @@ export default function SeoContent({
       },
       {
         "@type": "WebApplication",
-        "@id": `${pageUrl}#application`,
+        "@id": applicationId,
         name: title,
         url: pageUrl,
+        mainEntityOfPage: {
+          "@id": webpageId,
+        },
         isPartOf: {
-          "@id": `${pageUrl}#website`,
+          "@id": websiteId,
         },
         applicationCategory: "EducationalApplication",
         applicationSubCategory: "Google Cloud learning progress tracker",
         operatingSystem: "Any",
         browserRequirements: "Requires a modern web browser with JavaScript enabled",
         description,
+        isAccessibleForFree: true,
         offers: {
           "@type": "Offer",
-          price: "0",
+          price: 0,
           priceCurrency: "USD",
         },
         creator: {
           "@id": "https://eplus.dev/#organization",
         },
         featureList: [
-          "Google Cloud Arcade point estimation",
+          "Google Cloud Arcade point calculation with Facilitator milestone bonuses",
           "Google Skills public profile analysis",
-          "Earned badge review",
-          "Arcade reward tier comparison",
-          "Arcade Facilitator milestone tracking",
+          "Earned badge review and completion tracking",
+          "Current monthly Arcade games, access codes, deadlines, and completion tracking",
+          "Arcade reward tier and live remaining-slot comparison",
+          "Arcade Facilitator milestone and syllabus tracking",
         ],
         inLanguage: localeInfo.htmlLang,
       },
