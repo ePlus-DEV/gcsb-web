@@ -152,5 +152,9 @@ export default function FacilitatorPanelGate() {
       window.removeEventListener(FACILITATOR_PANEL_OPEN_EVENT, openPanel)
   }, [])
 
-  return <FacilitatorPanel />
+  return (
+    <FacilitatorPanel
+      key={`${normalizeFacilitatorProfileUrl(profileUrl)}:${participating}`}
+    />
+  )
 }
