@@ -10,6 +10,7 @@ export const COOKIE_PREFERENCES_EVENT = "arcade:open-cookie-preferences"
 
 const COOKIE_NOTICE_STORAGE_KEY = "arcade-cookie-notice-v1"
 const COOKIE_NOTICE_PREVIEW_STORAGE_KEY = "arcade-cookie-notice-preview-v1"
+const WIDGET_PATH_PATTERN = /^\/(?:[a-z]{2}(?:-[a-z]{2})?\/)?widget\/?$/i
 
 const COPY = {
   en: { eyebrow:"Cookie information", title:"We use cookies and analytics", description:"Essential storage supports core features. Google Analytics measures anonymous usage so we can improve the service.", usageTitle:"Cookie usage details", essentialTitle:"Essential storage", essentialStatus:"Always active", essentialDescription:"Stores interface preferences such as theme, language, and recent calculator results on your device.", analyticsTitle:"Google Analytics", analyticsStatus:"Enabled", analyticsPreviewStatus:"Disabled in preview", analyticsDescription:"Collects aggregated information such as page visits and browser or device details. It does not provide access to your Google account or private profile data.", preview:"Preview mode: this notice is displayed for review, but Google Analytics is not loaded on the preview URL.", moreTitle:"More information", moreDescription:"Read the Privacy Policy for details about stored information, third-party services, and contact options.", privacy:"Privacy Policy", showDetails:"View details", hideDetails:"Hide details", acknowledge:"I understand", close:"Close cookie information" },
@@ -25,7 +26,7 @@ export default function CookieConsent({analyticsEnabled,previewMode=false}:Cooki
   const pathname=usePathname()
   const [isOpen,setIsOpen]=useState(false)
   const [showDetails,setShowDetails]=useState(false)
-  const isEmbedWidget=pathname === "/widget" || pathname?.endsWith("/widget") || pathname?.endsWith("/widget/")
+  const isEmbedWidget=WIDGET_PATH_PATTERN.test(pathname??"")
   const copy=useMemo(()=>getWebsiteLocaleFromPathname(pathname??"/")==="vi"?COPY.vi:COPY.en,[pathname])
   const storageKey=previewMode?COOKIE_NOTICE_PREVIEW_STORAGE_KEY:COOKIE_NOTICE_STORAGE_KEY
   const noticeEnabled=(analyticsEnabled||previewMode)&&!isEmbedWidget
