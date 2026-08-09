@@ -1,34 +1,84 @@
 "use client"
 
-import { useEffect } from "react"
+import { Moon, Sun } from "lucide-react"
+import { useEffect, useState } from "react"
+import { createPortal } from "react-dom"
 
-const WEBSITE_THEME_STORAGE_KEY = "arcade-theme"
+const WIDGET_THEME_STORAGE_KEY = "arcade-widget-theme-v1"
 
-function readWidgetTheme(): "light" | "dark" {
+type WidgetTheme = "light" | "dark"
+
+function readWidgetTheme(): WidgetTheme {
   try {
-    return window.localStorage.getItem(WEBSITE_THEME_STORAGE_KEY) === "dark" ? "dark" : "light"
+    return window.localStorage.getItem(WIDGET_THEME_STORAGE_KEY) === "dark" ? "dark" : "light"
   } catch {
     return "light"
   }
 }
 
-/** Keeps the embed light by default without changing the website-wide theme preference. */
-export default function WidgetThemeBridge() {
-  useEffect(() => {
-    const root = document.documentElement
+function applyWidgetTheme(theme: WidgetTheme) {
+  const root = document.documentElement
+  root.dataset.widgetTheme = theme
 
-    const applyTheme = () => {
-      root.dataset.widgetTheme = readWidgetTheme()
+  // The iframe has its own document, so these classes only affect the widget.
+  // Keeping them aligned lets the existing widget theme stylesheet stay reusable.
+  root.classList.toggle("dark", theme === "dark")
+  root.classList.toggle("light", theme === "light")
+}
+
+/** Keeps the embed light by default and exposes a compact widget-only theme toggle. */
+export default function WidgetThemeBridge() {
+  const [theme, setWidgetTheme] = useState<WidgetTheme>("light")
+  const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null)
+
+  useEffect(() => {
+    const initialTheme = readWidgetTheme()
+    setWidgetTheme(initialTheme)
+    applyWidgetTheme(initialTheme)
+    setPortalTarget(document.querySelector<HTMLElement>(".arcade-widget-head"))
+
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key !== WIDGET_THEME_STORAGE_KEY && event.key !== null) return
+      const nextTheme = readWidgetTheme()
+      setWidgetTheme(nextTheme)
+      applyWidgetTheme(nextTheme)
     }
 
-    applyTheme()
-    window.addEventListener("storage", applyTheme)
-
+    window.addEventListener("storage", handleStorage)
     return () => {
-      window.removeEventListener("storage", applyTheme)
-      delete root.dataset.widgetTheme
+      window.removeEventListener("storage", handleStorage)
+      delete document.documentElement.dataset.widgetTheme
     }
   }, [])
 
-  return null
+  function toggleTheme() {
+    const nextTheme: WidgetTheme = theme === "dark" ? "light" : "dark"
+    setWidgetTheme(nextTheme)
+    applyWidgetTheme(nextTheme)
+
+    try {
+      window.localStorage.setItem(WIDGET_THEME_STORAGE_KEY, nextTheme)
+    } catch {
+      // Theme switching still works for the current widget session without storage.
+    }
+  }
+
+  if (!portalTarget) return null
+
+  const nextTheme = theme === "dark" ? "light" : "dark"
+  const label = `Switch widget to ${nextTheme} mode`
+
+  return createPortal(
+    <button
+      className="arcade-widget-theme-toggle"
+      type="button"
+      aria-label={label}
+      title={label}
+      aria-pressed={theme === "dark"}
+      onClick={toggleTheme}
+    >
+      {theme === "dark" ? <Sun aria-hidden="true" /> : <Moon aria-hidden="true" />}
+    </button>,
+    portalTarget,
+  )
 }
