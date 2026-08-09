@@ -1,8 +1,8 @@
 /*
  * Light-first widget surface.
  *
- * The website itself still defaults to dark. The embed is intentionally light
- * until an explicit persisted dark preference is detected by WidgetThemeBridge.
+ * The website itself still keeps its own theme preference. The embed is
+ * intentionally light until the widget-specific dark preference is selected.
  */
 
 html:not([data-widget-theme="dark"]) .arcade-widget-card {
