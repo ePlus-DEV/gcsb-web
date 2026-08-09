@@ -102,11 +102,11 @@ export default function ArcadeEmbedWidget() {
       try {
         payload = (await response.json()) as ArcadeApiResponse
       } catch {
-        // Keep the stable error below when the gateway returns invalid JSON.
+        // Keep the stable English error below when the gateway returns invalid JSON.
       }
 
       if (!response.ok || !payload?.success) {
-        throw new Error(payload?.message || "The profile could not be analyzed right now.")
+        throw new Error("The profile could not be analyzed right now.")
       }
 
       if (requestId !== requestIdRef.current) return
@@ -123,10 +123,10 @@ export default function ArcadeEmbedWidget() {
       } catch {
         // Persistence is optional. The mini checker still works without storage.
       }
-    } catch (caught) {
+    } catch {
       if (requestId !== requestIdRef.current) return
       setResult(null)
-      setError(caught instanceof Error ? caught.message : "The profile could not be analyzed.")
+      setError("The profile could not be analyzed right now.")
     } finally {
       if (requestId === requestIdRef.current) setLoading(false)
     }
@@ -197,7 +197,7 @@ export default function ArcadeEmbedWidget() {
   }
 
   return (
-    <main className="arcade-embed-shell" lang="en">
+    <main className="arcade-embed-shell notranslate" lang="en" translate="no">
       <style>{`
         .arcade-widget-marquee{overflow:hidden;white-space:nowrap;mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent)}
         .arcade-widget-marquee-track{display:inline-flex;align-items:center;gap:28px;min-width:max-content;animation:arcade-widget-marquee 18s linear infinite;color:#c4b5fd;font-size:.7rem;font-weight:800;letter-spacing:.02em}
