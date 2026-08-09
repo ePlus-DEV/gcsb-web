@@ -2,7 +2,7 @@
 
 import { ExternalLink, Gamepad2, LoaderCircle, Search, Trophy } from "lucide-react"
 import type { FormEvent } from "react"
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { getFacilitatorAdjustedPoints } from "@/components/arcade/facilitator-points"
 import { readFacilitatorParticipation } from "@/components/arcade/facilitator-participation"
 import {
@@ -55,43 +55,7 @@ export default function ArcadeEmbedWidget() {
   const [result, setResult] = useState<ArcadeApiResponse | null>(null)
   const requestIdRef = useRef(0)
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const requestedProfileUrl = normalizeProfileUrl(params.get("url") ?? "")
-    const initialProfileUrl = isValidProfileUrl(requestedProfileUrl)
-      ? requestedProfileUrl
-      : readStoredProfileUrl()
-
-    const target = new URL(DEFAULT_DASHBOARD_URL)
-    target.searchParams.set("utm_source", sanitizeUtm(params.get("utm_source"), "hashnode"))
-    target.searchParams.set("utm_medium", sanitizeUtm(params.get("utm_medium"), "widget"))
-    target.searchParams.set("utm_campaign", sanitizeUtm(params.get("utm_campaign"), "arcade-widget"))
-    setFullResultUrl(target.toString())
-
-    if (initialProfileUrl) {
-      setProfileUrl(initialProfileUrl)
-      void analyzeProfile(initialProfileUrl)
-    }
-  }, [])
-
-  const normalizedProfileUrl = normalizeProfileUrl(profileUrl)
-  const basePoints = numeric(result?.arcadePoints?.totalPoints)
-  const facilitatorScore = result
-    ? getFacilitatorAdjustedPoints(
-        basePoints,
-        {
-          games: numeric(result.faciCounts?.faciGame),
-          skills: numeric(result.faciCounts?.faciSkill),
-        },
-        readFacilitatorParticipation(normalizedProfileUrl),
-      )
-    : null
-  const totalPoints = facilitatorScore?.totalPoints ?? basePoints
-  const tier = getTier(totalPoints)
-  const badgeCount = numeric(result?.beta?.profileBadgeCount) || (result?.badges?.length ?? 0)
-  const userName = result?.userDetails?.[0]?.userName || "Google Skills learner"
-
-  async function analyzeProfile(normalized: string) {
+  const analyzeProfile = useCallback(async (normalized: string) => {
     const requestId = ++requestIdRef.current
     setLoading(true)
     setError("")
@@ -135,7 +99,47 @@ export default function ArcadeEmbedWidget() {
     } finally {
       if (requestId === requestIdRef.current) setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const requestedProfileUrl = normalizeProfileUrl(params.get("url") ?? "")
+    const initialProfileUrl = isValidProfileUrl(requestedProfileUrl)
+      ? requestedProfileUrl
+      : readStoredProfileUrl()
+
+    const target = new URL(DEFAULT_DASHBOARD_URL)
+    target.searchParams.set("utm_source", sanitizeUtm(params.get("utm_source"), "hashnode"))
+    target.searchParams.set("utm_medium", sanitizeUtm(params.get("utm_medium"), "widget"))
+    target.searchParams.set("utm_campaign", sanitizeUtm(params.get("utm_campaign"), "arcade-widget"))
+    setFullResultUrl(target.toString())
+
+    if (initialProfileUrl) {
+      setProfileUrl(initialProfileUrl)
+      void analyzeProfile(initialProfileUrl)
+    }
+
+    return () => {
+      requestIdRef.current += 1
+    }
+  }, [analyzeProfile])
+
+  const normalizedProfileUrl = normalizeProfileUrl(profileUrl)
+  const basePoints = numeric(result?.arcadePoints?.totalPoints)
+  const facilitatorScore = result
+    ? getFacilitatorAdjustedPoints(
+        basePoints,
+        {
+          games: numeric(result.faciCounts?.faciGame),
+          skills: numeric(result.faciCounts?.faciSkill),
+        },
+        readFacilitatorParticipation(normalizedProfileUrl),
+      )
+    : null
+  const totalPoints = facilitatorScore?.totalPoints ?? basePoints
+  const tier = getTier(totalPoints)
+  const badgeCount = numeric(result?.beta?.profileBadgeCount) || (result?.badges?.length ?? 0)
+  const userName = result?.userDetails?.[0]?.userName || "Google Skills learner"
 
   async function checkScore(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
