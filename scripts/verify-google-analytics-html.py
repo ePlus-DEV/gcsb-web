@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
-"""Verify that production Google Analytics loads by default with a notice marker."""
+"""Verify that production Google Analytics loads by default but skips embed widgets."""
 
 from __future__ import annotations
 
 import argparse
 from html.parser import HTMLParser
 from pathlib import Path
-from urllib.parse import parse_qs, urlparse
 
 
 class AnalyticsMarkupCollector(HTMLParser):
@@ -71,26 +70,6 @@ def main() -> None:
     collector = AnalyticsMarkupCollector()
     collector.feed(args.html_path.read_text(encoding="utf-8"))
 
-    loader_scripts = [
-        attrs
-        for attrs, _body in collector.scripts
-        if (attrs.get("src") or "").split("?", 1)[0]
-        == "https://www.googletagmanager.com/gtag/js"
-    ]
-    if len(loader_scripts) != 1:
-        raise SystemExit(
-            "Expected exactly one default Google Analytics loader; "
-            f"found {len(loader_scripts)}."
-        )
-
-    loader_src = loader_scripts[0].get("src") or ""
-    loader_id = parse_qs(urlparse(loader_src).query).get("id", [])
-    if loader_id != [args.expected_id]:
-        raise SystemExit(
-            f"Expected Google Analytics loader ID {args.expected_id}; "
-            f"found {loader_id}."
-        )
-
     inline_initializers = [
         body
         for _attrs, body in collector.scripts
@@ -99,8 +78,28 @@ def main() -> None:
     ]
     if len(inline_initializers) != 1:
         raise SystemExit(
-            "Expected exactly one default Google Analytics initializer for "
+            "Expected exactly one Google Analytics initializer for "
             f"{args.expected_id}; found {len(inline_initializers)}."
+        )
+
+    initializer = inline_initializers[0]
+    expected_loader_url = (
+        "https://www.googletagmanager.com/gtag/js?id=" + args.expected_id
+    )
+    if expected_loader_url not in initializer:
+        raise SystemExit(
+            "Expected the Google Analytics bootstrap to create the loader for "
+            f"{args.expected_id}."
+        )
+
+    if "document.createElement(\"script\")" not in initializer:
+        raise SystemExit(
+            "Expected Google Analytics to be loaded through the guarded dynamic loader."
+        )
+
+    if "window.location.pathname" not in initializer or "widgetPathPattern" not in initializer:
+        raise SystemExit(
+            "Expected the Google Analytics bootstrap to skip the /widget embed route."
         )
 
     analytics_ids = get_meta_content(collector.meta, "google-analytics-id")
@@ -130,7 +129,7 @@ def main() -> None:
     print(
         "Verified that Google Analytics "
         + args.expected_id
-        + " loads by default and the cookie notice marker is present."
+        + " loads by default and skips the embed widget route."
     )
 
 
