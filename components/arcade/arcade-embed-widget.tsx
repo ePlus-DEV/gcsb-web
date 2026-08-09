@@ -4,7 +4,6 @@ import {
   ExternalLink,
   Gamepad2,
   GraduationCap,
-  Layers3,
   LoaderCircle,
   Search,
   Sparkles,
@@ -242,7 +241,7 @@ export default function ArcadeEmbedWidget() {
 
             <div className="arcade-widget-breakdown" aria-label="Point breakdown">
               <article><Gamepad2 /><span>Game points</span><strong>{gamePoints}</strong></article>
-              <article><Layers3 /><span>Skill points</span><strong>{skillPoints}</strong></article>
+              <article><GraduationCap /><span>Skill points</span><strong>{skillPoints}</strong></article>
               <article><Sparkles /><span>Trivia &amp; special</span><strong>{triviaSpecialPoints}</strong></article>
             </div>
 
