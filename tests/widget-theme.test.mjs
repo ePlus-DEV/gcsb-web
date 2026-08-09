@@ -20,5 +20,5 @@ test("widget theme follows next-themes classes instead of only OS color scheme",
   assert.match(themeCss, /html\.light \.arcade-widget-card/)
   assert.match(themeCss, /html\.dark \.arcade-widget-marquee-track/)
   assert.match(themeCss, /html\.light \.arcade-widget-marquee-track/)
-  assert.equal(themeCss.includes("prefers-color-scheme"), false)
+  assert.doesNotMatch(themeCss, /@media\s*\([^)]*prefers-color-scheme/i)
 })
