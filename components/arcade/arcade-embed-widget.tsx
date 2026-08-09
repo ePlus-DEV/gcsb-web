@@ -247,7 +247,9 @@ export default function ArcadeEmbedWidget() {
     : null
   const totalPoints = facilitatorScore?.totalPoints ?? basePoints
   const tier = getTier(totalPoints)
-  const badgeCount = numeric(result?.beta?.profileBadgeCount) || (result?.badges?.length ?? 0)
+  const badgeCount = result?.beta?.profileBadgeCount != null
+    ? numeric(result.beta.profileBadgeCount)
+    : (result?.badges?.length ?? 0)
   const userName = result?.userDetails?.[0]?.userName || "Google Skills learner"
   const gamePoints = numeric(result?.arcadePoints?.gamePoints)
   const skillPoints = numeric(result?.arcadePoints?.skillPoints)
