@@ -1,0 +1,116 @@
+/*
+ * Light-first widget surface.
+ *
+ * The website itself still defaults to dark. The embed is intentionally light
+ * until an explicit persisted dark preference is detected by WidgetThemeBridge.
+ */
+
+html:not([data-widget-theme="dark"]) .arcade-widget-card {
+  border-color: rgba(99, 102, 241, 0.18);
+  background:
+    radial-gradient(circle at 100% 0, rgba(37, 99, 235, 0.09), transparent 34%),
+    linear-gradient(135deg, #fff, #f8faff 70%, #f5f3ff);
+  box-shadow: 0 10px 28px rgba(71, 85, 105, 0.12);
+  color: #172033;
+}
+
+html:not([data-widget-theme="dark"]) .arcade-widget-head {
+  border-bottom-color: rgba(99, 102, 241, 0.1);
+}
+
+html:not([data-widget-theme="dark"]) .arcade-widget-brand-copy strong,
+html:not([data-widget-theme="dark"]) .arcade-widget-marquee-track {
+  color: #6d28d9;
+}
+
+html:not([data-widget-theme="dark"]) .arcade-widget-brand-copy span {
+  color: #64748b;
+}
+
+html:not([data-widget-theme="dark"]) .arcade-widget-open-link {
+  border-color: rgba(109, 40, 217, 0.24);
+  background: rgba(109, 40, 217, 0.08);
+  color: #5b21b6;
+}
+
+html:not([data-widget-theme="dark"]) .arcade-widget-open-link:hover {
+  border-color: rgba(109, 40, 217, 0.38);
+  background: rgba(109, 40, 217, 0.14);
+  color: #4c1d95;
+}
+
+html:not([data-widget-theme="dark"]) .arcade-widget-copy h2,
+html:not([data-widget-theme="dark"]) .arcade-widget-result-copy > strong {
+  color: #172033;
+}
+
+html:not([data-widget-theme="dark"]) .arcade-widget-copy p,
+html:not([data-widget-theme="dark"]) .arcade-widget-result-copy > small,
+html:not([data-widget-theme="dark"]) .arcade-widget-result-copy > span,
+html:not([data-widget-theme="dark"]) .arcade-widget-promo-heading span,
+html:not([data-widget-theme="dark"]) .arcade-widget-extension-copy span,
+html:not([data-widget-theme="dark"]) .arcade-widget-overview span,
+html:not([data-widget-theme="dark"]) .arcade-widget-breakdown span,
+html:not([data-widget-theme="dark"]) .arcade-widget-result-meta span {
+  color: #64748b;
+}
+
+html:not([data-widget-theme="dark"]) .arcade-widget-input {
+  border-color: rgba(99, 102, 241, 0.14);
+  background: rgba(255, 255, 255, 0.78);
+}
+
+html:not([data-widget-theme="dark"]) .arcade-widget-input input {
+  color: #172033;
+}
+
+html:not([data-widget-theme="dark"]) .arcade-widget-input input::placeholder {
+  color: #94a3b8;
+}
+
+html:not([data-widget-theme="dark"]) .arcade-widget-promo-heading strong,
+html:not([data-widget-theme="dark"]) .arcade-widget-extension-copy strong {
+  color: #4c1d95;
+}
+
+html:not([data-widget-theme="dark"]) .arcade-widget-overview article,
+html:not([data-widget-theme="dark"]) .arcade-widget-breakdown article {
+  border-color: rgba(99, 102, 241, 0.1);
+  background: rgba(255, 255, 255, 0.62);
+}
+
+html:not([data-widget-theme="dark"]) .arcade-widget-overview strong,
+html:not([data-widget-theme="dark"]) .arcade-widget-breakdown strong {
+  color: #5b21b6;
+}
+
+html:not([data-widget-theme="dark"]) .arcade-widget-extension {
+  border-color: rgba(99, 102, 241, 0.12);
+  background: linear-gradient(100deg, rgba(239, 246, 255, 0.9), rgba(245, 243, 255, 0.9));
+}
+
+html:not([data-widget-theme="dark"]) .arcade-widget-extension-icon {
+  background: #ede9fe;
+  color: #7c3aed;
+}
+
+html:not([data-widget-theme="dark"]) .arcade-widget-extension-actions a {
+  border-color: rgba(99, 102, 241, 0.12);
+  background: #fff;
+  color: #5b21b6;
+}
+
+html:not([data-widget-theme="dark"]) .arcade-widget-dashboard-cta,
+html:not([data-widget-theme="dark"]) .arcade-widget-result-actions a {
+  background: #f5f3ff;
+  color: #6d28d9;
+}
+
+html:not([data-widget-theme="dark"]) .arcade-widget-result-meta b {
+  color: #6d28d9;
+}
+
+html:not([data-widget-theme="dark"]) .arcade-widget-result-actions button {
+  background: #fff;
+  color: #64748b;
+}
