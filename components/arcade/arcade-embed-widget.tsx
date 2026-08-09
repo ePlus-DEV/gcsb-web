@@ -26,9 +26,78 @@ import { CHROME_EXTENSION_URL, FIREFOX_EXTENSION_URL } from "@/lib/extension-sto
 const DEFAULT_DASHBOARD_URL = "https://arcade.eplus.dev/"
 const WIDGET_PROFILE_STORAGE_KEY = "arcade-widget-profile-url-v1"
 
-function sanitizeUtm(value: string | null, fallback: string): string {
-  if (!value) return fallback
-  return /^[a-zA-Z0-9._-]{1,80}$/.test(value) ? value : fallback
+type WidgetTracking = {
+  source: string
+  medium: string
+  campaign: string
+  content: string
+  sourceUrl: string
+}
+
+type WidgetTrackedUrls = {
+  dashboard: string
+  chrome: string
+  firefox: string
+}
+
+const DEFAULT_TRACKED_URLS: WidgetTrackedUrls = {
+  dashboard: DEFAULT_DASHBOARD_URL,
+  chrome: CHROME_EXTENSION_URL,
+  firefox: FIREFOX_EXTENSION_URL,
+}
+
+function sanitizeUtm(value: string | null, fallback: string, maxLength = 80): string {
+  const normalized = value?.trim() ?? ""
+  if (!normalized) return fallback
+  return /^[a-zA-Z0-9._/-]+$/.test(normalized) && normalized.length <= maxLength
+    ? normalized
+    : fallback
+}
+
+function normalizeSourceUrl(value: string | null): URL | null {
+  if (!value) return null
+
+  try {
+    const url = new URL(value)
+    if (url.protocol !== "https:" && url.protocol !== "http:") return null
+    url.search = ""
+    url.hash = ""
+    return url
+  } catch {
+    return null
+  }
+}
+
+function getEmbeddingPageUrl(params: URLSearchParams): URL | null {
+  const explicitSource = normalizeSourceUrl(params.get("source_url"))
+  if (explicitSource) return explicitSource
+  return normalizeSourceUrl(document.referrer)
+}
+
+function getWidgetTracking(params: URLSearchParams): WidgetTracking {
+  const embeddingPage = getEmbeddingPageUrl(params)
+  const inferredSource = embeddingPage?.hostname.replace(/^www\./i, "").toLowerCase() ?? ""
+  const inferredContent = embeddingPage?.pathname.replace(/^\/+|\/+$/g, "") ?? ""
+
+  return {
+    source: sanitizeUtm(params.get("utm_source"), inferredSource || "embedded-widget"),
+    medium: sanitizeUtm(params.get("utm_medium"), "widget"),
+    campaign: sanitizeUtm(params.get("utm_campaign"), "arcade-widget"),
+    content: sanitizeUtm(params.get("utm_content"), inferredContent, 160),
+    sourceUrl: embeddingPage?.toString() ?? "",
+  }
+}
+
+function buildTrackedUrl(baseUrl: string, tracking: WidgetTracking): string {
+  const target = new URL(baseUrl)
+  target.searchParams.set("utm_source", tracking.source)
+  target.searchParams.set("utm_medium", tracking.medium)
+  target.searchParams.set("utm_campaign", tracking.campaign)
+
+  if (tracking.content) target.searchParams.set("utm_content", tracking.content)
+  if (tracking.sourceUrl) target.searchParams.set("source_url", tracking.sourceUrl)
+
+  return target.toString()
 }
 
 function normalizeProfileUrl(value: string): string {
@@ -56,7 +125,15 @@ function readStoredProfileUrl(): string {
   }
 }
 
-function ExtensionLinks({ compact = false }: { compact?: boolean }) {
+function ExtensionLinks({
+  compact = false,
+  chromeUrl,
+  firefoxUrl,
+}: {
+  compact?: boolean
+  chromeUrl: string
+  firefoxUrl: string
+}) {
   return (
     <div className={compact ? "arcade-widget-extension compact" : "arcade-widget-extension"}>
       <div className="arcade-widget-extension-copy">
@@ -67,10 +144,10 @@ function ExtensionLinks({ compact = false }: { compact?: boolean }) {
         </div>
       </div>
       <div className="arcade-widget-extension-actions">
-        <a href={CHROME_EXTENSION_URL} target="_blank" rel="noreferrer noopener">
+        <a href={chromeUrl} target="_blank" rel="noreferrer noopener">
           Chrome <ExternalLink />
         </a>
-        <a href={FIREFOX_EXTENSION_URL} target="_blank" rel="noreferrer noopener">
+        <a href={firefoxUrl} target="_blank" rel="noreferrer noopener">
           Firefox <ExternalLink />
         </a>
       </div>
@@ -80,7 +157,7 @@ function ExtensionLinks({ compact = false }: { compact?: boolean }) {
 
 export default function ArcadeEmbedWidget() {
   const [profileUrl, setProfileUrl] = useState("")
-  const [fullResultUrl, setFullResultUrl] = useState(DEFAULT_DASHBOARD_URL)
+  const [trackedUrls, setTrackedUrls] = useState<WidgetTrackedUrls>(DEFAULT_TRACKED_URLS)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [result, setResult] = useState<ArcadeApiResponse | null>(null)
@@ -138,12 +215,13 @@ export default function ArcadeEmbedWidget() {
     const initialProfileUrl = isValidProfileUrl(requestedProfileUrl)
       ? requestedProfileUrl
       : readStoredProfileUrl()
+    const tracking = getWidgetTracking(params)
 
-    const target = new URL(DEFAULT_DASHBOARD_URL)
-    target.searchParams.set("utm_source", sanitizeUtm(params.get("utm_source"), "hashnode"))
-    target.searchParams.set("utm_medium", sanitizeUtm(params.get("utm_medium"), "widget"))
-    target.searchParams.set("utm_campaign", sanitizeUtm(params.get("utm_campaign"), "arcade-widget"))
-    setFullResultUrl(target.toString())
+    setTrackedUrls({
+      dashboard: buildTrackedUrl(DEFAULT_DASHBOARD_URL, tracking),
+      chrome: buildTrackedUrl(CHROME_EXTENSION_URL, tracking),
+      firefox: buildTrackedUrl(FIREFOX_EXTENSION_URL, tracking),
+    })
 
     if (initialProfileUrl) {
       setProfileUrl(initialProfileUrl)
@@ -217,7 +295,7 @@ export default function ArcadeEmbedWidget() {
               <span>Google Cloud Arcade tracker · ePlus.DEV</span>
             </div>
           </div>
-          <a className="arcade-widget-open-link" href={fullResultUrl} target="_blank" rel="noreferrer noopener">
+          <a className="arcade-widget-open-link" href={trackedUrls.dashboard} target="_blank" rel="noreferrer noopener">
             <span>Open full dashboard</span><ExternalLink />
           </a>
         </div>
@@ -264,8 +342,8 @@ export default function ArcadeEmbedWidget() {
                   <span aria-hidden="true">Install the browser extension</span>
                 </div>
               </div>
-              <ExtensionLinks />
-              <a className="arcade-widget-dashboard-cta" href={fullResultUrl} target="_blank" rel="noreferrer noopener">
+              <ExtensionLinks chromeUrl={trackedUrls.chrome} firefoxUrl={trackedUrls.firefox} />
+              <a className="arcade-widget-dashboard-cta" href={trackedUrls.dashboard} target="_blank" rel="noreferrer noopener">
                 Explore the full Arcade dashboard <ExternalLink />
               </a>
             </div>
@@ -293,11 +371,11 @@ export default function ArcadeEmbedWidget() {
               <article><Sparkles /><span>Trivia &amp; special</span><strong>{triviaSpecialPoints}</strong></article>
             </div>
 
-            <ExtensionLinks />
+            <ExtensionLinks chromeUrl={trackedUrls.chrome} firefoxUrl={trackedUrls.firefox} />
 
             <div className="arcade-widget-result-actions">
               <button type="button" onClick={checkAnotherProfile}>Check another</button>
-              <a href={fullResultUrl} target="_blank" rel="noreferrer noopener">
+              <a href={trackedUrls.dashboard} target="_blank" rel="noreferrer noopener">
                 View full result <ExternalLink />
               </a>
             </div>
