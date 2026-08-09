@@ -7,6 +7,9 @@ export const metadata: Metadata = {
   title: "Arcade Points Widget",
   description: "A compact embed for the Google Cloud Arcade Points tracker.",
   robots: { index: false, follow: true },
+  other: {
+    google: "notranslate",
+  },
 }
 
 export default function WidgetPage() {
