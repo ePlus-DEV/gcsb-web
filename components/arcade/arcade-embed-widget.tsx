@@ -26,6 +26,21 @@ import { CHROME_EXTENSION_URL, FIREFOX_EXTENSION_URL } from "@/lib/extension-sto
 const DEFAULT_DASHBOARD_URL = "https://arcade.eplus.dev/"
 const WIDGET_PROFILE_STORAGE_KEY = "arcade-widget-profile-url-v1"
 
+const MARQUEE_TITLES = [
+  "More with Arcade Points",
+  "Track points & tiers",
+  "Follow monthly games",
+  "Monitor Facilitator progress",
+  "See your next tier",
+  "Track Arcade milestones",
+  "Compare game & skill points",
+  "Follow bonus milestones",
+  "Keep badge progress visible",
+  "Stay ready for new games",
+  "Refresh your latest profile",
+  "Install the browser extension",
+] as const
+
 type WidgetTracking = {
   source: string
   medium: string
@@ -280,7 +295,7 @@ export default function ArcadeEmbedWidget() {
     <main className="arcade-embed-shell notranslate" lang="en" translate="no">
       <style>{`
         .arcade-widget-marquee{overflow:hidden;white-space:nowrap;mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent)}
-        .arcade-widget-marquee-track{display:inline-flex;align-items:center;gap:28px;min-width:max-content;animation:arcade-widget-marquee 18s linear infinite;color:#c4b5fd;font-size:.7rem;font-weight:800;letter-spacing:.02em}
+        .arcade-widget-marquee-track{display:inline-flex;align-items:center;gap:28px;min-width:max-content;animation:arcade-widget-marquee 28s linear infinite;color:#c4b5fd;font-size:.7rem;font-weight:800;letter-spacing:.02em}
         .arcade-widget-marquee-track span{display:inline-flex;align-items:center;gap:8px}
         .arcade-widget-marquee-track span:after{content:"•";color:#60a5fa}
         .arcade-widget-marquee:hover .arcade-widget-marquee-track{animation-play-state:paused}
@@ -332,16 +347,12 @@ export default function ArcadeEmbedWidget() {
             <div className="arcade-widget-promo">
               <div className="arcade-widget-marquee" aria-label="Arcade Points highlights">
                 <div className="arcade-widget-marquee-track">
-                  <span>More with Arcade Points</span>
-                  <span>Track points &amp; tiers</span>
-                  <span>Follow monthly games</span>
-                  <span>Monitor Facilitator progress</span>
-                  <span>Install the browser extension</span>
-                  <span aria-hidden="true">More with Arcade Points</span>
-                  <span aria-hidden="true">Track points &amp; tiers</span>
-                  <span aria-hidden="true">Follow monthly games</span>
-                  <span aria-hidden="true">Monitor Facilitator progress</span>
-                  <span aria-hidden="true">Install the browser extension</span>
+                  {MARQUEE_TITLES.map((title) => (
+                    <span key={`primary-${title}`}>{title}</span>
+                  ))}
+                  {MARQUEE_TITLES.map((title) => (
+                    <span key={`repeat-${title}`} aria-hidden="true">{title}</span>
+                  ))}
                 </div>
               </div>
               <ExtensionLinks chromeUrl={trackedUrls.chrome} firefoxUrl={trackedUrls.firefox} />
