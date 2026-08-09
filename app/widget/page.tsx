@@ -1,7 +1,9 @@
 import type { Metadata } from "next"
 import ArcadeEmbedWidget from "@/components/arcade/arcade-embed-widget"
+import WidgetThemeBridge from "@/components/arcade/widget-theme-bridge"
 import "./widget.css"
 import "./widget-theme.css"
+import "./widget-default-light.css"
 
 export const metadata: Metadata = {
   title: "Arcade Points Widget",
@@ -13,5 +15,10 @@ export const metadata: Metadata = {
 }
 
 export default function WidgetPage() {
-  return <ArcadeEmbedWidget />
+  return (
+    <>
+      <WidgetThemeBridge />
+      <ArcadeEmbedWidget />
+    </>
+  )
 }
