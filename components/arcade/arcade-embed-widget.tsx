@@ -118,6 +118,9 @@ export default function ArcadeEmbedWidget() {
             <strong>ARCADE POINTS</strong>
             <span>by ePlus.DEV</span>
           </div>
+          <a className="arcade-widget-open-link" href={fullResultUrl} target="_blank" rel="noreferrer noopener">
+            Open Arcade <ExternalLink />
+          </a>
         </div>
 
         {!result ? (
