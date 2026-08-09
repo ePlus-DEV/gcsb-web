@@ -1,6 +1,15 @@
 "use client"
 
-import { ExternalLink, Gamepad2, LoaderCircle, Search, Trophy } from "lucide-react"
+import {
+  ExternalLink,
+  Gamepad2,
+  GraduationCap,
+  Layers3,
+  LoaderCircle,
+  Search,
+  Sparkles,
+  Trophy,
+} from "lucide-react"
 import type { FormEvent } from "react"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { getFacilitatorAdjustedPoints } from "@/components/arcade/facilitator-points"
@@ -140,6 +149,10 @@ export default function ArcadeEmbedWidget() {
   const tier = getTier(totalPoints)
   const badgeCount = numeric(result?.beta?.profileBadgeCount) || (result?.badges?.length ?? 0)
   const userName = result?.userDetails?.[0]?.userName || "Google Skills learner"
+  const gamePoints = numeric(result?.arcadePoints?.gamePoints)
+  const skillPoints = numeric(result?.arcadePoints?.skillPoints)
+  const triviaSpecialPoints =
+    numeric(result?.arcadePoints?.triviaPoints) + numeric(result?.arcadePoints?.specialPoints)
 
   async function checkScore(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -203,25 +216,38 @@ export default function ArcadeEmbedWidget() {
               </button>
             </form>
             {error ? <p className="arcade-widget-error" role="alert">{error}</p> : null}
+
+            <div className="arcade-widget-overview" aria-label="Arcade Points features">
+              <article><Trophy /><div><strong>Points &amp; tiers</strong><span>See your current Arcade score and prize tier.</span></div></article>
+              <article><Sparkles /><div><strong>Monthly games</strong><span>Keep up with active games, codes and deadlines.</span></div></article>
+              <article><GraduationCap /><div><strong>Facilitator progress</strong><span>Track milestone progress and eligible bonus points.</span></div></article>
+            </div>
           </>
         ) : (
           <div className="arcade-widget-result">
-            <div className="arcade-widget-result-copy">
-              <span>{userName}</span>
-              <strong>{totalPoints}</strong>
-              <small>Arcade points</small>
+            <div className="arcade-widget-result-summary">
+              <div className="arcade-widget-result-copy">
+                <span>{userName}</span>
+                <strong>{totalPoints}</strong>
+                <small>Arcade points</small>
+              </div>
+              <div className="arcade-widget-result-meta">
+                <span><b>{tier.name}</b> tier</span>
+                <span><b>{badgeCount}</b> badges</span>
+                {facilitatorScore && facilitatorScore.bonus > 0 ? (
+                  <span><b>+{facilitatorScore.bonus}</b> Facilitator bonus</span>
+                ) : null}
+              </div>
             </div>
-            <div className="arcade-widget-result-meta">
-              <span><b>{tier.name}</b> tier</span>
-              <span><b>{badgeCount}</b> badges</span>
-              {facilitatorScore && facilitatorScore.bonus > 0 ? (
-                <span><b>+{facilitatorScore.bonus}</b> Facilitator bonus</span>
-              ) : null}
+
+            <div className="arcade-widget-breakdown" aria-label="Point breakdown">
+              <article><Gamepad2 /><span>Game points</span><strong>{gamePoints}</strong></article>
+              <article><Layers3 /><span>Skill points</span><strong>{skillPoints}</strong></article>
+              <article><Sparkles /><span>Trivia &amp; special</span><strong>{triviaSpecialPoints}</strong></article>
             </div>
+
             <div className="arcade-widget-result-actions">
-              <button type="button" onClick={checkAnotherProfile}>
-                Check another
-              </button>
+              <button type="button" onClick={checkAnotherProfile}>Check another</button>
               <a href={fullResultUrl} target="_blank" rel="noreferrer noopener">
                 View full result <ExternalLink />
               </a>
