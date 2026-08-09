@@ -21,6 +21,7 @@ import {
   numeric,
 } from "@/components/arcade/model"
 import type { ArcadeApiResponse } from "@/components/arcade/model"
+import { CHROME_EXTENSION_URL, FIREFOX_EXTENSION_URL } from "@/lib/extension-store-urls"
 
 const DEFAULT_DASHBOARD_URL = "https://arcade.eplus.dev/"
 const WIDGET_PROFILE_STORAGE_KEY = "arcade-widget-profile-url-v1"
@@ -53,6 +54,28 @@ function readStoredProfileUrl(): string {
   } catch {
     return ""
   }
+}
+
+function ExtensionLinks({ compact = false }: { compact?: boolean }) {
+  return (
+    <div className={compact ? "arcade-widget-extension compact" : "arcade-widget-extension"}>
+      <div className="arcade-widget-extension-copy">
+        <span className="arcade-widget-extension-icon" aria-hidden="true"><Sparkles /></span>
+        <div>
+          <strong>Install the browser extension</strong>
+          <span>Automatic Arcade point tracking on Chrome and Firefox.</span>
+        </div>
+      </div>
+      <div className="arcade-widget-extension-actions">
+        <a href={CHROME_EXTENSION_URL} target="_blank" rel="noreferrer noopener">
+          Chrome <ExternalLink />
+        </a>
+        <a href={FIREFOX_EXTENSION_URL} target="_blank" rel="noreferrer noopener">
+          Firefox <ExternalLink />
+        </a>
+      </div>
+    </div>
+  )
 }
 
 export default function ArcadeEmbedWidget() {
@@ -216,10 +239,20 @@ export default function ArcadeEmbedWidget() {
             </form>
             {error ? <p className="arcade-widget-error" role="alert">{error}</p> : null}
 
-            <div className="arcade-widget-overview" aria-label="Arcade Points features">
-              <article><Trophy /><div><strong>Points &amp; tiers</strong><span>See your current Arcade score and prize tier.</span></div></article>
-              <article><Sparkles /><div><strong>Monthly games</strong><span>Keep up with active games, codes and deadlines.</span></div></article>
-              <article><GraduationCap /><div><strong>Facilitator progress</strong><span>Track milestone progress and eligible bonus points.</span></div></article>
+            <div className="arcade-widget-promo">
+              <div className="arcade-widget-promo-heading">
+                <strong>More with Arcade Points</strong>
+                <span>Everything you need to follow your Arcade journey in one place.</span>
+              </div>
+              <div className="arcade-widget-overview" aria-label="Arcade Points features">
+                <article><Trophy /><div><strong>Points &amp; tiers</strong><span>See your score, next tier and progress.</span></div></article>
+                <article><Sparkles /><div><strong>Monthly games</strong><span>Follow active games, codes and deadlines.</span></div></article>
+                <article><GraduationCap /><div><strong>Facilitator progress</strong><span>Track milestones and eligible bonus points.</span></div></article>
+              </div>
+              <ExtensionLinks />
+              <a className="arcade-widget-dashboard-cta" href={fullResultUrl} target="_blank" rel="noreferrer noopener">
+                Explore the full Arcade dashboard <ExternalLink />
+              </a>
             </div>
           </>
         ) : (
@@ -244,6 +277,8 @@ export default function ArcadeEmbedWidget() {
               <article><GraduationCap /><span>Skill points</span><strong>{skillPoints}</strong></article>
               <article><Sparkles /><span>Trivia &amp; special</span><strong>{triviaSpecialPoints}</strong></article>
             </div>
+
+            <ExtensionLinks compact />
 
             <div className="arcade-widget-result-actions">
               <button type="button" onClick={checkAnotherProfile}>Check another</button>
