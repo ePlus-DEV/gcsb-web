@@ -8,11 +8,23 @@ function sanitizeUtm(value: string | null, fallback: string): string {
   return /^[a-zA-Z0-9._-]{1,80}$/.test(value) ? value : fallback
 }
 
+function parseTargetUrl(value: string | null): URL {
+  const fallback = new URL("https://arcade.eplus.dev/")
+  if (!value) return fallback
+
+  try {
+    const target = new URL(value)
+    return target.protocol === "http:" || target.protocol === "https:" ? target : fallback
+  } catch {
+    return fallback
+  }
+}
+
 export default function ArcadeEmbedWidget() {
   const ctaUrl = useMemo(() => {
     if (typeof window === "undefined") return "https://arcade.eplus.dev/?utm_source=hashnode&utm_medium=widget"
     const params = new URLSearchParams(window.location.search)
-    const target = new URL("https://arcade.eplus.dev/")
+    const target = parseTargetUrl(params.get("url"))
     target.searchParams.set("utm_source", sanitizeUtm(params.get("utm_source"), "hashnode"))
     target.searchParams.set("utm_medium", sanitizeUtm(params.get("utm_medium"), "widget"))
     target.searchParams.set("utm_campaign", sanitizeUtm(params.get("utm_campaign"), "arcade-widget"))
