@@ -2,7 +2,7 @@
 
 import { ExternalLink, Gamepad2, LoaderCircle, Search, Trophy } from "lucide-react"
 import type { FormEvent } from "react"
-import { useMemo, useState } from "react"
+import { useEffect, useState } from "react"
 import { getFacilitatorAdjustedPoints } from "@/components/arcade/facilitator-points"
 import { readFacilitatorParticipation } from "@/components/arcade/facilitator-participation"
 import {
@@ -14,32 +14,34 @@ import {
 } from "@/components/arcade/model"
 import type { ArcadeApiResponse } from "@/components/arcade/model"
 
+const DEFAULT_DASHBOARD_URL = "https://arcade.eplus.dev/"
+
 function sanitizeUtm(value: string | null, fallback: string): string {
   if (!value) return fallback
   return /^[a-zA-Z0-9._-]{1,80}$/.test(value) ? value : fallback
 }
 
-function readInitialProfileUrl(): string {
-  if (typeof window === "undefined") return ""
-  const value = new URLSearchParams(window.location.search).get("url")?.trim() ?? ""
-  return PROFILE_URL_PATTERN.test(value.replace(/\/$/, "")) ? value : ""
-}
-
 export default function ArcadeEmbedWidget() {
-  const [profileUrl, setProfileUrl] = useState(readInitialProfileUrl)
+  const [profileUrl, setProfileUrl] = useState("")
+  const [fullResultUrl, setFullResultUrl] = useState(DEFAULT_DASHBOARD_URL)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [result, setResult] = useState<ArcadeApiResponse | null>(null)
 
-  const fullResultUrl = useMemo(() => {
-    const target = new URL("https://arcade.eplus.dev/")
-    if (typeof window === "undefined") return target.toString()
-
+  useEffect(() => {
     const params = new URLSearchParams(window.location.search)
+    const requestedProfileUrl = params.get("url")?.trim() ?? ""
+    const normalizedRequestedProfileUrl = requestedProfileUrl.replace(/\/$/, "")
+
+    if (PROFILE_URL_PATTERN.test(normalizedRequestedProfileUrl)) {
+      setProfileUrl(requestedProfileUrl)
+    }
+
+    const target = new URL(DEFAULT_DASHBOARD_URL)
     target.searchParams.set("utm_source", sanitizeUtm(params.get("utm_source"), "hashnode"))
     target.searchParams.set("utm_medium", sanitizeUtm(params.get("utm_medium"), "widget"))
     target.searchParams.set("utm_campaign", sanitizeUtm(params.get("utm_campaign"), "arcade-widget"))
-    return target.toString()
+    setFullResultUrl(target.toString())
   }, [])
 
   const normalizedProfileUrl = profileUrl.trim().replace(/\/$/, "")
