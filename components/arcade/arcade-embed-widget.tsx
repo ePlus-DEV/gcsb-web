@@ -198,6 +198,16 @@ export default function ArcadeEmbedWidget() {
 
   return (
     <main className="arcade-embed-shell" lang="en">
+      <style>{`
+        .arcade-widget-marquee{overflow:hidden;white-space:nowrap;mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent)}
+        .arcade-widget-marquee-track{display:inline-flex;align-items:center;gap:28px;min-width:max-content;animation:arcade-widget-marquee 18s linear infinite;color:#c4b5fd;font-size:.7rem;font-weight:800;letter-spacing:.02em}
+        .arcade-widget-marquee-track span{display:inline-flex;align-items:center;gap:8px}
+        .arcade-widget-marquee-track span:after{content:"•";color:#60a5fa}
+        .arcade-widget-marquee:hover .arcade-widget-marquee-track{animation-play-state:paused}
+        @keyframes arcade-widget-marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+        @media(prefers-reduced-motion:reduce){.arcade-widget-marquee{white-space:normal}.arcade-widget-marquee-track{animation:none;display:flex;flex-wrap:wrap;gap:8px 16px}}
+        @media(prefers-color-scheme:light){.arcade-widget-marquee-track{color:#6d28d9}}
+      `}</style>
       <section className="arcade-widget-card" aria-label="Arcade Points mini score checker">
         <div className="arcade-widget-head">
           <div className="arcade-widget-brand-block">
@@ -240,9 +250,19 @@ export default function ArcadeEmbedWidget() {
             {error ? <p className="arcade-widget-error" role="alert">{error}</p> : null}
 
             <div className="arcade-widget-promo">
-              <div className="arcade-widget-promo-heading">
-                <strong>More with Arcade Points</strong>
-                <span>Everything you need to follow your Arcade journey in one place.</span>
+              <div className="arcade-widget-marquee" aria-label="Arcade Points highlights">
+                <div className="arcade-widget-marquee-track">
+                  <span>More with Arcade Points</span>
+                  <span>Track points &amp; tiers</span>
+                  <span>Follow monthly games</span>
+                  <span>Monitor Facilitator progress</span>
+                  <span>Install the browser extension</span>
+                  <span aria-hidden="true">More with Arcade Points</span>
+                  <span aria-hidden="true">Track points &amp; tiers</span>
+                  <span aria-hidden="true">Follow monthly games</span>
+                  <span aria-hidden="true">Monitor Facilitator progress</span>
+                  <span aria-hidden="true">Install the browser extension</span>
+                </div>
               </div>
               <div className="arcade-widget-overview" aria-label="Arcade Points features">
                 <article><Trophy /><div><strong>Points &amp; tiers</strong><span>See your score, next tier and progress.</span></div></article>
