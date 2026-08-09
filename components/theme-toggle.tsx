@@ -1,6 +1,7 @@
 "use client"
 
 import { useTheme } from "next-themes"
+import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 import { createPortal } from "react-dom"
 import { usePortalTarget } from "@/components/use-portal-target"
@@ -47,15 +48,19 @@ function MoonIcon() {
 
 /** Toggles between the persisted light and dark website themes. */
 export default function ThemeToggle() {
+  const pathname = usePathname()
   const { resolvedTheme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
   const portalTarget = usePortalTarget(".arcade-header-actions")
+  const isWidgetRoute = pathname === "/widget" || pathname?.endsWith("/widget/")
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
   useEffect(() => {
+    if (isWidgetRoute) return
+
     const activeTheme = resolvedTheme === "light" ? "light" : "dark"
     let themeColor = document.querySelector<HTMLMetaElement>(
       'meta[name="theme-color"]',
@@ -68,9 +73,9 @@ export default function ThemeToggle() {
     }
 
     themeColor.content = THEME_COLORS[activeTheme]
-  }, [resolvedTheme])
+  }, [isWidgetRoute, resolvedTheme])
 
-  if (!mounted) return null
+  if (!mounted || isWidgetRoute) return null
 
   const isDark = resolvedTheme === "dark"
   const nextTheme = isDark ? "light" : "dark"
