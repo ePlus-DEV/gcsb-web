@@ -113,13 +113,15 @@ export default function ArcadeEmbedWidget() {
     <main className="arcade-embed-shell">
       <section className="arcade-widget-card" aria-label="Arcade Points mini score checker">
         <div className="arcade-widget-head">
-          <span className="arcade-widget-icon" aria-hidden="true"><Gamepad2 /></span>
-          <div>
-            <strong>ARCADE POINTS</strong>
-            <span>by ePlus.DEV</span>
+          <div className="arcade-widget-brand-block">
+            <span className="arcade-widget-icon" aria-hidden="true"><Gamepad2 /></span>
+            <div className="arcade-widget-brand-copy">
+              <strong>ARCADE POINTS</strong>
+              <span>Google Cloud Arcade tracker · ePlus.DEV</span>
+            </div>
           </div>
           <a className="arcade-widget-open-link" href={fullResultUrl} target="_blank" rel="noreferrer noopener">
-            Open Arcade <ExternalLink />
+            <span>Open full dashboard</span><ExternalLink />
           </a>
         </div>
 
