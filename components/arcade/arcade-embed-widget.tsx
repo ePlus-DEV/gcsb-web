@@ -2,7 +2,7 @@
 
 import { ExternalLink, Gamepad2, LoaderCircle, Search, Trophy } from "lucide-react"
 import type { FormEvent } from "react"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { getFacilitatorAdjustedPoints } from "@/components/arcade/facilitator-points"
 import { readFacilitatorParticipation } from "@/components/arcade/facilitator-participation"
 import {
@@ -15,10 +15,36 @@ import {
 import type { ArcadeApiResponse } from "@/components/arcade/model"
 
 const DEFAULT_DASHBOARD_URL = "https://arcade.eplus.dev/"
+const WIDGET_PROFILE_STORAGE_KEY = "arcade-widget-profile-url-v1"
 
 function sanitizeUtm(value: string | null, fallback: string): string {
   if (!value) return fallback
   return /^[a-zA-Z0-9._-]{1,80}$/.test(value) ? value : fallback
+}
+
+function normalizeProfileUrl(value: string): string {
+  return value.trim().replace(/\/$/, "")
+}
+
+function isValidProfileUrl(value: string): boolean {
+  return PROFILE_URL_PATTERN.test(normalizeProfileUrl(value))
+}
+
+function readStoredProfileUrl(): string {
+  try {
+    const remembered = window.localStorage.getItem(WIDGET_PROFILE_STORAGE_KEY) ?? ""
+    if (isValidProfileUrl(remembered)) return normalizeProfileUrl(remembered)
+
+    const dashboardSnapshot = window.localStorage.getItem(DASHBOARD_STORAGE_KEY)
+    if (!dashboardSnapshot) return ""
+
+    const parsed = JSON.parse(dashboardSnapshot) as { profileUrl?: unknown }
+    return typeof parsed.profileUrl === "string" && isValidProfileUrl(parsed.profileUrl)
+      ? normalizeProfileUrl(parsed.profileUrl)
+      : ""
+  } catch {
+    return ""
+  }
 }
 
 export default function ArcadeEmbedWidget() {
@@ -27,24 +53,28 @@ export default function ArcadeEmbedWidget() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [result, setResult] = useState<ArcadeApiResponse | null>(null)
+  const requestIdRef = useRef(0)
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
-    const requestedProfileUrl = params.get("url")?.trim() ?? ""
-    const normalizedRequestedProfileUrl = requestedProfileUrl.replace(/\/$/, "")
-
-    if (PROFILE_URL_PATTERN.test(normalizedRequestedProfileUrl)) {
-      setProfileUrl(requestedProfileUrl)
-    }
+    const requestedProfileUrl = normalizeProfileUrl(params.get("url") ?? "")
+    const initialProfileUrl = isValidProfileUrl(requestedProfileUrl)
+      ? requestedProfileUrl
+      : readStoredProfileUrl()
 
     const target = new URL(DEFAULT_DASHBOARD_URL)
     target.searchParams.set("utm_source", sanitizeUtm(params.get("utm_source"), "hashnode"))
     target.searchParams.set("utm_medium", sanitizeUtm(params.get("utm_medium"), "widget"))
     target.searchParams.set("utm_campaign", sanitizeUtm(params.get("utm_campaign"), "arcade-widget"))
     setFullResultUrl(target.toString())
+
+    if (initialProfileUrl) {
+      setProfileUrl(initialProfileUrl)
+      void analyzeProfile(initialProfileUrl)
+    }
   }, [])
 
-  const normalizedProfileUrl = profileUrl.trim().replace(/\/$/, "")
+  const normalizedProfileUrl = normalizeProfileUrl(profileUrl)
   const basePoints = numeric(result?.arcadePoints?.totalPoints)
   const facilitatorScore = result
     ? getFacilitatorAdjustedPoints(
@@ -61,16 +91,8 @@ export default function ArcadeEmbedWidget() {
   const badgeCount = numeric(result?.beta?.profileBadgeCount) || (result?.badges?.length ?? 0)
   const userName = result?.userDetails?.[0]?.userName || "Google Skills learner"
 
-  async function checkScore(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    const normalized = profileUrl.trim().replace(/\/$/, "")
-
-    if (!PROFILE_URL_PATTERN.test(normalized)) {
-      setError("Paste a valid public profile URL from skills.google.")
-      setResult(null)
-      return
-    }
-
+  async function analyzeProfile(normalized: string) {
+    const requestId = ++requestIdRef.current
     setLoading(true)
     setError("")
 
@@ -92,27 +114,51 @@ export default function ArcadeEmbedWidget() {
         throw new Error(payload?.message || "The profile could not be analyzed right now.")
       }
 
+      if (requestId !== requestIdRef.current) return
+
       setProfileUrl(normalized)
       setResult(payload)
 
       try {
+        window.localStorage.setItem(WIDGET_PROFILE_STORAGE_KEY, normalized)
         window.localStorage.setItem(
           DASHBOARD_STORAGE_KEY,
           JSON.stringify({ profileUrl: normalized, result: payload }),
         )
       } catch {
-        // The mini checker still works when storage is unavailable.
+        // Persistence is optional. The mini checker still works without storage.
       }
     } catch (caught) {
+      if (requestId !== requestIdRef.current) return
       setResult(null)
       setError(caught instanceof Error ? caught.message : "The profile could not be analyzed.")
     } finally {
-      setLoading(false)
+      if (requestId === requestIdRef.current) setLoading(false)
     }
   }
 
+  async function checkScore(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const normalized = normalizeProfileUrl(profileUrl)
+
+    if (!isValidProfileUrl(normalized)) {
+      setError("Paste a valid public profile URL from skills.google.")
+      setResult(null)
+      return
+    }
+
+    await analyzeProfile(normalized)
+  }
+
+  function checkAnotherProfile() {
+    requestIdRef.current += 1
+    setLoading(false)
+    setResult(null)
+    setError("")
+  }
+
   return (
-    <main className="arcade-embed-shell">
+    <main className="arcade-embed-shell" lang="en">
       <section className="arcade-widget-card" aria-label="Arcade Points mini score checker">
         <div className="arcade-widget-head">
           <div className="arcade-widget-brand-block">
@@ -131,7 +177,7 @@ export default function ArcadeEmbedWidget() {
           <>
             <div className="arcade-widget-copy">
               <h2>Check your Google Cloud Arcade score</h2>
-              <p>Paste your public Google Skills profile URL to see your points and tier.</p>
+              <p>Paste your public Google Skills profile URL to see your latest points and tier.</p>
             </div>
 
             <form className="arcade-widget-form" onSubmit={checkScore} noValidate>
@@ -149,7 +195,7 @@ export default function ArcadeEmbedWidget() {
               </label>
               <button type="submit" disabled={loading}>
                 {loading ? <LoaderCircle className="spin" /> : <Trophy />}
-                <span>{loading ? "Checking..." : "Check score"}</span>
+                <span>{loading ? "Refreshing score..." : "Check score"}</span>
               </button>
             </form>
             {error ? <p className="arcade-widget-error" role="alert">{error}</p> : null}
@@ -169,7 +215,7 @@ export default function ArcadeEmbedWidget() {
               ) : null}
             </div>
             <div className="arcade-widget-result-actions">
-              <button type="button" onClick={() => { setResult(null); setError("") }}>
+              <button type="button" onClick={checkAnotherProfile}>
                 Check another
               </button>
               <a href={fullResultUrl} target="_blank" rel="noreferrer noopener">
