@@ -28,7 +28,7 @@ jobs:
         with:
           script: |
             const marker = '<!-- gcsb-pr-preview -->'
-            const body = `${marker}\n## ⏳ PR preview building\n\nThe preview is queued or currently building.\n\n- Commit: \`${process.env.HEAD_SHA.slice(0, 7)}\`\n- The live preview link will appear only after deployment succeeds.`
+            const body = `${marker}\n## ⏳ PR preview building\n\nThe preview is queued or currently building.\n\n- Commit: \`${process.env.HEAD_SHA.slice(0, 7)}\`\n- The live preview link will appear only after deployment succeeds and the URL responds successfully.`
             const comments = await github.paginate(github.rest.issues.listComments, {
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -183,6 +183,24 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
+      - name: Verify live preview URL
+        if: success() && github.event.action != 'closed'
+        env:
+          PREVIEW_URL: https://arcade.eplus.dev/pr-preview/pr-${{ github.event.number }}/
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 18); do
+            if curl --fail --silent --show-error --location --max-time 15 "${PREVIEW_URL}" >/dev/null; then
+              echo "Preview is live: ${PREVIEW_URL}"
+              exit 0
+            fi
+            echo "Preview not live yet (attempt ${attempt}/18); waiting 5s..."
+            sleep 5
+          done
+          echo "Preview URL did not become reachable after deployment: ${PREVIEW_URL}" >&2
+          exit 1
+
       - name: Add preview link to pull request
         if: success()
         uses: actions/github-script@v7
@@ -199,7 +217,7 @@ jobs:
             const removed = process.env.PR_ACTION === 'closed'
             const body = removed
               ? `${marker}\n## 🧹 PR preview removed\n\nThe preview for this pull request was removed after the PR was closed.`
-              : `${marker}\n## 🚀 PR preview ready\n\n[Open the live preview](${previewUrl})\n\n- Commit: \`${process.env.HEAD_SHA.slice(0, 7)}\`\n- Pages artifact deployed successfully\n- Google Analytics remains disabled in previews\n- Updates automatically when new commits are pushed`
+              : `${marker}\n## 🚀 PR preview ready\n\n[Open the live preview](${previewUrl})\n\n- Commit: \`${process.env.HEAD_SHA.slice(0, 7)}\`\n- Pages artifact deployed successfully\n- Live URL verified successfully\n- Google Analytics remains disabled in previews\n- Updates automatically when new commits are pushed`
             const comments = await github.paginate(github.rest.issues.listComments, {
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -221,7 +239,7 @@ jobs:
         with:
           script: |
             const marker = '<!-- gcsb-pr-preview -->'
-            const body = `${marker}\n## ❌ PR preview failed\n\nThe preview could not be deployed for commit \`${process.env.HEAD_SHA.slice(0, 7)}\`.\n\nNo live preview link is published until deployment succeeds.`
+            const body = `${marker}\n## ❌ PR preview failed\n\nThe preview could not be deployed or verified for commit \`${process.env.HEAD_SHA.slice(0, 7)}\`.\n\nNo live preview link is published until deployment and live verification both succeed.`
             const comments = await github.paginate(github.rest.issues.listComments, {
               owner: context.repo.owner,
               repo: context.repo.repo,
