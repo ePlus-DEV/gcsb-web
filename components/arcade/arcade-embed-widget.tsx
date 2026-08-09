@@ -293,7 +293,7 @@ export default function ArcadeEmbedWidget() {
               <article><Sparkles /><span>Trivia &amp; special</span><strong>{triviaSpecialPoints}</strong></article>
             </div>
 
-            <ExtensionLinks compact />
+            <ExtensionLinks />
 
             <div className="arcade-widget-result-actions">
               <button type="button" onClick={checkAnotherProfile}>Check another</button>
