@@ -4,6 +4,7 @@ import WidgetThemeBridge from "@/components/arcade/widget-theme-bridge"
 import "./widget.css"
 import "./widget-theme.css"
 import "./widget-default-light.css"
+import "./widget-controls.css"
 
 export const metadata: Metadata = {
   title: "Arcade Points Widget",
