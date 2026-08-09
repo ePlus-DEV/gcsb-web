@@ -17,9 +17,14 @@ export const metadata: Metadata = {
 
 export default function WidgetPage() {
   return (
-    <>
+    <div
+      className="notranslate"
+      lang="en"
+      translate="no"
+      data-no-translate
+    >
       <WidgetThemeBridge />
       <ArcadeEmbedWidget />
-    </>
+    </div>
   )
 }
