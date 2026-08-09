@@ -1,62 +1,177 @@
 "use client"
 
-import { ExternalLink, Gamepad2, GraduationCap, Sparkles, Trophy } from "lucide-react"
-import { useMemo } from "react"
+import { ExternalLink, Gamepad2, LoaderCircle, Search, Trophy } from "lucide-react"
+import type { FormEvent } from "react"
+import { useMemo, useState } from "react"
+import { getFacilitatorAdjustedPoints } from "@/components/arcade/facilitator-points"
+import { readFacilitatorParticipation } from "@/components/arcade/facilitator-participation"
+import {
+  API_URL,
+  DASHBOARD_STORAGE_KEY,
+  PROFILE_URL_PATTERN,
+  getTier,
+  numeric,
+} from "@/components/arcade/model"
+import type { ArcadeApiResponse } from "@/components/arcade/model"
 
 function sanitizeUtm(value: string | null, fallback: string): string {
   if (!value) return fallback
   return /^[a-zA-Z0-9._-]{1,80}$/.test(value) ? value : fallback
 }
 
-function parseTrackingUrl(value: string | null): string | null {
-  if (!value) return null
-
-  try {
-    const url = new URL(value)
-    return url.protocol === "http:" || url.protocol === "https:" ? url.toString() : null
-  } catch {
-    return null
-  }
+function readInitialProfileUrl(): string {
+  if (typeof window === "undefined") return ""
+  const value = new URLSearchParams(window.location.search).get("url")?.trim() ?? ""
+  return PROFILE_URL_PATTERN.test(value.replace(/\/$/, "")) ? value : ""
 }
 
 export default function ArcadeEmbedWidget() {
-  const ctaUrl = useMemo(() => {
-    if (typeof window === "undefined") {
-      return "https://arcade.eplus.dev/?utm_source=hashnode&utm_medium=widget"
-    }
+  const [profileUrl, setProfileUrl] = useState(readInitialProfileUrl)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
+  const [result, setResult] = useState<ArcadeApiResponse | null>(null)
+
+  const fullResultUrl = useMemo(() => {
+    const target = new URL("https://arcade.eplus.dev/")
+    if (typeof window === "undefined") return target.toString()
 
     const params = new URLSearchParams(window.location.search)
-    const target = new URL("https://arcade.eplus.dev/")
-    const trackingUrl =
-      parseTrackingUrl(params.get("url")) ?? parseTrackingUrl(document.referrer)
-
     target.searchParams.set("utm_source", sanitizeUtm(params.get("utm_source"), "hashnode"))
     target.searchParams.set("utm_medium", sanitizeUtm(params.get("utm_medium"), "widget"))
     target.searchParams.set("utm_campaign", sanitizeUtm(params.get("utm_campaign"), "arcade-widget"))
-
-    if (trackingUrl) {
-      target.searchParams.set("source_url", trackingUrl)
-    }
-
     return target.toString()
   }, [])
 
+  const normalizedProfileUrl = profileUrl.trim().replace(/\/$/, "")
+  const basePoints = numeric(result?.arcadePoints?.totalPoints)
+  const facilitatorScore = result
+    ? getFacilitatorAdjustedPoints(
+        basePoints,
+        {
+          games: numeric(result.faciCounts?.faciGame),
+          skills: numeric(result.faciCounts?.faciSkill),
+        },
+        readFacilitatorParticipation(normalizedProfileUrl),
+      )
+    : null
+  const totalPoints = facilitatorScore?.totalPoints ?? basePoints
+  const tier = getTier(totalPoints)
+  const badgeCount = numeric(result?.beta?.profileBadgeCount) || (result?.badges?.length ?? 0)
+  const userName = result?.userDetails?.[0]?.userName || "Google Skills learner"
+
+  async function checkScore(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const normalized = profileUrl.trim().replace(/\/$/, "")
+
+    if (!PROFILE_URL_PATTERN.test(normalized)) {
+      setError("Paste a valid public profile URL from skills.google.")
+      setResult(null)
+      return
+    }
+
+    setLoading(true)
+    setError("")
+
+    try {
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: normalized, season: "2026" }),
+      })
+
+      let payload: ArcadeApiResponse | null = null
+      try {
+        payload = (await response.json()) as ArcadeApiResponse
+      } catch {
+        // Keep the stable error below when the gateway returns invalid JSON.
+      }
+
+      if (!response.ok || !payload?.success) {
+        throw new Error(payload?.message || "The profile could not be analyzed right now.")
+      }
+
+      setProfileUrl(normalized)
+      setResult(payload)
+
+      try {
+        window.localStorage.setItem(
+          DASHBOARD_STORAGE_KEY,
+          JSON.stringify({ profileUrl: normalized, result: payload }),
+        )
+      } catch {
+        // The mini checker still works when storage is unavailable.
+      }
+    } catch (caught) {
+      setResult(null)
+      setError(caught instanceof Error ? caught.message : "The profile could not be analyzed.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <main className="arcade-embed-shell">
-      <a className="arcade-embed-card" href={ctaUrl} target="_blank" rel="noreferrer noopener" aria-label="Open Arcade Points by ePlus.DEV">
-        <div className="arcade-embed-icon" aria-hidden="true"><Gamepad2 /></div>
-        <div className="arcade-embed-content">
-          <div className="arcade-embed-brand"><strong>ARCADE POINTS</strong><span>by ePlus.DEV</span></div>
-          <h2>Track your Google Cloud Arcade progress.</h2>
-          <p>Calculate points, follow milestones and keep up with monthly Arcade activities.</p>
-          <div className="arcade-embed-features" aria-label="Features">
-            <span><Trophy /> Points &amp; tiers</span>
-            <span><Sparkles /> Monthly games</span>
-            <span><GraduationCap /> Facilitator bonus</span>
+      <section className="arcade-widget-card" aria-label="Arcade Points mini score checker">
+        <div className="arcade-widget-head">
+          <span className="arcade-widget-icon" aria-hidden="true"><Gamepad2 /></span>
+          <div>
+            <strong>ARCADE POINTS</strong>
+            <span>by ePlus.DEV</span>
           </div>
         </div>
-        <div className="arcade-embed-cta"><span>Check your score</span><ExternalLink /></div>
-      </a>
+
+        {!result ? (
+          <>
+            <div className="arcade-widget-copy">
+              <h2>Check your Google Cloud Arcade score</h2>
+              <p>Paste your public Google Skills profile URL to see your points and tier.</p>
+            </div>
+
+            <form className="arcade-widget-form" onSubmit={checkScore} noValidate>
+              <label className={error ? "arcade-widget-input has-error" : "arcade-widget-input"}>
+                <Search aria-hidden="true" />
+                <input
+                  type="url"
+                  inputMode="url"
+                  autoComplete="url"
+                  value={profileUrl}
+                  onChange={(event) => setProfileUrl(event.target.value)}
+                  placeholder="https://www.skills.google/public_profiles/..."
+                  aria-label="Google Skills public profile URL"
+                />
+              </label>
+              <button type="submit" disabled={loading}>
+                {loading ? <LoaderCircle className="spin" /> : <Trophy />}
+                <span>{loading ? "Checking..." : "Check score"}</span>
+              </button>
+            </form>
+            {error ? <p className="arcade-widget-error" role="alert">{error}</p> : null}
+          </>
+        ) : (
+          <div className="arcade-widget-result">
+            <div className="arcade-widget-result-copy">
+              <span>{userName}</span>
+              <strong>{totalPoints}</strong>
+              <small>Arcade points</small>
+            </div>
+            <div className="arcade-widget-result-meta">
+              <span><b>{tier.name}</b> tier</span>
+              <span><b>{badgeCount}</b> badges</span>
+              {facilitatorScore && facilitatorScore.bonus > 0 ? (
+                <span><b>+{facilitatorScore.bonus}</b> Facilitator bonus</span>
+              ) : null}
+            </div>
+            <div className="arcade-widget-result-actions">
+              <button type="button" onClick={() => { setResult(null); setError("") }}>
+                Check another
+              </button>
+              <a href={fullResultUrl} target="_blank" rel="noreferrer noopener">
+                View full result <ExternalLink />
+              </a>
+            </div>
+          </div>
+        )}
+      </section>
     </main>
   )
 }
