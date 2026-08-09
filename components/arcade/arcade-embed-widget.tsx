@@ -264,11 +264,6 @@ export default function ArcadeEmbedWidget() {
                   <span aria-hidden="true">Install the browser extension</span>
                 </div>
               </div>
-              <div className="arcade-widget-overview" aria-label="Arcade Points features">
-                <article><Trophy /><div><strong>Points &amp; tiers</strong><span>See your score, next tier and progress.</span></div></article>
-                <article><Sparkles /><div><strong>Monthly games</strong><span>Follow active games, codes and deadlines.</span></div></article>
-                <article><GraduationCap /><div><strong>Facilitator progress</strong><span>Track milestones and eligible bonus points.</span></div></article>
-              </div>
               <ExtensionLinks />
               <a className="arcade-widget-dashboard-cta" href={fullResultUrl} target="_blank" rel="noreferrer noopener">
                 Explore the full Arcade dashboard <ExternalLink />
