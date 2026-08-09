@@ -1,0 +1,61 @@
+.arcade-widget-head {
+  gap: 6px;
+}
+
+.arcade-widget-brand-block {
+  margin-right: auto;
+}
+
+.arcade-widget-theme-toggle {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  padding: 0;
+  border: 1px solid rgba(109, 40, 217, 0.2);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.72);
+  color: #6d28d9;
+  cursor: pointer;
+  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+}
+
+.arcade-widget-theme-toggle:hover {
+  border-color: rgba(109, 40, 217, 0.36);
+  background: #f5f3ff;
+  color: #4c1d95;
+}
+
+.arcade-widget-theme-toggle:focus-visible {
+  outline: 2px solid #7c3aed;
+  outline-offset: 2px;
+}
+
+.arcade-widget-theme-toggle svg {
+  width: 15px;
+  height: 15px;
+}
+
+html[data-widget-theme="dark"] .arcade-widget-theme-toggle {
+  border-color: rgba(167, 139, 250, 0.22);
+  background: rgba(124, 58, 237, 0.1);
+  color: #c4b5fd;
+}
+
+html[data-widget-theme="dark"] .arcade-widget-theme-toggle:hover {
+  border-color: rgba(167, 139, 250, 0.45);
+  background: rgba(124, 58, 237, 0.18);
+  color: #fff;
+}
+
+@media (max-width: 460px) {
+  .arcade-widget-head {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 5px;
+  }
+
+  .arcade-widget-brand-block {
+    margin-right: 0;
+  }
+}
