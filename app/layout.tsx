@@ -94,10 +94,21 @@ if (
 
 const googleAnalyticsId = analyticsEnabled ? configuredGoogleAnalyticsId : ""
 const googleAnalyticsBootstrap = googleAnalyticsId
-  ? `window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag("js", new Date());
-gtag("config", ${JSON.stringify(googleAnalyticsId)}, { anonymize_ip: true });`
+  ? `(() => {
+  const widgetPathPattern = /^\\/(?:[a-z]{2}(?:-[a-z]{2})?\\/)?widget\\/?$/i;
+  if (widgetPathPattern.test(window.location.pathname)) return;
+
+  const loader = document.createElement("script");
+  loader.id = "google-analytics";
+  loader.async = true;
+  loader.src = "https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}";
+  document.head.appendChild(loader);
+
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag("js", new Date());
+  gtag("config", ${JSON.stringify(googleAnalyticsId)}, { anonymize_ip: true });
+})();`
   : ""
 
 export const viewport: Viewport = {
@@ -193,11 +204,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <meta
               name="cookie-notice-storage"
               content="arcade-cookie-notice-v1"
-            />
-            <script
-              id="google-analytics"
-              async
-              src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}
             />
             <script
               id="google-analytics-bootstrap"
