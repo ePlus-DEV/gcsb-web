@@ -1,6 +1,6 @@
 "use client"
 
-import { CalendarDays, ExternalLink, Gamepad2, GraduationCap, Trophy } from "lucide-react"
+import { Calendar, ExternalLink, Gamepad2, GraduationCap, Trophy } from "lucide-react"
 import { useMemo } from "react"
 
 function sanitizeUtm(value: string | null, fallback: string): string {
@@ -52,7 +52,7 @@ export default function ArcadeEmbedWidget() {
 
           <div className="arcade-embed-features" aria-label="Arcade tracker features">
             <span><Trophy />Points &amp; tiers</span>
-            <span><CalendarDays />Monthly games</span>
+            <span><Calendar />Monthly games</span>
             <span><GraduationCap />Facilitator bonus</span>
           </div>
         </div>
