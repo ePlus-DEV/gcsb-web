@@ -267,7 +267,15 @@ function SharedProfileContent() {
     ...(state.data.special ?? []),
   ]
   const tier = getTierProgress(points)
-  const recentBadges = badges.slice(0, 8)
+  const recentBadges = [...badges]
+    .sort((a, b) => {
+      const aDate = a.dateEarned ? Date.parse(a.dateEarned) : 0
+      const bDate = b.dateEarned ? Date.parse(b.dateEarned) : 0
+      const aTimestamp = Number.isNaN(aDate) ? 0 : aDate
+      const bTimestamp = Number.isNaN(bDate) ? 0 : bDate
+      return bTimestamp - aTimestamp
+    })
+    .slice(0, 8)
   const groups = [
     { label: "Skill badges", value: state.data.skill?.length ?? 0 },
     { label: "Arcade games", value: state.data.game?.length ?? 0 },
