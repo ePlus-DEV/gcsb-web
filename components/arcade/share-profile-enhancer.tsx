@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
+import { readFacilitatorParticipation } from "@/components/arcade/facilitator-participation"
 import { DASHBOARD_STORAGE_KEY } from "@/components/arcade/model"
 
 const PROFILE_ID_PATTERN =
@@ -13,7 +14,15 @@ function getShareUrl(): string {
   const match = parsed?.profileUrl?.match(PROFILE_ID_PATTERN)
   if (!match?.[1]) throw new Error("Profile ID unavailable")
 
-  return `${window.location.origin}${BASE_PATH}/profiles/${match[1]}`
+  const shareUrl = new URL(
+    `${window.location.origin}${BASE_PATH}/profiles/${match[1]}`,
+  )
+
+  if (readFacilitatorParticipation(parsed?.profileUrl)) {
+    shareUrl.searchParams.set("facilitator", "1")
+  }
+
+  return shareUrl.toString()
 }
 
 export default function ShareProfileEnhancer() {
