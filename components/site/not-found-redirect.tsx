@@ -8,7 +8,8 @@ import { WEBSITE_LOCALES } from "@/lib/website-i18n"
 
 const REDIRECT_DELAY_SECONDS = 5
 const PROFILE_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-const FRIENDLY_URL_RESTORE_ATTEMPTS = 120
+
+let friendlyUrlRestoreController: AbortController | null = null
 
 function getProfileRedirectHref(pathname: string): string | null {
   const segments = pathname.split("/").filter(Boolean)
@@ -21,27 +22,55 @@ function getProfileRedirectHref(pathname: string): string | null {
   return `/profile/?id=${profileId}`
 }
 
-function restoreFriendlyProfileUrl(friendlyUrl: string, attempt = 0): void {
-  if (attempt >= FRIENDLY_URL_RESTORE_ATTEMPTS) return
+function restoreFriendlyProfileUrlWhenReady(friendlyUrl: string): void {
+  friendlyUrlRestoreController?.abort()
 
-  const currentPath = window.location.pathname.replace(/\/+$/, "")
-  if (currentPath.endsWith("/profile")) {
-    // Next's router needs the exported `/profile/?id=...` route internally on
-    // static hosting. Restore only the browser-visible URL with the native
-    // History API so the shared profile remains mounted while the address bar
-    // keeps the friendly `/profiles/<id>` link that was originally opened.
-    History.prototype.replaceState.call(
-      window.history,
-      window.history.state,
-      "",
-      friendlyUrl,
-    )
-    return
+  const controller = new AbortController()
+  friendlyUrlRestoreController = controller
+  const friendlyPath = new URL(friendlyUrl, window.location.origin).pathname.replace(/\/+$/, "")
+  let frameId: number | null = null
+
+  const stop = () => {
+    if (frameId !== null) window.cancelAnimationFrame(frameId)
+    window.removeEventListener("pagehide", handlePageHide)
+    if (friendlyUrlRestoreController === controller) {
+      friendlyUrlRestoreController = null
+    }
   }
 
-  window.requestAnimationFrame(() => {
-    restoreFriendlyProfileUrl(friendlyUrl, attempt + 1)
-  })
+  const handlePageHide = () => controller.abort()
+
+  const checkRoute = () => {
+    if (controller.signal.aborted) return
+
+    const currentPath = window.location.pathname.replace(/\/+$/, "")
+    if (currentPath.endsWith("/profile")) {
+      // Next needs the exported `/profile/?id=...` route internally on static
+      // hosting. Once that route is active, restore only the browser-visible
+      // URL so the mounted shared profile remains intact.
+      History.prototype.replaceState.call(
+        window.history,
+        window.history.state,
+        "",
+        friendlyUrl,
+      )
+      controller.abort()
+      return
+    }
+
+    // If the user navigated somewhere else before the internal profile route
+    // became active, this restoration is no longer relevant.
+    if (currentPath !== friendlyPath) {
+      controller.abort()
+      return
+    }
+
+    frameId = window.requestAnimationFrame(checkRoute)
+  }
+
+  controller.signal.addEventListener("abort", stop, { once: true })
+  window.addEventListener("pagehide", handlePageHide, { once: true })
+  frameId = window.requestAnimationFrame(checkRoute)
 }
 
 /** Keeps 404 redirects inside the locale that was requested, when possible. */
@@ -79,8 +108,8 @@ export default function NotFoundRedirect() {
         ? `${profileRedirectHref}&facilitator=1`
         : profileRedirectHref
 
+      restoreFriendlyProfileUrlWhenReady(friendlyUrl)
       router.replace(internalProfileHref)
-      window.requestAnimationFrame(() => restoreFriendlyProfileUrl(friendlyUrl))
       return
     }
 
