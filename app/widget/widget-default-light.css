@@ -5,6 +5,16 @@
  * intentionally light until the widget-specific dark preference is selected.
  */
 
+html:not([data-widget-theme="dark"]),
+html:not([data-widget-theme="dark"]) body {
+  background: #ffffff !important;
+  color-scheme: light;
+}
+
+html:not([data-widget-theme="dark"]) .arcade-embed-shell {
+  background: #ffffff;
+}
+
 html:not([data-widget-theme="dark"]) .arcade-widget-card {
   border-color: rgba(99, 102, 241, 0.18);
   background:
