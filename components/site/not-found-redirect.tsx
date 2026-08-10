@@ -8,6 +8,7 @@ import { WEBSITE_LOCALES } from "@/lib/website-i18n"
 
 const REDIRECT_DELAY_SECONDS = 5
 const PROFILE_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+const FRIENDLY_URL_RESTORE_ATTEMPTS = 120
 
 function getProfileRedirectHref(pathname: string): string | null {
   const segments = pathname.split("/").filter(Boolean)
@@ -18,6 +19,29 @@ function getProfileRedirectHref(pathname: string): string | null {
   if (segments.length !== 2 || !isProfileRoute || !PROFILE_ID_PATTERN.test(profileId)) return null
 
   return `/profile/?id=${profileId}`
+}
+
+function restoreFriendlyProfileUrl(friendlyUrl: string, attempt = 0): void {
+  if (attempt >= FRIENDLY_URL_RESTORE_ATTEMPTS) return
+
+  const currentPath = window.location.pathname.replace(/\/+$/, "")
+  if (currentPath.endsWith("/profile")) {
+    // Next's router needs the exported `/profile/?id=...` route internally on
+    // static hosting. Restore only the browser-visible URL with the native
+    // History API so the shared profile remains mounted while the address bar
+    // keeps the friendly `/profiles/<id>` link that was originally opened.
+    History.prototype.replaceState.call(
+      window.history,
+      window.history.state,
+      "",
+      friendlyUrl,
+    )
+    return
+  }
+
+  window.requestAnimationFrame(() => {
+    restoreFriendlyProfileUrl(friendlyUrl, attempt + 1)
+  })
 }
 
 /** Keeps 404 redirects inside the locale that was requested, when possible. */
@@ -48,11 +72,15 @@ export default function NotFoundRedirect() {
 
   useEffect(() => {
     if (profileRedirectHref) {
+      const friendlyUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`
       const sourceParams = new URLSearchParams(window.location.search)
       const facilitator = sourceParams.get("facilitator") === "1"
-      router.replace(
-        facilitator ? `${profileRedirectHref}&facilitator=1` : profileRedirectHref,
-      )
+      const internalProfileHref = facilitator
+        ? `${profileRedirectHref}&facilitator=1`
+        : profileRedirectHref
+
+      router.replace(internalProfileHref)
+      window.requestAnimationFrame(() => restoreFriendlyProfileUrl(friendlyUrl))
       return
     }
 
