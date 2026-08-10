@@ -12,6 +12,7 @@ import {
 } from "lucide-react"
 import { Suspense, useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
+import { getFacilitatorAdjustedPoints } from "@/components/arcade/facilitator-points"
 import {
   API_URL,
   OFFICIAL_MILESTONES,
@@ -189,6 +190,7 @@ function SharedProfileStyles() {
 function SharedProfileContent() {
   const searchParams = useSearchParams()
   const profileId = (searchParams.get("id") ?? "").trim()
+  const facilitatorParticipating = searchParams.get("facilitator") === "1"
   const [state, setState] = useState<State>({ status: "loading" })
   const [copied, setCopied] = useState(false)
 
@@ -247,7 +249,16 @@ function SharedProfileContent() {
   const profile = state.data.userDetails?.[0]
   const profileName = profile?.userName || "Google Skills learner"
   const profileImage = safeHttpsUrl(profile?.profileImage)
-  const points = numeric(state.data.arcadePoints?.totalPoints)
+  const facilitatorScore = getFacilitatorAdjustedPoints(
+    numeric(state.data.arcadePoints?.totalPoints),
+    {
+      games: numeric(state.data.faciCounts?.faciGame),
+      skills: numeric(state.data.faciCounts?.faciSkill),
+    },
+    facilitatorParticipating,
+  )
+  const points = facilitatorScore.totalPoints
+  const facilitatorBonus = facilitatorScore.bonus
   const badges = state.data.badges ?? [
     ...(state.data.game ?? []),
     ...(state.data.trivia ?? []),
@@ -319,7 +330,7 @@ function SharedProfileContent() {
             <div className="shared-progress-head"><span>{tier.next ? `Next: ${tier.next.league}` : "Highest tier reached"}</span><strong>{tier.next ? `${formatNumber(points)} / ${tier.next.points}` : `${formatNumber(points)} pts`}</strong></div>
             <div className="shared-progress-track" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(tier.progress)}><div className="shared-progress-fill" style={{ width: `${tier.progress}%` }} /></div>
             <p className="shared-progress-note">{tier.next ? `${formatNumber(tier.remaining)} points remaining` : "Maximum Arcade tier reached"}</p>
-            <p className="shared-tier-note">Arcade points and tier estimates are calculated by ePlus.DEV. Google Skills remains the source of truth for profile badges.</p>
+            <p className="shared-tier-note">Arcade points and tier estimates are calculated by ePlus.DEV.{facilitatorBonus > 0 ? ` Includes +${formatNumber(facilitatorBonus)} Facilitator bonus.` : ""} Google Skills remains the source of truth for profile badges.</p>
           </article>
 
           <article className="shared-panel">
