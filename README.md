@@ -4,18 +4,19 @@ Google Cloud Skills Boost - Helper - Website
 
 ## Arcade widget embed
 
-For a cross-origin iframe, the browser does not allow the widget to read the full parent page URL directly. Include the parent bridge script next to the iframe so the widget can receive the exact embedding page URL through `postMessage`.
+The widget is designed to work with an iframe-only embed. To let the widget receive the full embedding page URL through `document.referrer`, set an explicit iframe referrer policy:
 
 ```html
 <iframe
-  data-arcade-widget
   src="https://arcade.eplus.dev/widget"
   title="Arcade Points Widget"
   loading="lazy"
+  referrerpolicy="no-referrer-when-downgrade"
 ></iframe>
-<script async src="https://arcade.eplus.dev/arcade-widget-parent.js"></script>
 ```
 
-The bridge sends only the parent page origin + pathname. Query strings and hashes are removed before the URL is forwarded to the widget.
+For normal HTTPS pages embedding the HTTPS widget, this allows the parent page URL to be exposed to the iframe as the referrer. The widget removes the query string and hash before forwarding the source URL to outbound links.
 
-The widget still supports `?source_url=` as the highest-priority explicit override and falls back to same-origin parent access, `document.referrer`, then `ancestorOrigins` where available.
+The widget still supports `?source_url=` as the highest-priority explicit override.
+
+Without a referrer policy that exposes the path, browsers may apply `strict-origin-when-cross-origin`, in which case a cross-origin iframe can only see the parent origin rather than the full page path.
