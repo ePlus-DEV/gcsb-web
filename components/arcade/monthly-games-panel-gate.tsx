@@ -78,7 +78,9 @@ function ensureMonthlyGamesHost(): HTMLElement | null {
   const page = document.querySelector<HTMLElement>(".arcade-dashboard-page")
   if (!page) return null
 
-  const shell = page.querySelector<HTMLElement>(".dashboard-shell")
+  const shell = page.querySelector<HTMLElement>(
+    ':scope > .dashboard-shell[aria-label="Arcade profile results"]',
+  )
   const summary = shell?.querySelector<HTMLElement>(":scope > .dashboard-summary-grid") ?? null
   const footer = page.querySelector<HTMLElement>(":scope > .arcade-footer")
   let host = page.querySelector<HTMLElement>(`.${HOST_CLASS_NAME}`)
@@ -96,6 +98,11 @@ function ensureMonthlyGamesHost(): HTMLElement | null {
   } else if (!host.isConnected) {
     page.append(host)
   }
+
+  // Before a profile is analyzed there is no results shell. Reuse the
+  // dashboard-shell sizing class so Monthly Labs keeps the same responsive
+  // width instead of stretching edge-to-edge as a direct page child.
+  host.classList.toggle("dashboard-shell", !shell)
 
   return host
 }
