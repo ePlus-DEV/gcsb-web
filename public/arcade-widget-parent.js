@@ -16,37 +16,35 @@
     }
   }
 
+  function getFrameUrl(frame) {
+    try {
+      return new URL(frame.src, document.baseURI)
+    } catch {
+      return null
+    }
+  }
+
   function isArcadeWidgetFrame(frame) {
     if (!(frame instanceof HTMLIFrameElement)) return false
     if (frame.hasAttribute("data-arcade-widget")) return true
 
-    try {
-      const url = new URL(frame.src, document.baseURI)
-      const isEplusHost = url.hostname === "arcade.eplus.dev" || url.hostname.endsWith(".eplus.dev")
-      return isEplusHost && /\/widget\/?$/i.test(url.pathname)
-    } catch {
-      return false
-    }
+    const url = getFrameUrl(frame)
+    if (!url) return false
+
+    const isEplusHost = url.hostname === "arcade.eplus.dev" || url.hostname.endsWith(".eplus.dev")
+    return isEplusHost && /\/widget\/?$/i.test(url.pathname)
   }
 
-  function sendSource(frame, targetOrigin) {
+  function sendSource(frame) {
     if (!isArcadeWidgetFrame(frame) || !frame.contentWindow) return
 
     const sourceUrl = getSourceUrl()
-    if (!sourceUrl) return
-
-    let origin = targetOrigin
-    if (!origin) {
-      try {
-        origin = new URL(frame.src, document.baseURI).origin
-      } catch {
-        return
-      }
-    }
+    const frameUrl = getFrameUrl(frame)
+    if (!sourceUrl || !frameUrl) return
 
     frame.contentWindow.postMessage(
       { type: RESPONSE_MESSAGE, sourceUrl },
-      origin,
+      frameUrl.origin,
     )
   }
 
@@ -73,7 +71,10 @@
     )
     if (!sourceFrame) return
 
-    sendSource(sourceFrame, event.origin)
+    const frameUrl = getFrameUrl(sourceFrame)
+    if (!frameUrl || frameUrl.origin !== event.origin) return
+
+    sendSource(sourceFrame)
   })
 
   if (document.readyState === "loading") {
