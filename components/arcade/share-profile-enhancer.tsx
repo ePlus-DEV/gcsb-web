@@ -14,9 +14,16 @@ function getShareUrl(): string {
   const match = parsed?.profileUrl?.match(PROFILE_ID_PATTERN)
   if (!match?.[1]) throw new Error("Profile ID unavailable")
 
-  const shareUrl = new URL(
-    `${window.location.origin}${BASE_PATH}/profiles/${match[1]}`,
-  )
+  // Static PR previews cannot serve arbitrary `/profiles/<id>` paths because
+  // those paths do not exist in the exported output. Use the real exported
+  // `/profile/` page there, while keeping the friendly URL in production.
+  const shareUrl = BASE_PATH
+    ? new URL(`${window.location.origin}${BASE_PATH}/profile/`)
+    : new URL(`${window.location.origin}/profiles/${match[1]}`)
+
+  if (BASE_PATH) {
+    shareUrl.searchParams.set("id", match[1])
+  }
 
   if (readFacilitatorParticipation(parsed?.profileUrl)) {
     shareUrl.searchParams.set("facilitator", "1")
