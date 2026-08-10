@@ -12,11 +12,11 @@ const FRIENDLY_URL_RESTORE_ATTEMPTS = 120
 
 function getProfileRedirectHref(pathname: string): string | null {
   const segments = pathname.split("/").filter(Boolean)
-  const route = segments[0]?.toLowerCase()
-  const profileId = segments[1]
+  const route = segments[segments.length - 2]?.toLowerCase()
+  const profileId = segments[segments.length - 1]
   const isProfileRoute = route === "profiles" || route === "public_profiles"
 
-  if (segments.length !== 2 || !isProfileRoute || !PROFILE_ID_PATTERN.test(profileId)) return null
+  if (segments.length < 2 || !isProfileRoute || !PROFILE_ID_PATTERN.test(profileId)) return null
 
   return `/profile/?id=${profileId}`
 }
