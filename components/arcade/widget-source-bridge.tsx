@@ -29,6 +29,14 @@ function getSameOriginParentUrl(): string {
   }
 }
 
+function getAncestorOrigin(): string {
+  try {
+    return normalizeSourceUrl(window.location.ancestorOrigins?.[0] ?? "")
+  } catch {
+    return ""
+  }
+}
+
 function updateWidgetSourceUrl(sourceUrl: string): boolean {
   const currentUrl = new URL(window.location.href)
   const currentSourceUrl = normalizeSourceUrl(currentUrl.searchParams.get("source_url"))
@@ -46,13 +54,16 @@ export default function WidgetSourceBridge({ children }: { children: ReactNode }
     const widgetUrl = new URL(window.location.href)
     const explicitSourceUrl = normalizeSourceUrl(widgetUrl.searchParams.get("source_url"))
     const initialSourceUrl =
-      explicitSourceUrl || getSameOriginParentUrl() || normalizeSourceUrl(document.referrer)
+      explicitSourceUrl ||
+      getSameOriginParentUrl() ||
+      normalizeSourceUrl(document.referrer) ||
+      getAncestorOrigin()
 
     if (!explicitSourceUrl && updateWidgetSourceUrl(initialSourceUrl)) {
       setSourceRevision((revision) => revision + 1)
     }
 
-    if (window.parent === window) return
+    if (window.parent === window || explicitSourceUrl) return
 
     const handleMessage = (event: MessageEvent) => {
       if (event.source !== window.parent) return
