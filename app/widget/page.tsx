@@ -1,6 +1,5 @@
 import type { Metadata } from "next"
 import ArcadeEmbedWidget from "@/components/arcade/arcade-embed-widget"
-import WidgetSourceBridge from "@/components/arcade/widget-source-bridge"
 import WidgetThemeBridge from "@/components/arcade/widget-theme-bridge"
 import "./widget.css"
 import "./widget-theme.css"
@@ -25,9 +24,7 @@ export default function WidgetPage() {
       data-no-translate
     >
       <WidgetThemeBridge />
-      <WidgetSourceBridge>
-        <ArcadeEmbedWidget />
-      </WidgetSourceBridge>
+      <ArcadeEmbedWidget />
     </div>
   )
 }
