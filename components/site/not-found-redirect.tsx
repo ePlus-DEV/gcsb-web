@@ -48,7 +48,11 @@ export default function NotFoundRedirect() {
 
   useEffect(() => {
     if (profileRedirectHref) {
-      router.replace(profileRedirectHref)
+      const sourceParams = new URLSearchParams(window.location.search)
+      const facilitator = sourceParams.get("facilitator") === "1"
+      router.replace(
+        facilitator ? `${profileRedirectHref}&facilitator=1` : profileRedirectHref,
+      )
       return
     }
 
