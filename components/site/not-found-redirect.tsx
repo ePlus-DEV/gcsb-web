@@ -9,15 +9,68 @@ import { WEBSITE_LOCALES } from "@/lib/website-i18n"
 const REDIRECT_DELAY_SECONDS = 5
 const PROFILE_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
+let friendlyUrlRestoreController: AbortController | null = null
+
 function getProfileRedirectHref(pathname: string): string | null {
   const segments = pathname.split("/").filter(Boolean)
-  const route = segments[0]?.toLowerCase()
-  const profileId = segments[1]
+  const route = segments[segments.length - 2]?.toLowerCase()
+  const profileId = segments[segments.length - 1]
   const isProfileRoute = route === "profiles" || route === "public_profiles"
 
-  if (segments.length !== 2 || !isProfileRoute || !PROFILE_ID_PATTERN.test(profileId)) return null
+  if (segments.length < 2 || !isProfileRoute || !PROFILE_ID_PATTERN.test(profileId)) return null
 
   return `/profile/?id=${profileId}`
+}
+
+function restoreFriendlyProfileUrlWhenReady(friendlyUrl: string): void {
+  friendlyUrlRestoreController?.abort()
+
+  const controller = new AbortController()
+  friendlyUrlRestoreController = controller
+  const friendlyPath = new URL(friendlyUrl, window.location.origin).pathname.replace(/\/+$/, "")
+  let frameId: number | null = null
+
+  const stop = () => {
+    if (frameId !== null) window.cancelAnimationFrame(frameId)
+    window.removeEventListener("pagehide", handlePageHide)
+    if (friendlyUrlRestoreController === controller) {
+      friendlyUrlRestoreController = null
+    }
+  }
+
+  const handlePageHide = () => controller.abort()
+
+  const checkRoute = () => {
+    if (controller.signal.aborted) return
+
+    const currentPath = window.location.pathname.replace(/\/+$/, "")
+    if (currentPath.endsWith("/profile")) {
+      // Next needs the exported `/profile/?id=...` route internally on static
+      // hosting. Once that route is active, restore only the browser-visible
+      // URL so the mounted shared profile remains intact.
+      History.prototype.replaceState.call(
+        window.history,
+        window.history.state,
+        "",
+        friendlyUrl,
+      )
+      controller.abort()
+      return
+    }
+
+    // If the user navigated somewhere else before the internal profile route
+    // became active, this restoration is no longer relevant.
+    if (currentPath !== friendlyPath) {
+      controller.abort()
+      return
+    }
+
+    frameId = window.requestAnimationFrame(checkRoute)
+  }
+
+  controller.signal.addEventListener("abort", stop, { once: true })
+  window.addEventListener("pagehide", handlePageHide, { once: true })
+  frameId = window.requestAnimationFrame(checkRoute)
 }
 
 /** Keeps 404 redirects inside the locale that was requested, when possible. */
@@ -48,11 +101,15 @@ export default function NotFoundRedirect() {
 
   useEffect(() => {
     if (profileRedirectHref) {
+      const friendlyUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`
       const sourceParams = new URLSearchParams(window.location.search)
       const facilitator = sourceParams.get("facilitator") === "1"
-      router.replace(
-        facilitator ? `${profileRedirectHref}&facilitator=1` : profileRedirectHref,
-      )
+      const internalProfileHref = facilitator
+        ? `${profileRedirectHref}&facilitator=1`
+        : profileRedirectHref
+
+      restoreFriendlyProfileUrlWhenReady(friendlyUrl)
+      router.replace(internalProfileHref)
       return
     }
 

@@ -81,6 +81,19 @@ function safeDateLabel(value?: string): string {
   }).format(parsed)
 }
 
+function badgeEarnedTimestamp(value?: string): number {
+  if (!value) return 0
+  const parsed = Date.parse(value)
+  return Number.isNaN(parsed) ? 0 : parsed
+}
+
+function sortBadgesNewestFirst(badges: ArcadeBadge[]): ArcadeBadge[] {
+  return [...badges].sort(
+    (a, b) =>
+      badgeEarnedTimestamp(b.dateEarned) - badgeEarnedTimestamp(a.dateEarned),
+  )
+}
+
 function safeHttpsUrl(value?: string): string | null {
   if (!value) return null
 
@@ -307,19 +320,19 @@ export default function RedesignCalculator() {
     }
   }, [])
 
-  const badges = useMemo<ArcadeBadge[]>(
-    () =>
-      result
-        ? result.badges ?? [
-            ...(result.game ?? []),
-            ...(result.trivia ?? []),
-            ...(result.skill ?? []),
-            ...(result.completion ?? []),
-            ...(result.special ?? []),
-          ]
-        : [],
-    [result],
-  )
+  const badges = useMemo<ArcadeBadge[]>(() => {
+    const allBadges = result
+      ? result.badges ?? [
+          ...(result.game ?? []),
+          ...(result.trivia ?? []),
+          ...(result.skill ?? []),
+          ...(result.completion ?? []),
+          ...(result.special ?? []),
+        ]
+      : []
+
+    return sortBadgesNewestFirst(allBadges)
+  }, [result])
 
   const filteredBadges = useMemo(() => {
     if (!result || filter === "all") return badges
