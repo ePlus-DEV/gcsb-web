@@ -58,6 +58,18 @@ test("fresh score note translations live in the website i18n catalog resource", 
   assert.doesNotMatch(enhancer, /自動更新/)
 })
 
+test("locale changes hide stale fresh score notes until the new catalog loads", () => {
+  const syncNoteStart = enhancer.indexOf("const syncNote = () => {")
+  const clearNote = enhancer.indexOf('setNote("")', syncNoteStart)
+  const loadCatalog = enhancer.indexOf("void loadWebsiteCatalog(locale)", syncNoteStart)
+
+  assert.notEqual(syncNoteStart, -1)
+  assert.notEqual(clearNote, -1)
+  assert.notEqual(loadCatalog, -1)
+  assert.ok(clearNote < loadCatalog)
+  assert.match(enhancer, /if \(!noteTarget \|\| !note\) return null/)
+})
+
 test("the fresh check enhancer is mounted on default and localized calculator pages", () => {
   assert.match(page, /FreshScoreCheckEnhancer/)
   assert.match(page, /<FreshScoreCheckEnhancer \/>/)
