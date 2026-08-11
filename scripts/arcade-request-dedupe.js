@@ -7,7 +7,7 @@
   const recent = new Map()
   const recentTtlMs = 5_000
   const apiHost = "hub.eplus.dev"
-  const apiPath = "/api/arcade-public"
+  const apiPaths = new Set(["/api/arcade-public", "/api/arcade-widget"])
 
   function getRequestUrl(input) {
     if (typeof input === "string") return input
@@ -84,7 +84,7 @@
     if (
       getRequestMethod(input, init) !== "POST" ||
       url.hostname.toLowerCase() !== apiHost ||
-      url.pathname !== apiPath
+      !apiPaths.has(url.pathname)
     ) {
       return originalFetch(input, init)
     }
