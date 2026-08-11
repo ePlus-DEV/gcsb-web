@@ -6,26 +6,61 @@
   const inFlight = new Map()
   const recent = new Map()
   const recentTtlMs = 5_000
-  const apiHost = "hub.eplus.dev"
+  const apiOrigin = "https://hub.eplus.dev"
   const apiPaths = new Set(["/api/arcade-public", "/api/arcade-widget"])
+
+  function isRequest(input) {
+    return typeof Request !== "undefined" && input instanceof Request
+  }
 
   function getRequestUrl(input) {
     if (typeof input === "string") return input
     if (input instanceof URL) return input.toString()
-    if (typeof Request !== "undefined" && input instanceof Request) return input.url
+    if (isRequest(input)) return input.url
     return ""
   }
 
   function getRequestMethod(input, init) {
     if (init?.method) return String(init.method).toUpperCase()
-    if (typeof Request !== "undefined" && input instanceof Request) {
-      return input.method.toUpperCase()
-    }
+    if (isRequest(input)) return input.method.toUpperCase()
     return "GET"
   }
 
-  function getRequestBody(init) {
-    return typeof init?.body === "string" ? init.body : null
+  function getConsumerSignal(input, init) {
+    if (init?.signal !== undefined) return init.signal
+    if (isRequest(input)) return input.signal
+    return null
+  }
+
+  function getEffectiveHeaders(input, init) {
+    if (typeof Headers === "undefined") return []
+    const headers =
+      init?.headers !== undefined
+        ? new Headers(init.headers)
+        : isRequest(input)
+          ? new Headers(input.headers)
+          : new Headers()
+
+    return [...headers.entries()].sort(([left], [right]) => left.localeCompare(right))
+  }
+
+  function getEffectiveOption(input, init, name, fallback) {
+    if (init?.[name] !== undefined) return init[name]
+    if (isRequest(input) && input[name] !== undefined) return input[name]
+    return fallback
+  }
+
+  function getRequestKey(url, input, init, body) {
+    return JSON.stringify({
+      url: `${url.origin}${url.pathname}${url.search}`,
+      body,
+      headers: getEffectiveHeaders(input, init),
+      credentials: getEffectiveOption(input, init, "credentials", "same-origin"),
+      mode: getEffectiveOption(input, init, "mode", "cors"),
+      cache: getEffectiveOption(input, init, "cache", "default"),
+      redirect: getEffectiveOption(input, init, "redirect", "follow"),
+      referrerPolicy: getEffectiveOption(input, init, "referrerPolicy", ""),
+    })
   }
 
   function createAbortError() {
@@ -71,47 +106,28 @@
     })
   }
 
-  window.fetch = (input, init) => {
-    const rawUrl = getRequestUrl(input)
-    let url
+  function dedupeRequest(input, init, url, body, consumerSignal) {
+    if (consumerSignal?.aborted) return Promise.reject(createAbortError())
 
-    try {
-      url = new URL(rawUrl, window.location?.href ?? "https://arcade.eplus.dev/")
-    } catch {
-      return originalFetch(input, init)
-    }
-
-    if (
-      getRequestMethod(input, init) !== "POST" ||
-      url.hostname.toLowerCase() !== apiHost ||
-      !apiPaths.has(url.pathname)
-    ) {
-      return originalFetch(input, init)
-    }
-
-    const body = getRequestBody(init)
-    if (body === null) return originalFetch(input, init)
-
-    const key = `${url.origin}${url.pathname}${url.search}|${body}`
+    const key = getRequestKey(url, input, init, body)
     const now = Date.now()
     const cached = recent.get(key)
 
     if (cached) {
       if (cached.expiresAt > now) {
-        if (init?.signal?.aborted) return Promise.reject(createAbortError())
         return Promise.resolve(cached.response.clone())
       }
       recent.delete(key)
     }
 
     const existing = inFlight.get(key)
-    if (existing) return responseForConsumer(existing, init?.signal)
+    if (existing) return responseForConsumer(existing, consumerSignal)
 
-    let sharedInit = init
-    if (init && "signal" in init) {
-      const { signal: _consumerSignal, ...withoutSignal } = init
-      sharedInit = withoutSignal
-    }
+    const sharedInit = isRequest(input)
+      ? { ...(init ?? {}), signal: null }
+      : init && "signal" in init
+        ? { ...init, signal: null }
+        : init
 
     const sharedRequest = originalFetch(input, sharedInit)
       .then((response) => {
@@ -132,7 +148,43 @@
       })
 
     inFlight.set(key, sharedRequest)
-    return responseForConsumer(sharedRequest, init?.signal)
+    return responseForConsumer(sharedRequest, consumerSignal)
+  }
+
+  window.fetch = (input, init) => {
+    const rawUrl = getRequestUrl(input)
+    let url
+
+    try {
+      url = new URL(rawUrl, window.location?.href ?? "https://arcade.eplus.dev/")
+    } catch {
+      return originalFetch(input, init)
+    }
+
+    if (
+      getRequestMethod(input, init) !== "POST" ||
+      url.origin !== apiOrigin ||
+      !apiPaths.has(url.pathname)
+    ) {
+      return originalFetch(input, init)
+    }
+
+    const consumerSignal = getConsumerSignal(input, init)
+
+    if (init?.body !== undefined) {
+      if (typeof init.body !== "string") return originalFetch(input, init)
+      return dedupeRequest(input, init, url, init.body, consumerSignal)
+    }
+
+    if (!isRequest(input) || input.bodyUsed) return originalFetch(input, init)
+
+    return input
+      .clone()
+      .text()
+      .then(
+        (body) => dedupeRequest(input, init, url, body, consumerSignal),
+        () => originalFetch(input, init),
+      )
   }
 
   window[installFlag] = true

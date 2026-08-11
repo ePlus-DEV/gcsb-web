@@ -148,3 +148,99 @@ test("consumer abort does not cancel the shared Arcade request", async () => {
     restore()
   }
 })
+
+test("Request body and signal are normalized without cancelling the shared fetch", async () => {
+  let fetchCount = 0
+  let resolveFetch
+  let sharedInit
+  const { browserWindow, restore } = install(
+    (_input, init) =>
+      new Promise((resolve) => {
+        fetchCount += 1
+        sharedInit = init
+        resolveFetch = resolve
+      }),
+  )
+
+  try {
+    const controller = new AbortController()
+    const firstInput = new Request(endpoint, {
+      ...requestA,
+      signal: controller.signal,
+    })
+    const secondInput = new Request(endpoint, requestA)
+
+    const first = browserWindow.fetch(firstInput)
+    const second = browserWindow.fetch(secondInput)
+
+    await new Promise((resolve) => setImmediate(resolve))
+    assert.equal(fetchCount, 1)
+    assert.equal(sharedInit?.signal, null)
+
+    controller.abort()
+    await assert.rejects(first, (error) => error?.name === "AbortError")
+
+    resolveFetch(
+      new Response(JSON.stringify({ success: true }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    )
+
+    assert.deepEqual(await (await second).json(), { success: true })
+    assert.equal(fetchCount, 1)
+  } finally {
+    restore()
+  }
+})
+
+test("different headers and credentials do not share responses", async () => {
+  let fetchCount = 0
+  const { browserWindow, restore } = install(async () => {
+    fetchCount += 1
+    return new Response(JSON.stringify({ success: true }), { status: 200 })
+  })
+
+  try {
+    await Promise.all([
+      browserWindow.fetch(endpoint, {
+        ...requestA,
+        headers: { ...requestA.headers, Authorization: "Bearer one" },
+      }),
+      browserWindow.fetch(endpoint, {
+        ...requestA,
+        headers: { ...requestA.headers, Authorization: "Bearer two" },
+      }),
+      browserWindow.fetch(endpoint, {
+        ...requestA,
+        headers: { ...requestA.headers, Authorization: "Bearer one" },
+        credentials: "include",
+      }),
+    ])
+
+    assert.equal(fetchCount, 3)
+  } finally {
+    restore()
+  }
+})
+
+test("only the exact HTTPS Hub origin is deduplicated", async () => {
+  let fetchCount = 0
+  const { browserWindow, restore } = install(async () => {
+    fetchCount += 1
+    return new Response(JSON.stringify({ success: true }), { status: 200 })
+  })
+
+  try {
+    await Promise.all([
+      browserWindow.fetch("http://hub.eplus.dev/api/arcade-public", requestA),
+      browserWindow.fetch("http://hub.eplus.dev/api/arcade-public", requestA),
+      browserWindow.fetch("https://hub.eplus.dev:8443/api/arcade-public", requestA),
+      browserWindow.fetch("https://hub.eplus.dev:8443/api/arcade-public", requestA),
+    ])
+
+    assert.equal(fetchCount, 4)
+  } finally {
+    restore()
+  }
+})
