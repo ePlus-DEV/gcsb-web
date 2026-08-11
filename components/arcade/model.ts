@@ -88,6 +88,10 @@ export const API_URL =
   process.env.NEXT_PUBLIC_ARCADE_API_URL ??
   "https://hub.eplus.dev/api/arcade-public"
 
+export const WIDGET_API_URL =
+  process.env.NEXT_PUBLIC_ARCADE_WIDGET_API_URL ??
+  "https://hub.eplus.dev/api/arcade-widget"
+
 export const ARCADE_MILESTONES_URL =
   process.env.NEXT_PUBLIC_ARCADE_MILESTONES_URL ??
   "https://raw.githubusercontent.com/hoangsvit/arcade-crawler/main/data/arcade_milestones.json"
