@@ -125,10 +125,11 @@ const facilitatorParticipationBootstrap = `(() => {
         return originalFetch(input, init);
       }
 
-      const profileUrl =
-        typeof payload.url === "string"
-          ? payload.url.trim().replace(/\\\/$/, "")
-          : "";
+      const rawProfileUrl =
+        typeof payload.url === "string" ? payload.url.trim() : "";
+      const profileUrl = rawProfileUrl.endsWith("/")
+        ? rawProfileUrl.slice(0, -1)
+        : rawProfileUrl;
 
       if (!profileUrl) {
         return originalFetch(input, init);
@@ -137,7 +138,7 @@ const facilitatorParticipationBootstrap = `(() => {
       let participating = false;
       try {
         participating =
-          window.localStorage.getItem(`${storagePrefix}:${profileUrl}`) === "true";
+          window.localStorage.getItem(storagePrefix + ":" + profileUrl) === "true";
       } catch {
         // Local storage is optional. False matches the existing UI fallback.
       }
