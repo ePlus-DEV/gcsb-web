@@ -84,13 +84,20 @@ export type CalculatorSnapshot = {
 
 export type BadgeFilter = "all" | "game" | "trivia" | "skill" | "special"
 
-export const API_URL =
+const DEFAULT_API_URL =
   process.env.NEXT_PUBLIC_ARCADE_API_URL ??
   "https://hub.eplus.dev/api/arcade-public"
 
 export const WIDGET_API_URL =
   process.env.NEXT_PUBLIC_ARCADE_WIDGET_API_URL ??
   "https://hub.eplus.dev/api/arcade-widget"
+
+function isWidgetRuntime(): boolean {
+  if (typeof window === "undefined") return false
+  return /^\/(?:[a-z]{2}(?:-[a-z]{2})?\/)?widget\/?$/i.test(window.location.pathname)
+}
+
+export const API_URL = isWidgetRuntime() ? WIDGET_API_URL : DEFAULT_API_URL
 
 export const ARCADE_MILESTONES_URL =
   process.env.NEXT_PUBLIC_ARCADE_MILESTONES_URL ??
