@@ -110,6 +110,7 @@ export default function FreshScoreCheckEnhancer() {
     const syncNote = () => {
       const currentRequestId = ++requestId
       const locale = getWebsiteLocale(document.documentElement.lang)
+      setNote("")
 
       void loadWebsiteCatalog(locale)
         .then((catalog) => {
