@@ -29,6 +29,9 @@ const encoded = (
 const catalogs = JSON.parse(
   gunzipSync(Buffer.from(encoded, "base64")).toString("utf8"),
 )
+const catalogMessageResources = JSON.parse(
+  await readFile(path.join(sourceDir, "fresh-score-check.json"), "utf8"),
+)
 
 for (const [locale, catalog] of Object.entries(catalogs)) {
   const fallbackTitle = `${catalog.messages.heroTitleTop ?? "CHECK YOUR"} ${
@@ -51,6 +54,22 @@ applyFacilitatorRuntimeFragments(catalogs)
 applyPublicProfileTranslations(catalogs)
 applyMonthlyGamesTranslations(catalogs)
 applyCoreUiTranslationPolish(catalogs)
+
+for (const [messageKey, translations] of Object.entries(catalogMessageResources)) {
+  const missingLocales = Object.keys(catalogs).filter(
+    (locale) => typeof translations?.[locale] !== "string" || !translations[locale],
+  )
+
+  if (missingLocales.length > 0) {
+    throw new Error(
+      `Website i18n resource ${messageKey} is missing locales: ${missingLocales.join(", ")}.`,
+    )
+  }
+
+  for (const [locale, catalog] of Object.entries(catalogs)) {
+    catalog.messages[messageKey] = translations[locale]
+  }
+}
 
 const englishMessages = catalogs.en?.messages
 if (!englishMessages) {
