@@ -7,6 +7,10 @@ const enhancer = readFileSync(
   "utf8",
 )
 const page = readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8")
+const localizedPage = readFileSync(
+  new URL("../app/[locale]/page.tsx", import.meta.url),
+  "utf8",
+)
 
 test("manual website score checks request a forced refresh", () => {
   assert.match(enhancer, /\.analyze-button/)
@@ -21,7 +25,9 @@ test("automatic refresh remains cache-friendly and explains the cache behavior",
   assert.match(enhancer, /Tự động làm mới có thể dùng dữ liệu cache gần đây/)
 })
 
-test("the fresh check enhancer is mounted on the calculator page", () => {
+test("the fresh check enhancer is mounted on default and localized calculator pages", () => {
   assert.match(page, /FreshScoreCheckEnhancer/)
   assert.match(page, /<FreshScoreCheckEnhancer \/>/)
+  assert.match(localizedPage, /FreshScoreCheckEnhancer/)
+  assert.match(localizedPage, /<FreshScoreCheckEnhancer \/>/)
 })
