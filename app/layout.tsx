@@ -82,6 +82,75 @@ const websiteCatalogCacheBootstrap = `(() => {
     return originalFetch(url.toString(), { ...init, cache: "no-store" });
   };
 })();`
+const facilitatorParticipationBootstrap = `(() => {
+  const storagePrefix = "arcade-facilitator-participation-v1";
+  const originalFetch = window.fetch.bind(window);
+
+  window.fetch = (input, init) => {
+    const rawUrl =
+      typeof input === "string"
+        ? input
+        : input instanceof URL
+          ? input.toString()
+          : input instanceof Request
+            ? input.url
+            : "";
+
+    let url;
+    try {
+      url = new URL(rawUrl, window.location.href);
+    } catch {
+      return originalFetch(input, init);
+    }
+
+    const method = String(
+      init?.method ?? (input instanceof Request ? input.method : "GET"),
+    ).toUpperCase();
+
+    if (
+      method !== "POST" ||
+      !url.pathname.includes("/api/arcade") ||
+      typeof init?.body !== "string"
+    ) {
+      return originalFetch(input, init);
+    }
+
+    try {
+      const payload = JSON.parse(init.body);
+      if (
+        !payload ||
+        typeof payload !== "object" ||
+        Object.prototype.hasOwnProperty.call(payload, "facilitator")
+      ) {
+        return originalFetch(input, init);
+      }
+
+      const profileUrl =
+        typeof payload.url === "string"
+          ? payload.url.trim().replace(/\\\/$/, "")
+          : "";
+
+      if (!profileUrl) {
+        return originalFetch(input, init);
+      }
+
+      let participating = false;
+      try {
+        participating =
+          window.localStorage.getItem(`${storagePrefix}:${profileUrl}`) === "true";
+      } catch {
+        // Local storage is optional. False matches the existing UI fallback.
+      }
+
+      return originalFetch(input, {
+        ...init,
+        body: JSON.stringify({ ...payload, facilitator: participating }),
+      });
+    } catch {
+      return originalFetch(input, init);
+    }
+  };
+})();`
 
 if (analyticsEnabled && configuredGoogleAnalyticsId.length === 0) {
   throw new Error(
@@ -188,6 +257,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <script
           id="arcade-request-dedupe"
           dangerouslySetInnerHTML={{ __html: arcadeRequestDedupeBootstrap }}
+        />
+        <script
+          id="arcade-facilitator-participation"
+          dangerouslySetInnerHTML={{ __html: facilitatorParticipationBootstrap }}
         />
         <script
           id="website-catalog-cache-buster"
