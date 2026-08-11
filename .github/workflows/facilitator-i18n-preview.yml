@@ -85,8 +85,13 @@ jobs:
             })
 
             await page.goto('http://127.0.0.1:3000/vi/', {
-              waitUntil: 'networkidle',
+              waitUntil: 'domcontentloaded',
             })
+
+            const facilitatorOption = page
+              .locator('.analyzer-facilitator-option')
+              .filter({ hasText: 'Đang tham gia Facilitator Program' })
+            await facilitatorOption.waitFor()
 
             if (
               catalogRequests.length < 2 ||
@@ -99,10 +104,6 @@ jobs:
               )
             }
 
-            const facilitatorOption = page
-              .locator('.analyzer-facilitator-option')
-              .filter({ hasText: 'Đang tham gia Facilitator Program' })
-            await facilitatorOption.waitFor()
             await facilitatorOption.locator('input[type="checkbox"]').check()
 
             const autoFetchOption = page
