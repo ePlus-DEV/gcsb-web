@@ -7,6 +7,7 @@ import vm from "node:vm"
 const scriptPath = path.join(process.cwd(), "scripts", "arcade-request-dedupe.js")
 const script = await readFile(scriptPath, "utf8")
 const endpoint = "https://hub.eplus.dev/api/arcade-public"
+const widgetEndpoint = "https://hub.eplus.dev/api/arcade-widget"
 const requestA = {
   method: "POST",
   headers: { "Content-Type": "application/json" },
@@ -62,6 +63,25 @@ test("dedupes identical in-flight and immediate Arcade POST requests", async () 
     const immediateRetry = await browserWindow.fetch(endpoint, requestA)
     assert.equal(fetchCount, 1)
     assert.deepEqual(await immediateRetry.json(), { success: true, fetchCount: 1 })
+  } finally {
+    restore()
+  }
+})
+
+test("dedupes identical widget Arcade POST requests", async () => {
+  let fetchCount = 0
+  const { browserWindow, restore } = install(async () => {
+    fetchCount += 1
+    return new Response(JSON.stringify({ success: true }), { status: 200 })
+  })
+
+  try {
+    await Promise.all([
+      browserWindow.fetch(widgetEndpoint, requestA),
+      browserWindow.fetch(widgetEndpoint, requestA),
+    ])
+
+    assert.equal(fetchCount, 1)
   } finally {
     restore()
   }
