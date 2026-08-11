@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs"
+import path from "node:path"
 import type { Metadata, Viewport } from "next"
 import WebsiteLanguage from "@/components/i18n/website-language"
 import CookieConsent from "@/components/privacy/cookie-consent"
@@ -23,6 +25,10 @@ import "./styles/facilitator-launcher-visibility.css"
 import "./styles/internal-page-theme.css"
 import "./styles/cookie-consent.css"
 
+const arcadeRequestDedupeBootstrap = readFileSync(
+  path.join(process.cwd(), "scripts", "arcade-request-dedupe.js"),
+  "utf8",
+)
 const siteName = "Arcade Points by ePlus.DEV"
 const title = "Google Cloud Arcade Points Calculator & Badge Tracker 2026"
 const description =
@@ -179,6 +185,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       suppressHydrationWarning
     >
       <head>
+        <script
+          id="arcade-request-dedupe"
+          dangerouslySetInnerHTML={{ __html: arcadeRequestDedupeBootstrap }}
+        />
         <script
           id="website-catalog-cache-buster"
           dangerouslySetInnerHTML={{ __html: websiteCatalogCacheBootstrap }}
