@@ -9,10 +9,7 @@ import {
   writeFacilitatorBonusMilestoneCompletion,
   type FacilitatorBonusMilestoneDetail,
 } from "./facilitator-bonus-milestone"
-import {
-  FACILITATOR_BONUS_MILESTONE_POINTS,
-  getFacilitatorAdjustedPoints,
-} from "./facilitator-points"
+import { getFacilitatorAdjustedPoints } from "./facilitator-points"
 import { normalizeFacilitatorProfileUrl } from "./facilitator-participation"
 import {
   DASHBOARD_STORAGE_KEY,
@@ -113,6 +110,10 @@ export default function FacilitatorBonusMilestoneControl({
     let assignedDetailsId = false
 
     const installOptimizedLayout = () => {
+      // Ignore mutations produced by the layout we already installed. This
+      // prevents a MutationObserver feedback loop while the drawer is open.
+      if (currentTarget?.isConnected && currentBonusSection?.isConnected) return
+
       const bonusSection = findLegacyBonusSection()
       if (!bonusSection) return
 
@@ -142,10 +143,11 @@ export default function FacilitatorBonusMilestoneControl({
             ":scope > article.is-completed",
           ).length
           const expanded = !detailsList.hidden
-
-          toggle.textContent = expanded
+          const label = expanded
             ? `Hide GEAR skill badges · ${completedSkills}/4`
             : `View 4 GEAR skill badges · ${completedSkills}/4`
+
+          setText(toggle, label)
           toggle.setAttribute("aria-expanded", String(expanded))
           toggle.classList.toggle("is-complete", completedSkills === 4)
         }
