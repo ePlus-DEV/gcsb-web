@@ -60,9 +60,15 @@ function readRuntimeBonusMilestoneCompletion(): boolean {
   if (typeof window === "undefined") return false
 
   try {
-    if (new URLSearchParams(window.location.search).get("bonus") === "1") {
-      return true
-    }
+    const searchParams = new URLSearchParams(window.location.search)
+    if (searchParams.get("bonus") === "1") return true
+
+    // Shared profile pages must only trust the explicit share parameter so a
+    // locally checked profile cannot leak +10 into somebody else's shared URL.
+    const isSharedProfilePage = /\/(?:profiles\/[^/]+|profile)\/?$/i.test(
+      window.location.pathname,
+    )
+    if (isSharedProfilePage) return false
 
     const raw = window.localStorage.getItem(DASHBOARD_STORAGE_KEY)
     if (!raw) return false
