@@ -324,6 +324,9 @@ export default function FacilitatorBonusMilestoneControl({
         .bonus-gear-details-list {
           margin-top: 7px !important;
         }
+        .bonus-gear-details-list[hidden] {
+          display: none !important;
+        }
         .bonus-milestone-actions-compact {
           gap: 6px !important;
           margin-top: 8px;
