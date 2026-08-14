@@ -106,10 +106,76 @@ export default function FacilitatorBonusMilestoneControl({
 
   useEffect(() => {
     let currentTarget: HTMLElement | null = null
+    let currentBonusSection: HTMLElement | null = null
+    let currentDetailsList: HTMLElement | null = null
+    let currentToggle: HTMLButtonElement | null = null
+    let currentActionRow: HTMLElement | null = null
+    let assignedDetailsId = false
 
-    const installConfirmation = () => {
+    const installOptimizedLayout = () => {
       const bonusSection = findLegacyBonusSection()
       if (!bonusSection) return
+
+      bonusSection.classList.add("bonus-milestone-optimized")
+      currentBonusSection = bonusSection
+
+      const detailsList = bonusSection.querySelector<HTMLElement>(
+        ":scope > .facilitator-syllabus-list",
+      )
+
+      if (detailsList) {
+        detailsList.classList.add("bonus-gear-details-list")
+        currentDetailsList = detailsList
+
+        if (!detailsList.id) {
+          detailsList.id = "bonus-gear-skill-details"
+          assignedDetailsId = true
+        }
+
+        let toggle = bonusSection.querySelector<HTMLButtonElement>(
+          "[data-bonus-gear-toggle]",
+        )
+
+        const updateToggleLabel = () => {
+          if (!toggle) return
+          const completedSkills = detailsList.querySelectorAll(
+            ":scope > article.is-completed",
+          ).length
+          const expanded = !detailsList.hidden
+
+          toggle.textContent = expanded
+            ? `Hide GEAR skill badges · ${completedSkills}/4`
+            : `View 4 GEAR skill badges · ${completedSkills}/4`
+          toggle.setAttribute("aria-expanded", String(expanded))
+          toggle.classList.toggle("is-complete", completedSkills === 4)
+        }
+
+        if (!toggle) {
+          detailsList.hidden = true
+          toggle = document.createElement("button")
+          toggle.type = "button"
+          toggle.dataset.bonusGearToggle = "true"
+          toggle.className = "bonus-gear-toggle"
+          toggle.setAttribute("aria-controls", detailsList.id)
+          toggle.addEventListener("click", () => {
+            detailsList.hidden = !detailsList.hidden
+            updateToggleLabel()
+          })
+          detailsList.before(toggle)
+        }
+
+        currentToggle = toggle
+        updateToggleLabel()
+      }
+
+      const actionLink = Array.from(
+        bonusSection.querySelectorAll<HTMLAnchorElement>("a"),
+      ).find((link) => link.textContent?.includes("Read official guide"))
+      const actionRow = actionLink?.parentElement
+      if (actionRow) {
+        actionRow.classList.add("bonus-milestone-actions-compact")
+        currentActionRow = actionRow
+      }
 
       let target = bonusSection.querySelector<HTMLElement>(
         "[data-bonus-milestone-confirmation]",
@@ -118,20 +184,32 @@ export default function FacilitatorBonusMilestoneControl({
       if (!target) {
         target = document.createElement("div")
         target.dataset.bonusMilestoneConfirmation = "true"
-        bonusSection.append(target)
+        const note = bonusSection.querySelector<HTMLElement>(
+          ":scope > .facilitator-syllabus-note",
+        )
+        if (note) note.before(target)
+        else bonusSection.append(target)
       }
 
       currentTarget = target
       setPortalTarget((previous) => (previous === target ? previous : target))
     }
 
-    installConfirmation()
-    const observer = new MutationObserver(installConfirmation)
+    installOptimizedLayout()
+    const observer = new MutationObserver(installOptimizedLayout)
     observer.observe(document.body, { childList: true, subtree: true })
 
     return () => {
       observer.disconnect()
       currentTarget?.remove()
+      currentToggle?.remove()
+      if (currentDetailsList) {
+        currentDetailsList.hidden = false
+        currentDetailsList.classList.remove("bonus-gear-details-list")
+        if (assignedDetailsId) currentDetailsList.removeAttribute("id")
+      }
+      currentActionRow?.classList.remove("bonus-milestone-actions-compact")
+      currentBonusSection?.classList.remove("bonus-milestone-optimized")
       setPortalTarget(null)
     }
   }, [])
@@ -213,10 +291,21 @@ export default function FacilitatorBonusMilestoneControl({
         )
       }
 
+      const bonusSection = findLegacyBonusSection()
+      const sectionNote = bonusSection?.querySelector(
+        ":scope > .facilitator-syllabus-note",
+      )
+      setText(
+        sectionNote ?? null,
+        participating
+          ? "Complete the requirements above, then submit the verification form."
+          : "Enable Facilitator participation to include bonus points.",
+      )
+
       setText(
         content.querySelector(".facilitator-disclaimer"),
         participating
-          ? `Facilitator bonuses are included after participation is confirmed. The optional Bonus Milestone adds +${FACILITATOR_BONUS_MILESTONE_POINTS} only after you confirm completion below.`
+          ? `+${FACILITATOR_BONUS_MILESTONE_POINTS} Bonus Milestone is included only after you confirm completion.`
           : "Facilitator bonuses are not included while participation is disabled.",
       )
     }
@@ -242,17 +331,64 @@ export default function FacilitatorBonusMilestoneControl({
   return createPortal(
     <div className="bonus-milestone-confirmation">
       <style>{`
+        .bonus-milestone-optimized .facilitator-milestones {
+          gap: 6px;
+        }
+        .bonus-milestone-optimized .facilitator-milestones > article {
+          padding-top: 10px;
+          padding-bottom: 10px;
+        }
+        .bonus-gear-toggle {
+          width: 100%;
+          min-height: 34px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-top: 8px;
+          border: 1px solid rgba(124, 92, 246, .22);
+          border-radius: 9px;
+          background: rgba(124, 92, 246, .07);
+          color: #b9a8ff;
+          font: inherit;
+          font-size: .66rem;
+          font-weight: 800;
+          cursor: pointer;
+        }
+        .bonus-gear-toggle:hover {
+          border-color: rgba(124, 92, 246, .42);
+          background: rgba(124, 92, 246, .12);
+        }
+        .bonus-gear-toggle.is-complete {
+          border-color: rgba(52, 211, 153, .3);
+          background: rgba(16, 185, 129, .08);
+          color: #6ee7b7;
+        }
+        .bonus-gear-details-list {
+          margin-top: 7px !important;
+        }
+        .bonus-milestone-actions-compact {
+          gap: 6px !important;
+          margin-top: 8px;
+        }
+        .bonus-milestone-actions-compact > a {
+          min-height: 36px !important;
+          padding: 0 10px !important;
+        }
+        .bonus-milestone-optimized > .facilitator-syllabus-note {
+          margin-top: 7px;
+          margin-bottom: 0;
+        }
         .bonus-milestone-confirmation {
-          margin-top: 12px;
+          margin-top: 9px;
         }
         .bonus-milestone-confirmation-card {
           display: grid;
           grid-template-columns: auto minmax(0, 1fr) auto;
-          gap: 12px;
+          gap: 10px;
           align-items: center;
           border: 1px solid rgba(124, 92, 246, .28);
-          border-radius: 12px;
-          padding: 13px 14px;
+          border-radius: 11px;
+          padding: 10px 12px;
           background: rgba(124, 92, 246, .08);
         }
         .bonus-milestone-confirmation-card.is-completed {
@@ -260,11 +396,11 @@ export default function FacilitatorBonusMilestoneControl({
           background: rgba(6, 78, 59, .14);
         }
         .bonus-milestone-confirmation-icon {
-          width: 34px;
-          height: 34px;
+          width: 30px;
+          height: 30px;
           display: grid;
           place-items: center;
-          border-radius: 10px;
+          border-radius: 9px;
           background: rgba(124, 92, 246, .14);
           color: #a78bfa;
         }
@@ -274,8 +410,8 @@ export default function FacilitatorBonusMilestoneControl({
           color: #34d399;
         }
         .bonus-milestone-confirmation-icon svg {
-          width: 18px;
-          height: 18px;
+          width: 17px;
+          height: 17px;
         }
         .bonus-milestone-confirmation-copy strong,
         .bonus-milestone-confirmation-copy small {
@@ -283,25 +419,26 @@ export default function FacilitatorBonusMilestoneControl({
         }
         .bonus-milestone-confirmation-copy strong {
           color: var(--facilitator-text, #f8fafc);
-          font-size: .76rem;
+          font-size: .74rem;
         }
         .bonus-milestone-confirmation-copy small {
-          margin-top: 3px;
+          margin-top: 2px;
           color: var(--facilitator-muted, #94a3b8);
-          font-size: .67rem;
-          line-height: 1.45;
+          font-size: .65rem;
+          line-height: 1.4;
         }
         .bonus-milestone-confirmation-button {
-          min-height: 36px;
+          min-height: 34px;
           border: 1px solid rgba(124, 92, 246, .45);
           border-radius: 999px;
-          padding: 0 13px;
+          padding: 0 12px;
           background: rgba(124, 92, 246, .12);
           color: #c4b5fd;
           font: inherit;
-          font-size: .68rem;
+          font-size: .66rem;
           font-weight: 800;
           cursor: pointer;
+          white-space: nowrap;
         }
         .bonus-milestone-confirmation-button.is-completed {
           border-color: rgba(52, 211, 153, .4);
@@ -313,6 +450,9 @@ export default function FacilitatorBonusMilestoneControl({
           opacity: .48;
         }
         @media (max-width: 560px) {
+          .bonus-milestone-actions-compact {
+            grid-template-columns: 1fr !important;
+          }
           .bonus-milestone-confirmation-card {
             grid-template-columns: auto minmax(0, 1fr);
           }
@@ -332,11 +472,8 @@ export default function FacilitatorBonusMilestoneControl({
           {completed ? <CheckCircle2 /> : <CircleHelp />}
         </span>
         <div className="bonus-milestone-confirmation-copy">
-          <strong>I have completed the Bonus Milestone</strong>
-          <small>
-            Keep the checklist above as guidance. Confirm here only after you
-            have completed the required Bonus Milestone process.
-          </small>
+          <strong>Bonus Milestone completed</strong>
+          <small>Confirm after you finish all required steps above.</small>
         </div>
         <button
           type="button"
