@@ -441,7 +441,11 @@ export default function FacilitatorBonusMilestoneControl({
           disabled={!participating}
           onClick={toggleCompleted}
         >
-          {completed ? "Completed · +10" : "Mark completed"}
+          {completed
+            ? participating
+              ? "Completed · +10"
+              : "Completed"
+            : "Mark completed"}
         </button>
       </div>
     </div>,
