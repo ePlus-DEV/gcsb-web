@@ -218,6 +218,15 @@
   scrollbar-color: #33415b transparent;
 }
 
+/* The Bonus Milestone toggle owns the visual collapse state. Using the
+   adjacent sibling selector keeps the list collapsed even if React/i18n
+   replaces or mutates the list after the toggle has been installed. */
+.bonus-milestone-optimized
+  > .bonus-gear-toggle[aria-expanded="false"]
+  + .facilitator-syllabus-list {
+  display: none !important;
+}
+
 .facilitator-syllabus-list > article {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
