@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import FacilitatorBonusMilestoneControl from "./facilitator-bonus-milestone-control"
 import FacilitatorPanel from "./facilitator-panel"
 import {
   FACILITATOR_PANEL_OPEN_EVENT,
@@ -153,8 +154,14 @@ export default function FacilitatorPanelGate() {
   }, [])
 
   return (
-    <FacilitatorPanel
-      key={`${normalizeFacilitatorProfileUrl(profileUrl)}:${participating}`}
-    />
+    <>
+      <FacilitatorPanel
+        key={`${normalizeFacilitatorProfileUrl(profileUrl)}:${participating}`}
+      />
+      <FacilitatorBonusMilestoneControl
+        profileUrl={profileUrl}
+        participating={participating}
+      />
+    </>
   )
 }

@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
+import { readFacilitatorBonusMilestoneCompletion } from "@/components/arcade/facilitator-bonus-milestone"
 import { readFacilitatorParticipation } from "@/components/arcade/facilitator-participation"
 import { DASHBOARD_STORAGE_KEY } from "@/components/arcade/model"
 
@@ -25,8 +26,13 @@ function getShareUrl(): string {
     shareUrl.searchParams.set("id", match[1])
   }
 
-  if (readFacilitatorParticipation(parsed?.profileUrl)) {
+  const facilitatorParticipating = readFacilitatorParticipation(parsed?.profileUrl)
+  if (facilitatorParticipating) {
     shareUrl.searchParams.set("facilitator", "1")
+
+    if (readFacilitatorBonusMilestoneCompletion(parsed?.profileUrl)) {
+      shareUrl.searchParams.set("bonus", "1")
+    }
   }
 
   return shareUrl.toString()
