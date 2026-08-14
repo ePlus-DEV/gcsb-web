@@ -1,6 +1,11 @@
 "use client"
 
-import { CheckCircle2, CircleHelp, Trophy } from "lucide-react"
+import {
+  CheckCircle2,
+  CircleHelp,
+  ExternalLink,
+  Trophy,
+} from "lucide-react"
 import { useEffect, useState } from "react"
 import { createPortal } from "react-dom"
 import {
@@ -13,15 +18,42 @@ import {
   FACILITATOR_BONUS_MILESTONE_POINTS,
   getFacilitatorAdjustedPoints,
 } from "./facilitator-points"
-import {
-  normalizeFacilitatorProfileUrl,
-} from "./facilitator-participation"
+import { normalizeFacilitatorProfileUrl } from "./facilitator-participation"
 import {
   DASHBOARD_STORAGE_KEY,
   formatNumber,
   numeric,
   type ArcadeApiResponse,
 } from "./model"
+
+const BONUS_GUIDE_URL =
+  "https://rsvp.withgoogle.com/events/arcade-facilitator/bonus-milestone"
+const BONUS_FORM_URL = "https://forms.gle/MMfH5RKp83TfRtXj9"
+
+const BONUS_STEPS = [
+  {
+    title: "Earn the GEAR Sign-up badge",
+    detail: "Complete the GEAR program enrolment requirement.",
+  },
+  {
+    title: "Earn the Arcade - GEAR badge",
+    detail: "Make sure the Arcade - GEAR badge appears on your developer profile.",
+  },
+  {
+    title: "Complete Facilitator Milestone 1",
+    detail: "Reach at least 6 Arcade Games and 18 Skill Badges.",
+  },
+  {
+    title: "Complete all 4 GEAR skill badges",
+    detail:
+      "Create Your First Gemini Enterprise Application; Engineer AI Agents with ADK; Deploy Multi-Agent Architectures; and Orchestrate Multi-Agent Workflows with Gemini Enterprise.",
+  },
+  {
+    title: "Build and submit your AI agent",
+    detail:
+      "Follow the official Bonus Milestone guide, complete the required agent work, then submit the verification form.",
+  },
+] as const
 
 type Props = {
   profileUrl: string
@@ -46,7 +78,8 @@ function findLegacyBonusSection(): HTMLElement | null {
 
   return (
     sections.find(
-      (section) => section.querySelector("h3")?.textContent?.trim() === "Bonus Milestone",
+      (section) =>
+        section.querySelector("h3")?.textContent?.trim() === "Bonus Milestone",
     ) ?? null
   )
 }
@@ -77,7 +110,8 @@ export default function FacilitatorBonusMilestoneControl({
     }
 
     const onCompletionChange = (event: Event) => {
-      const detail = (event as CustomEvent<FacilitatorBonusMilestoneDetail>).detail
+      const detail = (event as CustomEvent<FacilitatorBonusMilestoneDetail>)
+        .detail
       if (!detail) return
 
       if (
@@ -163,10 +197,14 @@ export default function FacilitatorBonusMilestoneControl({
         ".facilitator-score-grid > article",
       )
       const bonusCard = Array.from(scoreCards).find(
-        (card) => card.querySelector("span")?.textContent?.trim() === "Facilitator bonus",
+        (card) =>
+          card.querySelector("span")?.textContent?.trim() ===
+          "Facilitator bonus",
       )
       const totalCard = Array.from(scoreCards).find(
-        (card) => card.querySelector("span")?.textContent?.trim() === "Estimated total after bonus",
+        (card) =>
+          card.querySelector("span")?.textContent?.trim() ===
+          "Estimated total after bonus",
       )
 
       if (bonusCard) {
@@ -185,7 +223,10 @@ export default function FacilitatorBonusMilestoneControl({
       }
 
       if (totalCard) {
-        setText(totalCard.querySelector("strong"), formatNumber(score.totalPoints))
+        setText(
+          totalCard.querySelector("strong"),
+          formatNumber(score.totalPoints),
+        )
         setText(
           totalCard.querySelector("small"),
           participating
@@ -213,7 +254,7 @@ export default function FacilitatorBonusMilestoneControl({
       setText(
         content.querySelector(".facilitator-disclaimer"),
         participating
-          ? `Facilitator bonuses are included after participation is confirmed. The Bonus Milestone adds +${FACILITATOR_BONUS_MILESTONE_POINTS} when you mark the official completion check as completed.`
+          ? `Facilitator bonuses are included after participation is confirmed. Follow the Bonus Milestone guide and add +${FACILITATOR_BONUS_MILESTONE_POINTS} only after you confirm the official Bonus Milestone is completed.`
           : "Facilitator bonuses are not included while participation is disabled.",
       )
     }
@@ -239,11 +280,86 @@ export default function FacilitatorBonusMilestoneControl({
   return createPortal(
     <section className="facilitator-section facilitator-bonus-simple">
       <style>{`
+        .facilitator-bonus-simple .bonus-guide {
+          display: grid;
+          gap: 8px;
+          margin-top: 10px;
+        }
+        .facilitator-bonus-simple .bonus-guide-step {
+          display: grid;
+          grid-template-columns: 28px minmax(0, 1fr);
+          gap: 10px;
+          align-items: start;
+          border: 1px solid rgba(148, 163, 184, .12);
+          border-radius: 10px;
+          padding: 10px 11px;
+          background: rgba(15, 23, 42, .16);
+        }
+        .facilitator-bonus-simple .bonus-guide-step > span {
+          width: 28px;
+          height: 28px;
+          display: grid;
+          place-items: center;
+          border-radius: 8px;
+          background: rgba(124, 92, 255, .13);
+          color: #c4b5fd;
+          font-size: .66rem;
+          font-weight: 900;
+        }
+        .facilitator-bonus-simple .bonus-guide-step strong,
+        .facilitator-bonus-simple .bonus-guide-step small {
+          display: block;
+        }
+        .facilitator-bonus-simple .bonus-guide-step strong {
+          color: var(--facilitator-text, #f8fafc);
+          font-size: .72rem;
+        }
+        .facilitator-bonus-simple .bonus-guide-step small {
+          margin-top: 2px;
+          color: var(--facilitator-muted, #94a3b8);
+          font-size: .65rem;
+          line-height: 1.45;
+        }
+        .facilitator-bonus-simple .bonus-guide-actions {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 8px;
+          margin-top: 10px;
+        }
+        .facilitator-bonus-simple .bonus-guide-link {
+          min-height: 38px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 7px;
+          border: 1px solid rgba(34, 211, 238, .3);
+          border-radius: 9px;
+          padding: 0 11px;
+          background: rgba(34, 211, 238, .07);
+          color: #67e8f9;
+          font-size: .66rem;
+          font-weight: 800;
+          text-decoration: none;
+        }
+        .facilitator-bonus-simple .bonus-guide-link.is-primary {
+          border-color: rgba(124, 92, 246, .46);
+          background: linear-gradient(
+            135deg,
+            rgba(98, 53, 220, .9),
+            rgba(139, 63, 224, .9)
+          );
+          color: #fff;
+        }
+        .facilitator-bonus-simple .bonus-guide-link svg {
+          width: 14px;
+          height: 14px;
+        }
         .facilitator-bonus-simple .bonus-simple-card {
           display: grid;
           grid-template-columns: auto minmax(0, 1fr) auto;
           gap: 12px;
           align-items: center;
+          margin-top: 12px;
           border: 1px solid rgba(34, 211, 238, .22);
           border-radius: 12px;
           padding: 14px;
@@ -306,6 +422,9 @@ export default function FacilitatorBonusMilestoneControl({
           opacity: .48;
         }
         @media (max-width: 560px) {
+          .facilitator-bonus-simple .bonus-guide-actions {
+            grid-template-columns: 1fr;
+          }
           .facilitator-bonus-simple .bonus-simple-card {
             grid-template-columns: auto minmax(0, 1fr);
           }
@@ -320,11 +439,43 @@ export default function FacilitatorBonusMilestoneControl({
         <div>
           <h3>Bonus Milestone</h3>
           <p>
-            One completion check only. When it is confirmed, add +
-            {FACILITATOR_BONUS_MILESTONE_POINTS} bonus points.
+            Follow the steps below. After the official Bonus Milestone check is
+            complete, confirm it here to add +{FACILITATOR_BONUS_MILESTONE_POINTS}
+            {" "}bonus points.
           </p>
         </div>
         <span>{completed && participating ? "+10 added" : "+10 bonus"}</span>
+      </div>
+
+      <div className="bonus-guide" aria-label="Bonus Milestone guide">
+        {BONUS_STEPS.map((step, index) => (
+          <div className="bonus-guide-step" key={step.title}>
+            <span aria-hidden="true">{index + 1}</span>
+            <div>
+              <strong>{step.title}</strong>
+              <small>{step.detail}</small>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="bonus-guide-actions">
+        <a
+          className="bonus-guide-link"
+          href={BONUS_GUIDE_URL}
+          target="_blank"
+          rel="noreferrer noopener"
+        >
+          Read official guide <ExternalLink />
+        </a>
+        <a
+          className="bonus-guide-link is-primary"
+          href={BONUS_FORM_URL}
+          target="_blank"
+          rel="noreferrer noopener"
+        >
+          Submit verification form <ExternalLink />
+        </a>
       </div>
 
       <div
@@ -334,10 +485,10 @@ export default function FacilitatorBonusMilestoneControl({
           {completed ? <CheckCircle2 /> : <CircleHelp />}
         </span>
         <div className="bonus-simple-copy">
-          <strong>Bonus Milestone completion</strong>
+          <strong>I have completed the Bonus Milestone</strong>
           <small>
-            Use the official completion check as the source of truth. The
-            detailed GEAR requirement list does not need to be tracked here.
+            This is a manual confirmation only. The site does not auto-check the
+            individual GEAR or AI-agent requirements.
           </small>
         </div>
         <button
@@ -358,7 +509,7 @@ export default function FacilitatorBonusMilestoneControl({
           ? "Enable Facilitator participation first."
           : completed
             ? "Bonus Milestone is confirmed for this profile and +10 is included in the score."
-            : "Mark it completed only after the official check shows completion."}
+            : "Complete the guide above, wait for the official completion check, then mark this as completed."}
       </p>
     </section>,
     portalTarget,
