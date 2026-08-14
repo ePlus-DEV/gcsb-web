@@ -61,3 +61,36 @@ test("Bonus Milestone remains a separate +10 and is not part of standard milesto
   assert.equal(facilitator.FACILITATOR_BONUS_MILESTONE_POINTS, 10)
   assert.equal(facilitator.getFacilitatorMilestoneBonus({ games: 6, skills: 18 }), 5)
 })
+
+test("checked Bonus Milestone adds +10 on top of the standard Facilitator bonus", () => {
+  assert.deepEqual(
+    facilitator.getFacilitatorAdjustedPoints(
+      75,
+      { games: 6, skills: 18 },
+      true,
+      true,
+    ),
+    { basePoints: 75, bonus: 15, totalPoints: 90 },
+  )
+  assert.deepEqual(
+    facilitator.getFacilitatorAdjustedPoints(
+      75,
+      { games: 12, skills: 66 },
+      true,
+      true,
+    ),
+    { basePoints: 75, bonus: 45, totalPoints: 120 },
+  )
+})
+
+test("checked Bonus Milestone is ignored when Facilitator participation is off", () => {
+  assert.deepEqual(
+    facilitator.getFacilitatorAdjustedPoints(
+      75,
+      { games: 12, skills: 66 },
+      false,
+      true,
+    ),
+    { basePoints: 75, bonus: 0, totalPoints: 75 },
+  )
+})
