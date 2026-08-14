@@ -39,9 +39,11 @@ export function writeFacilitatorBonusMilestoneCompletion(
 ): void {
   const normalizedProfileUrl = normalizeFacilitatorProfileUrl(profileUrl)
   const key = getFacilitatorBonusMilestoneStorageKey(normalizedProfileUrl)
+  let stored = false
 
   try {
     window.localStorage.setItem(key, completed ? "true" : "false")
+    stored = true
   } catch {
     // Keep the caller's in-memory state when storage is unavailable.
   }
@@ -60,5 +62,5 @@ export function writeFacilitatorBonusMilestoneCompletion(
 
   // Existing score surfaces already listen for the storage event. Dispatching
   // one here makes the +10 update immediately in the current tab as well.
-  window.dispatchEvent(new Event("storage"))
+  if (stored) window.dispatchEvent(new Event("storage"))
 }
