@@ -215,6 +215,8 @@ export default function FacilitatorBonusMilestoneControl({
   }, [])
 
   useEffect(() => {
+    if (!portalTarget) return
+
     const syncScoreSummary = () => {
       const dashboard = readStoredDashboard()
       const result = dashboard?.result
@@ -236,30 +238,16 @@ export default function FacilitatorBonusMilestoneControl({
       const scoreCards = content.querySelectorAll<HTMLElement>(
         ".facilitator-score-grid > article",
       )
-      const bonusCard = Array.from(scoreCards).find(
-        (card) =>
-          card.querySelector("span")?.textContent?.trim() ===
-          "Facilitator bonus",
-      )
-      const totalCard = Array.from(scoreCards).find(
-        (card) =>
-          card.querySelector("span")?.textContent?.trim() ===
-          "Estimated total after bonus",
-      )
+      const bonusCard = scoreCards.item(1)
+      const totalCard = scoreCards.item(2)
 
       if (bonusCard) {
         setText(
           bonusCard.querySelector("strong"),
           participating ? `+${formatNumber(score.bonus)}` : "Off",
         )
-        setText(
-          bonusCard.querySelector("small"),
-          participating
-            ? completed
-              ? `Includes +${FACILITATOR_BONUS_MILESTONE_POINTS} Bonus Milestone`
-              : "Highest completed milestone only"
-            : "Participation is not enabled",
-        )
+        const detail = bonusCard.querySelector<HTMLElement>("small")
+        if (detail) detail.hidden = Boolean(participating && completed)
       }
 
       if (totalCard) {
@@ -267,59 +255,27 @@ export default function FacilitatorBonusMilestoneControl({
           totalCard.querySelector("strong"),
           formatNumber(score.totalPoints),
         )
-        setText(
-          totalCard.querySelector("small"),
-          participating
-            ? completed
-              ? `Includes +${FACILITATOR_BONUS_MILESTONE_POINTS} Bonus Milestone`
-              : `Optional +${FACILITATOR_BONUS_MILESTONE_POINTS} Bonus Milestone not included`
-            : "No Facilitator bonus included",
-        )
+        const detail = totalCard.querySelector<HTMLElement>("small")
+        if (detail) detail.hidden = Boolean(participating && completed)
       }
 
-      const launcherSmall = document.querySelector(
+      const launcherSmall = document.querySelector<HTMLElement>(
         ".facilitator-launcher small",
       )
-      if (participating && launcherSmall) {
-        const current = launcherSmall.textContent ?? ""
-        const separatorIndex = current.indexOf("·")
-        const suffix =
-          separatorIndex >= 0 ? current.slice(separatorIndex).trim() : ""
+      if (participating && launcherSmall?.textContent) {
         setText(
           launcherSmall,
-          `+${formatNumber(score.bonus)} bonus${suffix ? ` ${suffix}` : ""}`,
+          launcherSmall.textContent.replace(
+            /\+\s*\d+(?:[.,]\d+)?/,
+            `+${formatNumber(score.bonus)}`,
+          ),
         )
       }
-
-      const bonusSection = findLegacyBonusSection()
-      const sectionNote = bonusSection?.querySelector(
-        ":scope > .facilitator-syllabus-note",
-      )
-      setText(
-        sectionNote ?? null,
-        participating
-          ? "Complete the requirements above, then submit the verification form."
-          : "Enable Facilitator participation to include bonus points.",
-      )
-
-      setText(
-        content.querySelector(".facilitator-disclaimer"),
-        participating
-          ? `+${FACILITATOR_BONUS_MILESTONE_POINTS} Bonus Milestone is included only after you confirm completion.`
-          : "Facilitator bonuses are not included while participation is disabled.",
-      )
     }
 
-    syncScoreSummary()
-    const observer = new MutationObserver(syncScoreSummary)
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-      characterData: true,
-    })
-
-    return () => observer.disconnect()
-  }, [completed, participating])
+    const frame = window.requestAnimationFrame(syncScoreSummary)
+    return () => window.cancelAnimationFrame(frame)
+  }, [completed, participating, portalTarget])
 
   const toggleCompleted = () => {
     if (!participating) return
