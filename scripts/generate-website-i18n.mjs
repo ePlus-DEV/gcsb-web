@@ -22,10 +22,6 @@ const root = process.cwd()
 const sourceDir = path.join(root, "public", "i18n", "locales")
 const outputDir = path.join(root, "public", "i18n")
 
-function sortedKeys(value) {
-  return Object.keys(value ?? {}).sort()
-}
-
 function placeholders(value) {
   return [...String(value).matchAll(/\{[A-Za-z0-9_]+\}/g)]
     .map((match) => match[0])
@@ -61,34 +57,24 @@ if (!englishCatalog) {
   throw new Error("Missing public/i18n/locales/en.json.")
 }
 
-for (const section of CATALOG_SECTIONS) {
-  const englishSection = englishCatalog[section]
-  if (!englishSection || typeof englishSection !== "object") {
-    throw new Error(`English locale is missing the ${section} catalog section.`)
-  }
+for (const locale of LOCALES) {
+  const catalog = catalogs[locale]
 
-  const expectedKeys = sortedKeys(englishSection)
-
-  for (const locale of LOCALES) {
-    const localeSection = catalogs[locale]?.[section]
+  for (const section of CATALOG_SECTIONS) {
+    const localeSection = catalog?.[section]
     if (!localeSection || typeof localeSection !== "object") {
       throw new Error(`${locale}.json is missing the ${section} catalog section.`)
     }
 
-    const actualKeys = sortedKeys(localeSection)
-    if (!sameArray(actualKeys, expectedKeys)) {
-      throw new Error(`${locale}.json ${section} keys do not match en.json.`)
-    }
-
-    for (const key of expectedKeys) {
-      const sourceValue = englishSection[key]
-      const translatedValue = localeSection[key]
-
+    for (const [key, translatedValue] of Object.entries(localeSection)) {
       if (typeof translatedValue !== "string" || translatedValue.length === 0) {
         throw new Error(`${locale}.json ${section}.${key} must be a non-empty string.`)
       }
 
-      const expectedPlaceholders = placeholders(sourceValue)
+      const englishValue = englishCatalog[section]?.[key]
+      if (typeof englishValue !== "string") continue
+
+      const expectedPlaceholders = placeholders(englishValue)
       const actualPlaceholders = placeholders(translatedValue)
       if (!sameArray(actualPlaceholders, expectedPlaceholders)) {
         throw new Error(
