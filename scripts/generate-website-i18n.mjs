@@ -3,6 +3,7 @@ import { mkdir, readFile, readdir, writeFile } from "node:fs/promises"
 import path from "node:path"
 import { applyCoreUiTranslationPolish } from "./core-ui-translations-polish.mjs"
 import { applyFacilitatorLabelTranslations } from "./apply-facilitator-label-translations.mjs"
+import { applyFacilitatorBonusMilestoneControlTranslations } from "./facilitator-bonus-milestone-control-translations.mjs"
 import { applyCompleteFacilitatorTranslations } from "./facilitator-translations-complete.mjs"
 import { applyFacilitatorRuntimeFragments } from "./facilitator-translations-runtime-fragments.mjs"
 import { applyVietnameseFacilitatorPolish } from "./facilitator-translations-vi-polish.mjs"
@@ -49,6 +50,7 @@ for (const [locale, catalog] of Object.entries(catalogs)) {
 applyFacilitatorTranslations(catalogs)
 applyFacilitatorLabelTranslations(catalogs)
 applyCompleteFacilitatorTranslations(catalogs)
+applyFacilitatorBonusMilestoneControlTranslations(catalogs)
 applyVietnameseFacilitatorPolish(catalogs)
 applyFacilitatorRuntimeFragments(catalogs)
 applyPublicProfileTranslations(catalogs)
