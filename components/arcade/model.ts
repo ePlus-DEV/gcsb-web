@@ -37,6 +37,15 @@ export type ArcadeApiResponse = {
     faciTrivia?: number
     faciSkill?: number
     faciCompletion?: number
+    bonusMilestonePoints?: number
+  }
+  facilitator?: {
+    bonusMilestoneEnabled?: boolean
+    bonusMilestoneConfirmation?: string
+    bonusMilestoneAvailablePoints?: number
+    bonusMilestoneCompleted?: boolean
+    bonusMilestonePoints?: number | null
+    bonusMilestoneStatus?: string
   }
   beta?: {
     scoreComplete?: boolean
@@ -45,6 +54,14 @@ export type ArcadeApiResponse = {
     profileBadgeCount?: number
     eligibleBadgeCount?: number
     tier?: string
+    facilitator?: {
+      bonusMilestoneEnabled?: boolean
+      bonusMilestoneConfirmation?: string
+      bonusMilestoneAvailablePoints?: number
+      bonusMilestoneCompleted?: boolean
+      bonusMilestonePoints?: number | null
+      bonusMilestoneStatus?: string
+    }
   }
 }
 
