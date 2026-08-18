@@ -1,0 +1,14 @@
+{
+  "additional": {
+    "Bonus Milestone completed": "اكتمل Bonus Milestone",
+    "+10 bonus applied. Open to review the completed steps.": "تم تطبيق مكافأة +10. افتح التفاصيل لمراجعة الخطوات المكتملة.",
+    "Completion is saved. Close the details again or undo if needed.": "تم حفظ حالة الإكمال. يمكنك إغلاق التفاصيل مرة أخرى أو التراجع عند الحاجة.",
+    "Confirm after you finish all required steps above.": "أكّد بعد إكمال جميع الخطوات المطلوبة أعلاه.",
+    "Open details": "فتح التفاصيل",
+    "Close details": "إغلاق التفاصيل",
+    "Undo": "تراجع",
+    "Mark completed": "وضع علامة كمكتمل",
+    "View 4 GEAR skill badges · {count}/4": "عرض 4 شارات مهارات GEAR · {count}/4",
+    "Hide GEAR skill badges · {count}/4": "إخفاء شارات مهارات GEAR · {count}/4"
+  }
+}
