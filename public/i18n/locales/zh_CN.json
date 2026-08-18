@@ -1,0 +1,14 @@
+{
+  "additional": {
+    "Bonus Milestone completed": "Bonus Milestone 已完成",
+    "+10 bonus applied. Open to review the completed steps.": "+10 奖励已计入。打开详情可查看已完成的步骤。",
+    "Completion is saved. Close the details again or undo if needed.": "完成状态已保存。你可以再次关闭详情，或在需要时撤销。",
+    "Confirm after you finish all required steps above.": "完成上方所有必需步骤后再确认。",
+    "Open details": "打开详情",
+    "Close details": "关闭详情",
+    "Undo": "撤销",
+    "Mark completed": "标记为已完成",
+    "View 4 GEAR skill badges · {count}/4": "查看 4 个 GEAR 技能徽章 · {count}/4",
+    "Hide GEAR skill badges · {count}/4": "隐藏 GEAR 技能徽章 · {count}/4"
+  }
+}
