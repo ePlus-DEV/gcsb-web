@@ -3,7 +3,6 @@ import { mkdir, readFile, readdir, writeFile } from "node:fs/promises"
 import path from "node:path"
 import { applyCoreUiTranslationPolish } from "./core-ui-translations-polish.mjs"
 import { applyFacilitatorLabelTranslations } from "./apply-facilitator-label-translations.mjs"
-import { applyFacilitatorBonusMilestoneControlTranslations } from "./facilitator-bonus-milestone-control-translations.mjs"
 import { applyCompleteFacilitatorTranslations } from "./facilitator-translations-complete.mjs"
 import { applyFacilitatorRuntimeFragments } from "./facilitator-translations-runtime-fragments.mjs"
 import { applyVietnameseFacilitatorPolish } from "./facilitator-translations-vi-polish.mjs"
@@ -33,6 +32,71 @@ const catalogs = JSON.parse(
 const catalogMessageResources = JSON.parse(
   await readFile(path.join(sourceDir, "fresh-score-check.json"), "utf8"),
 )
+const additionalTranslationResources = JSON.parse(
+  await readFile(
+    path.join(sourceDir, "facilitator-bonus-milestone.json"),
+    "utf8",
+  ),
+)
+
+function applyAdditionalTranslationResources(
+  catalogs,
+  resources,
+  resourceName,
+) {
+  const locales = Object.keys(catalogs)
+
+  for (const [key, resource] of Object.entries(resources)) {
+    const source = resource?.source
+    const translations = resource?.translations
+
+    if (!source || typeof source !== "string") {
+      throw new Error(`${resourceName}.${key} is missing a source string.`)
+    }
+    if (!translations || typeof translations !== "object") {
+      throw new Error(`${resourceName}.${key} is missing translations.`)
+    }
+
+    const missingLocales = locales.filter(
+      (locale) =>
+        typeof translations[locale] !== "string" || !translations[locale],
+    )
+    if (missingLocales.length > 0) {
+      throw new Error(
+        `${resourceName}.${key} is missing locales: ${missingLocales.join(", ")}.`,
+      )
+    }
+
+    if (translations.en !== source) {
+      throw new Error(`${resourceName}.${key} English text must match source.`)
+    }
+
+    const countTemplate = source.includes("{count}")
+    if (
+      countTemplate &&
+      locales.some((locale) => !translations[locale].includes("{count}"))
+    ) {
+      throw new Error(
+        `${resourceName}.${key} must keep the {count} placeholder in every locale.`,
+      )
+    }
+
+    const counts = countTemplate ? [0, 1, 2, 3, 4] : [null]
+    for (const [locale, catalog] of Object.entries(catalogs)) {
+      catalog.additional ??= {}
+
+      for (const count of counts) {
+        const translatedSource =
+          count === null ? source : source.replaceAll("{count}", String(count))
+        const translatedTarget =
+          count === null
+            ? translations[locale]
+            : translations[locale].replaceAll("{count}", String(count))
+        catalog.additional[translatedSource] = translatedTarget
+      }
+    }
+  }
+}
 
 for (const [locale, catalog] of Object.entries(catalogs)) {
   const fallbackTitle = `${catalog.messages.heroTitleTop ?? "CHECK YOUR"} ${
@@ -50,7 +114,11 @@ for (const [locale, catalog] of Object.entries(catalogs)) {
 applyFacilitatorTranslations(catalogs)
 applyFacilitatorLabelTranslations(catalogs)
 applyCompleteFacilitatorTranslations(catalogs)
-applyFacilitatorBonusMilestoneControlTranslations(catalogs)
+applyAdditionalTranslationResources(
+  catalogs,
+  additionalTranslationResources,
+  "facilitator-bonus-milestone.json",
+)
 applyVietnameseFacilitatorPolish(catalogs)
 applyFacilitatorRuntimeFragments(catalogs)
 applyPublicProfileTranslations(catalogs)
