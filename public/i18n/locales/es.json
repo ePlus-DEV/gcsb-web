@@ -1,0 +1,14 @@
+{
+  "additional": {
+    "Bonus Milestone completed": "Bonus Milestone completado",
+    "+10 bonus applied. Open to review the completed steps.": "+10 de bonus aplicados. Abre los detalles para revisar los pasos completados.",
+    "Completion is saved. Close the details again or undo if needed.": "El estado de finalización se ha guardado. Puedes cerrar los detalles de nuevo o deshacerlo si hace falta.",
+    "Confirm after you finish all required steps above.": "Confirma después de completar todos los pasos obligatorios anteriores.",
+    "Open details": "Abrir detalles",
+    "Close details": "Cerrar detalles",
+    "Undo": "Deshacer",
+    "Mark completed": "Marcar como completado",
+    "View 4 GEAR skill badges · {count}/4": "Ver los 4 Skill Badges GEAR · {count}/4",
+    "Hide GEAR skill badges · {count}/4": "Ocultar los Skill Badges GEAR · {count}/4"
+  }
+}
