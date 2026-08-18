@@ -32,7 +32,7 @@ function setText(element: Element | null, value: string): void {
   if (element && element.textContent !== value) element.textContent = value
 }
 
-function findLegacyBonusSection(): HTMLElement | null {
+function findBonusSection(): HTMLElement | null {
   const sections = Array.from(
     document.querySelectorAll<HTMLElement>(
       ".facilitator-content > .facilitator-section",
@@ -111,7 +111,6 @@ export default function FacilitatorBonusMilestoneControl({
   }, [profileUrl])
 
   useEffect(() => {
-    let currentTarget: HTMLElement | null = null
     let currentBonusSection: HTMLElement | null = null
     let currentDetailsList: HTMLElement | null = null
     let currentToggle: HTMLButtonElement | null = null
@@ -119,11 +118,14 @@ export default function FacilitatorBonusMilestoneControl({
     let assignedDetailsId = false
 
     const installOptimizedLayout = () => {
-      // Ignore mutations produced by the layout we already installed. This
-      // prevents a MutationObserver feedback loop while the drawer is open.
-      if (currentTarget?.isConnected && currentBonusSection?.isConnected) return
+      const layoutStillInstalled = Boolean(
+        currentBonusSection?.isConnected &&
+          currentDetailsList?.isConnected &&
+          currentToggle?.isConnected,
+      )
+      if (layoutStillInstalled) return
 
-      const bonusSection = findLegacyBonusSection()
+      const bonusSection = findBonusSection()
       if (!bonusSection) return
 
       bonusSection.classList.add("bonus-milestone-optimized")
@@ -188,22 +190,11 @@ export default function FacilitatorBonusMilestoneControl({
         currentActionRow = actionRow
       }
 
-      let target = bonusSection.querySelector<HTMLElement>(
-        "[data-bonus-milestone-confirmation]",
+      // Portal directly into the React-owned section. This avoids inserting a
+      // raw intermediary node that React can remove during reconciliation.
+      setPortalTarget((previous) =>
+        previous === bonusSection ? previous : bonusSection,
       )
-
-      if (!target) {
-        target = document.createElement("div")
-        target.dataset.bonusMilestoneConfirmation = "true"
-        const note = bonusSection.querySelector<HTMLElement>(
-          ":scope > .facilitator-syllabus-note",
-        )
-        if (note) note.before(target)
-        else bonusSection.append(target)
-      }
-
-      currentTarget = target
-      setPortalTarget((previous) => (previous === target ? previous : target))
     }
 
     installOptimizedLayout()
@@ -212,7 +203,6 @@ export default function FacilitatorBonusMilestoneControl({
 
     return () => {
       observer.disconnect()
-      currentTarget?.remove()
       currentToggle?.remove()
       if (currentDetailsList) {
         currentDetailsList.hidden = false
@@ -300,18 +290,13 @@ export default function FacilitatorBonusMilestoneControl({
       <style>{`
         .bonus-milestone-optimized:has(
           .bonus-milestone-confirmation-card.is-completed.is-collapsed
-        ) > :not([data-bonus-milestone-confirmation]) {
+        ) > :not(.bonus-milestone-confirmation) {
           display: none !important;
         }
         .bonus-milestone-optimized:has(
           .bonus-milestone-confirmation-card.is-completed.is-collapsed
-        ) > [data-bonus-milestone-confirmation] {
+        ) > .bonus-milestone-confirmation {
           margin: 0 !important;
-        }
-        .bonus-milestone-optimized:has(
-          .bonus-milestone-confirmation-card.is-completed.is-collapsed
-        ) .bonus-milestone-confirmation {
-          margin-top: 0;
         }
         .bonus-milestone-optimized .facilitator-milestones {
           gap: 6px;
