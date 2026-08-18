@@ -289,6 +289,11 @@ export default function FacilitatorBonusMilestoneControl({
   return createPortal(
     <div className="bonus-milestone-confirmation">
       <style>{`
+        .bonus-milestone-optimized:has(
+          .bonus-milestone-confirmation-card.is-completed
+        ) {
+          display: none !important;
+        }
         .bonus-milestone-optimized .facilitator-milestones {
           gap: 6px;
         }
