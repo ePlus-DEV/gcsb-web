@@ -1,5 +1,5 @@
 import assert from "node:assert/strict"
-import { readFile } from "node:fs/promises"
+import { readFile, readdir } from "node:fs/promises"
 import test from "node:test"
 
 const LOCALES = [
@@ -91,4 +91,22 @@ test("i18n source keeps one file per locale with matching keys", () => {
       }
     }
   }
+})
+
+test("i18n source does not add feature-centric multi-locale JSON files", async () => {
+  const i18nDir = new URL("../public/i18n/", import.meta.url)
+  const topLevelFiles = await readdir(i18nDir)
+  const allowedTopLevelJson = new Set([
+    "fresh-score-check.json", // legacy resource; do not copy this pattern
+    ...LOCALES.map((locale) => `${locale}.json`), // generated runtime catalogs
+  ])
+  const unexpectedJson = topLevelFiles
+    .filter((name) => name.endsWith(".json") && !allowedTopLevelJson.has(name))
+    .sort()
+
+  assert.deepEqual(
+    unexpectedJson,
+    [],
+    `Store translation source in public/i18n/locales/<locale>.json, not feature files: ${unexpectedJson.join(", ")}`,
+  )
 })
