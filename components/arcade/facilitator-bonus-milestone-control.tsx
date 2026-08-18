@@ -32,7 +32,7 @@ function setText(element: Element | null, value: string): void {
   if (element && element.textContent !== value) element.textContent = value
 }
 
-function findLegacyBonusSection(): HTMLElement | null {
+function findBonusSection(): HTMLElement | null {
   const sections = Array.from(
     document.querySelectorAll<HTMLElement>(
       ".facilitator-content > .facilitator-section",
@@ -42,7 +42,12 @@ function findLegacyBonusSection(): HTMLElement | null {
   return (
     sections.find(
       (section) =>
-        section.querySelector("h3")?.textContent?.trim() === "Bonus Milestone",
+        section.querySelector(
+          'a[href="https://forms.gle/MMfH5RKp83TfRtXj9"]',
+        ) !== null ||
+        section.querySelector(
+          'a[href="https://rsvp.withgoogle.com/events/arcade-facilitator/bonus-milestone"]',
+        ) !== null,
     ) ?? null
   )
 }
@@ -65,11 +70,14 @@ export default function FacilitatorBonusMilestoneControl({
   participating,
 }: Props) {
   const [completed, setCompleted] = useState(false)
+  const [collapsed, setCollapsed] = useState(false)
   const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null)
 
   useEffect(() => {
     const syncCompletion = () => {
-      setCompleted(readFacilitatorBonusMilestoneCompletion(profileUrl))
+      const nextCompleted = readFacilitatorBonusMilestoneCompletion(profileUrl)
+      setCompleted(nextCompleted)
+      setCollapsed(nextCompleted)
     }
 
     const onCompletionChange = (event: Event) => {
@@ -82,6 +90,7 @@ export default function FacilitatorBonusMilestoneControl({
         normalizeFacilitatorProfileUrl(profileUrl)
       ) {
         setCompleted(detail.completed)
+        setCollapsed(detail.completed)
       }
     }
 
@@ -102,7 +111,6 @@ export default function FacilitatorBonusMilestoneControl({
   }, [profileUrl])
 
   useEffect(() => {
-    let currentTarget: HTMLElement | null = null
     let currentBonusSection: HTMLElement | null = null
     let currentDetailsList: HTMLElement | null = null
     let currentToggle: HTMLButtonElement | null = null
@@ -110,11 +118,14 @@ export default function FacilitatorBonusMilestoneControl({
     let assignedDetailsId = false
 
     const installOptimizedLayout = () => {
-      // Ignore mutations produced by the layout we already installed. This
-      // prevents a MutationObserver feedback loop while the drawer is open.
-      if (currentTarget?.isConnected && currentBonusSection?.isConnected) return
+      const layoutStillInstalled = Boolean(
+        currentBonusSection?.isConnected &&
+          currentDetailsList?.isConnected &&
+          currentToggle?.isConnected,
+      )
+      if (layoutStillInstalled) return
 
-      const bonusSection = findLegacyBonusSection()
+      const bonusSection = findBonusSection()
       if (!bonusSection) return
 
       bonusSection.classList.add("bonus-milestone-optimized")
@@ -170,31 +181,20 @@ export default function FacilitatorBonusMilestoneControl({
         updateToggleLabel()
       }
 
-      const actionLink = Array.from(
-        bonusSection.querySelectorAll<HTMLAnchorElement>("a"),
-      ).find((link) => link.textContent?.includes("Read official guide"))
+      const actionLink = bonusSection.querySelector<HTMLAnchorElement>(
+        'a[href="https://rsvp.withgoogle.com/events/arcade-facilitator/bonus-milestone"]',
+      )
       const actionRow = actionLink?.parentElement
       if (actionRow) {
         actionRow.classList.add("bonus-milestone-actions-compact")
         currentActionRow = actionRow
       }
 
-      let target = bonusSection.querySelector<HTMLElement>(
-        "[data-bonus-milestone-confirmation]",
+      // Portal directly into the React-owned section. This avoids inserting a
+      // raw intermediary node that React can remove during reconciliation.
+      setPortalTarget((previous) =>
+        previous === bonusSection ? previous : bonusSection,
       )
-
-      if (!target) {
-        target = document.createElement("div")
-        target.dataset.bonusMilestoneConfirmation = "true"
-        const note = bonusSection.querySelector<HTMLElement>(
-          ":scope > .facilitator-syllabus-note",
-        )
-        if (note) note.before(target)
-        else bonusSection.append(target)
-      }
-
-      currentTarget = target
-      setPortalTarget((previous) => (previous === target ? previous : target))
     }
 
     installOptimizedLayout()
@@ -203,7 +203,6 @@ export default function FacilitatorBonusMilestoneControl({
 
     return () => {
       observer.disconnect()
-      currentTarget?.remove()
       currentToggle?.remove()
       if (currentDetailsList) {
         currentDetailsList.hidden = false
@@ -289,6 +288,16 @@ export default function FacilitatorBonusMilestoneControl({
   return createPortal(
     <div className="bonus-milestone-confirmation">
       <style>{`
+        .bonus-milestone-optimized:has(
+          .bonus-milestone-confirmation-card.is-completed.is-collapsed
+        ) > :not(.bonus-milestone-confirmation) {
+          display: none !important;
+        }
+        .bonus-milestone-optimized:has(
+          .bonus-milestone-confirmation-card.is-completed.is-collapsed
+        ) > .bonus-milestone-confirmation {
+          margin: 0 !important;
+        }
         .bonus-milestone-optimized .facilitator-milestones {
           gap: 6px;
         }
@@ -356,6 +365,10 @@ export default function FacilitatorBonusMilestoneControl({
           border-color: rgba(52, 211, 153, .34);
           background: rgba(6, 78, 59, .14);
         }
+        .bonus-milestone-confirmation-card.is-collapsed {
+          padding-top: 9px;
+          padding-bottom: 9px;
+        }
         .bonus-milestone-confirmation-icon {
           width: 30px;
           height: 30px;
@@ -388,6 +401,12 @@ export default function FacilitatorBonusMilestoneControl({
           font-size: .65rem;
           line-height: 1.4;
         }
+        .bonus-milestone-confirmation-actions {
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+          gap: 6px;
+        }
         .bonus-milestone-confirmation-button {
           min-height: 34px;
           border: 1px solid rgba(124, 92, 246, .45);
@@ -406,6 +425,11 @@ export default function FacilitatorBonusMilestoneControl({
           background: rgba(16, 185, 129, .13);
           color: #6ee7b7;
         }
+        .bonus-milestone-confirmation-button.is-secondary {
+          border-color: rgba(148, 163, 184, .28);
+          background: rgba(148, 163, 184, .08);
+          color: #cbd5e1;
+        }
         .bonus-milestone-confirmation-button:disabled {
           cursor: not-allowed;
           opacity: .48;
@@ -417,9 +441,12 @@ export default function FacilitatorBonusMilestoneControl({
           .bonus-milestone-confirmation-card {
             grid-template-columns: auto minmax(0, 1fr);
           }
-          .bonus-milestone-confirmation-button {
+          .bonus-milestone-confirmation-actions {
             grid-column: 1 / -1;
             width: 100%;
+          }
+          .bonus-milestone-confirmation-button {
+            flex: 1;
           }
         }
       `}</style>
@@ -427,31 +454,55 @@ export default function FacilitatorBonusMilestoneControl({
       <div
         className={`bonus-milestone-confirmation-card${
           completed ? " is-completed" : ""
-        }`}
+        }${completed && collapsed ? " is-collapsed" : ""}`}
       >
         <span className="bonus-milestone-confirmation-icon" aria-hidden="true">
           {completed ? <CheckCircle2 /> : <CircleHelp />}
         </span>
         <div className="bonus-milestone-confirmation-copy">
           <strong>Bonus Milestone completed</strong>
-          <small>Confirm after you finish all required steps above.</small>
+          <small>
+            {completed
+              ? collapsed
+                ? "+10 bonus applied. Open to review the completed steps."
+                : "Completion is saved. Close the details again or undo if needed."
+              : "Confirm after you finish all required steps above."}
+          </small>
         </div>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={completed}
-          className={`bonus-milestone-confirmation-button${
-            completed ? " is-completed" : ""
-          }`}
-          disabled={!participating}
-          onClick={toggleCompleted}
-        >
-          {completed
-            ? participating
-              ? "Completed · +10"
-              : "Completed"
-            : "Mark completed"}
-        </button>
+        <div className="bonus-milestone-confirmation-actions">
+          {completed ? (
+            <>
+              <button
+                type="button"
+                className="bonus-milestone-confirmation-button is-completed"
+                aria-expanded={!collapsed}
+                onClick={() => setCollapsed((value) => !value)}
+              >
+                {collapsed ? "Open details" : "Close details"}
+              </button>
+              {!collapsed ? (
+                <button
+                  type="button"
+                  className="bonus-milestone-confirmation-button is-secondary"
+                  onClick={toggleCompleted}
+                >
+                  Undo
+                </button>
+              ) : null}
+            </>
+          ) : (
+            <button
+              type="button"
+              role="switch"
+              aria-checked={false}
+              className="bonus-milestone-confirmation-button"
+              disabled={!participating}
+              onClick={toggleCompleted}
+            >
+              Mark completed
+            </button>
+          )}
+        </div>
       </div>
     </div>,
     portalTarget,

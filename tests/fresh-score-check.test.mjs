@@ -2,6 +2,22 @@ import assert from "node:assert/strict"
 import { readFileSync } from "node:fs"
 import test from "node:test"
 
+const LOCALES = [
+  "ar",
+  "de",
+  "en",
+  "es",
+  "fr",
+  "hi",
+  "it",
+  "ja",
+  "ko",
+  "pt_BR",
+  "ru",
+  "vi",
+  "zh_CN",
+]
+
 const enhancer = readFileSync(
   new URL("../components/arcade/fresh-score-check-enhancer.tsx", import.meta.url),
   "utf8",
@@ -10,11 +26,16 @@ const generator = readFileSync(
   new URL("../scripts/generate-website-i18n.mjs", import.meta.url),
   "utf8",
 )
-const translations = JSON.parse(
-  readFileSync(
-    new URL("../public/i18n/fresh-score-check.json", import.meta.url),
-    "utf8",
-  ),
+const localeCatalogs = Object.fromEntries(
+  LOCALES.map((locale) => [
+    locale,
+    JSON.parse(
+      readFileSync(
+        new URL(`../public/i18n/locales/${locale}.json`, import.meta.url),
+        "utf8",
+      ),
+    ),
+  ]),
 )
 const page = readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8")
 const localizedPage = readFileSync(
@@ -29,29 +50,34 @@ test("manual website score checks request a forced refresh", () => {
   assert.match(enhancer, /url\.pathname\.startsWith\("\/api\/arcade"\)/)
 })
 
-test("fresh score note translations live in the website i18n catalog resource", () => {
-  const noteTranslations = translations.freshScoreCacheNote
-  const expectedLocales = [
-    "ar",
-    "de",
-    "en",
-    "es",
-    "fr",
-    "hi",
-    "it",
-    "ja",
-    "ko",
-    "pt_BR",
-    "ru",
-    "vi",
-    "zh_CN",
-  ]
+test("fresh score note translations live in each locale catalog", () => {
+  const noteTranslations = Object.fromEntries(
+    LOCALES.map((locale) => [
+      locale,
+      localeCatalogs[locale]?.messages?.freshScoreCacheNote,
+    ]),
+  )
 
-  assert.deepEqual(Object.keys(noteTranslations).sort(), expectedLocales.sort())
-  assert.match(noteTranslations.en, /Automatic refresh may use a recent cached snapshot/)
-  assert.match(noteTranslations.vi, /Tự động làm mới có thể dùng dữ liệu cache gần đây/)
-  assert.match(generator, /fresh-score-check\.json/)
-  assert.match(generator, /catalog\.messages\[messageKey\] = translations\[locale\]/)
+  assert.deepEqual(Object.keys(noteTranslations).sort(), [...LOCALES].sort())
+  for (const locale of LOCALES) {
+    assert.equal(
+      typeof noteTranslations[locale],
+      "string",
+      `${locale}: missing freshScoreCacheNote`,
+    )
+    assert.ok(noteTranslations[locale].length > 0)
+  }
+
+  assert.match(
+    noteTranslations.en,
+    /Automatic refresh may use a recent cached snapshot/,
+  )
+  assert.match(
+    noteTranslations.vi,
+    /Tự động làm mới có thể dùng dữ liệu cache gần đây/,
+  )
+  assert.match(generator, /public["'],\s*["']i18n["'],\s*["']locales/)
+  assert.doesNotMatch(generator, /fresh-score-check\.json|gunzipSync|catalogs\.part/)
   assert.match(enhancer, /loadWebsiteCatalog\(locale\)/)
   assert.match(enhancer, /catalog\.messages\[FRESH_SCORE_MESSAGE_KEY\]/)
   assert.doesNotMatch(enhancer, /Tự động làm mới/)
