@@ -8,11 +8,6 @@
   const recentTtlMs = 5_000
   const apiOrigin = "https://hub.eplus.dev"
   const apiPaths = new Set(["/api/arcade-public", "/api/arcade-widget"])
-  const participationPrefix = "arcade-facilitator-participation-v1"
-  const bonusMilestonePrefix = "arcade-facilitator-bonus-milestone-v1"
-  const dashboardStorageKey = "eplus-arcade-dashboard-v1"
-  const scoreContextStoragePrefix = "arcade-api-score-context-v1"
-  const latestScoreContextKey = "__eplusArcadeLatestScoreContext"
 
   function isRequest(input) {
     return typeof Request !== "undefined" && input instanceof Request
@@ -68,90 +63,6 @@
     })
   }
 
-  function normalizeProfileUrl(value) {
-    return typeof value === "string" ? value.trim().replace(/\/$/, "") : ""
-  }
-
-  function readStoredBoolean(prefix, profileUrl) {
-    if (!profileUrl) return false
-    try {
-      return window.localStorage.getItem(`${prefix}:${profileUrl}`) === "true"
-    } catch {
-      return false
-    }
-  }
-
-  function isSharedProfilePage() {
-    return /\/(?:profiles\/[^/]+|profile)\/?$/i.test(window.location.pathname)
-  }
-
-  function getFacilitatorContext(profileUrl) {
-    const searchParams = new URLSearchParams(window.location.search)
-    const shared = isSharedProfilePage()
-    const participating = shared
-      ? searchParams.get("facilitator") === "1"
-      : readStoredBoolean(participationPrefix, profileUrl)
-    const bonusMilestoneCompleted = shared
-      ? searchParams.get("bonus") === "1"
-      : searchParams.get("bonus") === "1" ||
-        readStoredBoolean(bonusMilestonePrefix, profileUrl)
-
-    return { participating, bonusMilestoneCompleted }
-  }
-
-  function addFacilitatorContext(body) {
-    try {
-      const payload = JSON.parse(body)
-      if (!payload || typeof payload !== "object") return { body, profileUrl: "" }
-
-      const profileUrl = normalizeProfileUrl(payload.url)
-      if (!profileUrl) return { body, profileUrl: "" }
-
-      payload.facilitator = getFacilitatorContext(profileUrl)
-      return { body: JSON.stringify(payload), profileUrl }
-    } catch {
-      return { body, profileUrl: "" }
-    }
-  }
-
-  async function rememberApiScore(response, profileUrl) {
-    if (!profileUrl || !response?.ok) return
-
-    try {
-      const payload = await response.clone().json()
-      const arcadePoints = payload?.arcadePoints
-      const facilitator = payload?.beta?.facilitator ?? payload?.facilitator
-      if (
-        facilitator?.bonusIncludedInTotal !== true ||
-        !Number.isFinite(Number(arcadePoints?.totalPoints)) ||
-        !Number.isFinite(Number(arcadePoints?.baseTotalPoints))
-      ) {
-        return
-      }
-
-      const context = {
-        profileUrl,
-        participating: facilitator.participating === true,
-        bonusMilestoneCompleted: facilitator.bonusMilestoneCompleted === true,
-        baseTotalPoints: Number(arcadePoints.baseTotalPoints),
-        totalPoints: Number(arcadePoints.totalPoints),
-        facilitatorBonusPoints: Number(arcadePoints.facilitatorBonusPoints) || 0,
-      }
-
-      window[latestScoreContextKey] = context
-      try {
-        window.localStorage.setItem(
-          `${scoreContextStoragePrefix}:${profileUrl}`,
-          JSON.stringify(context),
-        )
-      } catch {
-        // Runtime scoring still works through the in-memory context.
-      }
-    } catch {
-      // Ignore non-JSON gateway responses; callers retain their existing errors.
-    }
-  }
-
   function createAbortError() {
     try {
       return new DOMException("The operation was aborted.", "AbortError")
@@ -195,7 +106,7 @@
     })
   }
 
-  function dedupeRequest(input, init, url, body, consumerSignal, profileUrl = "") {
+  function dedupeRequest(input, init, url, body, consumerSignal) {
     if (consumerSignal?.aborted) return Promise.reject(createAbortError())
 
     const key = getRequestKey(url, input, init, body)
@@ -204,9 +115,7 @@
 
     if (cached) {
       if (cached.expiresAt > now) {
-        return rememberApiScore(cached.response, profileUrl).then(() =>
-          cached.response.clone(),
-        )
+        return Promise.resolve(cached.response.clone())
       }
       recent.delete(key)
     }
@@ -221,8 +130,7 @@
         : init
 
     const sharedRequest = originalFetch(input, sharedInit)
-      .then(async (response) => {
-        await rememberApiScore(response, profileUrl)
+      .then((response) => {
         if (response.ok) {
           const entry = {
             response: response.clone(),
@@ -265,16 +173,7 @@
 
     if (init?.body !== undefined) {
       if (typeof init.body !== "string") return originalFetch(input, init)
-      const enriched = addFacilitatorContext(init.body)
-      const nextInit = enriched.body === init.body ? init : { ...init, body: enriched.body }
-      return dedupeRequest(
-        input,
-        nextInit,
-        url,
-        enriched.body,
-        consumerSignal,
-        enriched.profileUrl,
-      )
+      return dedupeRequest(input, init, url, init.body, consumerSignal)
     }
 
     if (!isRequest(input) || input.bodyUsed) return originalFetch(input, init)
@@ -288,9 +187,5 @@
       )
   }
 
-  // Keep the dashboard key visible here because score consumers use the same
-  // persisted profile identity when reconciling cached API totals.
-  window.__eplusArcadeDashboardStorageKey = dashboardStorageKey
-  window.__eplusArcadeScoreContextStoragePrefix = scoreContextStoragePrefix
   window[installFlag] = true
 })()
