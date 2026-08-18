@@ -1,7 +1,6 @@
 import assert from "node:assert/strict"
+import { readFile } from "node:fs/promises"
 import test from "node:test"
-
-import { applyFacilitatorBonusMilestoneControlTranslations } from "../scripts/facilitator-bonus-milestone-control-translations.mjs"
 
 const LOCALES = [
   "en",
@@ -19,63 +18,64 @@ const LOCALES = [
   "hi",
 ]
 
-const CONTROL_SOURCES = [
-  "Bonus Milestone completed",
-  "+10 bonus applied. Open to review the completed steps.",
-  "Completion is saved. Close the details again or undo if needed.",
-  "Confirm after you finish all required steps above.",
-  "Open details",
-  "Close details",
-  "Undo",
-  "Mark completed",
+const REQUIRED_KEYS = [
+  "completedTitle",
+  "bonusApplied",
+  "completionSaved",
+  "confirmCompleted",
+  "openDetails",
+  "closeDetails",
+  "undo",
+  "markCompleted",
+  "viewGear",
+  "hideGear",
 ]
 
-test("Bonus Milestone completion controls cover every website locale", () => {
-  const catalogs = Object.fromEntries(
-    LOCALES.map((locale) => [locale, { additional: {} }]),
-  )
+const resourceUrl = new URL(
+  "../public/i18n/facilitator-bonus-milestone.json",
+  import.meta.url,
+)
+const resources = JSON.parse(await readFile(resourceUrl, "utf8"))
 
-  applyFacilitatorBonusMilestoneControlTranslations(catalogs)
+test("Bonus Milestone translations live in a dedicated i18n resource", () => {
+  assert.deepEqual(Object.keys(resources).sort(), [...REQUIRED_KEYS].sort())
 
-  for (const locale of LOCALES) {
-    const additional = catalogs[locale].additional
+  for (const key of REQUIRED_KEYS) {
+    const resource = resources[key]
+    assert.equal(typeof resource?.source, "string", `${key}: missing source`)
+    assert.ok(resource.source.length > 0, `${key}: empty source`)
+    assert.equal(
+      typeof resource?.translations,
+      "object",
+      `${key}: missing translations`,
+    )
 
-    for (const source of CONTROL_SOURCES) {
-      const translated = additional[source]
-      assert.equal(typeof translated, "string", `${locale}: missing ${source}`)
-      assert.ok(translated.length > 0, `${locale}: empty ${source}`)
+    for (const locale of LOCALES) {
+      const translated = resource.translations[locale]
+      assert.equal(typeof translated, "string", `${key}: missing ${locale}`)
+      assert.ok(translated.length > 0, `${key}: empty ${locale}`)
 
       if (locale === "en") {
-        assert.equal(translated, source, `${locale}: English source changed`)
+        assert.equal(
+          translated,
+          resource.source,
+          `${key}: English text must match source`,
+        )
       } else {
         assert.notEqual(
           translated,
-          source,
-          `${locale}: untranslated control text ${source}`,
+          resource.source,
+          `${key}: untranslated ${locale} text`,
         )
       }
     }
 
-    for (let count = 0; count <= 4; count += 1) {
-      const toggleSources = [
-        `View 4 GEAR skill badges · ${count}/4`,
-        `Hide GEAR skill badges · ${count}/4`,
-      ]
-
-      for (const source of toggleSources) {
-        const translated = additional[source]
-        assert.equal(typeof translated, "string", `${locale}: missing ${source}`)
-        assert.ok(translated.length > 0, `${locale}: empty ${source}`)
-
-        if (locale === "en") {
-          assert.equal(translated, source, `${locale}: English source changed`)
-        } else {
-          assert.notEqual(
-            translated,
-            source,
-            `${locale}: untranslated GEAR toggle ${source}`,
-          )
-        }
+    if (resource.source.includes("{count}")) {
+      for (const locale of LOCALES) {
+        assert.ok(
+          resource.translations[locale].includes("{count}"),
+          `${key}: ${locale} dropped {count}`,
+        )
       }
     }
   }
