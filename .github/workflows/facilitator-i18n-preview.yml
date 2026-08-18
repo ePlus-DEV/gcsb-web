@@ -8,7 +8,7 @@ on:
       - "components/i18n/**"
       - "lib/website-i18n.ts"
       - "scripts/facilitator-translations*.mjs"
-      - "scripts/facilitator-bonus-milestone-control-translations.mjs"
+      - "public/i18n/facilitator-bonus-milestone.json"
       - "scripts/generate-website-i18n.mjs"
       - ".github/workflows/facilitator-i18n-preview.yml"
   workflow_dispatch:
