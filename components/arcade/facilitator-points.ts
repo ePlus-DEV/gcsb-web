@@ -38,6 +38,13 @@ export const FACILITATOR_MILESTONES = [
 
 export type FacilitatorMilestone = (typeof FACILITATOR_MILESTONES)[number]
 
+type BonusMilestoneMetadata = {
+  bonusMilestoneEnabled?: unknown
+  bonusMilestoneAvailablePoints?: unknown
+  bonusMilestoneCompleted?: unknown
+  bonusMilestonePoints?: unknown
+}
+
 export function getHighestFacilitatorMilestone(
   counts: FacilitatorCounts,
 ): FacilitatorMilestone | null {
@@ -90,32 +97,52 @@ function readRuntimeBonusMilestoneCompletion(): boolean {
   }
 }
 
-function readRuntimeBonusMilestonePoints(): number {
-  if (typeof window === "undefined") return FACILITATOR_BONUS_MILESTONE_POINTS
+function readRuntimeBonusMilestoneMetadata(): BonusMilestoneMetadata | null {
+  if (typeof window === "undefined") return null
 
   try {
     const raw = window.localStorage.getItem(DASHBOARD_STORAGE_KEY)
-    if (!raw) return FACILITATOR_BONUS_MILESTONE_POINTS
+    if (!raw) return null
 
     const parsed = JSON.parse(raw) as {
       result?: {
-        facilitator?: { bonusMilestoneAvailablePoints?: unknown }
-        beta?: {
-          facilitator?: { bonusMilestoneAvailablePoints?: unknown }
-        }
+        facilitator?: BonusMilestoneMetadata
+        beta?: { facilitator?: BonusMilestoneMetadata }
       }
     }
-    const value =
-      parsed.result?.facilitator?.bonusMilestoneAvailablePoints ??
-      parsed.result?.beta?.facilitator?.bonusMilestoneAvailablePoints
-    const points = Number(value)
 
-    return Number.isFinite(points) && points >= 0
-      ? points
-      : FACILITATOR_BONUS_MILESTONE_POINTS
+    return parsed.result?.facilitator ?? parsed.result?.beta?.facilitator ?? null
   } catch {
-    return FACILITATOR_BONUS_MILESTONE_POINTS
+    return null
   }
+}
+
+function readRuntimeBonusMilestonePoints(completed: boolean): number {
+  if (!completed) return 0
+
+  const metadata = readRuntimeBonusMilestoneMetadata()
+  if (!metadata) return FACILITATOR_BONUS_MILESTONE_POINTS
+
+  if (metadata.bonusMilestoneEnabled === false) return 0
+
+  const apiCompleted = metadata.bonusMilestoneCompleted
+  const appliedPoints = Number(metadata.bonusMilestonePoints)
+  if (
+    apiCompleted === completed &&
+    Number.isFinite(appliedPoints) &&
+    appliedPoints >= 0
+  ) {
+    return appliedPoints
+  }
+
+  const availablePoints = Number(metadata.bonusMilestoneAvailablePoints)
+  if (Number.isFinite(availablePoints) && availablePoints >= 0) {
+    return availablePoints
+  }
+
+  // Compatibility only for API responses created before season-owned Bonus
+  // Milestone metadata was introduced. Current/future seasons are API-owned.
+  return FACILITATOR_BONUS_MILESTONE_POINTS
 }
 
 export function getFacilitatorAdjustedPoints(
@@ -127,7 +154,7 @@ export function getFacilitatorAdjustedPoints(
   const milestoneBonus = participating ? getFacilitatorMilestoneBonus(counts) : 0
   const bonusMilestone =
     participating && bonusMilestoneCompleted
-      ? readRuntimeBonusMilestonePoints()
+      ? readRuntimeBonusMilestonePoints(bonusMilestoneCompleted)
       : 0
   const bonus = milestoneBonus + bonusMilestone
 
