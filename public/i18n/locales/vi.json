@@ -1,0 +1,14 @@
+{
+  "additional": {
+    "Bonus Milestone completed": "Đã hoàn thành Bonus Milestone",
+    "+10 bonus applied. Open to review the completed steps.": "+10 điểm thưởng đã được áp dụng. Mở chi tiết để xem lại các bước đã hoàn thành.",
+    "Completion is saved. Close the details again or undo if needed.": "Trạng thái hoàn thành đã được lưu. Bạn có thể đóng chi tiết hoặc hoàn tác nếu cần.",
+    "Confirm after you finish all required steps above.": "Xác nhận sau khi bạn hoàn thành tất cả các bước bắt buộc ở trên.",
+    "Open details": "Mở chi tiết",
+    "Close details": "Đóng chi tiết",
+    "Undo": "Hoàn tác",
+    "Mark completed": "Đánh dấu hoàn thành",
+    "View 4 GEAR skill badges · {count}/4": "Xem 4 GEAR skill badge · {count}/4",
+    "Hide GEAR skill badges · {count}/4": "Ẩn GEAR skill badge · {count}/4"
+  }
+}
