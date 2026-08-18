@@ -18,7 +18,8 @@ const LOCALES = [
   "hi",
 ]
 
-const REQUIRED_SOURCES = [
+const CATALOG_SECTIONS = ["messages", "additional", "dynamic"]
+const REQUIRED_BONUS_SOURCES = [
   "Bonus Milestone completed",
   "+10 bonus applied. Open to review the completed steps.",
   "Completion is saved. Close the details again or undo if needed.",
@@ -31,82 +32,114 @@ const REQUIRED_SOURCES = [
   "Hide GEAR skill badges · {count}/4",
 ]
 
-const localeSources = Object.fromEntries(
+const localeDir = new URL("../public/i18n/locales/", import.meta.url)
+const i18nDir = new URL("../public/i18n/", import.meta.url)
+const generatorUrl = new URL(
+  "../scripts/generate-website-i18n.mjs",
+  import.meta.url,
+)
+
+const localeFiles = (await readdir(localeDir))
+  .filter((name) => name.endsWith(".json"))
+  .sort()
+const catalogs = Object.fromEntries(
   await Promise.all(
-    LOCALES.map(async (locale) => {
-      const resourceUrl = new URL(
-        `../public/i18n/locales/${locale}.json`,
-        import.meta.url,
-      )
-      return [locale, JSON.parse(await readFile(resourceUrl, "utf8"))]
-    }),
+    LOCALES.map(async (locale) => [
+      locale,
+      JSON.parse(
+        await readFile(new URL(`${locale}.json`, localeDir), "utf8"),
+      ),
+    ]),
   ),
 )
 
-test("i18n source keeps one file per locale with matching keys", () => {
-  const englishAdditional = localeSources.en?.additional
-  assert.equal(typeof englishAdditional, "object", "en: missing additional")
+function placeholders(value) {
+  return [...String(value).matchAll(/\{[A-Za-z0-9_]+\}/g)]
+    .map((match) => match[0])
+    .sort()
+}
 
-  const englishKeys = Object.keys(englishAdditional).sort()
-  for (const source of REQUIRED_SOURCES) {
-    assert.ok(
-      Object.hasOwn(englishAdditional, source),
-      `en: missing Bonus Milestone source ${source}`,
-    )
-  }
+test("i18n source keeps one complete file per supported locale", () => {
+  assert.deepEqual(
+    localeFiles,
+    LOCALES.map((locale) => `${locale}.json`).sort(),
+  )
 
-  for (const locale of LOCALES) {
-    const additional = localeSources[locale]?.additional
-    assert.equal(typeof additional, "object", `${locale}: missing additional`)
-    assert.deepEqual(
-      Object.keys(additional).sort(),
-      englishKeys,
-      `${locale}: locale key set differs from en`,
-    )
+  const english = catalogs.en
+  for (const section of CATALOG_SECTIONS) {
+    const englishSection = english?.[section]
+    assert.equal(typeof englishSection, "object", `en: missing ${section}`)
+    const expectedKeys = Object.keys(englishSection).sort()
 
-    for (const source of englishKeys) {
-      const translated = additional[source]
-      assert.equal(typeof translated, "string", `${locale}: missing ${source}`)
-      assert.ok(translated.length > 0, `${locale}: empty ${source}`)
+    for (const locale of LOCALES) {
+      const localeSection = catalogs[locale]?.[section]
+      assert.equal(
+        typeof localeSection,
+        "object",
+        `${locale}: missing ${section}`,
+      )
+      assert.deepEqual(
+        Object.keys(localeSection).sort(),
+        expectedKeys,
+        `${locale}: ${section} keys differ from en`,
+      )
 
-      if (locale === "en") {
+      for (const key of expectedKeys) {
+        const translated = localeSection[key]
         assert.equal(
-          translated,
-          source,
-          `${locale}: English additional text must match source`,
+          typeof translated,
+          "string",
+          `${locale}: ${section}.${key} is not a string`,
         )
-      } else if (REQUIRED_SOURCES.includes(source)) {
-        assert.notEqual(
-          translated,
-          source,
-          `${locale}: untranslated Bonus Milestone text ${source}`,
-        )
-      }
-
-      if (source.includes("{count}")) {
         assert.ok(
-          translated.includes("{count}"),
-          `${locale}: dropped {count} from ${source}`,
+          translated.length > 0,
+          `${locale}: ${section}.${key} is empty`,
+        )
+        assert.deepEqual(
+          placeholders(translated),
+          placeholders(englishSection[key]),
+          `${locale}: ${section}.${key} changed placeholders`,
         )
       }
     }
   }
 })
 
-test("i18n source does not add feature-centric multi-locale JSON files", async () => {
-  const i18nDir = new URL("../public/i18n/", import.meta.url)
-  const topLevelFiles = await readdir(i18nDir)
-  const allowedTopLevelJson = new Set([
-    "fresh-score-check.json", // legacy resource; do not copy this pattern
-    ...LOCALES.map((locale) => `${locale}.json`), // generated runtime catalogs
-  ])
-  const unexpectedJson = topLevelFiles
-    .filter((name) => name.endsWith(".json") && !allowedTopLevelJson.has(name))
-    .sort()
+test("Bonus Milestone copy is maintained inside each locale file", () => {
+  for (const source of REQUIRED_BONUS_SOURCES) {
+    assert.equal(
+      catalogs.en.additional[source],
+      source,
+      `en: missing Bonus Milestone source ${source}`,
+    )
 
-  assert.deepEqual(
-    unexpectedJson,
-    [],
-    `Store translation source in public/i18n/locales/<locale>.json, not feature files: ${unexpectedJson.join(", ")}`,
+    for (const locale of LOCALES.filter((item) => item !== "en")) {
+      const translated = catalogs[locale].additional[source]
+      assert.equal(typeof translated, "string", `${locale}: missing ${source}`)
+      assert.ok(translated.length > 0, `${locale}: empty ${source}`)
+      assert.notEqual(translated, source, `${locale}: untranslated ${source}`)
+    }
+  }
+})
+
+test("i18n source is readable and is not stored as compressed split catalogs", async () => {
+  const topLevelFiles = await readdir(i18nDir)
+  const compressedParts = topLevelFiles.filter((name) =>
+    /^catalogs\.part\.\d+\.txt$/.test(name),
   )
+  assert.deepEqual(compressedParts, [])
+
+  const allowedRuntimeJson = new Set(LOCALES.map((locale) => `${locale}.json`))
+  const unexpectedTopLevelJson = topLevelFiles
+    .filter((name) => name.endsWith(".json") && !allowedRuntimeJson.has(name))
+    .sort()
+  assert.deepEqual(
+    unexpectedTopLevelJson,
+    [],
+    `Do not add multi-locale feature resources: ${unexpectedTopLevelJson.join(", ")}`,
+  )
+
+  const generator = await readFile(generatorUrl, "utf8")
+  assert.match(generator, /public["'],\s*["']i18n["'],\s*["']locales/)
+  assert.doesNotMatch(generator, /gunzipSync|catalogs\.part|fresh-score-check\.json/)
 })
