@@ -171,17 +171,17 @@ const TRANSLATIONS = {
   hi: {
     completedTitle: "Bonus Milestone पूरा हुआ",
     bonusApplied:
-      "+10 bonus लागू हो गया है। पूरे किए गए चरणों की समीक्षा के लिए विवरण खोलें।",
+      "+10 बोनस लागू हो गया है। पूरे किए गए चरणों की समीक्षा के लिए विवरण खोलें।",
     completionSaved:
-      "Completion status सेव हो गया है। आप विवरण फिर से बंद कर सकते हैं या जरूरत होने पर undo कर सकते हैं।",
+      "पूर्ण होने की स्थिति सहेज ली गई है। आप विवरण फिर से बंद कर सकते हैं या आवश्यकता होने पर इसे पूर्ववत कर सकते हैं।",
     confirmCompleted:
       "ऊपर दिए गए सभी जरूरी चरण पूरे करने के बाद ही पुष्टि करें।",
     openDetails: "विवरण खोलें",
     closeDetails: "विवरण बंद करें",
-    undo: "Undo",
+    undo: "पूर्ववत करें",
     markCompleted: "पूरा हुआ चिह्नित करें",
-    viewGear: "4 GEAR Skill Badges देखें · {count}/4",
-    hideGear: "GEAR Skill Badges छिपाएँ · {count}/4",
+    viewGear: "4 GEAR स्किल बैज देखें · {count}/4",
+    hideGear: "GEAR स्किल बैज छिपाएँ · {count}/4",
   },
 }
 
