@@ -114,45 +114,42 @@
     }
   }
 
-  function rememberApiScore(response, profileUrl) {
+  async function rememberApiScore(response, profileUrl) {
     if (!profileUrl || !response?.ok) return
 
-    void response
-      .clone()
-      .json()
-      .then((payload) => {
-        const arcadePoints = payload?.arcadePoints
-        const facilitator = payload?.beta?.facilitator ?? payload?.facilitator
-        if (
-          facilitator?.bonusIncludedInTotal !== true ||
-          !Number.isFinite(Number(arcadePoints?.totalPoints)) ||
-          !Number.isFinite(Number(arcadePoints?.baseTotalPoints))
-        ) {
-          return
-        }
+    try {
+      const payload = await response.clone().json()
+      const arcadePoints = payload?.arcadePoints
+      const facilitator = payload?.beta?.facilitator ?? payload?.facilitator
+      if (
+        facilitator?.bonusIncludedInTotal !== true ||
+        !Number.isFinite(Number(arcadePoints?.totalPoints)) ||
+        !Number.isFinite(Number(arcadePoints?.baseTotalPoints))
+      ) {
+        return
+      }
 
-        const context = {
-          profileUrl,
-          participating: facilitator.participating === true,
-          bonusMilestoneCompleted: facilitator.bonusMilestoneCompleted === true,
-          baseTotalPoints: Number(arcadePoints.baseTotalPoints),
-          totalPoints: Number(arcadePoints.totalPoints),
-          facilitatorBonusPoints: Number(arcadePoints.facilitatorBonusPoints) || 0,
-        }
+      const context = {
+        profileUrl,
+        participating: facilitator.participating === true,
+        bonusMilestoneCompleted: facilitator.bonusMilestoneCompleted === true,
+        baseTotalPoints: Number(arcadePoints.baseTotalPoints),
+        totalPoints: Number(arcadePoints.totalPoints),
+        facilitatorBonusPoints: Number(arcadePoints.facilitatorBonusPoints) || 0,
+      }
 
-        window[latestScoreContextKey] = context
-        try {
-          window.localStorage.setItem(
-            `${scoreContextStoragePrefix}:${profileUrl}`,
-            JSON.stringify(context),
-          )
-        } catch {
-          // Runtime scoring still works through the in-memory context.
-        }
-      })
-      .catch(() => {
-        // Ignore non-JSON gateway responses; callers retain their existing errors.
-      })
+      window[latestScoreContextKey] = context
+      try {
+        window.localStorage.setItem(
+          `${scoreContextStoragePrefix}:${profileUrl}`,
+          JSON.stringify(context),
+        )
+      } catch {
+        // Runtime scoring still works through the in-memory context.
+      }
+    } catch {
+      // Ignore non-JSON gateway responses; callers retain their existing errors.
+    }
   }
 
   function createAbortError() {
@@ -207,8 +204,9 @@
 
     if (cached) {
       if (cached.expiresAt > now) {
-        rememberApiScore(cached.response, profileUrl)
-        return Promise.resolve(cached.response.clone())
+        return rememberApiScore(cached.response, profileUrl).then(() =>
+          cached.response.clone(),
+        )
       }
       recent.delete(key)
     }
@@ -223,8 +221,8 @@
         : init
 
     const sharedRequest = originalFetch(input, sharedInit)
-      .then((response) => {
-        rememberApiScore(response, profileUrl)
+      .then(async (response) => {
+        await rememberApiScore(response, profileUrl)
         if (response.ok) {
           const entry = {
             response: response.clone(),
