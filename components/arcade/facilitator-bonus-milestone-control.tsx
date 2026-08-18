@@ -42,7 +42,12 @@ function findLegacyBonusSection(): HTMLElement | null {
   return (
     sections.find(
       (section) =>
-        section.querySelector("h3")?.textContent?.trim() === "Bonus Milestone",
+        section.querySelector(
+          'a[href="https://forms.gle/MMfH5RKp83TfRtXj9"]',
+        ) !== null ||
+        section.querySelector(
+          'a[href="https://rsvp.withgoogle.com/events/arcade-facilitator/bonus-milestone"]',
+        ) !== null,
     ) ?? null
   )
 }
@@ -174,9 +179,9 @@ export default function FacilitatorBonusMilestoneControl({
         updateToggleLabel()
       }
 
-      const actionLink = Array.from(
-        bonusSection.querySelectorAll<HTMLAnchorElement>("a"),
-      ).find((link) => link.textContent?.includes("Read official guide"))
+      const actionLink = bonusSection.querySelector<HTMLAnchorElement>(
+        'a[href="https://rsvp.withgoogle.com/events/arcade-facilitator/bonus-milestone"]',
+      )
       const actionRow = actionLink?.parentElement
       if (actionRow) {
         actionRow.classList.add("bonus-milestone-actions-compact")
