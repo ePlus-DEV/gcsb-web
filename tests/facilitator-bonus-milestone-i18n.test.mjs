@@ -18,63 +18,75 @@ const LOCALES = [
   "hi",
 ]
 
-const REQUIRED_KEYS = [
-  "completedTitle",
-  "bonusApplied",
-  "completionSaved",
-  "confirmCompleted",
-  "openDetails",
-  "closeDetails",
-  "undo",
-  "markCompleted",
-  "viewGear",
-  "hideGear",
+const REQUIRED_SOURCES = [
+  "Bonus Milestone completed",
+  "+10 bonus applied. Open to review the completed steps.",
+  "Completion is saved. Close the details again or undo if needed.",
+  "Confirm after you finish all required steps above.",
+  "Open details",
+  "Close details",
+  "Undo",
+  "Mark completed",
+  "View 4 GEAR skill badges · {count}/4",
+  "Hide GEAR skill badges · {count}/4",
 ]
 
-const resourceUrl = new URL(
-  "../public/i18n/facilitator-bonus-milestone.json",
-  import.meta.url,
+const localeSources = Object.fromEntries(
+  await Promise.all(
+    LOCALES.map(async (locale) => {
+      const resourceUrl = new URL(
+        `../public/i18n/locales/${locale}.json`,
+        import.meta.url,
+      )
+      return [locale, JSON.parse(await readFile(resourceUrl, "utf8"))]
+    }),
+  ),
 )
-const resources = JSON.parse(await readFile(resourceUrl, "utf8"))
 
-test("Bonus Milestone translations live in a dedicated i18n resource", () => {
-  assert.deepEqual(Object.keys(resources).sort(), [...REQUIRED_KEYS].sort())
+test("i18n source keeps one file per locale with matching keys", () => {
+  const englishAdditional = localeSources.en?.additional
+  assert.equal(typeof englishAdditional, "object", "en: missing additional")
 
-  for (const key of REQUIRED_KEYS) {
-    const resource = resources[key]
-    assert.equal(typeof resource?.source, "string", `${key}: missing source`)
-    assert.ok(resource.source.length > 0, `${key}: empty source`)
-    assert.equal(
-      typeof resource?.translations,
-      "object",
-      `${key}: missing translations`,
+  const englishKeys = Object.keys(englishAdditional).sort()
+  for (const source of REQUIRED_SOURCES) {
+    assert.ok(
+      Object.hasOwn(englishAdditional, source),
+      `en: missing Bonus Milestone source ${source}`,
+    )
+  }
+
+  for (const locale of LOCALES) {
+    const additional = localeSources[locale]?.additional
+    assert.equal(typeof additional, "object", `${locale}: missing additional`)
+    assert.deepEqual(
+      Object.keys(additional).sort(),
+      englishKeys,
+      `${locale}: locale key set differs from en`,
     )
 
-    for (const locale of LOCALES) {
-      const translated = resource.translations[locale]
-      assert.equal(typeof translated, "string", `${key}: missing ${locale}`)
-      assert.ok(translated.length > 0, `${key}: empty ${locale}`)
+    for (const source of englishKeys) {
+      const translated = additional[source]
+      assert.equal(typeof translated, "string", `${locale}: missing ${source}`)
+      assert.ok(translated.length > 0, `${locale}: empty ${source}`)
 
       if (locale === "en") {
         assert.equal(
           translated,
-          resource.source,
-          `${key}: English text must match source`,
+          source,
+          `${locale}: English additional text must match source`,
         )
-      } else {
+      } else if (REQUIRED_SOURCES.includes(source)) {
         assert.notEqual(
           translated,
-          resource.source,
-          `${key}: untranslated ${locale} text`,
+          source,
+          `${locale}: untranslated Bonus Milestone text ${source}`,
         )
       }
-    }
 
-    if (resource.source.includes("{count}")) {
-      for (const locale of LOCALES) {
+      if (source.includes("{count}")) {
         assert.ok(
-          resource.translations[locale].includes("{count}"),
-          `${key}: ${locale} dropped {count}`,
+          translated.includes("{count}"),
+          `${locale}: dropped {count} from ${source}`,
         )
       }
     }
