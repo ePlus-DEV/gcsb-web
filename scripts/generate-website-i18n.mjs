@@ -12,6 +12,7 @@ import { applyPublicProfileTranslations } from "./public-profile-translations.mj
 
 const root = process.cwd()
 const sourceDir = path.join(root, "public", "i18n")
+const localeSourceDir = path.join(sourceDir, "locales")
 const outputDir = sourceDir
 const partNames = (await readdir(sourceDir))
   .filter((name) => /^catalogs\.part\.\d+\.txt$/.test(name))
@@ -32,71 +33,102 @@ const catalogs = JSON.parse(
 const catalogMessageResources = JSON.parse(
   await readFile(path.join(sourceDir, "fresh-score-check.json"), "utf8"),
 )
-const additionalTranslationResources = JSON.parse(
-  await readFile(
-    path.join(sourceDir, "facilitator-bonus-milestone.json"),
-    "utf8",
+
+const localeSources = Object.fromEntries(
+  await Promise.all(
+    Object.keys(catalogs).map(async (locale) => {
+      const filePath = path.join(localeSourceDir, `${locale}.json`)
+      const source = JSON.parse(await readFile(filePath, "utf8"))
+      return [locale, source]
+    }),
   ),
 )
 
-function applyAdditionalTranslationResources(
-  catalogs,
-  resources,
-  resourceName,
-) {
+const LOCALE_SOURCE_SECTIONS = ["messages", "additional", "dynamic"]
+
+function validateLocaleSources(catalogs, localeSources) {
   const locales = Object.keys(catalogs)
+  const englishSource = localeSources.en
 
-  for (const [key, resource] of Object.entries(resources)) {
-    const source = resource?.source
-    const translations = resource?.translations
+  if (!englishSource) {
+    throw new Error("Missing public/i18n/locales/en.json.")
+  }
 
-    if (!source || typeof source !== "string") {
-      throw new Error(`${resourceName}.${key} is missing a source string.`)
+  for (const section of LOCALE_SOURCE_SECTIONS) {
+    const englishSection = englishSource[section] ?? {}
+    const expectedKeys = Object.keys(englishSection).sort()
+
+    for (const locale of locales) {
+      const localeSource = localeSources[locale]
+      if (!localeSource) {
+        throw new Error(`Missing public/i18n/locales/${locale}.json.`)
+      }
+
+      const localeSection = localeSource[section] ?? {}
+      const localeKeys = Object.keys(localeSection).sort()
+
+      if (JSON.stringify(localeKeys) !== JSON.stringify(expectedKeys)) {
+        throw new Error(
+          `Locale source key mismatch in ${locale}.json ${section}. Expected: ${expectedKeys.join(
+            ", ",
+          )}; received: ${localeKeys.join(", ")}.`,
+        )
+      }
+
+      for (const key of expectedKeys) {
+        const value = localeSection[key]
+        if (typeof value !== "string" || !value) {
+          throw new Error(
+            `Locale source ${locale}.json ${section}.${key} must be a non-empty string.`,
+          )
+        }
+
+        if (key.includes("{count}") && !value.includes("{count}")) {
+          throw new Error(
+            `Locale source ${locale}.json ${section}.${key} dropped the {count} placeholder.`,
+          )
+        }
+      }
     }
-    if (!translations || typeof translations !== "object") {
-      throw new Error(`${resourceName}.${key} is missing translations.`)
-    }
 
-    const missingLocales = locales.filter(
-      (locale) =>
-        typeof translations[locale] !== "string" || !translations[locale],
-    )
-    if (missingLocales.length > 0) {
-      throw new Error(
-        `${resourceName}.${key} is missing locales: ${missingLocales.join(", ")}.`,
-      )
-    }
-
-    if (translations.en !== source) {
-      throw new Error(`${resourceName}.${key} English text must match source.`)
-    }
-
-    const countTemplate = source.includes("{count}")
-    if (
-      countTemplate &&
-      locales.some((locale) => !translations[locale].includes("{count}"))
-    ) {
-      throw new Error(
-        `${resourceName}.${key} must keep the {count} placeholder in every locale.`,
-      )
-    }
-
-    const counts = countTemplate ? [0, 1, 2, 3, 4] : [null]
-    for (const [locale, catalog] of Object.entries(catalogs)) {
-      catalog.additional ??= {}
-
-      for (const count of counts) {
-        const translatedSource =
-          count === null ? source : source.replaceAll("{count}", String(count))
-        const translatedTarget =
-          count === null
-            ? translations[locale]
-            : translations[locale].replaceAll("{count}", String(count))
-        catalog.additional[translatedSource] = translatedTarget
+    if (section === "additional") {
+      for (const [source, translated] of Object.entries(englishSection)) {
+        if (source !== translated) {
+          throw new Error(
+            `English additional translation must match its source text: ${source}.`,
+          )
+        }
       }
     }
   }
 }
+
+function applyLocaleSources(catalogs, localeSources) {
+  for (const [locale, catalog] of Object.entries(catalogs)) {
+    const localeSource = localeSources[locale]
+
+    for (const section of LOCALE_SOURCE_SECTIONS) {
+      const entries = Object.entries(localeSource[section] ?? {})
+      if (entries.length === 0) continue
+
+      catalog[section] ??= {}
+
+      for (const [source, translated] of entries) {
+        if (section === "additional" && source.includes("{count}")) {
+          for (let count = 0; count <= 4; count += 1) {
+            catalog.additional[source.replaceAll("{count}", String(count))] =
+              translated.replaceAll("{count}", String(count))
+          }
+          continue
+        }
+
+        catalog[section][source] = translated
+      }
+    }
+  }
+}
+
+validateLocaleSources(catalogs, localeSources)
 
 for (const [locale, catalog] of Object.entries(catalogs)) {
   const fallbackTitle = `${catalog.messages.heroTitleTop ?? "CHECK YOUR"} ${
@@ -114,11 +146,7 @@ for (const [locale, catalog] of Object.entries(catalogs)) {
 applyFacilitatorTranslations(catalogs)
 applyFacilitatorLabelTranslations(catalogs)
 applyCompleteFacilitatorTranslations(catalogs)
-applyAdditionalTranslationResources(
-  catalogs,
-  additionalTranslationResources,
-  "facilitator-bonus-milestone.json",
-)
+applyLocaleSources(catalogs, localeSources)
 applyVietnameseFacilitatorPolish(catalogs)
 applyFacilitatorRuntimeFragments(catalogs)
 applyPublicProfileTranslations(catalogs)
