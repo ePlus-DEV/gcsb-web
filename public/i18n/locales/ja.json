@@ -1,0 +1,14 @@
+{
+  "additional": {
+    "Bonus Milestone completed": "Bonus Milestone 完了",
+    "+10 bonus applied. Open to review the completed steps.": "+10 ボーナスを適用しました。開いて完了済みの手順を確認できます。",
+    "Completion is saved. Close the details again or undo if needed.": "完了状態を保存しました。詳細を閉じるか、必要に応じて元に戻せます。",
+    "Confirm after you finish all required steps above.": "上の必須手順をすべて完了した後に確認してください。",
+    "Open details": "詳細を開く",
+    "Close details": "詳細を閉じる",
+    "Undo": "元に戻す",
+    "Mark completed": "完了としてマーク",
+    "View 4 GEAR skill badges · {count}/4": "GEAR スキルバッジ 4 個を表示 · {count}/4",
+    "Hide GEAR skill badges · {count}/4": "GEAR スキルバッジを非表示 · {count}/4"
+  }
+}
