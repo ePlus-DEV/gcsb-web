@@ -1,0 +1,14 @@
+{
+  "additional": {
+    "Bonus Milestone completed": "Bonus Milestone पूरा हुआ",
+    "+10 bonus applied. Open to review the completed steps.": "+10 बोनस लागू हो गया है। पूरे किए गए चरणों की समीक्षा के लिए विवरण खोलें।",
+    "Completion is saved. Close the details again or undo if needed.": "पूर्ण होने की स्थिति सहेज ली गई है। आप विवरण फिर से बंद कर सकते हैं या आवश्यकता होने पर इसे पूर्ववत कर सकते हैं।",
+    "Confirm after you finish all required steps above.": "ऊपर दिए गए सभी जरूरी चरण पूरे करने के बाद ही पुष्टि करें।",
+    "Open details": "विवरण खोलें",
+    "Close details": "विवरण बंद करें",
+    "Undo": "पूर्ववत करें",
+    "Mark completed": "पूरा हुआ चिह्नित करें",
+    "View 4 GEAR skill badges · {count}/4": "4 GEAR स्किल बैज देखें · {count}/4",
+    "Hide GEAR skill badges · {count}/4": "GEAR स्किल बैज छिपाएँ · {count}/4"
+  }
+}
