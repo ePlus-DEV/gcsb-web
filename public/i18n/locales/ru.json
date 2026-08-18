@@ -1,0 +1,14 @@
+{
+  "additional": {
+    "Bonus Milestone completed": "Bonus Milestone завершен",
+    "+10 bonus applied. Open to review the completed steps.": "+10 бонусных баллов применено. Откройте детали, чтобы проверить выполненные шаги.",
+    "Completion is saved. Close the details again or undo if needed.": "Статус выполнения сохранен. Можно снова закрыть детали или отменить отметку при необходимости.",
+    "Confirm after you finish all required steps above.": "Подтвердите после выполнения всех обязательных шагов выше.",
+    "Open details": "Открыть детали",
+    "Close details": "Закрыть детали",
+    "Undo": "Отменить",
+    "Mark completed": "Отметить как выполненное",
+    "View 4 GEAR skill badges · {count}/4": "Показать 4 GEAR Skill Badges · {count}/4",
+    "Hide GEAR skill badges · {count}/4": "Скрыть GEAR Skill Badges · {count}/4"
+  }
+}
