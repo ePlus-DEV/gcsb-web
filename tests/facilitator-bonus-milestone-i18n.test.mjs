@@ -57,8 +57,12 @@ test("Bonus Milestone completion controls cover every website locale", () => {
     }
 
     for (let count = 0; count <= 4; count += 1) {
-      for (const verb of ["View", "Hide"]) {
-        const source = `${verb} 4 GEAR skill badges · ${count}/4`
+      const toggleSources = [
+        `View 4 GEAR skill badges · ${count}/4`,
+        `Hide GEAR skill badges · ${count}/4`,
+      ]
+
+      for (const source of toggleSources) {
         const translated = additional[source]
         assert.equal(typeof translated, "string", `${locale}: missing ${source}`)
         assert.ok(translated.length > 0, `${locale}: empty ${source}`)
