@@ -1,6 +1,6 @@
 "use client"
 
-import { Compass, Crown, Medal, ShieldCheck, Sparkles } from "lucide-react"
+import { Globe2, ShieldCheck, Sparkles, Star } from "lucide-react"
 import { createPortal } from "react-dom"
 import { useEffect, useState } from "react"
 
@@ -19,9 +19,9 @@ function getTierKey(label: string): TierKey {
 }
 
 function TierRankIcon({ tier }: { tier: TierKey }) {
-  if (tier === "legend") return <Crown aria-hidden="true" />
-  if (tier === "champion") return <Medal aria-hidden="true" />
-  if (tier === "ranger") return <Compass aria-hidden="true" />
+  if (tier === "legend") return <Sparkles aria-hidden="true" />
+  if (tier === "champion") return <Star aria-hidden="true" />
+  if (tier === "ranger") return <Globe2 aria-hidden="true" />
   if (tier === "trooper") return <ShieldCheck aria-hidden="true" />
   return <Sparkles aria-hidden="true" />
 }
