@@ -299,18 +299,20 @@ export default function ArcadeEmbedWidget() {
       firefox: buildTrackedUrl(FIREFOX_EXTENSION_URL, tracking),
     })
 
+    // Restore the profile and its confirmations, but do not auto-submit.
+    // The widget now requires an explicit Check score click so users can review
+    // the Facilitator/Bonus confirmations first and the button never starts locked.
     if (initialProfileUrl) {
       const selection = readFacilitatorSelection(initialProfileUrl)
       setProfileUrl(initialProfileUrl)
       setParticipating(selection.participating)
       setBonusMilestoneCompleted(selection.bonusMilestoneCompleted)
-      void analyzeProfile(initialProfileUrl, selection)
     }
 
     return () => {
       requestIdRef.current += 1
     }
-  }, [analyzeProfile])
+  }, [])
 
   const normalizedProfileUrl = normalizeProfileUrl(profileUrl)
   const hasValidProfileUrl = isValidProfileUrl(normalizedProfileUrl)
@@ -407,7 +409,7 @@ export default function ArcadeEmbedWidget() {
         .arcade-widget-facilitator-option b{font-size:.74rem}
         .arcade-widget-facilitator-option small{font-size:.66rem;opacity:.7}
         .arcade-widget-form>.arcade-widget-input{order:1}
-        .arcade-widget-form>button[type="submit"]{order:3}
+        .arcade-widget-form>button[type="submit"]{order:3;grid-column:1/-1;position:relative;z-index:2;pointer-events:auto}
         @keyframes arcade-widget-marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
         @media(max-width:640px){.arcade-widget-facilitator-options{grid-template-columns:1fr}}
         @media(prefers-reduced-motion:reduce){.arcade-widget-marquee{white-space:normal}.arcade-widget-marquee-track{animation:none;display:flex;flex-wrap:wrap;gap:8px 16px}}
