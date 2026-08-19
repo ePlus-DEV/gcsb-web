@@ -1,6 +1,6 @@
 "use client"
 
-import { Globe2, ShieldCheck, Sparkles, Star } from "lucide-react"
+import { Globe2, ShieldCheck, Star } from "lucide-react"
 import { createPortal } from "react-dom"
 import { useEffect, useState } from "react"
 
@@ -19,11 +19,10 @@ function getTierKey(label: string): TierKey {
 }
 
 function TierRankIcon({ tier }: { tier: TierKey }) {
-  if (tier === "legend") return <Sparkles aria-hidden="true" />
   if (tier === "champion") return <Star aria-hidden="true" />
   if (tier === "ranger") return <Globe2 aria-hidden="true" />
   if (tier === "trooper") return <ShieldCheck aria-hidden="true" />
-  return <Sparkles aria-hidden="true" />
+  return null
 }
 
 function hideOriginalIcon(target: HTMLElement): void {
@@ -73,7 +72,11 @@ export default function TierStatusIconEnhancer() {
         setTarget(nextTarget)
       }
 
-      hideOriginalIcon(nextTarget)
+      if (nextTier === "legend" || nextTier === "none") {
+        restoreOriginalIcon(nextTarget)
+      } else {
+        hideOriginalIcon(nextTarget)
+      }
 
       if (nextTarget.dataset.arcadeTierIcon !== nextTier) {
         nextTarget.dataset.arcadeTierIcon = nextTier
@@ -100,12 +103,6 @@ export default function TierStatusIconEnhancer() {
   return (
     <>
       <style>{`
-        .tier-trophy[data-arcade-tier-icon] > svg,
-        .tier-trophy[data-arcade-tier-icon] > svg[data-original-tier-trophy="true"] {
-          display: none !important;
-          visibility: hidden !important;
-        }
-
         .arcade-tier-rank-icon {
           width: 100%;
           height: 100%;
@@ -175,7 +172,7 @@ export default function TierStatusIconEnhancer() {
           box-shadow: 0 8px 20px rgba(124, 58, 237, 0.08);
         }
       `}</style>
-      {target
+      {target && tier !== "legend" && tier !== "none"
         ? createPortal(
             <span className="arcade-tier-rank-icon" aria-hidden="true">
               <TierRankIcon tier={tier} />
