@@ -8,6 +8,7 @@
   const recentTtlMs = 5_000
   const apiOrigin = "https://hub.eplus.dev"
   const apiPaths = new Set(["/api/arcade-public", "/api/arcade-widget"])
+  const bonusMilestonePrefix = "arcade-facilitator-bonus-milestone-v1"
 
   function isRequest(input) {
     return typeof Request !== "undefined" && input instanceof Request
@@ -61,6 +62,50 @@
       redirect: getEffectiveOption(input, init, "redirect", "follow"),
       referrerPolicy: getEffectiveOption(input, init, "referrerPolicy", ""),
     })
+  }
+
+  function normalizeProfileUrl(value) {
+    return typeof value === "string" ? value.trim().replace(/\/$/, "") : ""
+  }
+
+  function isSharedProfilePage() {
+    return /\/(?:profiles\/[^/]+|profile)\/?$/i.test(window.location.pathname)
+  }
+
+  function readBonusMilestoneCompleted(profileUrl) {
+    const searchParams = new URLSearchParams(window.location.search)
+    if (isSharedProfilePage()) return searchParams.get("bonus") === "1"
+
+    try {
+      return (
+        window.localStorage.getItem(`${bonusMilestonePrefix}:${profileUrl}`) ===
+        "true"
+      )
+    } catch {
+      return false
+    }
+  }
+
+  function addBonusMilestoneFlag(body) {
+    try {
+      const payload = JSON.parse(body)
+      if (!payload || typeof payload !== "object") return body
+
+      const profileUrl = normalizeProfileUrl(payload.url)
+      if (!profileUrl) return body
+
+      const facilitator =
+        payload.facilitator && typeof payload.facilitator === "object"
+          ? payload.facilitator
+          : {}
+      payload.facilitator = {
+        ...facilitator,
+        bonusMilestoneCompleted: readBonusMilestoneCompleted(profileUrl),
+      }
+      return JSON.stringify(payload)
+    } catch {
+      return body
+    }
   }
 
   function createAbortError() {
@@ -173,7 +218,9 @@
 
     if (init?.body !== undefined) {
       if (typeof init.body !== "string") return originalFetch(input, init)
-      return dedupeRequest(input, init, url, init.body, consumerSignal)
+      const body = addBonusMilestoneFlag(init.body)
+      const nextInit = body === init.body ? init : { ...init, body }
+      return dedupeRequest(input, nextInit, url, body, consumerSignal)
     }
 
     if (!isRequest(input) || input.bodyUsed) return originalFetch(input, init)
@@ -182,7 +229,14 @@
       .clone()
       .text()
       .then(
-        (body) => dedupeRequest(input, init, url, body, consumerSignal),
+        (rawBody) => {
+          const body = addBonusMilestoneFlag(rawBody)
+          if (body === rawBody) {
+            return dedupeRequest(input, init, url, body, consumerSignal)
+          }
+          const request = new Request(input, { body })
+          return dedupeRequest(request, init, url, body, consumerSignal)
+        },
         () => originalFetch(input, init),
       )
   }

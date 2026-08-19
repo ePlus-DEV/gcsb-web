@@ -50,6 +50,30 @@ test("manual website score checks request a forced refresh", () => {
   assert.match(enhancer, /url\.pathname\.startsWith\("\/api\/arcade"\)/)
 })
 
+test("fresh-check cooldown matches the API and blocks rapid repeat submits", () => {
+  assert.match(enhancer, /MIN_REPEAT_DELAY_SECONDS = 60/)
+  assert.match(enhancer, /DEFAULT_RATE_LIMIT_SECONDS = 60/)
+  assert.match(enhancer, /COOLDOWN_STORAGE_KEY/)
+  assert.match(enhancer, /window\.sessionStorage\.setItem\(COOLDOWN_STORAGE_KEY/)
+  assert.match(enhancer, /response\.status === 429/)
+  assert.match(enhancer, /response\.headers\.get\("retry-after"\)/)
+  assert.match(enhancer, /freshScoreLabel = `Try again in \$\{cooldownSeconds\}s`/)
+  assert.match(enhancer, /pointer-events: none/)
+  assert.match(enhancer, /event\.stopImmediatePropagation\(\)/)
+  assert.match(enhancer, /document\.addEventListener\("submit", onSubmit, true\)/)
+  assert.match(enhancer, /data-fresh-score-rate-limited/)
+  assert.match(enhancer, /\.analyzer-error/)
+
+  // The enhancer must not fight React by mutating the native disabled property.
+  assert.doesNotMatch(enhancer, /button\.disabled\s*=/)
+
+  // Countdown lives only inside the Analyze button, not as a second red message.
+  assert.doesNotMatch(
+    enhancer,
+    /Fresh score check available in \{cooldownSeconds\}s\./,
+  )
+})
+
 test("fresh score note translations live in each locale catalog", () => {
   const noteTranslations = Object.fromEntries(
     LOCALES.map((locale) => [
@@ -93,7 +117,7 @@ test("locale changes hide stale fresh score notes until the new catalog loads", 
   assert.notEqual(clearNote, -1)
   assert.notEqual(loadCatalog, -1)
   assert.ok(clearNote < loadCatalog)
-  assert.match(enhancer, /if \(!noteTarget \|\| !note\) return null/)
+  assert.match(enhancer, /noteTarget && note/)
 })
 
 test("the fresh check enhancer is mounted on default and localized calculator pages", () => {

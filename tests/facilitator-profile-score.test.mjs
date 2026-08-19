@@ -57,12 +57,12 @@ test("missing either requirement grants no partial milestone bonus", () => {
   assert.equal(facilitator.getFacilitatorMilestoneBonus({ games: 99, skills: 17 }), 0)
 })
 
-test("Bonus Milestone remains a separate +10 and is not part of standard milestone lookup", () => {
+test("Bonus Milestone stays separate from standard milestone lookup", () => {
   assert.equal(facilitator.FACILITATOR_BONUS_MILESTONE_POINTS, 10)
   assert.equal(facilitator.getFacilitatorMilestoneBonus({ games: 6, skills: 18 }), 5)
 })
 
-test("checked Bonus Milestone adds +10 on top of the standard Facilitator bonus", () => {
+test("legacy API responses keep the current +10 compatibility fallback", () => {
   assert.deepEqual(
     facilitator.getFacilitatorAdjustedPoints(
       75,
@@ -72,14 +72,84 @@ test("checked Bonus Milestone adds +10 on top of the standard Facilitator bonus"
     ),
     { basePoints: 75, bonus: 15, totalPoints: 90 },
   )
-  assert.deepEqual(
-    facilitator.getFacilitatorAdjustedPoints(
-      75,
-      { games: 12, skills: 66 },
-      true,
-      true,
-    ),
-    { basePoints: 75, bonus: 45, totalPoints: 120 },
+})
+
+function withDashboardResult(result, callback) {
+  const previousWindow = globalThis.window
+  const profileUrl =
+    "https://www.skills.google/public_profiles/11111111-1111-4111-8111-111111111111"
+  const dashboard = JSON.stringify({ profileUrl, result })
+
+  globalThis.window = {
+    location: { search: "", pathname: "/" },
+    localStorage: {
+      getItem(key) {
+        if (key === "eplus-arcade-dashboard-v1") return dashboard
+        if (key === `arcade-facilitator-bonus-milestone-v1:${profileUrl}`) {
+          return "true"
+        }
+        return null
+      },
+    },
+  }
+
+  try {
+    callback()
+  } finally {
+    if (previousWindow === undefined) delete globalThis.window
+    else globalThis.window = previousWindow
+  }
+}
+
+test("API metadata owns the applied Bonus Milestone amount", () => {
+  withDashboardResult(
+    {
+      beta: {
+        facilitator: {
+          bonusMilestoneEnabled: true,
+          bonusMilestoneAvailablePoints: 12,
+          bonusMilestoneCompleted: true,
+          bonusMilestonePoints: 12,
+        },
+      },
+    },
+    () => {
+      assert.deepEqual(
+        facilitator.getFacilitatorAdjustedPoints(
+          75,
+          { games: 6, skills: 18 },
+          true,
+          true,
+        ),
+        { basePoints: 75, bonus: 17, totalPoints: 92 },
+      )
+    },
+  )
+})
+
+test("API can disable Bonus Milestone for a later season without a client release", () => {
+  withDashboardResult(
+    {
+      beta: {
+        facilitator: {
+          bonusMilestoneEnabled: false,
+          bonusMilestoneAvailablePoints: 0,
+          bonusMilestoneCompleted: true,
+          bonusMilestonePoints: 0,
+        },
+      },
+    },
+    () => {
+      assert.deepEqual(
+        facilitator.getFacilitatorAdjustedPoints(
+          75,
+          { games: 6, skills: 18 },
+          true,
+          true,
+        ),
+        { basePoints: 75, bonus: 5, totalPoints: 80 },
+      )
+    },
   )
 })
 
