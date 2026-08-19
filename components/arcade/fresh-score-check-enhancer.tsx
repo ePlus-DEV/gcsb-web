@@ -13,7 +13,7 @@ const MANUAL_INTENT_TTL_MS = 5_000
 const FRESH_SCORE_MESSAGE_KEY = "freshScoreCacheNote"
 const COOLDOWN_STORAGE_KEY = "arcade:fresh-score-cooldown-until"
 const DEFAULT_RATE_LIMIT_SECONDS = 60
-const MIN_REPEAT_DELAY_SECONDS = 5
+const MIN_REPEAT_DELAY_SECONDS = 60
 
 function requestUrl(input: RequestInfo | URL): string {
   if (typeof input === "string") return input
@@ -250,6 +250,7 @@ export default function FreshScoreCheckEnhancer() {
       if (retrySeconds !== null) {
         beginCooldown(retrySeconds, true)
       } else if (response.ok) {
+        // The API accepts only one forced refresh per profile/IP every 60 seconds.
         beginCooldown(MIN_REPEAT_DELAY_SECONDS)
       }
 
