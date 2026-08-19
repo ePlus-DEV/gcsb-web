@@ -77,8 +77,11 @@ export default function TierStatusIconEnhancer() {
   return (
     <>
       <style>{`
+        /* The calculator already renders a generic Trophy SVG. Hide it completely
+           before mounting the tier-specific icon so the badge never shows two icons. */
         .tier-trophy[data-arcade-tier-icon] > svg {
-          display: none;
+          display: none !important;
+          visibility: hidden !important;
         }
 
         .arcade-tier-rank-icon {
