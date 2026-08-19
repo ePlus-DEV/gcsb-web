@@ -253,9 +253,12 @@ export default function FreshScoreCheckEnhancer() {
       const controlledByCooldown = button.dataset.freshScoreCooldown === "true"
       if (cooldownActive) {
         button.dataset.freshScoreCooldown = "true"
-        button.disabled = true
-        button.setAttribute("aria-disabled", "true")
-        button.title = `Try again in ${cooldownSeconds}s`
+        if (!button.disabled) button.disabled = true
+        if (button.getAttribute("aria-disabled") !== "true") {
+          button.setAttribute("aria-disabled", "true")
+        }
+        const title = `Try again in ${cooldownSeconds}s`
+        if (button.title !== title) button.title = title
       } else if (controlledByCooldown) {
         delete button.dataset.freshScoreCooldown
         button.disabled = false
@@ -265,15 +268,23 @@ export default function FreshScoreCheckEnhancer() {
     }
 
     syncButton()
+
+    // React toggles `disabled` while the request transitions out of loading.
+    // Do not observe the disabled attribute itself: writing it from inside an
+    // attribute observer creates a mutation loop that can starve React and
+    // leave the button stuck on "Analyzing...". Child-list observation plus
+    // a short sync timer keeps the visual disabled state aligned safely.
     const observer = new MutationObserver(syncButton)
     observer.observe(document.body, {
       childList: true,
       subtree: true,
-      attributes: true,
-      attributeFilter: ["disabled"],
     })
+    const timer = window.setInterval(syncButton, 250)
 
-    return () => observer.disconnect()
+    return () => {
+      observer.disconnect()
+      window.clearInterval(timer)
+    }
   }, [cooldownSeconds])
 
   useEffect(() => {
