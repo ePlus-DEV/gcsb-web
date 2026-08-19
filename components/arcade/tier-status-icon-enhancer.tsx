@@ -26,6 +26,24 @@ function TierRankIcon({ tier }: { tier: TierKey }) {
   return <Sparkles aria-hidden="true" />
 }
 
+function hideOriginalIcon(target: HTMLElement): void {
+  target.querySelectorAll<SVGElement>(":scope > svg").forEach((icon) => {
+    icon.dataset.originalTierTrophy = "true"
+    icon.style.setProperty("display", "none", "important")
+    icon.style.setProperty("visibility", "hidden", "important")
+  })
+}
+
+function restoreOriginalIcon(target: HTMLElement | null): void {
+  target
+    ?.querySelectorAll<SVGElement>('svg[data-original-tier-trophy="true"]')
+    .forEach((icon) => {
+      icon.style.removeProperty("display")
+      icon.style.removeProperty("visibility")
+      delete icon.dataset.originalTierTrophy
+    })
+}
+
 export default function TierStatusIconEnhancer() {
   const [target, setTarget] = useState<HTMLElement | null>(null)
   const [tier, setTier] = useState<TierKey>("none")
@@ -38,6 +56,7 @@ export default function TierStatusIconEnhancer() {
       const title = document.querySelector<HTMLElement>(TIER_TITLE_SELECTOR)
 
       if (!nextTarget || !title) {
+        restoreOriginalIcon(currentTarget)
         currentTarget?.removeAttribute("data-arcade-tier-icon")
         currentTarget = null
         setTarget(null)
@@ -48,10 +67,13 @@ export default function TierStatusIconEnhancer() {
       const nextTier = getTierKey(title.textContent ?? "")
 
       if (currentTarget !== nextTarget) {
+        restoreOriginalIcon(currentTarget)
         currentTarget?.removeAttribute("data-arcade-tier-icon")
         currentTarget = nextTarget
         setTarget(nextTarget)
       }
+
+      hideOriginalIcon(nextTarget)
 
       if (nextTarget.dataset.arcadeTierIcon !== nextTier) {
         nextTarget.dataset.arcadeTierIcon = nextTier
@@ -70,6 +92,7 @@ export default function TierStatusIconEnhancer() {
 
     return () => {
       observer.disconnect()
+      restoreOriginalIcon(currentTarget)
       currentTarget?.removeAttribute("data-arcade-tier-icon")
     }
   }, [])
@@ -77,9 +100,8 @@ export default function TierStatusIconEnhancer() {
   return (
     <>
       <style>{`
-        /* The calculator already renders a generic Trophy SVG. Hide it completely
-           before mounting the tier-specific icon so the badge never shows two icons. */
-        .tier-trophy[data-arcade-tier-icon] > svg {
+        .tier-trophy[data-arcade-tier-icon] > svg,
+        .tier-trophy[data-arcade-tier-icon] > svg[data-original-tier-trophy="true"] {
           display: none !important;
           visibility: hidden !important;
         }
