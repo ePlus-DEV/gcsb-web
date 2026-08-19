@@ -91,13 +91,20 @@
       const payload = JSON.parse(body)
       if (!payload || typeof payload !== "object") return body
 
-      const profileUrl = normalizeProfileUrl(payload.url)
-      if (!profileUrl) return body
-
       const facilitator =
         payload.facilitator && typeof payload.facilitator === "object"
           ? payload.facilitator
           : {}
+
+      // Widget requests now send the user's explicit confirmation directly.
+      // Do not overwrite that boolean with localStorage or shared-page fallbacks.
+      if (typeof facilitator.bonusMilestoneCompleted === "boolean") {
+        return body
+      }
+
+      const profileUrl = normalizeProfileUrl(payload.url)
+      if (!profileUrl) return body
+
       payload.facilitator = {
         ...facilitator,
         bonusMilestoneCompleted: readBonusMilestoneCompleted(profileUrl),
