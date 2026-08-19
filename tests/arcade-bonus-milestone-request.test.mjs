@@ -5,7 +5,14 @@ import test from "node:test"
 import vm from "node:vm"
 
 const scriptPath = path.join(process.cwd(), "scripts", "arcade-request-dedupe.js")
+const widgetComponentPath = path.join(
+  process.cwd(),
+  "components",
+  "arcade",
+  "arcade-embed-widget.tsx",
+)
 const script = await readFile(scriptPath, "utf8")
+const widgetComponent = await readFile(widgetComponentPath, "utf8")
 const endpoint = "https://hub.eplus.dev/api/arcade-public"
 const profileUrl =
   "https://www.skills.google/public_profiles/11111111-1111-4111-8111-111111111111"
@@ -51,15 +58,18 @@ function install({ pathname = "/", search = "", completed = false } = {}) {
   }
 }
 
-async function submit(browserWindow) {
+async function submit(
+  browserWindow,
+  body = { url: profileUrl, season: "2026" },
+) {
   await browserWindow.fetch(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ url: profileUrl, season: "2026" }),
+    body: JSON.stringify(body),
   })
 }
 
-test("web/widget send only the self-reported Bonus Milestone flag", async () => {
+test("web requests still receive the stored self-reported Bonus Milestone flag", async () => {
   const { browserWindow, getSubmittedBody, restore } = install({ completed: true })
 
   try {
@@ -68,6 +78,23 @@ test("web/widget send only the self-reported Bonus Milestone flag", async () => 
       bonusMilestoneCompleted: true,
     })
     assert.equal("participating" in getSubmittedBody().facilitator, false)
+  } finally {
+    restore()
+  }
+})
+
+test("explicit widget bonus confirmation is never overwritten by local storage", async () => {
+  const { browserWindow, getSubmittedBody, restore } = install({ completed: true })
+
+  try {
+    await submit(browserWindow, {
+      url: profileUrl,
+      season: "2026",
+      facilitator: { bonusMilestoneCompleted: false },
+    })
+    assert.deepEqual(getSubmittedBody().facilitator, {
+      bonusMilestoneCompleted: false,
+    })
   } finally {
     restore()
   }
@@ -86,4 +113,25 @@ test("shared profiles use the explicit bonus query flag instead of local storage
   } finally {
     restore()
   }
+})
+
+test("widget requires Facilitator participation and explicit Bonus Milestone confirmation", () => {
+  assert.match(widgetComponent, /Participating in Facilitator Program/)
+  assert.match(widgetComponent, /Bonus Milestone completed/)
+  assert.match(
+    widgetComponent,
+    /selection\.participating && selection\.bonusMilestoneCompleted/,
+  )
+  assert.match(
+    widgetComponent,
+    /const confirmedBonusMilestone = participating && bonusMilestoneCompleted/,
+  )
+  assert.match(
+    widgetComponent,
+    /disabled={!hasValidProfileUrl \|\| !participating \|\| loading}/,
+  )
+  assert.match(
+    widgetComponent,
+    /participating,\s*confirmedBonusMilestone,/,
+  )
 })
