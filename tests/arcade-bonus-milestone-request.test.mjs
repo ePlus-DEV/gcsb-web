@@ -136,14 +136,14 @@ test("widget requires Facilitator participation and explicit Bonus Milestone con
   )
 })
 
-test("widget restores saved state without auto-submitting the score request", () => {
+test("widget performs an initial check and keeps an explicit clickable score action", () => {
   assert.match(widgetComponent, /setProfileUrl\(initialProfileUrl\)/)
-  assert.doesNotMatch(
+  assert.match(
     widgetComponent,
     /void analyzeProfile\(initialProfileUrl, selection\)/,
   )
-  assert.match(
-    widgetComponent,
-    /button\s+type="submit"\s+disabled={loading}/,
-  )
+  assert.match(widgetComponent, /async function checkScore\(\)/)
+  assert.match(widgetComponent, /onClick=\{\(event\) => \{/)
+  assert.match(widgetComponent, /void checkScore\(\)/)
+  assert.match(widgetComponent, /event\.key !== "Enter"/)
 })
