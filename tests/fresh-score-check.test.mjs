@@ -50,6 +50,17 @@ test("manual website score checks request a forced refresh", () => {
   assert.match(enhancer, /url\.pathname\.startsWith\("\/api\/arcade"\)/)
 })
 
+test("rate-limited fresh checks show a persistent countdown and block resubmission", () => {
+  assert.match(enhancer, /COOLDOWN_STORAGE_KEY/)
+  assert.match(enhancer, /window\.sessionStorage\.setItem\(COOLDOWN_STORAGE_KEY/)
+  assert.match(enhancer, /response\.status === 429/)
+  assert.match(enhancer, /response\.headers\.get\("retry-after"\)/)
+  assert.match(enhancer, /button\.disabled = true/)
+  assert.match(enhancer, /event\.stopImmediatePropagation\(\)/)
+  assert.match(enhancer, /document\.addEventListener\("submit", onSubmit, true\)/)
+  assert.match(enhancer, /Fresh score check available in \{cooldownSeconds\}s\./)
+})
+
 test("fresh score note translations live in each locale catalog", () => {
   const noteTranslations = Object.fromEntries(
     LOCALES.map((locale) => [
@@ -93,7 +104,10 @@ test("locale changes hide stale fresh score notes until the new catalog loads", 
   assert.notEqual(clearNote, -1)
   assert.notEqual(loadCatalog, -1)
   assert.ok(clearNote < loadCatalog)
-  assert.match(enhancer, /if \(!noteTarget \|\| !note\) return null/)
+  assert.match(
+    enhancer,
+    /if \(!noteTarget \|\| \(!note && cooldownSeconds <= 0\)\) return null/,
+  )
 })
 
 test("the fresh check enhancer is mounted on default and localized calculator pages", () => {
