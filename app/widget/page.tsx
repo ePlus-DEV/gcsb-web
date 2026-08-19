@@ -5,6 +5,7 @@ import "./widget.css"
 import "./widget-theme.css"
 import "./widget-default-light.css"
 import "./widget-controls.css"
+import "./widget-facilitator-compact.css"
 
 export const metadata: Metadata = {
   title: "Arcade Points Widget",
