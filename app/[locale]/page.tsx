@@ -8,6 +8,7 @@ import FacilitatorPanelGate from "@/components/arcade/facilitator-panel-gate"
 import FreshScoreCheckEnhancer from "@/components/arcade/fresh-score-check-enhancer"
 import MonthlyGamesPanelGate from "@/components/arcade/monthly-games-panel-gate"
 import ShareProfileEnhancer from "@/components/arcade/share-profile-enhancer"
+import TierStatusIconEnhancer from "@/components/arcade/tier-status-icon-enhancer"
 import ArcadeRouteLinks from "@/components/app/arcade-route-links"
 import SeoContent from "@/components/seo/seo-content"
 import {
@@ -83,6 +84,7 @@ export default async function LocalizedPage({ params }: LocalizedPageProps) {
       <section className="sr-only" lang={localeInfo.htmlLang}><h1>{title}</h1><p>{description}</p></section>
       <RedesignCalculator />
       <FreshScoreCheckEnhancer />
+      <TierStatusIconEnhancer />
       <MonthlyGamesPanelGate />
       <ShareProfileEnhancer />
       <FacilitatorAnalyzerOption />
