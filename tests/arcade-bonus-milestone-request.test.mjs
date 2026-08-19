@@ -135,3 +135,15 @@ test("widget requires Facilitator participation and explicit Bonus Milestone con
     /participating,\s*confirmedBonusMilestone,/,
   )
 })
+
+test("widget restores saved state without auto-submitting the score request", () => {
+  assert.match(widgetComponent, /setProfileUrl\(initialProfileUrl\)/)
+  assert.doesNotMatch(
+    widgetComponent,
+    /void analyzeProfile\(initialProfileUrl, selection\)/,
+  )
+  assert.match(
+    widgetComponent,
+    /button\s+type="submit"\s+disabled={loading}/,
+  )
+})
