@@ -9,7 +9,6 @@ import {
   Sparkles,
   Trophy,
 } from "lucide-react"
-import type { FormEvent } from "react"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { getFacilitatorAdjustedPoints } from "@/components/arcade/facilitator-points"
 import {
@@ -292,6 +291,7 @@ export default function ArcadeEmbedWidget() {
       ? requestedProfileUrl
       : readStoredProfileUrl()
     const tracking = getWidgetTracking(params)
+    let initialCheckTimer: number | undefined
 
     setTrackedUrls({
       dashboard: buildTrackedUrl(DEFAULT_DASHBOARD_URL, tracking),
@@ -299,20 +299,24 @@ export default function ArcadeEmbedWidget() {
       firefox: buildTrackedUrl(FIREFOX_EXTENSION_URL, tracking),
     })
 
-    // Restore the profile and its confirmations, but do not auto-submit.
-    // The widget now requires an explicit Check score click so users can review
-    // the Facilitator/Bonus confirmations first and the button never starts locked.
     if (initialProfileUrl) {
       const selection = readFacilitatorSelection(initialProfileUrl)
       setProfileUrl(initialProfileUrl)
       setParticipating(selection.participating)
       setBonusMilestoneCompleted(selection.bonusMilestoneCompleted)
+
+      // Run the initial score check after restoring the controls so the widget
+      // visibly enters its loading state instead of looking unresponsive.
+      initialCheckTimer = window.setTimeout(() => {
+        void analyzeProfile(initialProfileUrl, selection)
+      }, 0)
     }
 
     return () => {
+      if (initialCheckTimer !== undefined) window.clearTimeout(initialCheckTimer)
       requestIdRef.current += 1
     }
-  }, [])
+  }, [analyzeProfile])
 
   const normalizedProfileUrl = normalizeProfileUrl(profileUrl)
   const hasValidProfileUrl = isValidProfileUrl(normalizedProfileUrl)
@@ -367,8 +371,9 @@ export default function ArcadeEmbedWidget() {
     writeBonusMilestoneCompleted(normalizedProfileUrl, nextCompleted)
   }
 
-  async function checkScore(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
+  async function checkScore() {
+    if (loading) return
+
     const normalized = normalizeProfileUrl(profileUrl)
 
     if (!isValidProfileUrl(normalized)) {
@@ -436,7 +441,14 @@ export default function ArcadeEmbedWidget() {
               <p>Paste your public Google Skills profile URL to see your latest points and tier.</p>
             </div>
 
-            <form className="arcade-widget-form" onSubmit={checkScore} noValidate>
+            <form
+              className="arcade-widget-form"
+              onSubmit={(event) => {
+                event.preventDefault()
+                void checkScore()
+              }}
+              noValidate
+            >
               <label className={error ? "arcade-widget-input has-error" : "arcade-widget-input"}>
                 <Search aria-hidden="true" />
                 <input
@@ -445,6 +457,11 @@ export default function ArcadeEmbedWidget() {
                   autoComplete="url"
                   value={profileUrl}
                   onChange={(event) => updateProfileUrl(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key !== "Enter") return
+                    event.preventDefault()
+                    void checkScore()
+                  }}
                   placeholder="https://www.skills.google/public_profiles/..."
                   aria-label="Google Skills public profile URL"
                 />
@@ -490,7 +507,14 @@ export default function ArcadeEmbedWidget() {
                 </label>
               </div>
 
-              <button type="submit" disabled={loading}>
+              <button
+                type="submit"
+                disabled={loading}
+                onClick={(event) => {
+                  event.preventDefault()
+                  void checkScore()
+                }}
+              >
                 {loading ? <LoaderCircle className="spin" /> : <Trophy />}
                 <span>{loading ? "Refreshing score..." : "Check score"}</span>
               </button>
