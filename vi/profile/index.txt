@@ -1,0 +1,276 @@
+1:"$Sreact.fragment"
+3:I[9304,["874","static/chunks/874-6636e32d520a8252.js","542","static/chunks/542-82a3c650e9661c31.js","177","static/chunks/app/layout-7fa5b2e391e4af16.js"],"ThemeProvider"]
+4:I[8180,["874","static/chunks/874-6636e32d520a8252.js","542","static/chunks/542-82a3c650e9661c31.js","177","static/chunks/app/layout-7fa5b2e391e4af16.js"],"default"]
+5:I[7971,["874","static/chunks/874-6636e32d520a8252.js","542","static/chunks/542-82a3c650e9661c31.js","177","static/chunks/app/layout-7fa5b2e391e4af16.js"],"default"]
+6:I[7555,[],""]
+7:I[1295,[],""]
+8:I[6195,["874","static/chunks/874-6636e32d520a8252.js","345","static/chunks/app/not-found-031bce0d030cfd03.js"],"default"]
+9:I[7098,["874","static/chunks/874-6636e32d520a8252.js","542","static/chunks/542-82a3c650e9661c31.js","177","static/chunks/app/layout-7fa5b2e391e4af16.js"],"default"]
+c:I[9665,[],"OutletBoundary"]
+f:I[9665,[],"ViewportBoundary"]
+11:I[9665,[],"MetadataBoundary"]
+13:I[6614,[],""]
+:HL["/_next/static/css/83cb28a0ee905a41.css","style"]
+:HL["/_next/static/css/904bcc9e11358cf2.css","style"]
+:HL["/_next/static/css/02609a05af0aff42.css","style"]
+2:T1d69,(() => {
+  const installFlag = "__eplusArcadeRequestDeduperInstalled"
+  if (window[installFlag]) return
+
+  const originalFetch = window.fetch.bind(window)
+  const inFlight = new Map()
+  const recent = new Map()
+  const recentTtlMs = 5_000
+  const apiOrigin = "https://hub.eplus.dev"
+  const apiPaths = new Set(["/api/arcade-public", "/api/arcade-widget"])
+  const bonusMilestonePrefix = "arcade-facilitator-bonus-milestone-v1"
+
+  function isRequest(input) {
+    return typeof Request !== "undefined" && input instanceof Request
+  }
+
+  function getRequestUrl(input) {
+    if (typeof input === "string") return input
+    if (input instanceof URL) return input.toString()
+    if (isRequest(input)) return input.url
+    return ""
+  }
+
+  function getRequestMethod(input, init) {
+    if (init?.method) return String(init.method).toUpperCase()
+    if (isRequest(input)) return input.method.toUpperCase()
+    return "GET"
+  }
+
+  function getConsumerSignal(input, init) {
+    if (init?.signal !== undefined) return init.signal
+    if (isRequest(input)) return input.signal
+    return null
+  }
+
+  function getEffectiveHeaders(input, init) {
+    if (typeof Headers === "undefined") return []
+    const headers =
+      init?.headers !== undefined
+        ? new Headers(init.headers)
+        : isRequest(input)
+          ? new Headers(input.headers)
+          : new Headers()
+
+    return [...headers.entries()].sort(([left], [right]) => left.localeCompare(right))
+  }
+
+  function getEffectiveOption(input, init, name, fallback) {
+    if (init?.[name] !== undefined) return init[name]
+    if (isRequest(input) && input[name] !== undefined) return input[name]
+    return fallback
+  }
+
+  function getRequestKey(url, input, init, body) {
+    return JSON.stringify({
+      url: `${url.origin}${url.pathname}${url.search}`,
+      body,
+      headers: getEffectiveHeaders(input, init),
+      credentials: getEffectiveOption(input, init, "credentials", "same-origin"),
+      mode: getEffectiveOption(input, init, "mode", "cors"),
+      cache: getEffectiveOption(input, init, "cache", "default"),
+      redirect: getEffectiveOption(input, init, "redirect", "follow"),
+      referrerPolicy: getEffectiveOption(input, init, "referrerPolicy", ""),
+    })
+  }
+
+  function normalizeProfileUrl(value) {
+    return typeof value === "string" ? value.trim().replace(/\/$/, "") : ""
+  }
+
+  function isSharedProfilePage() {
+    return /\/(?:profiles\/[^/]+|profile)\/?$/i.test(window.location.pathname)
+  }
+
+  function readBonusMilestoneCompleted(profileUrl) {
+    const searchParams = new URLSearchParams(window.location.search)
+    if (isSharedProfilePage()) return searchParams.get("bonus") === "1"
+
+    try {
+      return (
+        window.localStorage.getItem(`${bonusMilestonePrefix}:${profileUrl}`) ===
+        "true"
+      )
+    } catch {
+      return false
+    }
+  }
+
+  function addBonusMilestoneFlag(body) {
+    try {
+      const payload = JSON.parse(body)
+      if (!payload || typeof payload !== "object") return body
+
+      const facilitator =
+        payload.facilitator && typeof payload.facilitator === "object"
+          ? payload.facilitator
+          : {}
+
+      // Widget requests now send the user's explicit confirmation directly.
+      // Do not overwrite that boolean with localStorage or shared-page fallbacks.
+      if (typeof facilitator.bonusMilestoneCompleted === "boolean") {
+        return body
+      }
+
+      const profileUrl = normalizeProfileUrl(payload.url)
+      if (!profileUrl) return body
+
+      payload.facilitator = {
+        ...facilitator,
+        bonusMilestoneCompleted: readBonusMilestoneCompleted(profileUrl),
+      }
+      return JSON.stringify(payload)
+    } catch {
+      return body
+    }
+  }
+
+  function createAbortError() {
+    try {
+      return new DOMException("The operation was aborted.", "AbortError")
+    } catch {
+      const error = new Error("The operation was aborted.")
+      error.name = "AbortError"
+      return error
+    }
+  }
+
+  function responseForConsumer(sharedRequest, signal) {
+    if (!signal) return sharedRequest.then((response) => response.clone())
+    if (signal.aborted) return Promise.reject(createAbortError())
+
+    return new Promise((resolve, reject) => {
+      let settled = false
+
+      const cleanup = () => signal.removeEventListener("abort", onAbort)
+      const onAbort = () => {
+        if (settled) return
+        settled = true
+        cleanup()
+        reject(createAbortError())
+      }
+
+      signal.addEventListener("abort", onAbort, { once: true })
+      sharedRequest.then(
+        (response) => {
+          if (settled) return
+          settled = true
+          cleanup()
+          resolve(response.clone())
+        },
+        (error) => {
+          if (settled) return
+          settled = true
+          cleanup()
+          reject(error)
+        },
+      )
+    })
+  }
+
+  function dedupeRequest(input, init, url, body, consumerSignal) {
+    if (consumerSignal?.aborted) return Promise.reject(createAbortError())
+
+    const key = getRequestKey(url, input, init, body)
+    const now = Date.now()
+    const cached = recent.get(key)
+
+    if (cached) {
+      if (cached.expiresAt > now) {
+        return Promise.resolve(cached.response.clone())
+      }
+      recent.delete(key)
+    }
+
+    const existing = inFlight.get(key)
+    if (existing) return responseForConsumer(existing, consumerSignal)
+
+    const sharedInit = isRequest(input)
+      ? { ...(init ?? {}), signal: null }
+      : init && "signal" in init
+        ? { ...init, signal: null }
+        : init
+
+    const sharedRequest = originalFetch(input, sharedInit)
+      .then((response) => {
+        if (response.ok) {
+          const entry = {
+            response: response.clone(),
+            expiresAt: Date.now() + recentTtlMs,
+          }
+          recent.set(key, entry)
+          window.setTimeout(() => {
+            if (recent.get(key) === entry) recent.delete(key)
+          }, recentTtlMs)
+        }
+        return response
+      })
+      .finally(() => {
+        if (inFlight.get(key) === sharedRequest) inFlight.delete(key)
+      })
+
+    inFlight.set(key, sharedRequest)
+    return responseForConsumer(sharedRequest, consumerSignal)
+  }
+
+  window.fetch = (input, init) => {
+    const rawUrl = getRequestUrl(input)
+    let url
+
+    try {
+      url = new URL(rawUrl, window.location?.href ?? "https://arcade.eplus.dev/")
+    } catch {
+      return originalFetch(input, init)
+    }
+
+    if (
+      getRequestMethod(input, init) !== "POST" ||
+      url.origin !== apiOrigin ||
+      !apiPaths.has(url.pathname)
+    ) {
+      return originalFetch(input, init)
+    }
+
+    const consumerSignal = getConsumerSignal(input, init)
+
+    if (init?.body !== undefined) {
+      if (typeof init.body !== "string") return originalFetch(input, init)
+      const body = addBonusMilestoneFlag(init.body)
+      const nextInit = body === init.body ? init : { ...init, body }
+      return dedupeRequest(input, nextInit, url, body, consumerSignal)
+    }
+
+    if (!isRequest(input) || input.bodyUsed) return originalFetch(input, init)
+
+    return input
+      .clone()
+      .text()
+      .then(
+        (rawBody) => {
+          const body = addBonusMilestoneFlag(rawBody)
+          if (body === rawBody) {
+            return dedupeRequest(input, init, url, body, consumerSignal)
+          }
+          const request = new Request(input, { body })
+          return dedupeRequest(request, init, url, body, consumerSignal)
+        },
+        () => originalFetch(input, init),
+      )
+  }
+
+  window[installFlag] = true
+})()
+0:{"P":null,"b":"i4EmhYAIPP4UlrMQTx8zP","p":"","c":["","vi","profile",""],"i":false,"f":[[["",{"children":[["locale","vi","d"],{"children":["profile",{"children":["__PAGE__",{}]}]}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/83cb28a0ee905a41.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}],["$","link","1",{"rel":"stylesheet","href":"/_next/static/css/904bcc9e11358cf2.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"en","dir":"ltr","data-locale":"en","suppressHydrationWarning":true,"children":[["$","head",null,{"children":[["$","script",null,{"id":"arcade-request-dedupe","dangerouslySetInnerHTML":{"__html":"$2"}}],["$","script",null,{"id":"website-catalog-cache-buster","dangerouslySetInnerHTML":{"__html":"(() => {\n  const version = \"a8353dc888dc805c1e7e9b8fd4c4801377f8c5ff\";\n  const originalFetch = window.fetch.bind(window);\n\n  window.fetch = (input, init) => {\n    const rawUrl =\n      typeof input === \"string\"\n        ? input\n        : input instanceof URL\n          ? input.toString()\n          : input instanceof Request\n            ? input.url\n            : \"\";\n\n    let url;\n    try {\n      url = new URL(rawUrl, window.location.href);\n    } catch {\n      return originalFetch(input, init);\n    }\n\n    if (!url.pathname.includes(\"/i18n/\") || !url.pathname.endsWith(\".json\")) {\n      return originalFetch(input, init);\n    }\n\n    url.searchParams.set(\"v\", version);\n    return originalFetch(url.toString(), { ...init, cache: \"no-store\" });\n  };\n})();"}}],["$","link",null,{"rel":"preconnect","href":"https://fonts.googleapis.com"}],["$","link",null,{"rel":"preconnect","href":"https://fonts.gstatic.com","crossOrigin":"anonymous"}],["$","link",null,{"rel":"preconnect","href":"https://cdnjs.cloudflare.com"}],["$","link",null,{"rel":"stylesheet","href":"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Press+Start+2P&display=swap"}],["$","link",null,{"rel":"stylesheet","href":"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css","integrity":"sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==","crossOrigin":"anonymous","referrerPolicy":"no-referrer"}],null,[["$","meta",null,{"name":"google-analytics-id","content":"G-SJNYKL2864"}],["$","meta",null,{"name":"analytics-mode","content":"always-enabled"}],["$","meta",null,{"name":"cookie-notice-storage","content":"arcade-cookie-notice-v1"}],["$","script",null,{"id":"google-analytics-bootstrap","dangerouslySetInnerHTML":{"__html":"(() => {\n  const widgetPathPattern = /^\\/(?:[a-z]{2}(?:-[a-z]{2})?\\/)?widget\\/?$/i;\n  if (widgetPathPattern.test(window.location.pathname)) return;\n\n  const loader = document.createElement(\"script\");\n  loader.id = \"google-analytics\";\n  loader.async = true;\n  loader.src = \"https://www.googletagmanager.com/gtag/js?id=G-SJNYKL2864\";\n  document.head.appendChild(loader);\n\n  window.dataLayer = window.dataLayer || [];\n  function gtag(){dataLayer.push(arguments);}\n  gtag(\"js\", new Date());\n  gtag(\"config\", \"G-SJNYKL2864\", { anonymize_ip: true });\n})();"}}]]]}],["$","body",null,{"children":["$","$L3",null,{"attribute":"class","defaultTheme":"dark","enableSystem":false,"disableTransitionOnChange":true,"storageKey":"arcade-theme","children":[["$","$L4",null,{}],["$","$L5",null,{}],["$","$L6",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L7",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","$L8",null,{}],[]],"forbidden":"$undefined","unauthorized":"$undefined"}],["$","$L9",null,{"analyticsEnabled":true,"previewMode":false}]]}]}]]}]]}],{"children":[["locale","vi","d"],["$","$1","c",{"children":[null,"$La"]}],{"children":["profile",["$","$1","c",{"children":[null,["$","$L6",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L7",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":["__PAGE__",["$","$1","c",{"children":["$Lb","$undefined",[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/02609a05af0aff42.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","$Lc",null,{"children":["$Ld","$Le",null]}]]}],{},null,false]},null,false]},null,false]},null,false],["$","$1","h",{"children":[null,["$","$1","1_iOLHaviiPyZR4yrEFSm",{"children":[["$","$Lf",null,{"children":"$L10"}],null]}],["$","$L11",null,{"children":"$L12"}]]}],false]],"m":"$undefined","G":["$13","$undefined"],"s":false,"S":true}
+14:I[4413,["90","static/chunks/90-2fbaf15caef0899d.js","943","static/chunks/app/%5Blocale%5D/profile/page-ecb4e7dbfa2cac19.js"],"default"]
+15:I[9164,["90","static/chunks/90-2fbaf15caef0899d.js","943","static/chunks/app/%5Blocale%5D/profile/page-ecb4e7dbfa2cac19.js"],"default"]
+a:["$","div",null,{"lang":"vi","dir":"ltr","data-locale":"vi","children":["$","$L6",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L7",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]}]
+b:[["$","$L14",null,{}],["$","$L15",null,{}]]
+10:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","2",{"name":"color-scheme","content":"light dark"}]]
+d:null
+e:null
+12:[["$","title","0",{"children":"Arcade Score | ePlus.DEV"}],["$","meta","1",{"name":"description","content":"View shared Google Cloud Arcade points, badges and tier progress."}],["$","meta","2",{"name":"application-name","content":"Arcade Points by ePlus.DEV"}],["$","link","3",{"rel":"author","href":"https://eplus.dev"}],["$","meta","4",{"name":"author","content":"ePlus.DEV"}],["$","link","5",{"rel":"manifest","href":"/manifest.json","crossOrigin":"$undefined"}],["$","meta","6",{"name":"generator","content":"Next.js"}],["$","meta","7",{"name":"keywords","content":"Google Cloud Arcade points calculator,Google Skills Arcade calculator,Google Cloud Skills Boost badges,Google Skills public profile tracker,Arcade Facilitator points,Google Cloud Arcade milestones,Arcade points 2026,Google Cloud Arcade rewards,Google Cloud Skills Boost Helper"}],["$","meta","8",{"name":"referrer","content":"origin-when-cross-origin"}],["$","meta","9",{"name":"creator","content":"ePlus.DEV"}],["$","meta","10",{"name":"publisher","content":"ePlus.DEV"}],["$","meta","11",{"name":"robots","content":"noindex, follow"}],["$","meta","12",{"name":"category","content":"technology"}],["$","meta","13",{"property":"og:title","content":"Google Cloud Arcade Points Calculator & Badge Tracker 2026"}],["$","meta","14",{"property":"og:description","content":"Calculate Google Cloud Arcade points from your public Google Skills profile, review completed badges, estimate milestone progress, and track Arcade Facilitator rewards."}],["$","meta","15",{"property":"og:site_name","content":"Arcade Points by ePlus.DEV"}],["$","meta","16",{"property":"og:locale","content":"en_US"}],["$","meta","17",{"property":"og:image:alt","content":"Arcade Points — Google Cloud Arcade score calculator, badge tracker and reward tier dashboard"}],["$","meta","18",{"property":"og:image:type","content":"image/png"}],["$","meta","19",{"property":"og:image","content":"https://arcade.eplus.dev/opengraph-image?596ef65278856083"}],["$","meta","20",{"property":"og:image:width","content":"1200"}],["$","meta","21",{"property":"og:image:height","content":"630"}],["$","meta","22",{"property":"og:type","content":"website"}],["$","meta","23",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","24",{"name":"twitter:creator","content":"@ePlusDEV"}],["$","meta","25",{"name":"twitter:title","content":"Google Cloud Arcade Points Calculator & Badge Tracker 2026"}],["$","meta","26",{"name":"twitter:description","content":"Calculate Google Cloud Arcade points from your public Google Skills profile, review completed badges, estimate milestone progress, and track Arcade Facilitator rewards."}],["$","meta","27",{"name":"twitter:image:alt","content":"Arcade Points — Google Cloud Arcade score calculator, badge tracker and reward tier dashboard"}],["$","meta","28",{"name":"twitter:image:type","content":"image/png"}],["$","meta","29",{"name":"twitter:image","content":"https://arcade.eplus.dev/twitter-image?5de490c65c7964a7"}],["$","meta","30",{"name":"twitter:image:width","content":"1200"}],["$","meta","31",{"name":"twitter:image:height","content":"630"}],["$","link","32",{"rel":"icon","href":"/favicon.ico","type":"image/x-icon","sizes":"48x48"}],["$","link","33",{"rel":"icon","href":"/icon0.svg?66a7cd687bde5efd","type":"image/svg+xml","sizes":"any"}],["$","link","34",{"rel":"icon","href":"/icon1.png?52e5d01a77c5680f","type":"image/png","sizes":"96x96"}],["$","link","35",{"rel":"apple-touch-icon","href":"/apple-icon.png?97901d54c640609b","type":"image/png","sizes":"180x180"}]]

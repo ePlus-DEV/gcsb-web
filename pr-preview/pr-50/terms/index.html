@@ -1,0 +1,289 @@
+<!DOCTYPE html><html lang="en" dir="ltr" data-locale="en"><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="/pr-preview/pr-50/_next/static/css/83cb28a0ee905a41.css" data-precedence="next"/><link rel="stylesheet" href="/pr-preview/pr-50/_next/static/css/9fcac8c89f887fa6.css" data-precedence="next"/><link rel="preload" as="script" fetchPriority="low" href="/pr-preview/pr-50/_next/static/chunks/webpack-083dbd4f83886810.js"/><script src="/pr-preview/pr-50/_next/static/chunks/4bd1b696-50ba07f173d58c6b.js" async=""></script><script src="/pr-preview/pr-50/_next/static/chunks/684-40f033511347b00f.js" async=""></script><script src="/pr-preview/pr-50/_next/static/chunks/main-app-f7ab0af3d8235064.js" async=""></script><script src="/pr-preview/pr-50/_next/static/chunks/874-6636e32d520a8252.js" async=""></script><script src="/pr-preview/pr-50/_next/static/chunks/98-3d453edbdd7331db.js" async=""></script><script src="/pr-preview/pr-50/_next/static/chunks/app/layout-b1800ac7b4bbe00c.js" async=""></script><script src="/pr-preview/pr-50/_next/static/chunks/app/not-found-21a7e0501edcde19.js" async=""></script><script src="/pr-preview/pr-50/_next/static/chunks/app/terms/page-891115199ba167fd.js" async=""></script><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"/><link rel="preconnect" href="https://cdnjs.cloudflare.com"/><meta name="cookie-notice-preview" content="true"/><meta name="color-scheme" content="light dark"/><title>Terms of Service | ePlus.DEV</title><meta name="description" content="Terms governing use of Arcade Points by ePlus.DEV and the companion browser extension."/><meta name="application-name" content="Arcade Points by ePlus.DEV"/><link rel="author" href="https://eplus.dev"/><meta name="author" content="ePlus.DEV"/><link rel="manifest" href="/pr-preview/pr-50/manifest.json"/><meta name="generator" content="Next.js"/><meta name="keywords" content="Google Cloud Arcade points calculator,Google Skills Arcade calculator,Google Cloud Skills Boost badges,Google Skills public profile tracker,Arcade Facilitator points,Google Cloud Arcade milestones,Arcade points 2026,Google Cloud Arcade rewards,Google Cloud Skills Boost Helper"/><meta name="referrer" content="origin-when-cross-origin"/><meta name="creator" content="ePlus.DEV"/><meta name="publisher" content="ePlus.DEV"/><meta name="robots" content="index, follow"/><meta name="googlebot" content="index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"/><meta name="category" content="technology"/><link rel="canonical" href="https://arcade.eplus.dev/terms/"/><meta property="og:title" content="Terms of Service | ePlus.DEV"/><meta property="og:description" content="Terms governing use of Arcade Points by ePlus.DEV and the companion browser extension."/><meta property="og:url" content="https://arcade.eplus.dev/terms/"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:creator" content="@ePlusDEV"/><meta name="twitter:title" content="Google Cloud Arcade Points Calculator &amp; Badge Tracker 2026"/><meta name="twitter:description" content="Calculate Google Cloud Arcade points from your public Google Skills profile, review completed badges, estimate milestone progress, and track Arcade Facilitator rewards."/><meta name="twitter:image:alt" content="Arcade Points — Google Cloud Arcade score calculator, badge tracker and reward tier dashboard"/><meta name="twitter:image:type" content="image/png"/><meta name="twitter:image" content="https://arcade.eplus.dev/pr-preview/pr-50/twitter-image?5de490c65c7964a7"/><meta name="twitter:image:width" content="1200"/><meta name="twitter:image:height" content="630"/><link rel="icon" href="/pr-preview/pr-50/favicon.ico" type="image/x-icon" sizes="48x48"/><link rel="icon" href="/pr-preview/pr-50/icon0.svg?66a7cd687bde5efd" type="image/svg+xml" sizes="any"/><link rel="icon" href="/pr-preview/pr-50/icon1.png?52e5d01a77c5680f" type="image/png" sizes="96x96"/><link rel="apple-touch-icon" href="/pr-preview/pr-50/apple-icon.png?97901d54c640609b" type="image/png" sizes="180x180"/><script id="arcade-request-dedupe">(() => {
+  const installFlag = "__eplusArcadeRequestDeduperInstalled"
+  if (window[installFlag]) return
+
+  const originalFetch = window.fetch.bind(window)
+  const inFlight = new Map()
+  const recent = new Map()
+  const recentTtlMs = 5_000
+  const apiOrigin = "https://hub.eplus.dev"
+  const apiPaths = new Set(["/api/arcade-public", "/api/arcade-widget"])
+
+  function isRequest(input) {
+    return typeof Request !== "undefined" && input instanceof Request
+  }
+
+  function getRequestUrl(input) {
+    if (typeof input === "string") return input
+    if (input instanceof URL) return input.toString()
+    if (isRequest(input)) return input.url
+    return ""
+  }
+
+  function getRequestMethod(input, init) {
+    if (init?.method) return String(init.method).toUpperCase()
+    if (isRequest(input)) return input.method.toUpperCase()
+    return "GET"
+  }
+
+  function getConsumerSignal(input, init) {
+    if (init?.signal !== undefined) return init.signal
+    if (isRequest(input)) return input.signal
+    return null
+  }
+
+  function getEffectiveHeaders(input, init) {
+    if (typeof Headers === "undefined") return []
+    const headers =
+      init?.headers !== undefined
+        ? new Headers(init.headers)
+        : isRequest(input)
+          ? new Headers(input.headers)
+          : new Headers()
+
+    return [...headers.entries()].sort(([left], [right]) => left.localeCompare(right))
+  }
+
+  function getEffectiveOption(input, init, name, fallback) {
+    if (init?.[name] !== undefined) return init[name]
+    if (isRequest(input) && input[name] !== undefined) return input[name]
+    return fallback
+  }
+
+  function getRequestKey(url, input, init, body) {
+    return JSON.stringify({
+      url: `${url.origin}${url.pathname}${url.search}`,
+      body,
+      headers: getEffectiveHeaders(input, init),
+      credentials: getEffectiveOption(input, init, "credentials", "same-origin"),
+      mode: getEffectiveOption(input, init, "mode", "cors"),
+      cache: getEffectiveOption(input, init, "cache", "default"),
+      redirect: getEffectiveOption(input, init, "redirect", "follow"),
+      referrerPolicy: getEffectiveOption(input, init, "referrerPolicy", ""),
+    })
+  }
+
+  function createAbortError() {
+    try {
+      return new DOMException("The operation was aborted.", "AbortError")
+    } catch {
+      const error = new Error("The operation was aborted.")
+      error.name = "AbortError"
+      return error
+    }
+  }
+
+  function responseForConsumer(sharedRequest, signal) {
+    if (!signal) return sharedRequest.then((response) => response.clone())
+    if (signal.aborted) return Promise.reject(createAbortError())
+
+    return new Promise((resolve, reject) => {
+      let settled = false
+
+      const cleanup = () => signal.removeEventListener("abort", onAbort)
+      const onAbort = () => {
+        if (settled) return
+        settled = true
+        cleanup()
+        reject(createAbortError())
+      }
+
+      signal.addEventListener("abort", onAbort, { once: true })
+      sharedRequest.then(
+        (response) => {
+          if (settled) return
+          settled = true
+          cleanup()
+          resolve(response.clone())
+        },
+        (error) => {
+          if (settled) return
+          settled = true
+          cleanup()
+          reject(error)
+        },
+      )
+    })
+  }
+
+  function dedupeRequest(input, init, url, body, consumerSignal) {
+    if (consumerSignal?.aborted) return Promise.reject(createAbortError())
+
+    const key = getRequestKey(url, input, init, body)
+    const now = Date.now()
+    const cached = recent.get(key)
+
+    if (cached) {
+      if (cached.expiresAt > now) {
+        return Promise.resolve(cached.response.clone())
+      }
+      recent.delete(key)
+    }
+
+    const existing = inFlight.get(key)
+    if (existing) return responseForConsumer(existing, consumerSignal)
+
+    const sharedInit = isRequest(input)
+      ? { ...(init ?? {}), signal: null }
+      : init && "signal" in init
+        ? { ...init, signal: null }
+        : init
+
+    const sharedRequest = originalFetch(input, sharedInit)
+      .then((response) => {
+        if (response.ok) {
+          const entry = {
+            response: response.clone(),
+            expiresAt: Date.now() + recentTtlMs,
+          }
+          recent.set(key, entry)
+          window.setTimeout(() => {
+            if (recent.get(key) === entry) recent.delete(key)
+          }, recentTtlMs)
+        }
+        return response
+      })
+      .finally(() => {
+        if (inFlight.get(key) === sharedRequest) inFlight.delete(key)
+      })
+
+    inFlight.set(key, sharedRequest)
+    return responseForConsumer(sharedRequest, consumerSignal)
+  }
+
+  window.fetch = (input, init) => {
+    const rawUrl = getRequestUrl(input)
+    let url
+
+    try {
+      url = new URL(rawUrl, window.location?.href ?? "https://arcade.eplus.dev/")
+    } catch {
+      return originalFetch(input, init)
+    }
+
+    if (
+      getRequestMethod(input, init) !== "POST" ||
+      url.origin !== apiOrigin ||
+      !apiPaths.has(url.pathname)
+    ) {
+      return originalFetch(input, init)
+    }
+
+    const consumerSignal = getConsumerSignal(input, init)
+
+    if (init?.body !== undefined) {
+      if (typeof init.body !== "string") return originalFetch(input, init)
+      return dedupeRequest(input, init, url, init.body, consumerSignal)
+    }
+
+    if (!isRequest(input) || input.bodyUsed) return originalFetch(input, init)
+
+    return input
+      .clone()
+      .text()
+      .then(
+        (body) => dedupeRequest(input, init, url, body, consumerSignal),
+        () => originalFetch(input, init),
+      )
+  }
+
+  window[installFlag] = true
+})()
+</script><script id="arcade-facilitator-participation">(() => {
+  const storagePrefix = "arcade-facilitator-participation-v1";
+  const originalFetch = window.fetch.bind(window);
+
+  window.fetch = (input, init) => {
+    const rawUrl =
+      typeof input === "string"
+        ? input
+        : input instanceof URL
+          ? input.toString()
+          : input instanceof Request
+            ? input.url
+            : "";
+
+    let url;
+    try {
+      url = new URL(rawUrl, window.location.href);
+    } catch {
+      return originalFetch(input, init);
+    }
+
+    const method = String(
+      init?.method ?? (input instanceof Request ? input.method : "GET"),
+    ).toUpperCase();
+
+    if (
+      method !== "POST" ||
+      !url.pathname.includes("/api/arcade") ||
+      typeof init?.body !== "string"
+    ) {
+      return originalFetch(input, init);
+    }
+
+    try {
+      const payload = JSON.parse(init.body);
+      if (
+        !payload ||
+        typeof payload !== "object" ||
+        Object.prototype.hasOwnProperty.call(payload, "facilitator")
+      ) {
+        return originalFetch(input, init);
+      }
+
+      const rawProfileUrl =
+        typeof payload.url === "string" ? payload.url.trim() : "";
+      const profileUrl = rawProfileUrl.endsWith("/")
+        ? rawProfileUrl.slice(0, -1)
+        : rawProfileUrl;
+
+      if (!profileUrl) {
+        return originalFetch(input, init);
+      }
+
+      let participating = false;
+      try {
+        participating =
+          window.localStorage.getItem(storagePrefix + ":" + profileUrl) === "true";
+      } catch {
+        // Local storage is optional. False matches the existing UI fallback.
+      }
+
+      return originalFetch(input, {
+        ...init,
+        body: JSON.stringify({ ...payload, facilitator: participating }),
+      });
+    } catch {
+      return originalFetch(input, init);
+    }
+  };
+})();</script><script id="website-catalog-cache-buster">(() => {
+  const version = "bfcdc3f623d456d1c165a2568d9ff35b31a270d5";
+  const originalFetch = window.fetch.bind(window);
+
+  window.fetch = (input, init) => {
+    const rawUrl =
+      typeof input === "string"
+        ? input
+        : input instanceof URL
+          ? input.toString()
+          : input instanceof Request
+            ? input.url
+            : "";
+
+    let url;
+    try {
+      url = new URL(rawUrl, window.location.href);
+    } catch {
+      return originalFetch(input, init);
+    }
+
+    if (!url.pathname.includes("/i18n/") || !url.pathname.endsWith(".json")) {
+      return originalFetch(input, init);
+    }
+
+    url.searchParams.set("v", version);
+    return originalFetch(url.toString(), { ...init, cache: "no-store" });
+  };
+})();</script><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Press+Start+2P&amp;display=swap"/><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerPolicy="no-referrer"/><script src="/pr-preview/pr-50/_next/static/chunks/polyfills-42372ed130431b0a.js" noModule=""></script></head><body><script>((e,t,r,n,o,a,i,u)=>{let l=document.documentElement,s=["light","dark"];function c(t){var r;(Array.isArray(e)?e:[e]).forEach(e=>{let r="class"===e,n=r&&a?o.map(e=>a[e]||e):o;r?(l.classList.remove(...n),l.classList.add(a&&a[t]?a[t]:t)):l.setAttribute(e,t)}),r=t,u&&s.includes(r)&&(l.style.colorScheme=r)}if(n)c(n);else try{let e=localStorage.getItem(t)||r,n=i&&"system"===e?window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light":e;c(n)}catch(e){}})("class","arcade-theme","dark",null,["light","dark"],null,false,true)</script><div class="arcade-dashboard-page min-h-screen"><div class="arcade-stars" aria-hidden="true"></div><header class="arcade-header"><a class="arcade-brand" aria-label="Arcade Points home" href="/pr-preview/pr-50/"><span class="arcade-brand-mark"><i class="fa-icon fa-solid fa-gamepad" style="line-height:1;text-align:center" aria-hidden="true"></i></span><span class="arcade-brand-copy"><strong>ARCADE</strong><b>POINTS</b></span><em>PRO</em></a><nav class="arcade-nav" aria-label="Main navigation"><a href="/pr-preview/pr-50/">Calculator</a><a href="/pr-preview/pr-50/#tiers">Tiers</a><a href="/pr-preview/pr-50/#badges">Badges</a><a href="/pr-preview/pr-50/#extension">Extension</a></nav><div class="arcade-header-actions"></div></header><main class="internal-page-main"><section class="internal-page-hero relative overflow-hidden border-b border-white/10"><div class="internal-page-glow absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,.18),transparent_35%),radial-gradient(circle_at_top_right,rgba(99,102,241,.18),transparent_40%)]"></div><div class="relative mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 sm:py-20"><a class="internal-back-link mb-8 inline-flex items-center text-sm text-slate-400 hover:text-white" href="/pr-preview/pr-50/"><i class="fa-icon fa-solid fa-arrow-left mr-2 h-4 w-4" style="line-height:1;text-align:center" aria-hidden="true"></i> Back to calculator</a><div class="max-w-3xl"><div class="internal-eyebrow mb-4 inline-flex items-center rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-xs font-semibold uppercase tracking-[.18em] text-cyan-200"><i class="fa-icon fa-solid fa-wand-magic-sparkles mr-2 h-3.5 w-3.5" style="line-height:1;text-align:center" aria-hidden="true"></i> <!-- -->Usage terms</div><h1 class="internal-page-title text-4xl font-bold tracking-tight text-white sm:text-6xl">Terms of Service</h1><p class="internal-page-description mt-5 text-lg leading-8 text-slate-300">The rules and limitations that apply when using Arcade Points and the Google Cloud Skills Boost Helper extension.</p><p class="internal-page-updated mt-4 text-sm text-slate-500">Last updated: <!-- -->August 1, 2026</p></div></div></section><section class="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-16"><div class="internal-content-card rounded-3xl border border-white/10 bg-white/[0.035] p-6 shadow-2xl shadow-black/20 sm:p-10"><div class="internal-prose prose prose-invert max-w-none prose-headings:scroll-mt-24 prose-headings:text-white prose-p:text-slate-300 prose-li:text-slate-300 prose-a:text-cyan-300"><p class="lead">By using Arcade Points by ePlus.DEV or the companion browser extension, you agree to these terms. Stop using the service if you do not agree.</p><h2>1. Community tool</h2><p>Arcade Points is an independent community project. It is not affiliated with, sponsored by, or endorsed by Google. Google product names and trademarks belong to their respective owners.</p><h2>2. Estimates and availability</h2><p>Point totals, badge classifications, reward tiers, slot availability, and Facilitator progress are estimates based on supported public information. Official program records and decisions always take precedence.</p><h2>3. Acceptable use</h2><ul><li>Use the service only for lawful personal or educational purposes.</li><li>Do not attempt to bypass rate limits, access controls, or security measures.</li><li>Do not disrupt the service, automate abusive traffic, or access non-public information.</li><li>Do not present calculated results as official confirmation from Google or ePlus.DEV.</li></ul><h2>4. Public profile responsibility</h2><p>You are responsible for ensuring that any profile URL you submit is public and that you are permitted to use it. Do not submit private credentials, access tokens, passwords, or sensitive personal information.</p><h2>5. Intellectual property</h2><p>The project interface, original content, and code are protected by applicable licenses and intellectual-property laws. Third-party names, logos, and content remain the property of their owners.</p><h2>6. No warranty</h2><p>The service is provided “as is” and “as available.” We do not guarantee uninterrupted operation, complete badge detection, accurate reward eligibility, or continued compatibility with third-party websites.</p><h2>7. Limitation of liability</h2><p>To the maximum extent permitted by law, ePlus.DEV and project contributors are not liable for indirect, incidental, special, or consequential loss arising from use of or reliance on the service.</p><h2>8. Changes</h2><p>Features and these terms may change as the Arcade program, Google Skills pages, browser APIs, or project infrastructure evolve. Continued use after an update means you accept the revised terms.</p><h2>9. Contact</h2><p>Questions about these terms can be sent to <a href="mailto:support@eplus.dev">support@eplus.dev</a>.</p></div></div></section></main><footer class="internal-page-footer border-t border-white/10"><div class="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-8 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-6"><p>© <!-- -->2026<!-- --> ePlus.DEV. Independent community project.</p><div class="flex gap-4"><a class="hover:text-white" href="/pr-preview/pr-50/">Calculator</a><a class="hover:text-white" href="/pr-preview/pr-50/about/">About</a><a class="hover:text-white" href="/pr-preview/pr-50/guide/">Guide</a><a class="hover:text-white" href="/pr-preview/pr-50/privacy/">Privacy</a><a class="hover:text-white" href="/pr-preview/pr-50/terms/">Terms</a></div></div></footer></div><script src="/pr-preview/pr-50/_next/static/chunks/webpack-083dbd4f83886810.js" async=""></script><script>(self.__next_f=self.__next_f||[]).push([0])</script><script>self.__next_f.push([1,"1:\"$Sreact.fragment\"\n4:I[9304,[\"874\",\"static/chunks/874-6636e32d520a8252.js\",\"98\",\"static/chunks/98-3d453edbdd7331db.js\",\"177\",\"static/chunks/app/layout-b1800ac7b4bbe00c.js\"],\"ThemeProvider\"]\n5:I[8180,[\"874\",\"static/chunks/874-6636e32d520a8252.js\",\"98\",\"static/chunks/98-3d453edbdd7331db.js\",\"177\",\"static/chunks/app/layout-b1800ac7b4bbe00c.js\"],\"default\"]\n6:I[352,[\"874\",\"static/chunks/874-6636e32d520a8252.js\",\"98\",\"static/chunks/98-3d453edbdd7331db.js\",\"177\",\"static/chunks/app/layout-b1800ac7b4bbe00c.js\"],\"default\"]\n7:I[7555,[],\"\"]\n8:I[1295,[],\"\"]\n9:I[6195,[\"874\",\"static/chunks/874-6636e32d520a8252.js\",\"345\",\"static/chunks/app/not-found-21a7e0501edcde19.js\"],\"default\"]\na:I[7098,[\"874\",\"static/chunks/874-6636e32d520a8252.js\",\"98\",\"static/chunks/98-3d453edbdd7331db.js\",\"177\",\"static/chunks/app/layout-b1800ac7b4bbe00c.js\"],\"default\"]\nb:I[6874,[\"874\",\"static/chunks/874-6636e32d520a8252.js\",\"66\",\"static/chunks/app/terms/page-891115199ba167fd.js\"],\"\"]\nc:I[9665,[],\"OutletBoundary\"]\nf:I[9665,[],\"ViewportBoundary\"]\n11:I[9665,[],\"MetadataBoundary\"]\n13:I[6614,[],\"\"]\n:HL[\"/pr-preview/pr-50/_next/static/css/83cb28a0ee905a41.css\",\"style\"]\n:HL[\"/pr-preview/pr-50/_next/static/css/9fcac8c89f887fa6.css\",\"style\"]\n2:T15e0,"])</script><script>self.__next_f.push([1,"(() =\u003e {\n  const installFlag = \"__eplusArcadeRequestDeduperInstalled\"\n  if (window[installFlag]) return\n\n  const originalFetch = window.fetch.bind(window)\n  const inFlight = new Map()\n  const recent = new Map()\n  const recentTtlMs = 5_000\n  const apiOrigin = \"https://hub.eplus.dev\"\n  const apiPaths = new Set([\"/api/arcade-public\", \"/api/arcade-widget\"])\n\n  function isRequest(input) {\n    return typeof Request !== \"undefined\" \u0026\u0026 input instanceof Request\n  }\n\n  function getRequestUrl(input) {\n    if (typeof input === \"string\") return input\n    if (input instanceof URL) return input.toString()\n    if (isRequest(input)) return input.url\n    return \"\"\n  }\n\n  function getRequestMethod(input, init) {\n    if (init?.method) return String(init.method).toUpperCase()\n    if (isRequest(input)) return input.method.toUpperCase()\n    return \"GET\"\n  }\n\n  function getConsumerSignal(input, init) {\n    if (init?.signal !== undefined) return init.signal\n    if (isRequest(input)) return input.signal\n    return null\n  }\n\n  function getEffectiveHeaders(input, init) {\n    if (typeof Headers === \"undefined\") return []\n    const headers =\n      init?.headers !== undefined\n        ? new Headers(init.headers)\n        : isRequest(input)\n          ? new Headers(input.headers)\n          : new Headers()\n\n    return [...headers.entries()].sort(([left], [right]) =\u003e left.localeCompare(right))\n  }\n\n  function getEffectiveOption(input, init, name, fallback) {\n    if (init?.[name] !== undefined) return init[name]\n    if (isRequest(input) \u0026\u0026 input[name] !== undefined) return input[name]\n    return fallback\n  }\n\n  function getRequestKey(url, input, init, body) {\n    return JSON.stringify({\n      url: `${url.origin}${url.pathname}${url.search}`,\n      body,\n      headers: getEffectiveHeaders(input, init),\n      credentials: getEffectiveOption(input, init, \"credentials\", \"same-origin\"),\n      mode: getEffectiveOption(input, init, \"mode\", \"cors\"),\n      cache: getEffectiveOption(input, init, \"cache\", \"default\"),\n      redirect: getEffectiveOption(input, init, \"redirect\", \"follow\"),\n      referrerPolicy: getEffectiveOption(input, init, \"referrerPolicy\", \"\"),\n    })\n  }\n\n  function createAbortError() {\n    try {\n      return new DOMException(\"The operation was aborted.\", \"AbortError\")\n    } catch {\n      const error = new Error(\"The operation was aborted.\")\n      error.name = \"AbortError\"\n      return error\n    }\n  }\n\n  function responseForConsumer(sharedRequest, signal) {\n    if (!signal) return sharedRequest.then((response) =\u003e response.clone())\n    if (signal.aborted) return Promise.reject(createAbortError())\n\n    return new Promise((resolve, reject) =\u003e {\n      let settled = false\n\n      const cleanup = () =\u003e signal.removeEventListener(\"abort\", onAbort)\n      const onAbort = () =\u003e {\n        if (settled) return\n        settled = true\n        cleanup()\n        reject(createAbortError())\n      }\n\n      signal.addEventListener(\"abort\", onAbort, { once: true })\n      sharedRequest.then(\n        (response) =\u003e {\n          if (settled) return\n          settled = true\n          cleanup()\n          resolve(response.clone())\n        },\n        (error) =\u003e {\n          if (settled) return\n          settled = true\n          cleanup()\n          reject(error)\n        },\n      )\n    })\n  }\n\n  function dedupeRequest(input, init, url, body, consumerSignal) {\n    if (consumerSignal?.aborted) return Promise.reject(createAbortError())\n\n    const key = getRequestKey(url, input, init, body)\n    const now = Date.now()\n    const cached = recent.get(key)\n\n    if (cached) {\n      if (cached.expiresAt \u003e now) {\n        return Promise.resolve(cached.response.clone())\n      }\n      recent.delete(key)\n    }\n\n    const existing = inFlight.get(key)\n    if (existing) return responseForConsumer(existing, consumerSignal)\n\n    const sharedInit = isRequest(input)\n      ? { ...(init ?? {}), signal: null }\n      : init \u0026\u0026 \"signal\" in init\n        ? { ...init, signal: null }\n        : init\n\n    const sharedRequest = originalFetch(input, sharedInit)\n      .then((response) =\u003e {\n        if (response.ok) {\n          const entry = {\n            response: response.clone(),\n            expiresAt: Date.now() + recentTtlMs,\n          }\n          recent.set(key, entry)\n          window.setTimeout(() =\u003e {\n            if (recent.get(key) === entry) recent.delete(key)\n          }, recentTtlMs)\n        }\n        return response\n      })\n      .finally(() =\u003e {\n        if (inFlight.get(key) === sharedRequest) inFlight.delete(key)\n      })\n\n    inFlight.set(key, sharedRequest)\n    return responseForConsumer(sharedRequest, consumerSignal)\n  }\n\n  window.fetch = (input, init) =\u003e {\n    const rawUrl = getRequestUrl(input)\n    let url\n\n    try {\n      url = new URL(rawUrl, window.location?.href ?? \"https://arcade.eplus.dev/\")\n    } catch {\n      return originalFetch(input, init)\n    }\n\n    if (\n      getRequestMethod(input, init) !== \"POST\" ||\n      url.origin !== apiOrigin ||\n      !apiPaths.has(url.pathname)\n    ) {\n      return originalFetch(input, init)\n    }\n\n    const consumerSignal = getConsumerSignal(input, init)\n\n    if (init?.body !== undefined) {\n      if (typeof init.body !== \"string\") return originalFetch(input, init)\n      return dedupeRequest(input, init, url, init.body, consumerSignal)\n    }\n\n    if (!isRequest(input) || input.bodyUsed) return originalFetch(input, init)\n\n    return input\n      .clone()\n      .text()\n      .then(\n        (body) =\u003e dedupeRequest(input, init, url, body, consumerSignal),\n        () =\u003e originalFetch(input, init),\n      )\n  }\n\n  window[installFlag] = true\n})()\n"])</script><script>self.__next_f.push([1,"3:T711,(() =\u003e {\n  const storagePrefix = \"arcade-facilitator-participation-v1\";\n  const originalFetch = window.fetch.bind(window);\n\n  window.fetch = (input, init) =\u003e {\n    const rawUrl =\n      typeof input === \"string\"\n        ? input\n        : input instanceof URL\n          ? input.toString()\n          : input instanceof Request\n            ? input.url\n            : \"\";\n\n    let url;\n    try {\n      url = new URL(rawUrl, window.location.href);\n    } catch {\n      return originalFetch(input, init);\n    }\n\n    const method = String(\n      init?.method ?? (input instanceof Request ? input.method : \"GET\"),\n    ).toUpperCase();\n\n    if (\n      method !== \"POST\" ||\n      !url.pathname.includes(\"/api/arcade\") ||\n      typeof init?.body !== \"string\"\n    ) {\n      return originalFetch(input, init);\n    }\n\n    try {\n      const payload = JSON.parse(init.body);\n      if (\n        !payload ||\n        typeof payload !== \"object\" ||\n        Object.prototype.hasOwnProperty.call(payload, \"facilitator\")\n      ) {\n        return originalFetch(input, init);\n      }\n\n      const rawProfileUrl =\n        typeof payload.url === \"string\" ? payload.url.trim() : \"\";\n      const profileUrl = rawProfileUrl.endsWith(\"/\")\n        ? rawProfileUrl.slice(0, -1)\n        : rawProfileUrl;\n\n      if (!profileUrl) {\n        return originalFetch(input, init);\n      }\n\n      let participating = false;\n      try {\n        participating =\n          window.localStorage.getItem(storagePrefix + \":\" + profileUrl) === \"true\";\n      } catch {\n        // Local storage is optional. False matches the existing UI fallback.\n      }\n\n      return originalFetch(input, {\n        ...init,\n        body: JSON.stringify({ ...payload, facilitator: participating }),\n      });\n    } catch {\n      return originalFetch(input, init);\n    }\n  };\n})();"])</script><script>self.__next_f.push([1,"0:{\"P\":null,\"b\":\"DXIpkruYGYZ5Jmr5ldwnt\",\"p\":\"/pr-preview/pr-50\",\"c\":[\"\",\"terms\",\"\"],\"i\":false,\"f\":[[[\"\",{\"children\":[\"terms\",{\"children\":[\"__PAGE__\",{}]}]},\"$undefined\",\"$undefined\",true],[\"\",[\"$\",\"$1\",\"c\",{\"children\":[[[\"$\",\"link\",\"0\",{\"rel\":\"stylesheet\",\"href\":\"/pr-preview/pr-50/_next/static/css/83cb28a0ee905a41.css\",\"precedence\":\"next\",\"crossOrigin\":\"$undefined\",\"nonce\":\"$undefined\"}],[\"$\",\"link\",\"1\",{\"rel\":\"stylesheet\",\"href\":\"/pr-preview/pr-50/_next/static/css/9fcac8c89f887fa6.css\",\"precedence\":\"next\",\"crossOrigin\":\"$undefined\",\"nonce\":\"$undefined\"}]],[\"$\",\"html\",null,{\"lang\":\"en\",\"dir\":\"ltr\",\"data-locale\":\"en\",\"suppressHydrationWarning\":true,\"children\":[[\"$\",\"head\",null,{\"children\":[[\"$\",\"script\",null,{\"id\":\"arcade-request-dedupe\",\"dangerouslySetInnerHTML\":{\"__html\":\"$2\"}}],[\"$\",\"script\",null,{\"id\":\"arcade-facilitator-participation\",\"dangerouslySetInnerHTML\":{\"__html\":\"$3\"}}],[\"$\",\"script\",null,{\"id\":\"website-catalog-cache-buster\",\"dangerouslySetInnerHTML\":{\"__html\":\"(() =\u003e {\\n  const version = \\\"bfcdc3f623d456d1c165a2568d9ff35b31a270d5\\\";\\n  const originalFetch = window.fetch.bind(window);\\n\\n  window.fetch = (input, init) =\u003e {\\n    const rawUrl =\\n      typeof input === \\\"string\\\"\\n        ? input\\n        : input instanceof URL\\n          ? input.toString()\\n          : input instanceof Request\\n            ? input.url\\n            : \\\"\\\";\\n\\n    let url;\\n    try {\\n      url = new URL(rawUrl, window.location.href);\\n    } catch {\\n      return originalFetch(input, init);\\n    }\\n\\n    if (!url.pathname.includes(\\\"/i18n/\\\") || !url.pathname.endsWith(\\\".json\\\")) {\\n      return originalFetch(input, init);\\n    }\\n\\n    url.searchParams.set(\\\"v\\\", version);\\n    return originalFetch(url.toString(), { ...init, cache: \\\"no-store\\\" });\\n  };\\n})();\"}}],[\"$\",\"link\",null,{\"rel\":\"preconnect\",\"href\":\"https://fonts.googleapis.com\"}],[\"$\",\"link\",null,{\"rel\":\"preconnect\",\"href\":\"https://fonts.gstatic.com\",\"crossOrigin\":\"anonymous\"}],[\"$\",\"link\",null,{\"rel\":\"preconnect\",\"href\":\"https://cdnjs.cloudflare.com\"}],[\"$\",\"link\",null,{\"rel\":\"stylesheet\",\"href\":\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800\u0026family=Press+Start+2P\u0026display=swap\"}],[\"$\",\"link\",null,{\"rel\":\"stylesheet\",\"href\":\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css\",\"integrity\":\"sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==\",\"crossOrigin\":\"anonymous\",\"referrerPolicy\":\"no-referrer\"}],[\"$\",\"meta\",null,{\"name\":\"cookie-notice-preview\",\"content\":\"true\"}],null]}],[\"$\",\"body\",null,{\"children\":[\"$\",\"$L4\",null,{\"attribute\":\"class\",\"defaultTheme\":\"dark\",\"enableSystem\":false,\"disableTransitionOnChange\":true,\"storageKey\":\"arcade-theme\",\"children\":[[\"$\",\"$L5\",null,{}],[\"$\",\"$L6\",null,{}],[\"$\",\"$L7\",null,{\"parallelRouterKey\":\"children\",\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L8\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":[[\"$\",\"$L9\",null,{}],[]],\"forbidden\":\"$undefined\",\"unauthorized\":\"$undefined\"}],[\"$\",\"$La\",null,{\"analyticsEnabled\":false,\"previewMode\":true}]]}]}]]}]]}],{\"children\":[\"terms\",[\"$\",\"$1\",\"c\",{\"children\":[null,[\"$\",\"$L7\",null,{\"parallelRouterKey\":\"children\",\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L8\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":\"$undefined\",\"forbidden\":\"$undefined\",\"unauthorized\":\"$undefined\"}]]}],{\"children\":[\"__PAGE__\",[\"$\",\"$1\",\"c\",{\"children\":[[\"$\",\"div\",null,{\"className\":\"arcade-dashboard-page min-h-screen\",\"children\":[[\"$\",\"div\",null,{\"className\":\"arcade-stars\",\"aria-hidden\":\"true\"}],[\"$\",\"header\",null,{\"className\":\"arcade-header\",\"children\":[[\"$\",\"$Lb\",null,{\"className\":\"arcade-brand\",\"href\":\"/\",\"aria-label\":\"Arcade Points home\",\"children\":[[\"$\",\"span\",null,{\"className\":\"arcade-brand-mark\",\"children\":[\"$\",\"i\",null,{\"ref\":\"$undefined\",\"className\":\"fa-icon fa-solid fa-gamepad\",\"style\":{\"color\":\"$undefined\",\"width\":\"$undefined\",\"height\":\"$undefined\",\"fontSize\":\"$undefined\",\"lineHeight\":1,\"textAlign\":\"center\"},\"aria-hidden\":true}]}],[\"$\",\"span\",null,{\"className\":\"arcade-brand-copy\",\"children\":[[\"$\",\"strong\",null,{\"children\":\"ARCADE\"}],[\"$\",\"b\",null,{\"children\":\"POINTS\"}]]}],[\"$\",\"em\",null,{\"children\":\"PRO\"}]]}],[\"$\",\"nav\",null,{\"className\":\"arcade-nav\",\"aria-label\":\"Main navigation\",\"children\":[[\"$\",\"$Lb\",null,{\"href\":\"/\",\"children\":\"Calculator\"}],[\"$\",\"$Lb\",null,{\"href\":\"/#tiers\",\"children\":\"Tiers\"}],[\"$\",\"$Lb\",null,{\"href\":\"/#badges\",\"children\":\"Badges\"}],[\"$\",\"$Lb\",null,{\"href\":\"/#extension\",\"children\":\"Extension\"}]]}],[\"$\",\"div\",null,{\"className\":\"arcade-header-actions\"}]]}],[\"$\",\"main\",null,{\"className\":\"internal-page-main\",\"children\":[[\"$\",\"section\",null,{\"className\":\"internal-page-hero relative overflow-hidden border-b border-white/10\",\"children\":[[\"$\",\"div\",null,{\"className\":\"internal-page-glow absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,.18),transparent_35%),radial-gradient(circle_at_top_right,rgba(99,102,241,.18),transparent_40%)]\"}],[\"$\",\"div\",null,{\"className\":\"relative mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 sm:py-20\",\"children\":[[\"$\",\"$Lb\",null,{\"href\":\"/\",\"className\":\"internal-back-link mb-8 inline-flex items-center text-sm text-slate-400 hover:text-white\",\"children\":[[\"$\",\"i\",null,{\"ref\":\"$undefined\",\"className\":\"fa-icon fa-solid fa-arrow-left mr-2 h-4 w-4\",\"style\":{\"color\":\"$undefined\",\"width\":\"$undefined\",\"height\":\"$undefined\",\"fontSize\":\"$undefined\",\"lineHeight\":1,\"textAlign\":\"center\"},\"aria-hidden\":true}],\" Back to calculator\"]}],[\"$\",\"div\",null,{\"className\":\"max-w-3xl\",\"children\":[[\"$\",\"div\",null,{\"className\":\"internal-eyebrow mb-4 inline-flex items-center rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-xs font-semibold uppercase tracking-[.18em] text-cyan-200\",\"children\":[[\"$\",\"i\",null,{\"ref\":\"$undefined\",\"className\":\"fa-icon fa-solid fa-wand-magic-sparkles mr-2 h-3.5 w-3.5\",\"style\":{\"color\":\"$undefined\",\"width\":\"$undefined\",\"height\":\"$undefined\",\"fontSize\":\"$undefined\",\"lineHeight\":1,\"textAlign\":\"center\"},\"aria-hidden\":true}],\" \",\"Usage terms\"]}],[\"$\",\"h1\",null,{\"className\":\"internal-page-title text-4xl font-bold tracking-tight text-white sm:text-6xl\",\"children\":\"Terms of Service\"}],[\"$\",\"p\",null,{\"className\":\"internal-page-description mt-5 text-lg leading-8 text-slate-300\",\"children\":\"The rules and limitations that apply when using Arcade Points and the Google Cloud Skills Boost Helper extension.\"}],[\"$\",\"p\",null,{\"className\":\"internal-page-updated mt-4 text-sm text-slate-500\",\"children\":[\"Last updated: \",\"August 1, 2026\"]}]]}]]}]]}],[\"$\",\"section\",null,{\"className\":\"mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-16\",\"children\":[\"$\",\"div\",null,{\"className\":\"internal-content-card rounded-3xl border border-white/10 bg-white/[0.035] p-6 shadow-2xl shadow-black/20 sm:p-10\",\"children\":[\"$\",\"div\",null,{\"className\":\"internal-prose prose prose-invert max-w-none prose-headings:scroll-mt-24 prose-headings:text-white prose-p:text-slate-300 prose-li:text-slate-300 prose-a:text-cyan-300\",\"children\":[[\"$\",\"p\",null,{\"className\":\"lead\",\"children\":\"By using Arcade Points by ePlus.DEV or the companion browser extension, you agree to these terms. Stop using the service if you do not agree.\"}],[\"$\",\"h2\",null,{\"children\":\"1. Community tool\"}],[\"$\",\"p\",null,{\"children\":\"Arcade Points is an independent community project. It is not affiliated with, sponsored by, or endorsed by Google. Google product names and trademarks belong to their respective owners.\"}],[\"$\",\"h2\",null,{\"children\":\"2. Estimates and availability\"}],[\"$\",\"p\",null,{\"children\":\"Point totals, badge classifications, reward tiers, slot availability, and Facilitator progress are estimates based on supported public information. Official program records and decisions always take precedence.\"}],[\"$\",\"h2\",null,{\"children\":\"3. Acceptable use\"}],[\"$\",\"ul\",null,{\"children\":[[\"$\",\"li\",null,{\"children\":\"Use the service only for lawful personal or educational purposes.\"}],[\"$\",\"li\",null,{\"children\":\"Do not attempt to bypass rate limits, access controls, or security measures.\"}],[\"$\",\"li\",null,{\"children\":\"Do not disrupt the service, automate abusive traffic, or access non-public information.\"}],[\"$\",\"li\",null,{\"children\":\"Do not present calculated results as official confirmation from Google or ePlus.DEV.\"}]]}],[\"$\",\"h2\",null,{\"children\":\"4. Public profile responsibility\"}],[\"$\",\"p\",null,{\"children\":\"You are responsible for ensuring that any profile URL you submit is public and that you are permitted to use it. Do not submit private credentials, access tokens, passwords, or sensitive personal information.\"}],[\"$\",\"h2\",null,{\"children\":\"5. Intellectual property\"}],[\"$\",\"p\",null,{\"children\":\"The project interface, original content, and code are protected by applicable licenses and intellectual-property laws. Third-party names, logos, and content remain the property of their owners.\"}],[\"$\",\"h2\",null,{\"children\":\"6. No warranty\"}],[\"$\",\"p\",null,{\"children\":\"The service is provided “as is” and “as available.” We do not guarantee uninterrupted operation, complete badge detection, accurate reward eligibility, or continued compatibility with third-party websites.\"}],[\"$\",\"h2\",null,{\"children\":\"7. Limitation of liability\"}],[\"$\",\"p\",null,{\"children\":\"To the maximum extent permitted by law, ePlus.DEV and project contributors are not liable for indirect, incidental, special, or consequential loss arising from use of or reliance on the service.\"}],[\"$\",\"h2\",null,{\"children\":\"8. Changes\"}],[\"$\",\"p\",null,{\"children\":\"Features and these terms may change as the Arcade program, Google Skills pages, browser APIs, or project infrastructure evolve. Continued use after an update means you accept the revised terms.\"}],[\"$\",\"h2\",null,{\"children\":\"9. Contact\"}],[\"$\",\"p\",null,{\"children\":[\"Questions about these terms can be sent to \",[\"$\",\"a\",null,{\"href\":\"mailto:support@eplus.dev\",\"children\":\"support@eplus.dev\"}],\".\"]}]]}]}]}]]}],[\"$\",\"footer\",null,{\"className\":\"internal-page-footer border-t border-white/10\",\"children\":[\"$\",\"div\",null,{\"className\":\"mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-8 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-6\",\"children\":[[\"$\",\"p\",null,{\"children\":[\"© \",2026,\" ePlus.DEV. Independent community project.\"]}],[\"$\",\"div\",null,{\"className\":\"flex gap-4\",\"children\":[[\"$\",\"$Lb\",null,{\"href\":\"/\",\"className\":\"hover:text-white\",\"children\":\"Calculator\"}],[\"$\",\"$Lb\",null,{\"href\":\"/about/\",\"className\":\"hover:text-white\",\"children\":\"About\"}],[\"$\",\"$Lb\",null,{\"href\":\"/guide/\",\"className\":\"hover:text-white\",\"children\":\"Guide\"}],[\"$\",\"$Lb\",null,{\"href\":\"/privacy/\",\"className\":\"hover:text-white\",\"children\":\"Privacy\"}],[\"$\",\"$Lb\",null,{\"href\":\"/terms/\",\"className\":\"hover:text-white\",\"children\":\"Terms\"}]]}]]}]}]]}],\"$undefined\",null,[\"$\",\"$Lc\",null,{\"children\":[\"$Ld\",\"$Le\",null]}]]}],{},null,false]},null,false]},null,false],[\"$\",\"$1\",\"h\",{\"children\":[null,[\"$\",\"$1\",\"49WXCYd9P7h_7WWxvAVyq\",{\"children\":[[\"$\",\"$Lf\",null,{\"children\":\"$L10\"}],null]}],[\"$\",\"$L11\",null,{\"children\":\"$L12\"}]]}],false]],\"m\":\"$undefined\",\"G\":[\"$13\",\"$undefined\"],\"s\":false,\"S\":true}\n"])</script><script>self.__next_f.push([1,"10:[[\"$\",\"meta\",\"0\",{\"charSet\":\"utf-8\"}],[\"$\",\"meta\",\"1\",{\"name\":\"viewport\",\"content\":\"width=device-width, initial-scale=1\"}],[\"$\",\"meta\",\"2\",{\"name\":\"color-scheme\",\"content\":\"light dark\"}]]\nd:null\n"])</script><script>self.__next_f.push([1,"e:null\n"])</script><script>self.__next_f.push([1,"12:[[\"$\",\"title\",\"0\",{\"children\":\"Terms of Service | ePlus.DEV\"}],[\"$\",\"meta\",\"1\",{\"name\":\"description\",\"content\":\"Terms governing use of Arcade Points by ePlus.DEV and the companion browser extension.\"}],[\"$\",\"meta\",\"2\",{\"name\":\"application-name\",\"content\":\"Arcade Points by ePlus.DEV\"}],[\"$\",\"link\",\"3\",{\"rel\":\"author\",\"href\":\"https://eplus.dev\"}],[\"$\",\"meta\",\"4\",{\"name\":\"author\",\"content\":\"ePlus.DEV\"}],[\"$\",\"link\",\"5\",{\"rel\":\"manifest\",\"href\":\"/pr-preview/pr-50/manifest.json\",\"crossOrigin\":\"$undefined\"}],[\"$\",\"meta\",\"6\",{\"name\":\"generator\",\"content\":\"Next.js\"}],[\"$\",\"meta\",\"7\",{\"name\":\"keywords\",\"content\":\"Google Cloud Arcade points calculator,Google Skills Arcade calculator,Google Cloud Skills Boost badges,Google Skills public profile tracker,Arcade Facilitator points,Google Cloud Arcade milestones,Arcade points 2026,Google Cloud Arcade rewards,Google Cloud Skills Boost Helper\"}],[\"$\",\"meta\",\"8\",{\"name\":\"referrer\",\"content\":\"origin-when-cross-origin\"}],[\"$\",\"meta\",\"9\",{\"name\":\"creator\",\"content\":\"ePlus.DEV\"}],[\"$\",\"meta\",\"10\",{\"name\":\"publisher\",\"content\":\"ePlus.DEV\"}],[\"$\",\"meta\",\"11\",{\"name\":\"robots\",\"content\":\"index, follow\"}],[\"$\",\"meta\",\"12\",{\"name\":\"googlebot\",\"content\":\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\"}],[\"$\",\"meta\",\"13\",{\"name\":\"category\",\"content\":\"technology\"}],[\"$\",\"link\",\"14\",{\"rel\":\"canonical\",\"href\":\"https://arcade.eplus.dev/terms/\"}],[\"$\",\"meta\",\"15\",{\"property\":\"og:title\",\"content\":\"Terms of Service | ePlus.DEV\"}],[\"$\",\"meta\",\"16\",{\"property\":\"og:description\",\"content\":\"Terms governing use of Arcade Points by ePlus.DEV and the companion browser extension.\"}],[\"$\",\"meta\",\"17\",{\"property\":\"og:url\",\"content\":\"https://arcade.eplus.dev/terms/\"}],[\"$\",\"meta\",\"18\",{\"name\":\"twitter:card\",\"content\":\"summary_large_image\"}],[\"$\",\"meta\",\"19\",{\"name\":\"twitter:creator\",\"content\":\"@ePlusDEV\"}],[\"$\",\"meta\",\"20\",{\"name\":\"twitter:title\",\"content\":\"Google Cloud Arcade Points Calculator \u0026 Badge Tracker 2026\"}],[\"$\",\"meta\",\"21\",{\"name\":\"twitter:description\",\"content\":\"Calculate Google Cloud Arcade points from your public Google Skills profile, review completed badges, estimate milestone progress, and track Arcade Facilitator rewards.\"}],[\"$\",\"meta\",\"22\",{\"name\":\"twitter:image:alt\",\"content\":\"Arcade Points — Google Cloud Arcade score calculator, badge tracker and reward tier dashboard\"}],[\"$\",\"meta\",\"23\",{\"name\":\"twitter:image:type\",\"content\":\"image/png\"}],[\"$\",\"meta\",\"24\",{\"name\":\"twitter:image\",\"content\":\"https://arcade.eplus.dev/pr-preview/pr-50/twitter-image?5de490c65c7964a7\"}],[\"$\",\"meta\",\"25\",{\"name\":\"twitter:image:width\",\"content\":\"1200\"}],[\"$\",\"meta\",\"26\",{\"name\":\"twitter:image:height\",\"content\":\"630\"}],[\"$\",\"link\",\"27\",{\"rel\":\"icon\",\"href\":\"/pr-preview/pr-50/favicon.ico\",\"type\":\"image/x-icon\",\"sizes\":\"48x48\"}],[\"$\",\"link\",\"28\",{\"rel\":\"icon\",\"href\":\"/pr-preview/pr-50/icon0.svg?66a7cd687bde5efd\",\"type\":\"image/svg+xml\",\"sizes\":\"any\"}],[\"$\",\"link\",\"29\",{\"rel\":\"icon\",\"href\":\"/pr-preview/pr-50/icon1.png?52e5d01a77c5680f\",\"type\":\"image/png\",\"sizes\":\"96x96\"}],[\"$\",\"link\",\"30\",{\"rel\":\"apple-touch-icon\",\"href\":\"/pr-preview/pr-50/apple-icon.png?97901d54c640609b\",\"type\":\"image/png\",\"sizes\":\"180x180\"}]]\n"])</script></body></html>
