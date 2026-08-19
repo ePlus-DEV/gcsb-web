@@ -13,6 +13,7 @@ const MANUAL_INTENT_TTL_MS = 5_000
 const FRESH_SCORE_MESSAGE_KEY = "freshScoreCacheNote"
 const COOLDOWN_STORAGE_KEY = "arcade:fresh-score-cooldown-until"
 const DEFAULT_RATE_LIMIT_SECONDS = 60
+const MIN_REPEAT_DELAY_SECONDS = 5
 
 function requestUrl(input: RequestInfo | URL): string {
   if (typeof input === "string") return input
@@ -92,19 +93,33 @@ async function getRateLimitCooldownSeconds(response: Response): Promise<number |
   return response.status === 429 ? DEFAULT_RATE_LIMIT_SECONDS : null
 }
 
+function clearCooldownUi(): void {
+  const button = document.querySelector<HTMLButtonElement>(BUTTON_SELECTOR)
+  const analyzer = document.querySelector<HTMLElement>(ANALYZER_SELECTOR)
+
+  if (button) {
+    delete button.dataset.freshScoreCooldown
+    delete button.dataset.freshScoreLabel
+    button.removeAttribute("aria-disabled")
+  }
+  analyzer?.removeAttribute("data-fresh-score-rate-limited")
+}
+
 export default function FreshScoreCheckEnhancer() {
   const [noteTarget, setNoteTarget] = useState<HTMLElement | null>(null)
   const [note, setNote] = useState("")
   const [cooldownSeconds, setCooldownSeconds] = useState(0)
+  const [rateLimited, setRateLimited] = useState(false)
   const freshIntentUntilRef = useRef(0)
   const cooldownUntilRef = useRef(0)
 
-  const beginCooldown = useCallback((seconds: number) => {
+  const beginCooldown = useCallback((seconds: number, isRateLimited = false) => {
     const safeSeconds = Math.max(1, Math.ceil(seconds))
     const until = Date.now() + safeSeconds * 1_000
 
     cooldownUntilRef.current = until
     setCooldownSeconds(safeSeconds)
+    setRateLimited(isRateLimited)
 
     try {
       window.sessionStorage.setItem(COOLDOWN_STORAGE_KEY, String(until))
@@ -134,6 +149,7 @@ export default function FreshScoreCheckEnhancer() {
 
       if (remaining === 0 && cooldownUntilRef.current !== 0) {
         cooldownUntilRef.current = 0
+        setRateLimited(false)
         try {
           window.sessionStorage.removeItem(COOLDOWN_STORAGE_KEY)
         } catch {
@@ -148,31 +164,56 @@ export default function FreshScoreCheckEnhancer() {
   }, [])
 
   useEffect(() => {
+    const cooldownActive = () => cooldownUntilRef.current > Date.now()
+
     const markManualFreshCheck = () => {
       freshIntentUntilRef.current = Date.now() + MANUAL_INTENT_TTL_MS
     }
 
     const onClick = (event: MouseEvent) => {
       const target = event.target
-      if (target instanceof Element && target.closest(BUTTON_SELECTOR)) {
-        markManualFreshCheck()
+      if (!(target instanceof Element) || !target.closest(BUTTON_SELECTOR)) return
+
+      if (cooldownActive()) {
+        event.preventDefault()
+        event.stopImmediatePropagation()
+        return
       }
+
+      markManualFreshCheck()
     }
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key !== "Enter") return
       const target = event.target
-      if (target instanceof Element && target.matches(INPUT_SELECTOR)) {
-        markManualFreshCheck()
+      if (!(target instanceof Element) || !target.matches(INPUT_SELECTOR)) return
+
+      if (cooldownActive()) {
+        event.preventDefault()
+        event.stopImmediatePropagation()
+        return
       }
+
+      markManualFreshCheck()
+    }
+
+    const onSubmit = (event: SubmitEvent) => {
+      if (!cooldownActive()) return
+      const target = event.target
+      if (!(target instanceof HTMLFormElement) || !target.closest(ANALYZER_SELECTOR)) return
+
+      event.preventDefault()
+      event.stopImmediatePropagation()
     }
 
     document.addEventListener("click", onClick, true)
     document.addEventListener("keydown", onKeyDown, true)
+    document.addEventListener("submit", onSubmit, true)
 
     return () => {
       document.removeEventListener("click", onClick, true)
       document.removeEventListener("keydown", onKeyDown, true)
+      document.removeEventListener("submit", onSubmit, true)
     }
   }, [])
 
@@ -205,7 +246,13 @@ export default function FreshScoreCheckEnhancer() {
 
       const response = await originalFetch(input, nextInit)
       const retrySeconds = await getRateLimitCooldownSeconds(response)
-      if (retrySeconds !== null) beginCooldown(retrySeconds)
+
+      if (retrySeconds !== null) {
+        beginCooldown(retrySeconds, true)
+      } else if (response.ok) {
+        beginCooldown(MIN_REPEAT_DELAY_SECONDS)
+      }
+
       return response
     }
 
@@ -217,6 +264,28 @@ export default function FreshScoreCheckEnhancer() {
       }
     }
   }, [beginCooldown])
+
+  useEffect(() => {
+    const button = document.querySelector<HTMLButtonElement>(BUTTON_SELECTOR)
+    const analyzer = document.querySelector<HTMLElement>(ANALYZER_SELECTOR)
+    if (!button) return
+
+    if (cooldownSeconds > 0) {
+      button.dataset.freshScoreCooldown = "true"
+      button.dataset.freshScoreLabel = `Try again in ${cooldownSeconds}s`
+      button.setAttribute("aria-disabled", "true")
+
+      if (rateLimited) {
+        analyzer?.setAttribute("data-fresh-score-rate-limited", "true")
+      } else {
+        analyzer?.removeAttribute("data-fresh-score-rate-limited")
+      }
+    } else {
+      clearCooldownUi()
+    }
+  }, [cooldownSeconds, rateLimited])
+
+  useEffect(() => () => clearCooldownUi(), [])
 
   useEffect(() => {
     let active = true
@@ -289,40 +358,49 @@ export default function FreshScoreCheckEnhancer() {
     }
   }, [])
 
-  if (!noteTarget || (!note && cooldownSeconds <= 0)) return null
-
-  return createPortal(
+  return (
     <>
-      {cooldownSeconds > 0 && (
-        <p
-          data-fresh-score-countdown="true"
-          style={{
-            margin: "0",
-            padding: "4px 2px 2px",
-            color: "#f87171",
-            fontSize: "13px",
-            fontWeight: 700,
-            lineHeight: 1.5,
-          }}
-        >
-          Fresh score check available in {cooldownSeconds}s.
-        </p>
-      )}
-      {note && (
-        <p
-          role="note"
-          style={{
-            margin: "0",
-            padding: "2px 2px 4px",
-            color: "var(--muted-foreground, #64748b)",
-            fontSize: "12px",
-            lineHeight: 1.5,
-          }}
-        >
-          {note}
-        </p>
-      )}
-    </>,
-    noteTarget,
+      <style>{`
+        ${BUTTON_SELECTOR}[data-fresh-score-cooldown="true"] {
+          position: relative;
+          color: transparent !important;
+          pointer-events: none;
+          cursor: not-allowed;
+        }
+        ${BUTTON_SELECTOR}[data-fresh-score-cooldown="true"] svg {
+          visibility: hidden;
+        }
+        ${BUTTON_SELECTOR}[data-fresh-score-cooldown="true"]::after {
+          content: attr(data-fresh-score-label);
+          position: absolute;
+          inset: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #fff;
+          pointer-events: none;
+        }
+        ${ANALYZER_SELECTOR}[data-fresh-score-rate-limited="true"] .analyzer-error {
+          display: none !important;
+        }
+      `}</style>
+      {noteTarget && note
+        ? createPortal(
+            <p
+              role="note"
+              style={{
+                margin: "0",
+                padding: "2px 2px 4px",
+                color: "var(--muted-foreground, #64748b)",
+                fontSize: "12px",
+                lineHeight: 1.5,
+              }}
+            >
+              {note}
+            </p>,
+            noteTarget,
+          )
+        : null}
+    </>
   )
 }
