@@ -50,26 +50,16 @@ test("manual website score checks request a forced refresh", () => {
   assert.match(enhancer, /url\.pathname\.startsWith\("\/api\/arcade"\)/)
 })
 
-test("rate-limited fresh checks show a persistent countdown and block resubmission", () => {
+test("rate-limited fresh checks show a persistent countdown without blocking the button", () => {
   assert.match(enhancer, /COOLDOWN_STORAGE_KEY/)
   assert.match(enhancer, /window\.sessionStorage\.setItem\(COOLDOWN_STORAGE_KEY/)
   assert.match(enhancer, /response\.status === 429/)
   assert.match(enhancer, /response\.headers\.get\("retry-after"\)/)
-  assert.match(enhancer, /button\.disabled = true/)
-  assert.match(enhancer, /event\.stopImmediatePropagation\(\)/)
-  assert.match(enhancer, /document\.addEventListener\("submit", onSubmit, true\)/)
   assert.match(enhancer, /Fresh score check available in \{cooldownSeconds\}s\./)
-})
-
-test("cooldown button sync does not observe the disabled attribute it mutates", () => {
-  const buttonSyncStart = enhancer.indexOf("const syncButton = () => {")
-  const noteEffectStart = enhancer.indexOf("let active = true", buttonSyncStart)
-  const buttonSyncBlock = enhancer.slice(buttonSyncStart, noteEffectStart)
-
-  assert.notEqual(buttonSyncStart, -1)
-  assert.match(buttonSyncBlock, /new MutationObserver\(syncButton\)/)
-  assert.match(buttonSyncBlock, /window\.setInterval\(syncButton, 250\)/)
-  assert.doesNotMatch(buttonSyncBlock, /attributeFilter:\s*\["disabled"\]/)
+  assert.doesNotMatch(enhancer, /button\.disabled\s*=/)
+  assert.doesNotMatch(enhancer, /freshScoreCooldown/)
+  assert.doesNotMatch(enhancer, /stopImmediatePropagation\(\)/)
+  assert.doesNotMatch(enhancer, /addEventListener\("submit"/)
 })
 
 test("fresh score note translations live in each locale catalog", () => {
