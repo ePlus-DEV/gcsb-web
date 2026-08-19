@@ -50,8 +50,9 @@ test("manual website score checks request a forced refresh", () => {
   assert.match(enhancer, /url\.pathname\.startsWith\("\/api\/arcade"\)/)
 })
 
-test("fresh-check cooldown is shown on the button and blocks rapid repeat submits", () => {
-  assert.match(enhancer, /MIN_REPEAT_DELAY_SECONDS = 5/)
+test("fresh-check cooldown matches the API and blocks rapid repeat submits", () => {
+  assert.match(enhancer, /MIN_REPEAT_DELAY_SECONDS = 60/)
+  assert.match(enhancer, /DEFAULT_RATE_LIMIT_SECONDS = 60/)
   assert.match(enhancer, /COOLDOWN_STORAGE_KEY/)
   assert.match(enhancer, /window\.sessionStorage\.setItem\(COOLDOWN_STORAGE_KEY/)
   assert.match(enhancer, /response\.status === 429/)
@@ -66,7 +67,7 @@ test("fresh-check cooldown is shown on the button and blocks rapid repeat submit
   // The enhancer must not fight React by mutating the native disabled property.
   assert.doesNotMatch(enhancer, /button\.disabled\s*=/)
 
-  // Countdown now lives only inside the Analyze button, not as a second red message.
+  // Countdown lives only inside the Analyze button, not as a second red message.
   assert.doesNotMatch(
     enhancer,
     /Fresh score check available in \{cooldownSeconds\}s\./,
