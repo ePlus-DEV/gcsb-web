@@ -12,7 +12,10 @@ import {
 import type { FormEvent } from "react"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { getFacilitatorAdjustedPoints } from "@/components/arcade/facilitator-points"
-import { readFacilitatorParticipation } from "@/components/arcade/facilitator-participation"
+import {
+  readFacilitatorParticipation,
+  writeFacilitatorParticipation,
+} from "@/components/arcade/facilitator-participation"
 import {
   API_URL,
   DASHBOARD_STORAGE_KEY,
@@ -25,6 +28,7 @@ import { CHROME_EXTENSION_URL, FIREFOX_EXTENSION_URL } from "@/lib/extension-sto
 
 const DEFAULT_DASHBOARD_URL = "https://arcade.eplus.dev/"
 const WIDGET_PROFILE_STORAGE_KEY = "arcade-widget-profile-url-v1"
+const BONUS_MILESTONE_STORAGE_PREFIX = "arcade-facilitator-bonus-milestone-v1"
 
 const MARQUEE_TITLES = [
   "More with Arcade Points",
@@ -53,6 +57,11 @@ type WidgetTrackedUrls = {
   dashboard: string
   chrome: string
   firefox: string
+}
+
+type WidgetFacilitatorSelection = {
+  participating: boolean
+  bonusMilestoneCompleted: boolean
 }
 
 const DEFAULT_TRACKED_URLS: WidgetTrackedUrls = {
@@ -123,6 +132,46 @@ function isValidProfileUrl(value: string): boolean {
   return PROFILE_URL_PATTERN.test(normalizeProfileUrl(value))
 }
 
+function bonusMilestoneStorageKey(profileUrl: string): string {
+  return `${BONUS_MILESTONE_STORAGE_PREFIX}:${normalizeProfileUrl(profileUrl)}`
+}
+
+function readBonusMilestoneCompleted(profileUrl: string): boolean {
+  if (!isValidProfileUrl(profileUrl)) return false
+
+  try {
+    return window.localStorage.getItem(bonusMilestoneStorageKey(profileUrl)) === "true"
+  } catch {
+    return false
+  }
+}
+
+function writeBonusMilestoneCompleted(profileUrl: string, completed: boolean): void {
+  if (!isValidProfileUrl(profileUrl)) return
+
+  try {
+    window.localStorage.setItem(
+      bonusMilestoneStorageKey(profileUrl),
+      completed ? "true" : "false",
+    )
+  } catch {
+    // The widget still uses its in-memory confirmation when storage is unavailable.
+  }
+}
+
+function readFacilitatorSelection(profileUrl: string): WidgetFacilitatorSelection {
+  if (!isValidProfileUrl(profileUrl)) {
+    return { participating: false, bonusMilestoneCompleted: false }
+  }
+
+  const participating = readFacilitatorParticipation(profileUrl)
+  return {
+    participating,
+    bonusMilestoneCompleted:
+      participating && readBonusMilestoneCompleted(profileUrl),
+  }
+}
+
 function readStoredProfileUrl(): string {
   try {
     const remembered = window.localStorage.getItem(WIDGET_PROFILE_STORAGE_KEY) ?? ""
@@ -176,53 +225,65 @@ export default function ArcadeEmbedWidget() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [result, setResult] = useState<ArcadeApiResponse | null>(null)
+  const [participating, setParticipating] = useState(false)
+  const [bonusMilestoneCompleted, setBonusMilestoneCompleted] = useState(false)
   const requestIdRef = useRef(0)
 
-  const analyzeProfile = useCallback(async (normalized: string) => {
-    const requestId = ++requestIdRef.current
-    setLoading(true)
-    setError("")
-
-    try {
-      const response = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: normalized, season: "2026" }),
-      })
-
-      let payload: ArcadeApiResponse | null = null
-      try {
-        payload = (await response.json()) as ArcadeApiResponse
-      } catch {
-        // Keep the stable English error below when the gateway returns invalid JSON.
-      }
-
-      if (!response.ok || !payload?.success) {
-        throw new Error("The profile could not be analyzed right now.")
-      }
-
-      if (requestId !== requestIdRef.current) return
-
-      setProfileUrl(normalized)
-      setResult(payload)
+  const analyzeProfile = useCallback(
+    async (normalized: string, selection: WidgetFacilitatorSelection) => {
+      const requestId = ++requestIdRef.current
+      setLoading(true)
+      setError("")
 
       try {
-        window.localStorage.setItem(WIDGET_PROFILE_STORAGE_KEY, normalized)
-        window.localStorage.setItem(
-          DASHBOARD_STORAGE_KEY,
-          JSON.stringify({ profileUrl: normalized, result: payload }),
-        )
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            url: normalized,
+            season: "2026",
+            facilitator: {
+              bonusMilestoneCompleted:
+                selection.participating && selection.bonusMilestoneCompleted,
+            },
+          }),
+        })
+
+        let payload: ArcadeApiResponse | null = null
+        try {
+          payload = (await response.json()) as ArcadeApiResponse
+        } catch {
+          // Keep the stable English error below when the gateway returns invalid JSON.
+        }
+
+        if (!response.ok || !payload?.success) {
+          throw new Error("The profile could not be analyzed right now.")
+        }
+
+        if (requestId !== requestIdRef.current) return
+
+        setProfileUrl(normalized)
+        setResult(payload)
+
+        try {
+          window.localStorage.setItem(WIDGET_PROFILE_STORAGE_KEY, normalized)
+          window.localStorage.setItem(
+            DASHBOARD_STORAGE_KEY,
+            JSON.stringify({ profileUrl: normalized, result: payload }),
+          )
+        } catch {
+          // Persistence is optional. The mini checker still works without storage.
+        }
       } catch {
-        // Persistence is optional. The mini checker still works without storage.
+        if (requestId !== requestIdRef.current) return
+        setResult(null)
+        setError("The profile could not be analyzed right now.")
+      } finally {
+        if (requestId === requestIdRef.current) setLoading(false)
       }
-    } catch {
-      if (requestId !== requestIdRef.current) return
-      setResult(null)
-      setError("The profile could not be analyzed right now.")
-    } finally {
-      if (requestId === requestIdRef.current) setLoading(false)
-    }
-  }, [])
+    },
+    [],
+  )
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -239,8 +300,11 @@ export default function ArcadeEmbedWidget() {
     })
 
     if (initialProfileUrl) {
+      const selection = readFacilitatorSelection(initialProfileUrl)
       setProfileUrl(initialProfileUrl)
-      void analyzeProfile(initialProfileUrl)
+      setParticipating(selection.participating)
+      setBonusMilestoneCompleted(selection.bonusMilestoneCompleted)
+      void analyzeProfile(initialProfileUrl, selection)
     }
 
     return () => {
@@ -249,6 +313,8 @@ export default function ArcadeEmbedWidget() {
   }, [analyzeProfile])
 
   const normalizedProfileUrl = normalizeProfileUrl(profileUrl)
+  const hasValidProfileUrl = isValidProfileUrl(normalizedProfileUrl)
+  const confirmedBonusMilestone = participating && bonusMilestoneCompleted
   const basePoints = numeric(result?.arcadePoints?.totalPoints)
   const facilitatorScore = result
     ? getFacilitatorAdjustedPoints(
@@ -257,7 +323,8 @@ export default function ArcadeEmbedWidget() {
           games: numeric(result.faciCounts?.faciGame),
           skills: numeric(result.faciCounts?.faciSkill),
         },
-        readFacilitatorParticipation(normalizedProfileUrl),
+        participating,
+        confirmedBonusMilestone,
       )
     : null
   const totalPoints = facilitatorScore?.totalPoints ?? basePoints
@@ -271,6 +338,33 @@ export default function ArcadeEmbedWidget() {
   const triviaSpecialPoints =
     numeric(result?.arcadePoints?.triviaPoints) + numeric(result?.arcadePoints?.specialPoints)
 
+  function updateProfileUrl(value: string) {
+    setProfileUrl(value)
+    const normalized = normalizeProfileUrl(value)
+    const selection = readFacilitatorSelection(normalized)
+    setParticipating(selection.participating)
+    setBonusMilestoneCompleted(selection.bonusMilestoneCompleted)
+  }
+
+  function updateParticipation(nextParticipating: boolean) {
+    if (!hasValidProfileUrl) return
+
+    setParticipating(nextParticipating)
+    writeFacilitatorParticipation(normalizedProfileUrl, nextParticipating)
+
+    if (!nextParticipating) {
+      setBonusMilestoneCompleted(false)
+      writeBonusMilestoneCompleted(normalizedProfileUrl, false)
+    }
+  }
+
+  function updateBonusMilestone(nextCompleted: boolean) {
+    if (!hasValidProfileUrl || !participating) return
+
+    setBonusMilestoneCompleted(nextCompleted)
+    writeBonusMilestoneCompleted(normalizedProfileUrl, nextCompleted)
+  }
+
   async function checkScore(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const normalized = normalizeProfileUrl(profileUrl)
@@ -281,7 +375,13 @@ export default function ArcadeEmbedWidget() {
       return
     }
 
-    await analyzeProfile(normalized)
+    writeFacilitatorParticipation(normalized, participating)
+    writeBonusMilestoneCompleted(normalized, confirmedBonusMilestone)
+
+    await analyzeProfile(normalized, {
+      participating,
+      bonusMilestoneCompleted: confirmedBonusMilestone,
+    })
   }
 
   function checkAnotherProfile() {
@@ -299,7 +399,17 @@ export default function ArcadeEmbedWidget() {
         .arcade-widget-marquee-track span{display:inline-flex;align-items:center;gap:8px}
         .arcade-widget-marquee-track span:after{content:"•";color:#60a5fa}
         .arcade-widget-marquee:hover .arcade-widget-marquee-track{animation-play-state:paused}
+        .arcade-widget-facilitator-options{order:2;grid-column:1/-1;flex:1 1 100%;width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:2px 0}
+        .arcade-widget-facilitator-option{min-width:0;display:flex;align-items:flex-start;gap:9px;padding:9px 10px;border:1px solid rgba(148,163,184,.16);border-radius:10px;background:rgba(99,102,241,.06);color:inherit;cursor:pointer}
+        .arcade-widget-facilitator-option.is-disabled{opacity:.52;cursor:not-allowed}
+        .arcade-widget-facilitator-option input{width:15px;height:15px;margin:1px 0 0;accent-color:#8b5cf6;flex:none}
+        .arcade-widget-facilitator-option span{display:grid;gap:2px;font-size:.72rem;line-height:1.25}
+        .arcade-widget-facilitator-option b{font-size:.74rem}
+        .arcade-widget-facilitator-option small{font-size:.66rem;opacity:.7}
+        .arcade-widget-form>.arcade-widget-input{order:1}
+        .arcade-widget-form>button[type="submit"]{order:3}
         @keyframes arcade-widget-marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+        @media(max-width:640px){.arcade-widget-facilitator-options{grid-template-columns:1fr}}
         @media(prefers-reduced-motion:reduce){.arcade-widget-marquee{white-space:normal}.arcade-widget-marquee-track{animation:none;display:flex;flex-wrap:wrap;gap:8px 16px}}
         @media(prefers-color-scheme:light){.arcade-widget-marquee-track{color:#6d28d9}}
       `}</style>
@@ -332,11 +442,52 @@ export default function ArcadeEmbedWidget() {
                   inputMode="url"
                   autoComplete="url"
                   value={profileUrl}
-                  onChange={(event) => setProfileUrl(event.target.value)}
+                  onChange={(event) => updateProfileUrl(event.target.value)}
                   placeholder="https://www.skills.google/public_profiles/..."
                   aria-label="Google Skills public profile URL"
                 />
               </label>
+
+              <div className="arcade-widget-facilitator-options" aria-label="Facilitator score options">
+                <label
+                  className={
+                    hasValidProfileUrl
+                      ? "arcade-widget-facilitator-option"
+                      : "arcade-widget-facilitator-option is-disabled"
+                  }
+                >
+                  <input
+                    type="checkbox"
+                    checked={participating}
+                    disabled={!hasValidProfileUrl || loading}
+                    onChange={(event) => updateParticipation(event.target.checked)}
+                  />
+                  <span>
+                    <b>Participating in Facilitator Program</b>
+                    <small>Required before Facilitator bonus points are added.</small>
+                  </span>
+                </label>
+
+                <label
+                  className={
+                    hasValidProfileUrl && participating
+                      ? "arcade-widget-facilitator-option"
+                      : "arcade-widget-facilitator-option is-disabled"
+                  }
+                >
+                  <input
+                    type="checkbox"
+                    checked={bonusMilestoneCompleted}
+                    disabled={!hasValidProfileUrl || !participating || loading}
+                    onChange={(event) => updateBonusMilestone(event.target.checked)}
+                  />
+                  <span>
+                    <b>Bonus Milestone completed</b>
+                    <small>Self-confirm completion before the API applies the Bonus Milestone.</small>
+                  </span>
+                </label>
+              </div>
+
               <button type="submit" disabled={loading}>
                 {loading ? <LoaderCircle className="spin" /> : <Trophy />}
                 <span>{loading ? "Refreshing score..." : "Check score"}</span>
@@ -374,6 +525,9 @@ export default function ArcadeEmbedWidget() {
                 <span><b>{badgeCount}</b> badges</span>
                 {facilitatorScore && facilitatorScore.bonus > 0 ? (
                   <span><b>+{facilitatorScore.bonus}</b> Facilitator bonus</span>
+                ) : null}
+                {confirmedBonusMilestone ? (
+                  <span><b>Confirmed</b> Bonus Milestone</span>
                 ) : null}
               </div>
             </div>
