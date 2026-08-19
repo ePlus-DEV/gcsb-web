@@ -1,0 +1,106 @@
+/* Compact Facilitator confirmation controls.
+ * These rules intentionally override the component-local fallback styles so
+ * the two confirmations stay on one tidy row instead of rendering as cards.
+ */
+.arcade-widget-facilitator-options {
+  width: 100% !important;
+  margin: 0 !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+.arcade-widget-facilitator-option {
+  flex: 0 1 auto !important;
+  min-width: 0 !important;
+  min-height: 34px !important;
+  padding: 6px 10px !important;
+  border-radius: 999px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  background: rgba(99, 102, 241, 0.055) !important;
+  border: 1px solid rgba(99, 102, 241, 0.16) !important;
+  box-shadow: none !important;
+}
+
+.arcade-widget-facilitator-option:hover:not(.is-disabled) {
+  border-color: rgba(124, 58, 237, 0.38) !important;
+  background: rgba(124, 58, 237, 0.09) !important;
+}
+
+.arcade-widget-facilitator-option:has(input:checked) {
+  border-color: rgba(124, 58, 237, 0.48) !important;
+  background: rgba(124, 58, 237, 0.12) !important;
+}
+
+.arcade-widget-facilitator-option.is-disabled {
+  opacity: 0.48 !important;
+}
+
+.arcade-widget-facilitator-option input {
+  width: 14px !important;
+  height: 14px !important;
+  margin: 0 !important;
+  flex: 0 0 14px !important;
+}
+
+.arcade-widget-facilitator-option > span {
+  display: block !important;
+  min-width: 0 !important;
+  line-height: 1.1 !important;
+}
+
+.arcade-widget-facilitator-option b {
+  display: block !important;
+  font-size: 0.69rem !important;
+  line-height: 1.15 !important;
+  white-space: nowrap !important;
+}
+
+.arcade-widget-facilitator-option small {
+  display: none !important;
+}
+
+html.dark .arcade-widget-facilitator-option {
+  background: rgba(99, 102, 241, 0.07) !important;
+  border-color: rgba(167, 139, 250, 0.18) !important;
+}
+
+html.dark .arcade-widget-facilitator-option:has(input:checked) {
+  background: rgba(124, 58, 237, 0.16) !important;
+  border-color: rgba(167, 139, 250, 0.42) !important;
+}
+
+html.light .arcade-widget-facilitator-option,
+html:not([data-widget-theme="dark"]) .arcade-widget-facilitator-option {
+  background: rgba(99, 102, 241, 0.045) !important;
+  border-color: rgba(99, 102, 241, 0.14) !important;
+}
+
+html.light .arcade-widget-facilitator-option:has(input:checked),
+html:not([data-widget-theme="dark"]) .arcade-widget-facilitator-option:has(input:checked) {
+  background: #f3f0ff !important;
+  border-color: rgba(109, 40, 217, 0.3) !important;
+}
+
+@media (max-width: 520px) {
+  .arcade-widget-facilitator-options {
+    gap: 5px !important;
+  }
+
+  .arcade-widget-facilitator-option {
+    padding-inline: 8px !important;
+  }
+
+  .arcade-widget-facilitator-option b {
+    font-size: 0.66rem !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .arcade-widget-facilitator-option {
+    flex: 1 1 100% !important;
+  }
+}
