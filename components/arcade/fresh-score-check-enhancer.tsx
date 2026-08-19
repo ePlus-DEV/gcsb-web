@@ -148,56 +148,31 @@ export default function FreshScoreCheckEnhancer() {
   }, [])
 
   useEffect(() => {
-    const cooldownActive = () => cooldownUntilRef.current > Date.now()
-
     const markManualFreshCheck = () => {
       freshIntentUntilRef.current = Date.now() + MANUAL_INTENT_TTL_MS
     }
 
     const onClick = (event: MouseEvent) => {
       const target = event.target
-      if (!(target instanceof Element) || !target.closest(BUTTON_SELECTOR)) return
-
-      if (cooldownActive()) {
-        event.preventDefault()
-        event.stopImmediatePropagation()
-        return
+      if (target instanceof Element && target.closest(BUTTON_SELECTOR)) {
+        markManualFreshCheck()
       }
-
-      markManualFreshCheck()
     }
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key !== "Enter") return
       const target = event.target
-      if (!(target instanceof Element) || !target.matches(INPUT_SELECTOR)) return
-
-      if (cooldownActive()) {
-        event.preventDefault()
-        event.stopImmediatePropagation()
-        return
+      if (target instanceof Element && target.matches(INPUT_SELECTOR)) {
+        markManualFreshCheck()
       }
-
-      markManualFreshCheck()
-    }
-
-    const onSubmit = (event: SubmitEvent) => {
-      if (!cooldownActive()) return
-      const target = event.target
-      if (!(target instanceof HTMLFormElement) || !target.closest(ANALYZER_SELECTOR)) return
-
-      event.preventDefault()
-      event.stopImmediatePropagation()
     }
 
     document.addEventListener("click", onClick, true)
     document.addEventListener("keydown", onKeyDown, true)
-    document.addEventListener("submit", onSubmit, true)
 
     return () => {
       document.removeEventListener("click", onClick, true)
       document.removeEventListener("keydown", onKeyDown, true)
-      document.removeEventListener("submit", onSubmit, true)
     }
   }, [])
 
@@ -242,50 +217,6 @@ export default function FreshScoreCheckEnhancer() {
       }
     }
   }, [beginCooldown])
-
-  useEffect(() => {
-    const cooldownActive = cooldownSeconds > 0
-
-    const syncButton = () => {
-      const button = document.querySelector<HTMLButtonElement>(BUTTON_SELECTOR)
-      if (!button) return
-
-      const controlledByCooldown = button.dataset.freshScoreCooldown === "true"
-      if (cooldownActive) {
-        button.dataset.freshScoreCooldown = "true"
-        if (!button.disabled) button.disabled = true
-        if (button.getAttribute("aria-disabled") !== "true") {
-          button.setAttribute("aria-disabled", "true")
-        }
-        const title = `Try again in ${cooldownSeconds}s`
-        if (button.title !== title) button.title = title
-      } else if (controlledByCooldown) {
-        delete button.dataset.freshScoreCooldown
-        button.disabled = false
-        button.removeAttribute("aria-disabled")
-        button.removeAttribute("title")
-      }
-    }
-
-    syncButton()
-
-    // React toggles `disabled` while the request transitions out of loading.
-    // Do not observe the disabled attribute itself: writing it from inside an
-    // attribute observer creates a mutation loop that can starve React and
-    // leave the button stuck on "Analyzing...". Child-list observation plus
-    // a short sync timer keeps the visual disabled state aligned safely.
-    const observer = new MutationObserver(syncButton)
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-    })
-    const timer = window.setInterval(syncButton, 250)
-
-    return () => {
-      observer.disconnect()
-      window.clearInterval(timer)
-    }
-  }, [cooldownSeconds])
 
   useEffect(() => {
     let active = true
