@@ -168,7 +168,7 @@
   color:#66718a;
 }
 
-@media (max-width:1000px){
+@media (max-width:1160px){
   .program-countdown-grid{
     grid-template-columns:1fr;
   }
