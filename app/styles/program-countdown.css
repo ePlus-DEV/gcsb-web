@@ -81,12 +81,13 @@
 }
 
 .program-countdown-heading span{
-  overflow:hidden;
+  overflow:visible;
   color:var(--arcade-muted);
   font-size:.68rem;
   line-height:1.45;
-  text-overflow:ellipsis;
-  white-space:nowrap;
+  text-overflow:clip;
+  white-space:normal;
+  overflow-wrap:anywhere;
 }
 
 .program-countdown-heading span b{

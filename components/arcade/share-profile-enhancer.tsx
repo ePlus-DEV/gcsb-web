@@ -177,14 +177,28 @@ export default function ShareProfileEnhancer() {
         background: rgba(220, 38, 38, .16);
         color: #fca5a5;
       }
-      html[data-theme="light"] .profile-share-fab {
-        border-color: rgba(79, 70, 229, .18);
-        background: rgba(79, 70, 229, .06);
-        color: #4f46e5;
+      html.light .profile-share-fab {
+        border-color: rgba(37, 99, 235, .28);
+        background: rgba(37, 99, 235, .10);
+        color: #1d4ed8;
       }
-      html[data-theme="light"] .profile-share-fab:hover {
-        border-color: rgba(79, 70, 229, .34);
-        background: rgba(79, 70, 229, .1);
+      html.light .profile-share-fab:hover {
+        border-color: rgba(37, 99, 235, .45);
+        background: rgba(37, 99, 235, .16);
+        color: #1e40af;
+      }
+      html.light .profile-share-fab:focus-visible {
+        outline-color: rgba(37, 99, 235, .28);
+      }
+      html.light .profile-share-fab.is-success {
+        border-color: rgba(5, 150, 105, .35);
+        background: rgba(5, 150, 105, .10);
+        color: #047857;
+      }
+      html.light .profile-share-fab.is-error {
+        border-color: rgba(220, 38, 38, .32);
+        background: rgba(220, 38, 38, .08);
+        color: #b91c1c;
       }
       @media (max-width: 520px) {
         .has-profile-share-action > :first-child {
