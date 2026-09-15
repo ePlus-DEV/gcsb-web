@@ -25,6 +25,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     ...localizedPages,
     {
+      url: new URL("/swag-drops/", WEBSITE_SITE_URL).toString(),
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    {
       url: new URL("/about/", WEBSITE_SITE_URL).toString(),
       changeFrequency: "monthly",
       priority: 0.7,
