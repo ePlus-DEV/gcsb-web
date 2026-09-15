@@ -5,6 +5,7 @@ import FreshScoreCheckEnhancer from "@/components/arcade/fresh-score-check-enhan
 import MonthlyGamesPanelGate from "@/components/arcade/monthly-games-panel-gate"
 import ProgramCountdown from "@/components/arcade/program-countdown"
 import ShareProfileEnhancer from "@/components/arcade/share-profile-enhancer"
+import SwagDropsPreview from "@/components/arcade/swag-drops-preview"
 import TierStatusIconEnhancer from "@/components/arcade/tier-status-icon-enhancer"
 import ArcadeRouteLinks from "@/components/app/arcade-route-links"
 import SeoContent from "@/components/seo/seo-content"
@@ -33,6 +34,7 @@ export default function Page() {
       <ProgramCountdown />
       <FreshScoreCheckEnhancer />
       <TierStatusIconEnhancer />
+      <SwagDropsPreview />
       <MonthlyGamesPanelGate />
       <ShareProfileEnhancer />
       <FacilitatorAnalyzerOption />
