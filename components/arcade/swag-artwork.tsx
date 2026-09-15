@@ -1,6 +1,6 @@
 "use client"
 
-import { Gift } from "lucide-react"
+import { Trophy } from "lucide-react"
 import { useEffect, useState } from "react"
 
 export default function SwagArtwork({
@@ -25,7 +25,7 @@ export default function SwagArtwork({
         role="img"
         aria-label={alt}
       >
-        <Gift className="h-10 w-10" aria-hidden="true" />
+        <Trophy className="h-10 w-10" aria-hidden="true" />
       </div>
     )
   }

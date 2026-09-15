@@ -2,9 +2,8 @@ import type { Metadata } from "next"
 import {
   CheckCircle2,
   ExternalLink,
-  Gift,
   Info,
-  Layers3,
+  Sparkles,
   Trophy,
 } from "lucide-react"
 import SwagArtwork from "@/components/arcade/swag-artwork"
@@ -96,7 +95,7 @@ export default function SwagDropsPage() {
               </div>
               <div className="flex flex-col justify-center p-6 sm:p-10">
                 <span className="mb-4 inline-flex w-fit items-center gap-2 rounded-full bg-cyan-100 px-3 py-1.5 text-xs font-semibold uppercase tracking-[.12em] text-cyan-800 dark:bg-cyan-300/10 dark:text-cyan-200">
-                  <Gift className="h-4 w-4" aria-hidden="true" /> First confirmed 2026 drop
+                  <Sparkles className="h-4 w-4" aria-hidden="true" /> First confirmed 2026 drop
                 </span>
                 <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
                   Revealed {latest.revealedOn}
@@ -217,7 +216,7 @@ export default function SwagDropsPage() {
                       </div>
                     ) : (
                       <div className="flex items-center gap-3 rounded-xl border border-dashed border-slate-300 bg-white/45 p-4 text-sm text-slate-500 dark:border-white/10 dark:bg-white/[0.025] dark:text-slate-400">
-                        <Gift className="h-5 w-5 shrink-0" aria-hidden="true" />
+                        <Sparkles className="h-5 w-5 shrink-0" aria-hidden="true" />
                         No individual 2026 swag item has been publicly revealed for this tier yet.
                       </div>
                     )}
@@ -231,7 +230,7 @@ export default function SwagDropsPage() {
         <section className="grid gap-4 lg:grid-cols-2">
           <article className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/[0.035]">
             <div className="flex items-center gap-2 text-slate-950 dark:text-white">
-              <Layers3 className="h-5 w-5 text-violet-600 dark:text-violet-300" aria-hidden="true" />
+              <Sparkles className="h-5 w-5 text-violet-600 dark:text-violet-300" aria-hidden="true" />
               <h2 className="text-lg font-bold">Snowball: what is inside each reward tier</h2>
             </div>
             <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">

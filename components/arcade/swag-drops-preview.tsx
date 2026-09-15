@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { ArrowRight, Gift } from "lucide-react"
+import { ArrowRight, Trophy } from "lucide-react"
 import { createPortal } from "react-dom"
 import SwagArtwork from "@/components/arcade/swag-artwork"
 import { ARCADE_SWAG_DROPS } from "@/components/arcade/swag-drops"
@@ -38,7 +38,7 @@ export default function SwagDropsPreview() {
         <div className="flex min-w-0 items-center gap-3 p-4">
           <div className="min-w-0 flex-1">
             <span className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-cyan-50 px-2.5 py-1 text-[11px] font-semibold tracking-wide text-cyan-700 dark:bg-cyan-300/10 dark:text-cyan-200">
-              <Gift className="h-3.5 w-3.5" aria-hidden="true" /> 2026
+              <Trophy className="h-3.5 w-3.5" aria-hidden="true" /> 2026
             </span>
             <strong className="block truncate text-base text-slate-950 dark:text-white">
               {latest.shortName}
