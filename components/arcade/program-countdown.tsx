@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react"
 
 const HOST_SELECTOR = ".program-countdown-host"
 const HERO_SELECTOR = ".arcade-hero"
+const FACILITATOR_LAUNCHER_SELECTOR = ".facilitator-launcher"
 const DEFAULT_TIME_ZONE_OFFSET = "+05:30"
 const FIREBASE_CDN_VERSION = "12.18.0"
 const DEFAULT_FETCH_INTERVAL_MS = 900_000
@@ -314,6 +315,12 @@ function formatPart(value: number): string {
   return String(value).padStart(2, "0")
 }
 
+function openFacilitatorDetails() {
+  document
+    .querySelector<HTMLButtonElement>(FACILITATOR_LAUNCHER_SELECTOR)
+    ?.click()
+}
+
 function ProgramCard({
   config,
   locale,
@@ -336,6 +343,7 @@ function ProgramCard({
     <article
       className={`program-countdown-card tone-${config.tone}${remaining.ended ? " is-ended" : ""}`}
       data-program={config.id}
+      data-program-state={remaining.ended ? "ended" : "active"}
       aria-label={config.title}
     >
       <div className="program-countdown-heading">
@@ -346,17 +354,35 @@ function ProgramCard({
         </div>
       </div>
 
-      <div className="program-countdown-timer" role="timer">
-        {timeParts.map((part, index) => (
-          <div className="program-countdown-part-wrap" key={part.unit}>
-            {index > 0 ? <span className="program-countdown-separator" aria-hidden="true">:</span> : null}
-            <div className="program-countdown-part">
-              <strong>{formatPart(part.value)}</strong>
-              <span>{unitLabel(part.unit, locale)}</span>
-            </div>
+      {remaining.ended ? (
+        <div className="program-countdown-ended" role="status">
+          <div className="program-countdown-ended-copy">
+            <strong>Unavailable</strong>
+            <span>Program tracker</span>
           </div>
-        ))}
-      </div>
+          {config.id === "facilitator" ? (
+            <button
+              className="program-countdown-ended-action"
+              type="button"
+              onClick={openFacilitatorDetails}
+            >
+              View program details
+            </button>
+          ) : null}
+        </div>
+      ) : (
+        <div className="program-countdown-timer" role="timer">
+          {timeParts.map((part, index) => (
+            <div className="program-countdown-part-wrap" key={part.unit}>
+              {index > 0 ? <span className="program-countdown-separator" aria-hidden="true">:</span> : null}
+              <div className="program-countdown-part">
+                <strong>{formatPart(part.value)}</strong>
+                <span>{unitLabel(part.unit, locale)}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </article>
   )
 }

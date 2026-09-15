@@ -77,3 +77,15 @@ test("program countdown uses localized Intl unit labels and a responsive stylesh
   assert.match(styles, /@media \(max-width:720px\)/)
   assert.match(styles, /\.light \.program-countdown-card/)
 })
+
+test("ended programs switch from zero countdown boxes to an archive-style state", () => {
+  assert.match(countdown, /data-program-state=\{remaining\.ended \? "ended" : "active"\}/)
+  assert.match(countdown, /remaining\.ended \? \(/)
+  assert.match(countdown, /program-countdown-ended/)
+  assert.match(countdown, />Unavailable</)
+  assert.match(countdown, />Program tracker</)
+  assert.match(countdown, /View program details/)
+  assert.match(countdown, /FACILITATOR_LAUNCHER_SELECTOR/)
+  assert.match(styles, /\.program-countdown-card\.is-ended/)
+  assert.match(styles, /\.program-countdown-ended-action/)
+})
