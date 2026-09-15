@@ -40,7 +40,12 @@
 }
 
 .program-countdown-card.is-ended{
-  opacity:.72;
+  --countdown-accent:#fb7185;
+  --countdown-accent-soft:rgba(251,113,133,.12);
+  --countdown-border:rgba(251,113,133,.30);
+  background:
+    radial-gradient(circle at 10% 10%,var(--countdown-accent-soft),transparent 52%),
+    linear-gradient(145deg,rgba(31,18,31,.95),rgba(13,13,28,.97));
 }
 
 .program-countdown-heading{
@@ -145,11 +150,71 @@
   opacity:.7;
 }
 
+.program-countdown-ended{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:14px;
+  min-width:0;
+}
+
+.program-countdown-ended-copy{
+  display:grid;
+  gap:4px;
+  min-width:0;
+  text-align:right;
+}
+
+.program-countdown-ended-copy strong{
+  color:var(--countdown-accent);
+  font-size:.8rem;
+  font-weight:850;
+  letter-spacing:.035em;
+  text-transform:uppercase;
+}
+
+.program-countdown-ended-copy span{
+  color:#899ab6;
+  font-size:.65rem;
+}
+
+.program-countdown-ended-action{
+  flex:0 0 auto;
+  min-height:38px;
+  padding:0 13px;
+  border:1px solid var(--countdown-border);
+  border-radius:9px;
+  background:var(--countdown-accent-soft);
+  color:#ffd9df;
+  cursor:pointer;
+  font:inherit;
+  font-size:.68rem;
+  font-weight:800;
+  transition:transform .18s ease,border-color .18s ease,background .18s ease;
+}
+
+.program-countdown-ended-action:hover{
+  transform:translateY(-1px);
+  border-color:rgba(251,113,133,.52);
+  background:rgba(251,113,133,.18);
+}
+
+.program-countdown-ended-action:focus-visible{
+  outline:2px solid var(--countdown-accent);
+  outline-offset:2px;
+}
+
 .light .program-countdown-card{
   background:
     radial-gradient(circle at 10% 10%,var(--countdown-accent-soft),transparent 52%),
     linear-gradient(145deg,rgba(255,255,255,.98),rgba(246,248,255,.98));
   box-shadow:0 14px 35px rgba(37,51,82,.10);
+}
+
+.light .program-countdown-card.is-ended{
+  background:
+    radial-gradient(circle at 10% 10%,var(--countdown-accent-soft),transparent 52%),
+    linear-gradient(145deg,rgba(255,250,251,.99),rgba(255,245,247,.98));
 }
 
 .light .program-countdown-heading strong{
@@ -165,8 +230,13 @@
   background:rgba(255,255,255,.72);
 }
 
-.light .program-countdown-part span{
+.light .program-countdown-part span,
+.light .program-countdown-ended-copy span{
   color:#66718a;
+}
+
+.light .program-countdown-ended-action{
+  color:#9f1239;
 }
 
 @media (max-width:1160px){
@@ -212,6 +282,14 @@
     max-width:48px;
     font-size:.56rem;
   }
+
+  .program-countdown-ended{
+    justify-content:space-between;
+  }
+
+  .program-countdown-ended-copy{
+    text-align:left;
+  }
 }
 
 @media (max-width:390px){
@@ -225,5 +303,14 @@
 
   .program-countdown-separator{
     font-size:.75rem;
+  }
+
+  .program-countdown-ended{
+    align-items:stretch;
+    flex-direction:column;
+  }
+
+  .program-countdown-ended-action{
+    width:100%;
   }
 }
