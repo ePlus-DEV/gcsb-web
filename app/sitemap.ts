@@ -33,6 +33,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 0.8,
     },
+    {
+      url: new URL("/swag-drops/2025/", WEBSITE_SITE_URL).toString(),
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
     ...ARCADE_SWAG_SEASONS.flatMap((season) => [
       {
         url: new URL(swagSeasonPath(season), WEBSITE_SITE_URL).toString(),
