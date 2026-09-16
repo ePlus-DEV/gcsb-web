@@ -53,17 +53,22 @@ test("homepage and sitemap expose the season-aware swag experience", () => {
   assert.match(sitemap, /swagProductPath/)
 })
 
-test("swag routes include archive, season hub, and static detail pages", () => {
+test("swag routes include archive, season overview, and static detail pages", () => {
   const archivePage = readRepoFile("app/swag-drops/page.tsx")
   const seasonPage = readRepoFile("app/swag-drops/2026/page.tsx")
   const detailPage = readRepoFile("app/swag-drops/2026/[slug]/page.tsx")
 
   assert.match(archivePage, /Swag drops by season/)
   assert.match(seasonPage, /Google Skills Arcade 2026 swag drops/)
-  assert.match(seasonPage, /Confirmed swag/)
+  assert.match(seasonPage, /2026 reward overview/)
+  assert.match(seasonPage, /Total items/)
+  assert.match(seasonPage, />TBA</)
+  assert.match(seasonPage, /Swag lineup/)
+  assert.match(seasonPage, /Waiting for reveal/)
+  assert.match(seasonPage, /No additional named item has been announced yet/)
   assert.match(seasonPage, /tierDrops\.map/)
   assert.match(seasonPage, /swagProductPath\(season, drop\.id\)/)
-  assert.match(seasonPage, /Not revealed yet/)
+  assert.match(seasonPage, /auto-rows-fr/)
   assert.match(detailPage, /generateStaticParams/)
   assert.match(detailPage, /BreadcrumbList/)
   assert.match(detailPage, /Waterfall allocation/)
