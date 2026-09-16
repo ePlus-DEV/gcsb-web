@@ -125,7 +125,7 @@ export default function SwagDrops2026Page() {
                 2026 rewards by tier
               </h2>
               <p className="text-sm text-slate-500 dark:text-slate-400">
-                Each tier has its own indexable guide and confirmed reward list.
+                See the requirements and every confirmed swag item currently attached to each tier.
               </p>
             </div>
           </div>
@@ -134,11 +134,11 @@ export default function SwagDrops2026Page() {
             {ARCADE_SWAG_TIERS.map((tier) => {
               const meta = SWAG_TIER_META[tier]
               const tierDrops = getSwagDropsForTier(tier, season)
+
               return (
-                <Link
+                <article
                   key={tier}
-                  href={swagTierPath(season, tier)}
-                  className="group rounded-2xl border border-slate-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-cyan-300 hover:shadow-md dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-cyan-400/40"
+                  className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-cyan-300 hover:shadow-md dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-cyan-400/40"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div>
@@ -149,8 +149,15 @@ export default function SwagDrops2026Page() {
                         {meta.pointsLabel}
                       </h3>
                     </div>
-                    <ArrowRight className="h-5 w-5 text-slate-400 transition group-hover:translate-x-1 group-hover:text-cyan-600" aria-hidden="true" />
+                    <Link
+                      href={swagTierPath(season, tier)}
+                      aria-label={`View Arcade ${meta.label} ${season} rewards`}
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-400 transition hover:border-cyan-300 hover:text-cyan-600 dark:border-white/10"
+                    >
+                      <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                    </Link>
                   </div>
+
                   <div className="mt-4 flex flex-wrap gap-2 text-xs font-semibold">
                     <span className="rounded-full bg-slate-100 px-3 py-1.5 text-slate-600 dark:bg-white/5 dark:text-slate-300">
                       {meta.slots.toLocaleString("en-US")} prize slots
@@ -159,10 +166,59 @@ export default function SwagDrops2026Page() {
                       {tierDrops.length} confirmed {tierDrops.length === 1 ? "drop" : "drops"}
                     </span>
                   </div>
+
                   <p className="mt-4 text-sm leading-6 text-slate-600 dark:text-slate-300">
                     {meta.rewardRule}
                   </p>
-                </Link>
+
+                  <div className="mt-5 border-t border-slate-200 pt-4 dark:border-white/10">
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                      <span className="text-xs font-bold uppercase tracking-[.12em] text-slate-500 dark:text-slate-400">
+                        Confirmed swag
+                      </span>
+                      <Link
+                        href={swagTierPath(season, tier)}
+                        className="text-xs font-semibold text-cyan-700 hover:underline dark:text-cyan-300"
+                      >
+                        View tier
+                      </Link>
+                    </div>
+
+                    {tierDrops.length > 0 ? (
+                      <div className="space-y-2">
+                        {tierDrops.map((drop) => (
+                          <Link
+                            key={drop.id}
+                            href={swagProductPath(season, drop.id)}
+                            className="group/reward flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50/70 p-3 transition hover:border-cyan-300 hover:bg-cyan-50/50 dark:border-white/10 dark:bg-white/[0.025] dark:hover:border-cyan-400/40 dark:hover:bg-cyan-300/[0.04]"
+                          >
+                            <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white dark:bg-black/20">
+                              <SwagArtwork
+                                src={drop.imageUrl}
+                                alt=""
+                                className="h-full w-full object-contain"
+                              />
+                            </span>
+                            <span className="min-w-0 flex-1">
+                              <strong className="block truncate text-sm text-slate-950 dark:text-white">
+                                {drop.shortName}
+                              </strong>
+                              <span className="mt-0.5 block text-xs text-slate-500 dark:text-slate-400">
+                                Revealed {drop.revealedOn}
+                              </span>
+                            </span>
+                            <ArrowRight className="h-4 w-4 shrink-0 text-slate-400 transition group-hover/reward:translate-x-1 group-hover/reward:text-cyan-600" aria-hidden="true" />
+                          </Link>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-3 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-3 text-sm text-slate-500 dark:border-white/10 dark:bg-white/[0.025] dark:text-slate-400">
+                        <Sparkles className="h-4 w-4 shrink-0" aria-hidden="true" />
+                        Not revealed yet
+                      </div>
+                    )}
+                  </div>
+                </article>
               )
             })}
           </div>
