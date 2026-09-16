@@ -54,7 +54,7 @@ test("homepage and sitemap expose the season-aware swag experience", () => {
   assert.match(sitemap, /swagProductPath/)
 })
 
-test("swag routes include the compact season showcase and static detail pages", () => {
+test("season hub exposes each tier reward lineup without opening detail pages", () => {
   const archivePage = readRepoFile("app/swag-drops/page.tsx")
   const seasonPage = readRepoFile("app/swag-drops/2026/page.tsx")
   const detailPage = readRepoFile("app/swag-drops/2026/[slug]/page.tsx")
@@ -62,9 +62,19 @@ test("swag routes include the compact season showcase and static detail pages", 
 
   assert.match(archivePage, /Swag drops by season/)
   assert.match(seasonPage, /Google Skills Arcade 2026 swag drops/)
-  assert.match(seasonPage, /2026 tier snapshot/)
+  assert.match(seasonPage, /2026 rewards by tier/)
+  assert.match(seasonPage, /What this tier currently includes/)
   assert.match(seasonPage, /Projected package/)
-  assert.match(seasonPage, /2026 revealed swag/)
+  assert.match(seasonPage, /Official pending/)
+  assert.match(seasonPage, /Projected mystery/)
+  assert.match(seasonPage, /Officially promised/)
+  assert.match(seasonPage, /Ranger bonus reward/)
+  assert.match(seasonPage, /Legend-only reward/)
+  assert.match(seasonPage, /Placeholder from the 2025 package-size baseline/)
+  assert.match(seasonPage, /revealedRelationship/)
+  assert.match(seasonPage, /swagProductPath\(season, drop\.id\)/)
+  assert.match(seasonPage, /lg:grid-cols-2/)
+
   assert.match(seasonPage, /2025 final package reference/)
   assert.match(seasonPage, /Hall of Swag Winners/)
   assert.match(seasonPage, /COMMUNITY_SWAG_GALLERY/)
@@ -72,10 +82,6 @@ test("swag routes include the compact season showcase and static detail pages", 
   assert.match(seasonPage, /SyncWithAni/)
   assert.match(seasonPage, /Premal_Bhagat/)
   assert.match(seasonPage, /SWAG_2025_FINAL_REFERENCE_URL/)
-  assert.match(seasonPage, /meta\.historicalEstimateLabel/)
-  assert.match(seasonPage, /meta\.historicalEstimateItems/)
-  assert.match(seasonPage, /swagProductPath\(season, drop\.id\)/)
-  assert.match(seasonPage, /auto-rows-fr/)
 
   assert.match(seasonMeta, /historical estimate ≈5 items/)
   assert.match(seasonMeta, /historical estimate ≈6 items/)
