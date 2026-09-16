@@ -114,3 +114,20 @@ test("Season 2 uses individual announcements plus the official final wrap-up", (
     }
   }
 })
+
+test("2025 swag history is exposed as a sourced public archive page", () => {
+  const page = readRepoFile("app/swag-drops/2025/page.tsx")
+  const archive = readRepoFile("app/swag-drops/page.tsx")
+
+  assert.match(page, /ARCADE_2025_SWAG_HISTORY/)
+  assert.match(page, /Season 1 is reconstructed from official Yugali item announcements/)
+  assert.match(page, /Season 2 package contents are verified against Google/)
+  assert.match(page, /Official tier rules/)
+  assert.match(page, /Official final package/)
+  assert.match(page, /Snowball rule/)
+  assert.match(page, /Delivery evidence/)
+  assert.match(page, /item\.sourceUrl/)
+  assert.match(page, /revealedOnIso/)
+  assert.match(archive, /\/swag-drops\/2025\//)
+  assert.match(archive, /ARCADE_2025_SWAG_HISTORY/)
+})
