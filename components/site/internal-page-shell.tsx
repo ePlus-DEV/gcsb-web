@@ -48,7 +48,7 @@ export default function InternalPageShell({
               </div>
               <h1 className="internal-page-title text-4xl font-bold tracking-tight text-white sm:text-6xl">{title}</h1>
               <p className="internal-page-description mt-5 text-lg leading-8 text-slate-300">{description}</p>
-              {updated ? <p className="internal-page-updated mt-4 text-sm text-slate-500">Last updated: {updated}</p> : null}
+              {updated ? <p className="internal-page-updated mt-4 text-sm text-slate-500">{`Last updated: ${updated}`}</p> : null}
             </div>
           </div>
         </section>
@@ -64,7 +64,7 @@ export default function InternalPageShell({
 
       <footer className="internal-page-footer border-t border-white/10">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-8 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <p>© {new Date().getFullYear()} ePlus.DEV. Independent community project.</p>
+          <p>© {new Date().getFullYear()} ePlus.DEV. <span>Independent community project.</span></p>
           <div className="flex gap-4">
             <Link href="/" className="hover:text-white">Calculator</Link>
             <Link href="/about/" className="hover:text-white">About</Link>

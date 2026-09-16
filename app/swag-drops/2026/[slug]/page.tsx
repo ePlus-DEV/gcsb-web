@@ -273,7 +273,7 @@ function TierPage({ tier }: { tier: ArcadeSwagTier }) {
                 {`2025 ${meta.label} package`}
               </h2>
               <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-500 dark:text-slate-400">
-                These were the official final 2025 Season 2 items for this tier. They explain the {meta.historicalEstimateLabel} projection, but they are not confirmed as 2026 rewards.
+                {`These were the official final 2025 Season 2 items for this tier. They explain the ${meta.historicalEstimateLabel} projection, but they are not confirmed as 2026 rewards.`}
               </p>
             </div>
             <a
