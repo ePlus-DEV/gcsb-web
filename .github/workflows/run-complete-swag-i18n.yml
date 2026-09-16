@@ -1,0 +1,37 @@
+name: Run complete swag translation patch
+
+on:
+  push:
+    branches:
+      - fix/swag-i18n
+    paths:
+      - .github/workflows/run-complete-swag-i18n.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/swag-i18n
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract and run translation patch
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          src = Path('.github/workflows/one-time-complete-swag-i18n.yml').read_text().splitlines()
+          begin = next(i for i, line in enumerate(src) if line.strip() == "python - <<'PY'") + 1
+          end = next(i for i in range(begin, len(src)) if src[i].strip() == 'PY')
+          code = '\n'.join(line[10:] if line.startswith('          ') else line for line in src[begin:end]) + '\n'
+          Path('/tmp/complete-swag-i18n.py').write_text(code)
+          PY
+          python /tmp/complete-swag-i18n.py
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add lib/website-i18n.ts public/i18n/locales tests/swag-i18n.test.mjs
+          git commit -m "fix: complete swag page translations"
+          git push origin HEAD:fix/swag-i18n
