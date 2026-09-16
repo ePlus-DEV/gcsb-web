@@ -251,7 +251,7 @@ export default function SwagDropsPage() {
         <section className="rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-white/10 dark:bg-white/[0.025]">
           <h2 className="text-lg font-bold text-slate-950 dark:text-white">Sources and update policy</h2>
           <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-            Google Developer forum announcements are treated as the source of truth. Community trackers are useful secondary references, but they can lag behind a new reveal. This page only adds a 2026 item after Google has publicly announced it.
+            Google Developer forum announcements are treated as the source of truth. This page only adds a 2026 item after Google has publicly announced it.
           </p>
           <div className="mt-4 flex flex-wrap gap-3 text-sm font-semibold">
             <a
@@ -269,14 +269,6 @@ export default function SwagDropsPage() {
               className="inline-flex items-center gap-1.5 text-cyan-700 hover:underline dark:text-cyan-300"
             >
               Latest official swag drop <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
-            </a>
-            <a
-              href="https://arcadepoints.vercel.app/swag-drops"
-              target="_blank"
-              rel="noreferrer noopener"
-              className="inline-flex items-center gap-1.5 text-slate-600 hover:underline dark:text-slate-400"
-            >
-              Community swag reference <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
             </a>
           </div>
         </section>
