@@ -11,6 +11,7 @@ export const ARCADE_SWAG_TIERS: readonly ArcadeSwagTier[] = [
 export type ArcadeSwagDrop = {
   id: string
   season: number
+  dropNumber: number
   name: string
   shortName: string
   revealedOn: string
@@ -31,6 +32,7 @@ export const ARCADE_SWAG_DROPS: readonly ArcadeSwagDrop[] = [
   {
     id: "weather-shield-jacket",
     season: 2026,
+    dropNumber: 1,
     name: "The Arcade Weather-Shield Jacket",
     shortName: "Weather-Shield Jacket",
     revealedOn: "September 15, 2026",
