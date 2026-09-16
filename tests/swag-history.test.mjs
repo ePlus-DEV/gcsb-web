@@ -8,12 +8,17 @@ import {
 const source = readRepoFile("components/arcade/swag-history.ts")
 const {
   ARCADE_2025_SWAG_HISTORY,
+  ARCADE_2025_SEASON_2_FINAL_WRAP_URL,
   ARCADE_2025_SEASON_2_SNOWBALL_SOURCE_URL,
   getHistoricalSwagSeason,
 } = evaluateTypeScript(source, "swag-history.ts")
 
 function packageFor(season, tier) {
   return season.packages.find((entry) => entry.tier === tier)
+}
+
+function itemFor(season, tier, name) {
+  return packageFor(season, tier)?.items.find((item) => item.name === name)
 }
 
 test("2025 swag history keeps Season 1 and Season 2 separate", () => {
@@ -46,20 +51,32 @@ test("Season 1 package counts match the reconstructed historical record", () => 
   assert.equal(packageFor(season, "trooper")?.pointsLabel, "40–64 points")
   assert.equal(packageFor(season, "legend")?.pointsLabel, "85+ points")
 
-  const trooperBackpack = packageFor(season, "trooper")?.items.find(
-    (item) => item.name === "The Arcade Trooper Backpack",
-  )
+  const trooperBackpack = itemFor(season, "trooper", "The Arcade Trooper Backpack")
   assert.equal(trooperBackpack?.sourceKind, "delivery-evidence")
+  assert.equal(trooperBackpack?.revealedOnIso, undefined)
+
+  assert.equal(
+    itemFor(season, "novice", "The Arcade Mug")?.revealedOnIso,
+    "2025-05-09",
+  )
+  assert.equal(
+    itemFor(season, "legend", "The Arcade Legend Backpack")?.revealedOnIso,
+    "2025-06-27",
+  )
 
   for (const entry of season.packages) {
     for (const item of entry.items) {
       assert.match(item.sourceUrl, /^https:\/\//)
       assert.ok(item.sourceKind)
+      if (item.sourceKind === "official-announcement") {
+        assert.match(item.sourceUrl, /^https:\/\/discuss\.google\.dev\//)
+        assert.match(item.revealedOnIso, /^2025-\d{2}-\d{2}$/)
+      }
     }
   }
 })
 
-test("Season 2 uses the official final wrap-up package counts", () => {
+test("Season 2 uses individual announcements plus the official final wrap-up", () => {
   const season = getHistoricalSwagSeason(2025, 2)
   assert.ok(season)
 
@@ -72,12 +89,28 @@ test("Season 2 uses the official final wrap-up package counts", () => {
   assert.equal(packageFor(season, "novice")?.pointsLabel, "25–44 points")
   assert.equal(packageFor(season, "trooper")?.pointsLabel, "45–64 points")
   assert.equal(packageFor(season, "legend")?.pointsLabel, "95+ points")
+  assert.equal(season.packageSourceUrl, ARCADE_2025_SEASON_2_FINAL_WRAP_URL)
   assert.match(season.packageSourceUrl, /that-s-a-wrap-on-google-skills-arcade-2025/)
   assert.match(ARCADE_2025_SEASON_2_SNOWBALL_SOURCE_URL, /swags-that-grow-with-your-skills/)
 
+  assert.equal(
+    itemFor(season, "ranger", "The Arcade USB Hub")?.revealedOnIso,
+    "2025-10-13",
+  )
+  assert.equal(
+    itemFor(season, "trooper", "The Arcade Trooper Backpack")?.revealedOnIso,
+    "2025-12-26",
+  )
+  assert.match(
+    itemFor(season, "legend", "The Arcade Legend Backpack")?.sourceUrl ?? "",
+    /arcade-legend-backpack/,
+  )
+
   for (const entry of season.packages) {
     for (const item of entry.items) {
-      assert.equal(item.sourceKind, "official-wrap-up")
+      assert.equal(item.sourceKind, "official-announcement")
+      assert.match(item.sourceUrl, /^https:\/\/discuss\.google\.dev\//)
+      assert.match(item.revealedOnIso, /^2025-\d{2}-\d{2}$/)
     }
   }
 })
