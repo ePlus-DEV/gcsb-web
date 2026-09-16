@@ -54,6 +54,25 @@ test("homepage and sitemap expose the season-aware swag experience", () => {
   assert.match(sitemap, /swagProductPath/)
 })
 
+test("swag pages expose live remaining prize-slot data from the crawler", () => {
+  const liveSlots = readRepoFile("components/arcade/live-tier-slots.tsx")
+  const seasonPage = readRepoFile("app/swag-drops/2026/page.tsx")
+  const detailPage = readRepoFile("app/swag-drops/2026/[slug]/page.tsx")
+
+  assert.match(liveSlots, /ARCADE_MILESTONES_URL/)
+  assert.match(liveSlots, /cache: "no-store"/)
+  assert.match(liveSlots, /candidate\.spotsLeft/)
+  assert.match(liveSlots, /Prize slots left/)
+  assert.match(liveSlots, /Prize slots remaining/)
+  assert.match(liveSlots, /Live crawler data/)
+
+  assert.match(seasonPage, /LiveTierSlots/)
+  assert.match(seasonPage, /Prize slots left/)
+  assert.match(seasonPage, /Swag still unrevealed/)
+  assert.match(detailPage, /LiveTierSlots/)
+  assert.match(detailPage, /Eligible tiers & live availability/)
+})
+
 test("season hub exposes a compact reward board without hiding tier rewards", () => {
   const archivePage = readRepoFile("app/swag-drops/page.tsx")
   const seasonPage = readRepoFile("app/swag-drops/2026/page.tsx")
@@ -64,7 +83,7 @@ test("season hub exposes a compact reward board without hiding tier rewards", ()
   assert.match(seasonPage, /Google Skills Arcade 2026 swag drops/)
   assert.match(seasonPage, /2026 rewards by tier/)
   assert.match(seasonPage, /Current reward lineup/)
-  assert.match(seasonPage, /Estimated remaining/)
+  assert.match(seasonPage, /Swag still unrevealed/)
   assert.match(seasonPage, /known vs projected/)
   assert.match(seasonPage, /Officially promised/)
   assert.match(seasonPage, /Ranger bonus reward/)
@@ -72,7 +91,7 @@ test("season hub exposes a compact reward board without hiding tier rewards", ()
   assert.match(seasonPage, /No named 2026 item yet/)
   assert.match(seasonPage, /revealedRelationship/)
   assert.match(seasonPage, /swagProductPath\(season, drop\.id\)/)
-  assert.match(seasonPage, /lg:grid-cols-\[170px_minmax\(0,1fr\)_190px\]/)
+  assert.match(seasonPage, /lg:grid-cols-\[170px_minmax\(0,1fr\)_210px\]/)
   assert.doesNotMatch(seasonPage, /Unrevealed item \{index \+ 1\}/)
   assert.doesNotMatch(seasonPage, /auto-rows-fr/)
 
