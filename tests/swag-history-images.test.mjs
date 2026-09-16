@@ -19,6 +19,11 @@ test("2025 swag history uses sourced reveal imagery instead of decorative placeh
 
   assert.match(page, /getHistoricalSeasonPreviewImages/)
   assert.match(page, /getHistoricalSwagImage/)
+  assert.match(page, /getUniqueSeasonItems/)
+  assert.match(page, /uniqueItems\.map/)
+  assert.match(page, /overflow-x-auto/)
+  assert.match(page, /snap-x snap-mandatory/)
+  assert.doesNotMatch(page, /getHistoricalSeasonPreviewImages\(season\.season, 4\)/)
   assert.match(page, /loading="lazy"/)
   assert.match(page, /object-contain/)
   assert.match(page, /grid-cols-\[92px_minmax\(0,1fr\)\]/)
