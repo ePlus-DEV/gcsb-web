@@ -1,0 +1,47 @@
+name: One-time fix German history i18n
+
+on:
+  push:
+    branches: [feature/swag-2025-history]
+    paths: [.github/workflows/one-time-fix-de-history-i18n.yml]
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/swag-2025-history
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Localize German season labels
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path('public/i18n/locales/de.json')
+          data = json.loads(path.read_text(encoding='utf-8'))
+          a = data['additional']
+          updates = {
+              'Season 1': 'Saison 1',
+              'Season 2': 'Saison 2',
+              'Google Skills Arcade 2025 · Season 1': 'Google Skills Arcade 2025 · Saison 1',
+              'Google Skills Arcade 2025 · Season 2': 'Google Skills Arcade 2025 · Saison 2',
+              'Season 1 + Season 2': 'Saison 1 + Saison 2',
+          }
+          a.update(updates)
+          path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          PY
+      - name: Commit German locale fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/i18n/locales/de.json
+          git diff --cached --quiet && exit 0
+          git commit -m "fix: localize German historical season labels"
+          git push
