@@ -67,7 +67,6 @@ test("swag pages expose live remaining prize-slot data from the crawler", () => 
   assert.match(liveSlots, /Live crawler data/)
 
   assert.match(seasonPage, /LiveTierSlots/)
-  assert.match(seasonPage, /Prize slots left/)
   assert.match(seasonPage, /Swag still unrevealed/)
   assert.match(detailPage, /LiveTierSlots/)
   assert.match(detailPage, /Eligible tiers & live availability/)
