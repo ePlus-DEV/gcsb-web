@@ -7,6 +7,7 @@ import {
   Sparkles,
   Trophy,
 } from "lucide-react"
+import LiveTierSlots from "@/components/arcade/live-tier-slots"
 import SwagArtwork from "@/components/arcade/swag-artwork"
 import {
   ARCADE_SWAG_TIERS,
@@ -28,7 +29,7 @@ import { WEBSITE_SITE_URL } from "@/lib/website-i18n"
 const season = CURRENT_SWAG_SEASON
 const title = "Google Skills Arcade 2026 Swag Drops & Rewards"
 const description =
-  "Google Skills Arcade 2026 rewards by tier, showing revealed swag, officially promised rewards, projected package size, and community winner photos."
+  "Google Skills Arcade 2026 rewards by tier, showing revealed swag, officially promised rewards, projected package size, live prize slots, and community winner photos."
 const canonical = new URL(`/swag-drops/${season}/`, WEBSITE_SITE_URL).toString()
 
 const PREVIOUS_SEASON_COUNTS: Record<ArcadeSwagTier, number> = {
@@ -36,6 +37,13 @@ const PREVIOUS_SEASON_COUNTS: Record<ArcadeSwagTier, number> = {
   ranger: 5,
   champion: 6,
   legend: 7,
+}
+
+const TIER_START_POINTS: Record<ArcadeSwagTier, number> = {
+  trooper: 50,
+  ranger: 75,
+  champion: 95,
+  legend: 120,
 }
 
 const OFFICIAL_UNNAMED_REWARDS: Partial<
@@ -138,7 +146,7 @@ function TierRewardRow({ tier }: { tier: ArcadeSwagTier }) {
     <article
       className={`overflow-hidden rounded-2xl border border-slate-200 border-l-4 ${tone.rail} bg-white shadow-sm transition hover:border-slate-300 hover:shadow-md dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/15`}
     >
-      <div className="grid gap-4 p-4 sm:p-5 lg:grid-cols-[170px_minmax(0,1fr)_190px] lg:items-center">
+      <div className="grid gap-4 p-4 sm:p-5 lg:grid-cols-[170px_minmax(0,1fr)_210px] lg:items-center">
         <div className="min-w-0">
           <span
             className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[.12em] ${tone.badge}`}
@@ -149,7 +157,7 @@ function TierRewardRow({ tier }: { tier: ArcadeSwagTier }) {
             {meta.pointsLabel}
           </h3>
           <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
-            <span>{meta.slots.toLocaleString("en-US")} prize slots</span>
+            <span>{meta.slots.toLocaleString("en-US")} total prize slots</span>
             <span>≈{meta.historicalEstimateItems} projected items</span>
           </div>
         </div>
@@ -237,26 +245,34 @@ function TierRewardRow({ tier }: { tier: ArcadeSwagTier }) {
         </div>
 
         <div className="min-w-0">
-          <div className="flex items-end justify-between gap-3">
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-[.12em] text-slate-500 dark:text-slate-400">
-                Estimated remaining
-              </span>
-              <strong className="mt-1 block text-2xl text-slate-950 dark:text-white">
-                ≈{projectedMystery}
-              </strong>
-            </div>
-            <span className="text-right text-[10px] leading-4 text-slate-500">
-              {knownCount}/{meta.historicalEstimateItems}
-              <br />known vs projected
-            </span>
-          </div>
+          <LiveTierSlots
+            points={TIER_START_POINTS[tier]}
+            totalSlots={meta.slots}
+            compact
+          />
 
-          <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-white/5">
-            <div
-              className={`h-full rounded-full ${tone.progress}`}
-              style={{ width: `${progress}%` }}
-            />
+          <div className="mt-3 border-t border-slate-200 pt-3 dark:border-white/10">
+            <div className="flex items-end justify-between gap-3">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-[.12em] text-slate-500 dark:text-slate-400">
+                  Swag still unrevealed
+                </span>
+                <strong className="mt-1 block text-xl text-slate-950 dark:text-white">
+                  ≈{projectedMystery}
+                </strong>
+              </div>
+              <span className="text-right text-[10px] leading-4 text-slate-500">
+                {knownCount}/{meta.historicalEstimateItems}
+                <br />known vs projected
+              </span>
+            </div>
+
+            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-white/5">
+              <div
+                className={`h-full rounded-full ${tone.progress}`}
+                style={{ width: `${progress}%` }}
+              />
+            </div>
           </div>
 
           <div className="mt-3 flex items-center justify-between gap-3">
@@ -303,7 +319,7 @@ export default function SwagDrops2026Page() {
     <InternalPageShell
       eyebrow="Arcade 2026 rewards"
       title="Google Skills Arcade 2026 swag drops"
-      description="See each tier's current reward lineup at a glance: revealed swag, officially promised rewards, estimated remaining items, prize capacity, and historical context."
+      description="See each tier's current reward lineup at a glance: revealed swag, officially promised rewards, live prize-slot availability, estimated remaining items, and historical context."
       updated="September 16, 2026"
     >
       <script
@@ -370,7 +386,7 @@ export default function SwagDrops2026Page() {
                 2026 rewards by tier
               </h2>
               <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-500 dark:text-slate-400">
-                One row per tier: requirements on the left, currently known rewards in the middle, and estimated remaining items on the right.
+                One row per tier: requirements and total capacity on the left, currently known rewards in the middle, and live remaining prize slots plus unrevealed swag on the right.
               </p>
             </div>
             <div className="flex flex-wrap gap-2 text-[9px] font-bold uppercase tracking-[.08em]">
@@ -494,7 +510,7 @@ export default function SwagDrops2026Page() {
 
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-4 text-[11px] text-slate-500 dark:border-white/10 dark:text-slate-400">
           <span>
-            Named 2026 rewards come only from official Google Developer forum announcements. Totals marked ≈ are projections, not confirmed counts.
+            Named 2026 rewards come only from official Google Developer forum announcements. Live prize-slot counts come from the same automated crawler feed used by the calculator. Totals marked ≈ are projections, not confirmed counts.
           </span>
           <div className="flex flex-wrap gap-3 font-semibold">
             <a
