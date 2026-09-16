@@ -96,7 +96,6 @@ export default function SwagHistory2025Page() {
               (sum, tier) => sum + tier.items.length,
               0,
             )
-            const uniqueItems = getUniqueSeasonItems(season)
             const previews = getHistoricalSeasonPreviewImages(season.season, 3)
 
             return (
@@ -135,7 +134,7 @@ export default function SwagHistory2025Page() {
                     {`Season ${season.season}`}
                   </h2>
                   <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                    {`${uniqueItems.length} items · ${season.packages.length} tiers · ${totalPackageItems} tier-item entries`}
+                    {`${season.packages.length} tiers · ${totalPackageItems} tier-item entries`}
                   </p>
                 </div>
               </a>
@@ -159,8 +158,8 @@ export default function SwagHistory2025Page() {
                     <span className="text-xs font-bold uppercase tracking-[.12em] text-slate-500 dark:text-slate-400">
                       {`${uniqueItems.length} items`}
                     </span>
-                    <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500">
-                      Swipe / scroll →
+                    <span className="text-sm font-semibold text-slate-400 dark:text-slate-500" aria-hidden="true">
+                      →
                     </span>
                   </div>
                   <div className="flex snap-x snap-mandatory gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
