@@ -1,18 +1,25 @@
 import Link from "next/link"
 import type { ReactNode } from "react"
-import { ArrowLeft, Gamepad2, Sparkles } from "lucide-react"
+import { ArrowLeft, ChevronRight, Gamepad2, Sparkles } from "lucide-react"
+
+type InternalBreadcrumb = {
+  label: string
+  href?: string
+}
 
 export default function InternalPageShell({
   eyebrow,
   title,
   description,
   updated,
+  breadcrumbs,
   children,
 }: {
   eyebrow: string
   title: string
   description: string
   updated?: string
+  breadcrumbs?: readonly InternalBreadcrumb[]
   children: ReactNode
 }) {
   return (
@@ -40,9 +47,37 @@ export default function InternalPageShell({
         <section className="internal-page-hero relative overflow-hidden border-b border-white/10">
           <div className="internal-page-glow absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,.18),transparent_35%),radial-gradient(circle_at_top_right,rgba(99,102,241,.18),transparent_40%)]" />
           <div className="relative mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
-            <Link href="/" className="internal-back-link mb-8 inline-flex items-center text-sm text-slate-400 hover:text-white">
-              <ArrowLeft className="mr-2 h-4 w-4" /> Back to calculator
-            </Link>
+            {breadcrumbs?.length ? (
+              <nav
+                aria-label="Breadcrumb"
+                className="mb-8 flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-2 text-sm text-slate-400"
+              >
+                <Link href="/" className="transition hover:text-white">
+                  Calculator
+                </Link>
+                {breadcrumbs.map((item, index) => {
+                  const isCurrent = index === breadcrumbs.length - 1
+                  return (
+                    <span key={`${item.label}-${index}`} className="flex min-w-0 items-center gap-1.5">
+                      <ChevronRight className="h-3.5 w-3.5 shrink-0 text-slate-600" aria-hidden="true" />
+                      {item.href && !isCurrent ? (
+                        <Link href={item.href} className="truncate transition hover:text-white">
+                          {item.label}
+                        </Link>
+                      ) : (
+                        <span className={isCurrent ? "truncate font-medium text-slate-200" : "truncate"} aria-current={isCurrent ? "page" : undefined}>
+                          {item.label}
+                        </span>
+                      )}
+                    </span>
+                  )
+                })}
+              </nav>
+            ) : (
+              <Link href="/" className="internal-back-link mb-8 inline-flex items-center text-sm text-slate-400 hover:text-white">
+                <ArrowLeft className="mr-2 h-4 w-4" /> Back to calculator
+              </Link>
+            )}
             <div className="max-w-3xl">
               <div className="internal-eyebrow mb-4 inline-flex items-center rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-xs font-semibold uppercase tracking-[.18em] text-cyan-200">
                 <Sparkles className="mr-2 h-3.5 w-3.5" /> {eyebrow}
