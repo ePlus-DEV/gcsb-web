@@ -12,6 +12,7 @@ import {
 } from "@/components/arcade/swag-drops"
 import {
   CURRENT_SWAG_SEASON,
+  SWAG_2025_FINAL_REFERENCE_URL,
   SWAG_TIER_META,
   swagProductPath,
   swagSeasonPath,
@@ -110,34 +111,174 @@ function BreadcrumbJsonLd({ label, path }: { label: string; path: string }) {
 function TierPage({ tier }: { tier: ArcadeSwagTier }) {
   const meta = SWAG_TIER_META[tier]
   const drops = getSwagDropsForTier(tier, season)
+  const pending = meta.officialPendingRewards
+  const knownNow = drops.length + pending.length
+  const projectedRemaining = Math.max(meta.historicalEstimateItems - knownNow, 0)
   const path = swagTierPath(season, tier)
 
   return (
     <InternalPageShell
       eyebrow={`Arcade ${meta.label} · ${season}`}
       title={`Arcade ${meta.label} ${season} rewards`}
-      description={meta.description}
+      description={`See the current ${season} ${meta.label} reward outlook, revealed swag, officially promised items, projected package size, and the official 2025 package used as a historical reference.`}
       updated="September 16, 2026"
     >
       <BreadcrumbJsonLd label={`Arcade ${meta.label}`} path={path} />
 
       <div className="not-prose space-y-8">
-        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/[0.035]">
-            <span className="text-xs font-bold uppercase tracking-[.14em] text-slate-500">Points</span>
-            <strong className="mt-2 block text-2xl text-slate-950 dark:text-white">{meta.pointsLabel}</strong>
+        <section className="overflow-hidden rounded-3xl border border-cyan-300/20 bg-gradient-to-br from-cyan-50 via-white to-violet-50 shadow-sm dark:from-cyan-950/20 dark:via-slate-950/80 dark:to-violet-950/20">
+          <div className="grid gap-6 p-5 sm:p-7 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
+            <div>
+              <span className="inline-flex rounded-full bg-cyan-100 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[.12em] text-cyan-800 dark:bg-cyan-300/10 dark:text-cyan-200">
+                {season} package outlook
+              </span>
+              <h2 className="mt-4 text-2xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-3xl">
+                {meta.historicalEstimateLabel} projected rewards
+              </h2>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-300">
+                {meta.rewardRule}
+              </p>
+              <div className="mt-5 flex flex-wrap gap-2 text-xs font-semibold">
+                <span className="rounded-full border border-slate-200 bg-white/80 px-3 py-1.5 text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-200">
+                  {meta.pointsLabel}
+                </span>
+                <span className="rounded-full border border-slate-200 bg-white/80 px-3 py-1.5 text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-200">
+                  {meta.slots.toLocaleString("en-US")} prize slots
+                </span>
+                <span className="rounded-full border border-violet-200 bg-violet-50 px-3 py-1.5 text-violet-700 dark:border-violet-300/15 dark:bg-violet-300/[0.04] dark:text-violet-200">
+                  Historical projection, not final 2026 total
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2 text-center">
+              <div className="rounded-2xl border border-emerald-200 bg-white/80 p-4 dark:border-emerald-300/15 dark:bg-white/[0.04]">
+                <span className="block text-[9px] font-bold uppercase tracking-[.1em] text-emerald-700 dark:text-emerald-300">
+                  Revealed
+                </span>
+                <strong className="mt-1 block text-2xl text-slate-950 dark:text-white">{drops.length}</strong>
+              </div>
+              <div className="rounded-2xl border border-amber-200 bg-white/80 p-4 dark:border-amber-300/15 dark:bg-white/[0.04]">
+                <span className="block text-[9px] font-bold uppercase tracking-[.1em] text-amber-700 dark:text-amber-300">
+                  Official pending
+                </span>
+                <strong className="mt-1 block text-2xl text-slate-950 dark:text-white">{pending.length}</strong>
+              </div>
+              <div className="rounded-2xl border border-slate-200 bg-white/80 p-4 dark:border-white/10 dark:bg-white/[0.04]">
+                <span className="block text-[9px] font-bold uppercase tracking-[.1em] text-slate-500">
+                  Est. remaining
+                </span>
+                <strong className="mt-1 block text-2xl text-slate-950 dark:text-white">≈{projectedRemaining}</strong>
+              </div>
+            </div>
           </div>
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/[0.035]">
-            <span className="text-xs font-bold uppercase tracking-[.14em] text-slate-500">Prize slots</span>
-            <strong className="mt-2 block text-2xl text-slate-950 dark:text-white">{meta.slots.toLocaleString("en-US")}</strong>
+        </section>
+
+        <section aria-labelledby="current-lineup-heading">
+          <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h2 id="current-lineup-heading" className="text-2xl font-bold text-slate-950 dark:text-white">
+                What we know about the {season} package
+              </h2>
+              <p className="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400">
+                Revealed rewards and officially promised items are separated from the historical projection.
+              </p>
+            </div>
+            <Link
+              href={swagSeasonPath(season)}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-cyan-700 hover:underline dark:text-cyan-300"
+            >
+              Compare all tiers <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+            </Link>
           </div>
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/[0.035]">
-            <span className="text-xs font-bold uppercase tracking-[.14em] text-slate-500">Known minimum</span>
-            <strong className="mt-2 block text-2xl text-slate-950 dark:text-white">{meta.knownMinimumItems}</strong>
+
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {drops.map((drop) => (
+              <Link
+                key={drop.id}
+                href={swagProductPath(season, drop.id)}
+                className="group flex items-center gap-4 rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4 transition hover:border-emerald-300 hover:shadow-md dark:border-emerald-300/15 dark:bg-emerald-300/[0.04]"
+              >
+                <span className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white dark:bg-black/20">
+                  <SwagArtwork src={drop.imageUrl} alt="" className="h-full w-full object-contain" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-[.1em] text-emerald-700 dark:text-emerald-300">
+                    <CheckCircle2 className="h-3 w-3" aria-hidden="true" /> Revealed
+                  </span>
+                  <strong className="mt-1 block text-base text-slate-950 dark:text-white">{drop.shortName}</strong>
+                  <span className="mt-1 block text-xs text-slate-500">2026 drop #{drop.dropNumber} · {drop.revealedOn}</span>
+                </span>
+                <ArrowRight className="h-4 w-4 shrink-0 text-slate-400 transition group-hover:translate-x-1" aria-hidden="true" />
+              </Link>
+            ))}
+
+            {pending.map((item) => (
+              <div
+                key={item}
+                className="flex items-center gap-4 rounded-2xl border border-amber-200 bg-amber-50/70 p-4 dark:border-amber-300/15 dark:bg-amber-300/[0.04]"
+              >
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700 dark:bg-amber-300/10 dark:text-amber-200">
+                  <Sparkles className="h-5 w-5" aria-hidden="true" />
+                </span>
+                <div>
+                  <span className="text-[9px] font-bold uppercase tracking-[.1em] text-amber-700 dark:text-amber-300">
+                    Officially promised
+                  </span>
+                  <strong className="mt-1 block text-sm text-slate-950 dark:text-white">{item}</strong>
+                  <span className="mt-1 block text-xs text-slate-500">Name/details not revealed yet</span>
+                </div>
+              </div>
+            ))}
+
+            <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50/80 p-4 dark:border-white/10 dark:bg-white/[0.02]">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-dashed border-slate-300 text-lg font-bold text-slate-400 dark:border-white/10">
+                ?
+              </span>
+              <span className="mt-3 block text-[9px] font-bold uppercase tracking-[.1em] text-slate-500">
+                Historical projection
+              </span>
+              <strong className="mt-1 block text-base text-slate-800 dark:text-slate-100">
+                ≈{projectedRemaining} more item{projectedRemaining === 1 ? "" : "s"} still unrevealed
+              </strong>
+              <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
+                Google has not published these 2026 item names. The count only reflects the prior-season package-size baseline.
+              </p>
+            </div>
           </div>
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/[0.035]">
-            <span className="text-xs font-bold uppercase tracking-[.14em] text-slate-500">Named swag</span>
-            <strong className="mt-2 block text-2xl text-slate-950 dark:text-white">{drops.length}</strong>
+        </section>
+
+        <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-white/[0.03]">
+          <div className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-200 p-5 dark:border-white/10">
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-[.12em] text-violet-700 dark:text-violet-300">
+                Historical reference only
+              </span>
+              <h2 className="mt-1 text-xl font-bold text-slate-950 dark:text-white">
+                2025 {meta.label} package
+              </h2>
+              <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-500 dark:text-slate-400">
+                These were the official final 2025 Season 2 items for this tier. They explain the {meta.historicalEstimateLabel} projection, but they are not confirmed as 2026 rewards.
+              </p>
+            </div>
+            <a
+              href={SWAG_2025_FINAL_REFERENCE_URL}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="inline-flex shrink-0 items-center gap-1.5 text-xs font-semibold text-cyan-700 hover:underline dark:text-cyan-300"
+            >
+              Official 2025 wrap-up <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+            </a>
+          </div>
+          <div className="grid gap-px bg-slate-200 sm:grid-cols-2 lg:grid-cols-3 dark:bg-white/10">
+            {meta.historicalReferenceItems.map((item, index) => (
+              <div key={item} className="flex items-center gap-3 bg-white p-4 dark:bg-slate-950/70">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-violet-50 text-xs font-bold text-violet-700 dark:bg-violet-300/10 dark:text-violet-200">
+                  {index + 1}
+                </span>
+                <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{item}</span>
+              </div>
+            ))}
           </div>
         </section>
 
@@ -145,68 +286,16 @@ function TierPage({ tier }: { tier: ArcadeSwagTier }) {
           <article className="rounded-2xl border border-violet-200 bg-violet-50/70 p-5 dark:border-violet-300/15 dark:bg-violet-300/[0.04]">
             <div className="flex items-center gap-2">
               <Trophy className="h-5 w-5 text-violet-700 dark:text-violet-300" aria-hidden="true" />
-              <h2 className="text-lg font-bold text-slate-950 dark:text-white">Package rule</h2>
+              <h2 className="text-lg font-bold text-slate-950 dark:text-white">2026 package rule</h2>
             </div>
             <strong className="mt-3 block text-base text-slate-950 dark:text-white">{meta.packageRule}</strong>
-            <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{meta.rewardRule}</p>
+            <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{meta.knownMinimumNote}</p>
           </article>
-          <article className="rounded-2xl border border-amber-200 bg-amber-50/70 p-5 dark:border-amber-300/15 dark:bg-amber-300/[0.035]">
-            <h2 className="text-lg font-bold text-slate-950 dark:text-white">What is known now</h2>
-            <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">{meta.knownMinimumNote}</p>
-            <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{meta.waitingNote}</p>
-            <span className="mt-3 inline-flex rounded-full bg-white/70 px-3 py-1.5 text-xs font-semibold text-slate-600 dark:bg-white/5 dark:text-slate-300">
-              Final package total: TBA
-            </span>
-          </article>
-        </section>
-
-        <section>
-          <h2 className="text-2xl font-bold text-slate-950 dark:text-white">Named {season} swag</h2>
-          {drops.length > 0 ? (
-            <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              {drops.map((drop) => (
-                <Link
-                  key={drop.id}
-                  href={swagProductPath(season, drop.id)}
-                  className="group flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-4 transition hover:border-cyan-300 hover:shadow-md dark:border-white/10 dark:bg-white/[0.035]"
-                >
-                  <span className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-slate-100 dark:bg-black/20">
-                    <SwagArtwork src={drop.imageUrl} alt="" className="h-full w-full object-contain" />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="text-[10px] font-bold uppercase tracking-[.1em] text-emerald-700 dark:text-emerald-300">
-                      2026 drop #{drop.dropNumber}
-                    </span>
-                    <strong className="mt-1 block text-base text-slate-950 dark:text-white">{drop.shortName}</strong>
-                    <span className="mt-1 block text-xs text-slate-500">Revealed {drop.revealedOn}</span>
-                  </span>
-                  <ArrowRight className="h-4 w-4 shrink-0 text-slate-400 transition group-hover:translate-x-1" aria-hidden="true" />
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <div className="mt-4 flex items-start gap-3 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-5 dark:border-white/10 dark:bg-white/[0.025]">
-              <Sparkles className="mt-0.5 h-5 w-5 shrink-0 text-slate-400" aria-hidden="true" />
-              <div>
-                <strong className="text-sm text-slate-950 dark:text-white">No individual item named yet</strong>
-                <p className="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400">{meta.waitingNote}</p>
-              </div>
-            </div>
-          )}
-        </section>
-
-        <section className="grid gap-4 lg:grid-cols-2">
           <article className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/[0.035]">
             <h2 className="text-lg font-bold text-slate-950 dark:text-white">Waterfall allocation</h2>
             <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">{meta.allocationNote}</p>
             <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">
               Prize slots are recipient capacity, not a published physical inventory count for each swag item.
-            </p>
-          </article>
-          <article className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/[0.035]">
-            <h2 className="text-lg font-bold text-slate-950 dark:text-white">Waterfall vs. Snowball</h2>
-            <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
-              Waterfall determines prize-slot allocation. Snowball describes reward inheritance: Ranger builds on Trooper, while Legend builds on Champion. Trooper/Ranger rewards do not snowball into Champion/Legend.
             </p>
           </article>
         </section>
