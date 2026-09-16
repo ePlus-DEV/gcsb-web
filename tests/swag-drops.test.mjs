@@ -22,6 +22,7 @@ test("2026 swag registry contains only currently confirmed drops", () => {
   const jacket = ARCADE_SWAG_DROPS[0]
   assert.equal(jacket.id, "weather-shield-jacket")
   assert.equal(jacket.season, 2026)
+  assert.equal(jacket.dropNumber, 1)
   assert.equal(jacket.revealedOnIso, "2026-09-15")
   assert.deepEqual(jacket.tiers, ["champion", "legend"])
   assert.match(jacket.sourceUrl, /^https:\/\/discuss\.google\.dev\//)
@@ -40,6 +41,18 @@ test("swag registry groups confirmed rewards by season and tier", () => {
   assert.equal(getSwagDropsForTier("legend", 2026)[0]?.id, "weather-shield-jacket")
 })
 
+test("2026 tier metadata records official package relationships without inventing final totals", () => {
+  const tierMeta = readRepoFile("components/arcade/swag-seasons.ts")
+
+  assert.match(tierMeta, /Core Trooper swag pack/)
+  assert.match(tierMeta, /Trooper pack \+ 1 Ranger bonus reward/)
+  assert.match(tierMeta, /High-tier Champion collection/)
+  assert.match(tierMeta, /Champion pack \+ 1 Legend-only reward/)
+  assert.match(tierMeta, /knownMinimumItems: "1\+"/)
+  assert.match(tierMeta, /knownMinimumItems: "2\+"/)
+  assert.doesNotMatch(tierMeta, /finalItems:\s*\d/)
+})
+
 test("homepage and sitemap expose the season-aware swag experience", () => {
   assert.match(readRepoFile("app/page.tsx"), /<SwagDropsPreview \/>/)
   assert.match(readRepoFile("app/[locale]/page.tsx"), /<SwagDropsPreview \/>/)
@@ -53,7 +66,7 @@ test("homepage and sitemap expose the season-aware swag experience", () => {
   assert.match(sitemap, /swagProductPath/)
 })
 
-test("swag routes include archive, season overview, and static detail pages", () => {
+test("swag routes include archive, season overview, package rules, and static detail pages", () => {
   const archivePage = readRepoFile("app/swag-drops/page.tsx")
   const seasonPage = readRepoFile("app/swag-drops/2026/page.tsx")
   const detailPage = readRepoFile("app/swag-drops/2026/[slug]/page.tsx")
@@ -61,16 +74,20 @@ test("swag routes include archive, season overview, and static detail pages", ()
   assert.match(archivePage, /Swag drops by season/)
   assert.match(seasonPage, /Google Skills Arcade 2026 swag drops/)
   assert.match(seasonPage, /2026 reward overview/)
-  assert.match(seasonPage, /Total items/)
-  assert.match(seasonPage, />TBA</)
+  assert.match(seasonPage, /How the 2026 swag packages stack/)
+  assert.match(seasonPage, /Known minimum/)
+  assert.match(seasonPage, /Final total: TBA/)
   assert.match(seasonPage, /Swag lineup/)
-  assert.match(seasonPage, /Waiting for reveal/)
-  assert.match(seasonPage, /No additional named item has been announced yet/)
+  assert.match(seasonPage, /Package details pending/)
+  assert.match(seasonPage, /Prize slots are recipient caps, not physical inventory counts/)
   assert.match(seasonPage, /tierDrops\.map/)
   assert.match(seasonPage, /swagProductPath\(season, drop\.id\)/)
   assert.match(seasonPage, /auto-rows-fr/)
   assert.match(detailPage, /generateStaticParams/)
   assert.match(detailPage, /BreadcrumbList/)
+  assert.match(detailPage, /Known minimum/)
+  assert.match(detailPage, /Combined prize-slot capacity/)
+  assert.match(detailPage, /First 2026 swag drop/)
   assert.match(detailPage, /Waterfall allocation/)
   assert.match(detailPage, /Official Google reveal/)
 })
