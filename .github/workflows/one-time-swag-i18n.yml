@@ -1,0 +1,183 @@
+name: One-time swag i18n patch
+
+on:
+  push:
+    branches:
+      - fix/swag-i18n
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/swag-i18n
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Update human-maintained locale catalogs
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('fs')
+
+          const S = {
+            swagDrops: 'Swag Drops',
+            archive: 'Arcade rewards archive',
+            bySeason: 'Swag drops by season',
+            rewards2026: 'Arcade 2026 rewards',
+            title2026: 'Google Skills Arcade 2026 swag drops',
+            hero: "See each tier's current reward lineup at a glance: revealed swag, officially promised rewards, live prize-slot availability, estimated remaining items, and historical context.",
+            lineup: 'Current reward lineup',
+            revealed: 'Revealed',
+            promised: 'Officially promised',
+            nameHidden: 'Name not revealed yet',
+            noNamed: 'No named 2026 item yet',
+            projected: 'Projected package',
+            known: 'Known now',
+            unrevealed: 'Swag still unrevealed',
+            details: 'Details',
+            rewardsByTier: '2026 rewards by tier',
+            officialPending: 'Official pending',
+            historicalEstimate: 'Historical estimate',
+            whyApprox: 'Why are package totals marked with ≈?',
+            viewBaseline: 'View the 2025 baseline used for the projection',
+            hall: 'Hall of Swag Winners',
+            slotsLeft: 'Prize slots left',
+            live: 'Live',
+            totalOnly: 'Total only',
+            slotsRemaining: 'Prize slots remaining',
+            crawlerLive: 'Live crawler data',
+            loadingLive: 'Loading live data',
+            knowPackage: 'What we know about the 2026 package',
+            compareTiers: 'Compare all tiers',
+            historicalProjection: 'Historical projection',
+            historicalOnly: 'Historical reference only',
+            wrap2025: 'Official 2025 wrap-up',
+            rewardDetails: 'Reward details',
+            officialAnnouncement: 'Official announcement',
+            rangerBonus: 'Ranger bonus reward',
+            legendOnly: 'Legend-only reward',
+            championIncluded: 'Included with the Champion collection',
+            nameDetailsHidden: 'Name/details not revealed yet',
+            seasonFinal: '2025 Season 2 final',
+          }
+
+          const en = Object.fromEntries(Object.values(S).map((source) => [source, source]))
+
+          const translations = {
+            en,
+            vi: {
+              [S.swagDrops]: 'Quà tặng Arcade', [S.archive]: 'Kho lưu trữ phần thưởng Arcade', [S.bySeason]: 'Quà tặng theo mùa', [S.rewards2026]: 'Phần thưởng Arcade 2026', [S.title2026]: 'Quà tặng Google Skills Arcade 2026',
+              [S.hero]: 'Xem nhanh phần thưởng hiện có của từng hạng: quà đã công bố, quà đã được xác nhận nhưng chưa tiết lộ, số suất còn lại trực tiếp, số món dự kiến còn chờ và dữ liệu tham khảo lịch sử.',
+              [S.lineup]: 'Danh sách quà hiện tại', [S.revealed]: 'Đã công bố', [S.promised]: 'Đã được xác nhận', [S.nameHidden]: 'Chưa công bố tên', [S.noNamed]: 'Chưa có món quà 2026 nào được công bố tên', [S.projected]: 'Gói quà dự kiến', [S.known]: 'Hiện đã biết', [S.unrevealed]: 'Quà chưa công bố', [S.details]: 'Chi tiết', [S.rewardsByTier]: 'Phần thưởng 2026 theo hạng', [S.officialPending]: 'Đã xác nhận, đang chờ', [S.historicalEstimate]: 'Ước tính theo lịch sử', [S.whyApprox]: 'Vì sao tổng số món có ký hiệu ≈?', [S.viewBaseline]: 'Xem mốc tham chiếu 2025 dùng để ước tính', [S.hall]: 'Góc khoe quà người thắng', [S.slotsLeft]: 'Suất quà còn lại', [S.live]: 'Trực tiếp', [S.totalOnly]: 'Chỉ có tổng số', [S.slotsRemaining]: 'Số suất quà còn lại', [S.crawlerLive]: 'Dữ liệu crawler trực tiếp', [S.loadingLive]: 'Đang tải dữ liệu trực tiếp', [S.knowPackage]: 'Những gì đã biết về gói quà 2026', [S.compareTiers]: 'So sánh tất cả hạng', [S.historicalProjection]: 'Dự báo theo lịch sử', [S.historicalOnly]: 'Chỉ để tham khảo lịch sử', [S.wrap2025]: 'Tổng kết 2025 chính thức', [S.rewardDetails]: 'Chi tiết phần thưởng', [S.officialAnnouncement]: 'Thông báo chính thức', [S.rangerBonus]: 'Phần thưởng bonus Ranger', [S.legendOnly]: 'Phần thưởng riêng cho Legend', [S.championIncluded]: 'Nằm trong bộ quà Champion', [S.nameDetailsHidden]: 'Chưa công bố tên/chi tiết', [S.seasonFinal]: 'Kết thúc Season 2 năm 2025',
+              '__swag:knownNow': '{known} đã biết · ≈{unrevealed} chưa công bố', '__swag:revealedPending': '{revealed} đã công bố · {pending} đang chờ', '__swag:totalPrizeSlots': 'Tổng {count} suất quà', '__swag:percentLeft': 'Còn {percent}%', '__swag:baseline': 'Mốc 2025: {count}', '__swag:projectedItems': '≈{count} món dự kiến',
+            },
+            ja: {
+              [S.swagDrops]: 'スワッグ', [S.archive]: 'Arcade 報酬アーカイブ', [S.bySeason]: 'シーズン別スワッグ', [S.rewards2026]: 'Arcade 2026 報酬', [S.title2026]: 'Google Skills Arcade 2026 スワッグ',
+              [S.hero]: '各ティアの現在の報酬を一覧で確認できます。公開済みスワッグ、公式に予告された報酬、リアルタイムの賞品枠、未公開アイテムの推定数、過去シーズンの参考情報を表示します。',
+              [S.lineup]: '現在の報酬ラインナップ', [S.revealed]: '公開済み', [S.promised]: '公式予告済み', [S.nameHidden]: '名前は未公開', [S.noNamed]: '名前が公開された2026アイテムはまだありません', [S.projected]: '推定パッケージ', [S.known]: '現在判明', [S.unrevealed]: '未公開スワッグ', [S.details]: '詳細', [S.rewardsByTier]: 'ティア別2026報酬', [S.officialPending]: '公式予告・公開待ち', [S.historicalEstimate]: '過去実績による推定', [S.whyApprox]: 'パッケージ総数に「≈」が付くのはなぜ？', [S.viewBaseline]: '推定に使用した2025年の基準を見る', [S.hall]: 'スワッグ当選者ギャラリー', [S.slotsLeft]: '残り賞品枠', [S.live]: 'ライブ', [S.totalOnly]: '総数のみ', [S.slotsRemaining]: '残り賞品枠', [S.crawlerLive]: 'クローラーのライブデータ', [S.loadingLive]: 'ライブデータを読み込み中', [S.knowPackage]: '2026パッケージで判明していること', [S.compareTiers]: 'すべてのティアを比較', [S.historicalProjection]: '過去実績による予測', [S.historicalOnly]: '過去データの参考のみ', [S.wrap2025]: '2025年公式まとめ', [S.rewardDetails]: '報酬の詳細', [S.officialAnnouncement]: '公式発表', [S.rangerBonus]: 'Ranger ボーナス報酬', [S.legendOnly]: 'Legend 限定報酬', [S.championIncluded]: 'Champion コレクションに含まれます', [S.nameDetailsHidden]: '名前・詳細は未公開', [S.seasonFinal]: '2025 Season 2 最終版',
+              '__swag:knownNow': '現在{known}件判明 · 未公開≈{unrevealed}件', '__swag:revealedPending': '公開済み{revealed}件 · 保留{pending}件', '__swag:totalPrizeSlots': '賞品枠 合計{count}', '__swag:percentLeft': '残り{percent}%', '__swag:baseline': '2025基準: {count}', '__swag:projectedItems': '推定≈{count}アイテム',
+            },
+            ko: {
+              [S.swagDrops]: '스웨그', [S.archive]: 'Arcade 보상 아카이브', [S.bySeason]: '시즌별 스웨그', [S.rewards2026]: 'Arcade 2026 보상', [S.title2026]: 'Google Skills Arcade 2026 스웨그',
+              [S.hero]: '각 티어의 현재 보상을 한눈에 확인하세요. 공개된 스웨그, 공식 예고 보상, 실시간 상품 슬롯, 아직 공개되지 않은 예상 아이템 수와 과거 시즌 참고 정보를 보여줍니다.',
+              [S.lineup]: '현재 보상 구성', [S.revealed]: '공개됨', [S.promised]: '공식 예고', [S.nameHidden]: '이름 미공개', [S.noNamed]: '이름이 공개된 2026 아이템이 아직 없습니다', [S.projected]: '예상 패키지', [S.known]: '현재 확인됨', [S.unrevealed]: '아직 미공개인 스웨그', [S.details]: '상세', [S.rewardsByTier]: '티어별 2026 보상', [S.officialPending]: '공식 예고·공개 대기', [S.historicalEstimate]: '과거 기준 추정', [S.whyApprox]: '패키지 총수에 ≈가 표시되는 이유는?', [S.viewBaseline]: '추정에 사용한 2025 기준 보기', [S.hall]: '스웨그 수령자 갤러리', [S.slotsLeft]: '남은 상품 슬롯', [S.live]: '실시간', [S.totalOnly]: '총 슬롯만', [S.slotsRemaining]: '남은 상품 슬롯', [S.crawlerLive]: '실시간 크롤러 데이터', [S.loadingLive]: '실시간 데이터 불러오는 중', [S.knowPackage]: '2026 패키지에서 확인된 내용', [S.compareTiers]: '모든 티어 비교', [S.historicalProjection]: '과거 기준 예상', [S.historicalOnly]: '과거 참고용', [S.wrap2025]: '2025 공식 결산', [S.rewardDetails]: '보상 상세', [S.officialAnnouncement]: '공식 발표', [S.rangerBonus]: 'Ranger 보너스 보상', [S.legendOnly]: 'Legend 전용 보상', [S.championIncluded]: 'Champion 컬렉션에 포함', [S.nameDetailsHidden]: '이름/세부 정보 미공개', [S.seasonFinal]: '2025 Season 2 최종',
+              '__swag:knownNow': '현재 {known}개 확인 · ≈{unrevealed}개 미공개', '__swag:revealedPending': '{revealed}개 공개 · {pending}개 대기', '__swag:totalPrizeSlots': '총 상품 슬롯 {count}개', '__swag:percentLeft': '{percent}% 남음', '__swag:baseline': '2025 기준: {count}', '__swag:projectedItems': '예상 ≈{count}개',
+            },
+            zh_CN: {
+              [S.swagDrops]: '周边奖励', [S.archive]: 'Arcade 奖励档案', [S.bySeason]: '按赛季查看周边', [S.rewards2026]: 'Arcade 2026 奖励', [S.title2026]: 'Google Skills Arcade 2026 周边奖励',
+              [S.hero]: '一览各等级当前奖励：已公布周边、官方预告奖励、实时奖品名额、预计仍未公布的物品数量，以及历史赛季参考信息。',
+              [S.lineup]: '当前奖励阵容', [S.revealed]: '已公布', [S.promised]: '官方已预告', [S.nameHidden]: '名称尚未公布', [S.noNamed]: '暂无已公布名称的 2026 奖励', [S.projected]: '预计礼包', [S.known]: '当前已知', [S.unrevealed]: '尚未公布的周边', [S.details]: '详情', [S.rewardsByTier]: '2026 各等级奖励', [S.officialPending]: '官方预告，等待公布', [S.historicalEstimate]: '历史数据估算', [S.whyApprox]: '为什么礼包总数标有 ≈？', [S.viewBaseline]: '查看用于估算的 2025 基准', [S.hall]: '周边获奖者展示', [S.slotsLeft]: '剩余奖品名额', [S.live]: '实时', [S.totalOnly]: '仅总名额', [S.slotsRemaining]: '剩余奖品名额', [S.crawlerLive]: '爬虫实时数据', [S.loadingLive]: '正在加载实时数据', [S.knowPackage]: '目前已知的 2026 礼包信息', [S.compareTiers]: '比较所有等级', [S.historicalProjection]: '历史数据推算', [S.historicalOnly]: '仅作历史参考', [S.wrap2025]: '2025 官方总结', [S.rewardDetails]: '奖励详情', [S.officialAnnouncement]: '官方公告', [S.rangerBonus]: 'Ranger 额外奖励', [S.legendOnly]: 'Legend 专属奖励', [S.championIncluded]: '包含在 Champion 套装中', [S.nameDetailsHidden]: '名称/详情尚未公布', [S.seasonFinal]: '2025 Season 2 最终版',
+              '__swag:knownNow': '当前已知 {known} · 约 {unrevealed} 项未公布', '__swag:revealedPending': '已公布 {revealed} · 待公布 {pending}', '__swag:totalPrizeSlots': '共 {count} 个奖品名额', '__swag:percentLeft': '剩余 {percent}%', '__swag:baseline': '2025 基准：{count}', '__swag:projectedItems': '预计约 {count} 项',
+            },
+            fr: {
+              [S.swagDrops]: 'Cadeaux Arcade', [S.archive]: 'Archives des récompenses Arcade', [S.bySeason]: 'Cadeaux par saison', [S.rewards2026]: 'Récompenses Arcade 2026', [S.title2026]: 'Cadeaux Google Skills Arcade 2026',
+              [S.hero]: 'Consultez en un coup d’œil les récompenses actuelles de chaque niveau : cadeaux révélés, récompenses officiellement annoncées, places restantes en direct, estimation des articles encore à dévoiler et contexte des saisons précédentes.',
+              [S.lineup]: 'Récompenses actuelles', [S.revealed]: 'Révélé', [S.promised]: 'Annoncé officiellement', [S.nameHidden]: 'Nom non dévoilé', [S.noNamed]: 'Aucun article 2026 nommé pour le moment', [S.projected]: 'Pack estimé', [S.known]: 'Connu actuellement', [S.unrevealed]: 'Cadeaux encore non dévoilés', [S.details]: 'Détails', [S.rewardsByTier]: 'Récompenses 2026 par niveau', [S.officialPending]: 'Officiel, en attente de révélation', [S.historicalEstimate]: 'Estimation historique', [S.whyApprox]: 'Pourquoi les totaux des packs portent-ils le symbole ≈ ?', [S.viewBaseline]: 'Voir la référence 2025 utilisée pour l’estimation', [S.hall]: 'Galerie des gagnants', [S.slotsLeft]: 'Places restantes', [S.live]: 'En direct', [S.totalOnly]: 'Total uniquement', [S.slotsRemaining]: 'Places restantes', [S.crawlerLive]: 'Données du crawler en direct', [S.loadingLive]: 'Chargement des données en direct', [S.knowPackage]: 'Ce que l’on sait du pack 2026', [S.compareTiers]: 'Comparer tous les niveaux', [S.historicalProjection]: 'Projection historique', [S.historicalOnly]: 'Référence historique uniquement', [S.wrap2025]: 'Bilan officiel 2025', [S.rewardDetails]: 'Détails de la récompense', [S.officialAnnouncement]: 'Annonce officielle', [S.rangerBonus]: 'Récompense bonus Ranger', [S.legendOnly]: 'Récompense exclusive Legend', [S.championIncluded]: 'Inclus dans la collection Champion', [S.nameDetailsHidden]: 'Nom/détails non dévoilés', [S.seasonFinal]: 'Fin de la saison 2 de 2025',
+              '__swag:knownNow': '{known} connus · ≈{unrevealed} à dévoiler', '__swag:revealedPending': '{revealed} révélés · {pending} en attente', '__swag:totalPrizeSlots': '{count} places au total', '__swag:percentLeft': '{percent}% restantes', '__swag:baseline': 'Référence 2025 : {count}', '__swag:projectedItems': '≈{count} articles estimés',
+            },
+            de: {
+              [S.swagDrops]: 'Arcade-Geschenke', [S.archive]: 'Arcade-Belohnungsarchiv', [S.bySeason]: 'Geschenke nach Saison', [S.rewards2026]: 'Arcade-Belohnungen 2026', [S.title2026]: 'Google Skills Arcade 2026 Geschenke',
+              [S.hero]: 'Sieh die aktuellen Belohnungen jeder Stufe auf einen Blick: enthüllte Geschenke, offiziell angekündigte Belohnungen, Live-Prize-Slots, geschätzte noch nicht enthüllte Artikel und historische Vergleichsdaten.',
+              [S.lineup]: 'Aktuelle Belohnungen', [S.revealed]: 'Enthüllt', [S.promised]: 'Offiziell angekündigt', [S.nameHidden]: 'Name noch nicht enthüllt', [S.noNamed]: 'Noch kein benannter 2026-Artikel', [S.projected]: 'Geschätztes Paket', [S.known]: 'Aktuell bekannt', [S.unrevealed]: 'Noch nicht enthüllte Geschenke', [S.details]: 'Details', [S.rewardsByTier]: '2026-Belohnungen nach Stufe', [S.officialPending]: 'Offiziell angekündigt, noch offen', [S.historicalEstimate]: 'Historische Schätzung', [S.whyApprox]: 'Warum sind die Paketgrößen mit ≈ markiert?', [S.viewBaseline]: '2025-Basis der Schätzung anzeigen', [S.hall]: 'Galerie der Swag-Gewinner', [S.slotsLeft]: 'Verbleibende Preisplätze', [S.live]: 'Live', [S.totalOnly]: 'Nur Gesamtzahl', [S.slotsRemaining]: 'Verbleibende Preisplätze', [S.crawlerLive]: 'Live-Crawler-Daten', [S.loadingLive]: 'Live-Daten werden geladen', [S.knowPackage]: 'Was wir über das 2026-Paket wissen', [S.compareTiers]: 'Alle Stufen vergleichen', [S.historicalProjection]: 'Historische Prognose', [S.historicalOnly]: 'Nur historische Referenz', [S.wrap2025]: 'Offizieller Rückblick 2025', [S.rewardDetails]: 'Belohnungsdetails', [S.officialAnnouncement]: 'Offizielle Ankündigung', [S.rangerBonus]: 'Ranger-Bonusbelohnung', [S.legendOnly]: 'Exklusive Legend-Belohnung', [S.championIncluded]: 'In der Champion-Kollektion enthalten', [S.nameDetailsHidden]: 'Name/Details noch nicht enthüllt', [S.seasonFinal]: '2025 Season 2 abgeschlossen',
+              '__swag:knownNow': '{known} bekannt · ≈{unrevealed} noch offen', '__swag:revealedPending': '{revealed} enthüllt · {pending} ausstehend', '__swag:totalPrizeSlots': '{count} Preisplätze insgesamt', '__swag:percentLeft': '{percent}% übrig', '__swag:baseline': '2025-Basis: {count}', '__swag:projectedItems': '≈{count} geschätzte Artikel',
+            },
+            es: {
+              [S.swagDrops]: 'Premios Arcade', [S.archive]: 'Archivo de recompensas Arcade', [S.bySeason]: 'Premios por temporada', [S.rewards2026]: 'Recompensas Arcade 2026', [S.title2026]: 'Premios Google Skills Arcade 2026',
+              [S.hero]: 'Consulta de un vistazo las recompensas actuales de cada nivel: premios revelados, recompensas anunciadas oficialmente, cupos disponibles en tiempo real, artículos estimados aún por revelar y contexto histórico.',
+              [S.lineup]: 'Recompensas actuales', [S.revealed]: 'Revelado', [S.promised]: 'Anunciado oficialmente', [S.nameHidden]: 'Nombre aún no revelado', [S.noNamed]: 'Aún no hay un artículo 2026 con nombre', [S.projected]: 'Paquete estimado', [S.known]: 'Conocido actualmente', [S.unrevealed]: 'Premios aún sin revelar', [S.details]: 'Detalles', [S.rewardsByTier]: 'Recompensas 2026 por nivel', [S.officialPending]: 'Oficial, pendiente de revelación', [S.historicalEstimate]: 'Estimación histórica', [S.whyApprox]: '¿Por qué los totales del paquete llevan ≈?', [S.viewBaseline]: 'Ver la referencia de 2025 usada para la estimación', [S.hall]: 'Galería de ganadores', [S.slotsLeft]: 'Cupos de premio restantes', [S.live]: 'En vivo', [S.totalOnly]: 'Solo total', [S.slotsRemaining]: 'Cupos de premio restantes', [S.crawlerLive]: 'Datos en vivo del crawler', [S.loadingLive]: 'Cargando datos en vivo', [S.knowPackage]: 'Lo que sabemos del paquete 2026', [S.compareTiers]: 'Comparar todos los niveles', [S.historicalProjection]: 'Proyección histórica', [S.historicalOnly]: 'Solo referencia histórica', [S.wrap2025]: 'Resumen oficial de 2025', [S.rewardDetails]: 'Detalles de la recompensa', [S.officialAnnouncement]: 'Anuncio oficial', [S.rangerBonus]: 'Recompensa extra Ranger', [S.legendOnly]: 'Recompensa exclusiva Legend', [S.championIncluded]: 'Incluido en la colección Champion', [S.nameDetailsHidden]: 'Nombre/detalles aún no revelados', [S.seasonFinal]: 'Final de la temporada 2 de 2025',
+              '__swag:knownNow': '{known} conocidos · ≈{unrevealed} por revelar', '__swag:revealedPending': '{revealed} revelados · {pending} pendientes', '__swag:totalPrizeSlots': '{count} cupos totales', '__swag:percentLeft': '{percent}% restantes', '__swag:baseline': 'Referencia 2025: {count}', '__swag:projectedItems': '≈{count} artículos estimados',
+            },
+            pt_BR: {
+              [S.swagDrops]: 'Brindes Arcade', [S.archive]: 'Arquivo de recompensas Arcade', [S.bySeason]: 'Brindes por temporada', [S.rewards2026]: 'Recompensas Arcade 2026', [S.title2026]: 'Brindes Google Skills Arcade 2026',
+              [S.hero]: 'Veja rapidamente as recompensas atuais de cada nível: brindes revelados, recompensas anunciadas oficialmente, vagas de prêmio em tempo real, itens estimados ainda não revelados e contexto histórico.',
+              [S.lineup]: 'Recompensas atuais', [S.revealed]: 'Revelado', [S.promised]: 'Anunciado oficialmente', [S.nameHidden]: 'Nome ainda não revelado', [S.noNamed]: 'Ainda não há item de 2026 com nome divulgado', [S.projected]: 'Pacote estimado', [S.known]: 'Conhecido agora', [S.unrevealed]: 'Brindes ainda não revelados', [S.details]: 'Detalhes', [S.rewardsByTier]: 'Recompensas de 2026 por nível', [S.officialPending]: 'Oficial, aguardando revelação', [S.historicalEstimate]: 'Estimativa histórica', [S.whyApprox]: 'Por que os totais do pacote usam ≈?', [S.viewBaseline]: 'Ver a referência de 2025 usada na estimativa', [S.hall]: 'Galeria de vencedores', [S.slotsLeft]: 'Vagas de prêmio restantes', [S.live]: 'Ao vivo', [S.totalOnly]: 'Apenas total', [S.slotsRemaining]: 'Vagas de prêmio restantes', [S.crawlerLive]: 'Dados ao vivo do crawler', [S.loadingLive]: 'Carregando dados ao vivo', [S.knowPackage]: 'O que sabemos sobre o pacote de 2026', [S.compareTiers]: 'Comparar todos os níveis', [S.historicalProjection]: 'Projeção histórica', [S.historicalOnly]: 'Apenas referência histórica', [S.wrap2025]: 'Resumo oficial de 2025', [S.rewardDetails]: 'Detalhes da recompensa', [S.officialAnnouncement]: 'Anúncio oficial', [S.rangerBonus]: 'Recompensa bônus Ranger', [S.legendOnly]: 'Recompensa exclusiva Legend', [S.championIncluded]: 'Incluído na coleção Champion', [S.nameDetailsHidden]: 'Nome/detalhes ainda não revelados', [S.seasonFinal]: 'Final da Temporada 2 de 2025',
+              '__swag:knownNow': '{known} conhecidos · ≈{unrevealed} ainda não revelados', '__swag:revealedPending': '{revealed} revelados · {pending} pendentes', '__swag:totalPrizeSlots': '{count} vagas no total', '__swag:percentLeft': '{percent}% restantes', '__swag:baseline': 'Referência 2025: {count}', '__swag:projectedItems': '≈{count} itens estimados',
+            },
+            it: {
+              [S.swagDrops]: 'Premi Arcade', [S.archive]: 'Archivio premi Arcade', [S.bySeason]: 'Premi per stagione', [S.rewards2026]: 'Ricompense Arcade 2026', [S.title2026]: 'Premi Google Skills Arcade 2026',
+              [S.hero]: 'Consulta a colpo d’occhio le ricompense attuali di ogni livello: premi svelati, ricompense annunciate ufficialmente, posti premio in tempo reale, articoli stimati ancora da svelare e contesto storico.',
+              [S.lineup]: 'Ricompense attuali', [S.revealed]: 'Svelato', [S.promised]: 'Annunciato ufficialmente', [S.nameHidden]: 'Nome non ancora svelato', [S.noNamed]: 'Nessun articolo 2026 con nome svelato', [S.projected]: 'Pacchetto stimato', [S.known]: 'Attualmente noto', [S.unrevealed]: 'Premi ancora da svelare', [S.details]: 'Dettagli', [S.rewardsByTier]: 'Ricompense 2026 per livello', [S.officialPending]: 'Ufficiale, in attesa di rivelazione', [S.historicalEstimate]: 'Stima storica', [S.whyApprox]: 'Perché i totali del pacchetto sono indicati con ≈?', [S.viewBaseline]: 'Visualizza il riferimento 2025 usato per la stima', [S.hall]: 'Galleria dei vincitori', [S.slotsLeft]: 'Posti premio rimanenti', [S.live]: 'In tempo reale', [S.totalOnly]: 'Solo totale', [S.slotsRemaining]: 'Posti premio rimanenti', [S.crawlerLive]: 'Dati live del crawler', [S.loadingLive]: 'Caricamento dati live', [S.knowPackage]: 'Cosa sappiamo del pacchetto 2026', [S.compareTiers]: 'Confronta tutti i livelli', [S.historicalProjection]: 'Proiezione storica', [S.historicalOnly]: 'Solo riferimento storico', [S.wrap2025]: 'Riepilogo ufficiale 2025', [S.rewardDetails]: 'Dettagli ricompensa', [S.officialAnnouncement]: 'Annuncio ufficiale', [S.rangerBonus]: 'Ricompensa bonus Ranger', [S.legendOnly]: 'Ricompensa esclusiva Legend', [S.championIncluded]: 'Incluso nella collezione Champion', [S.nameDetailsHidden]: 'Nome/dettagli non ancora svelati', [S.seasonFinal]: 'Finale della stagione 2 del 2025',
+              '__swag:knownNow': '{known} noti · ≈{unrevealed} ancora da svelare', '__swag:revealedPending': '{revealed} svelati · {pending} in attesa', '__swag:totalPrizeSlots': '{count} posti premio totali', '__swag:percentLeft': '{percent}% rimanenti', '__swag:baseline': 'Riferimento 2025: {count}', '__swag:projectedItems': '≈{count} articoli stimati',
+            },
+            ru: {
+              [S.swagDrops]: 'Подарки Arcade', [S.archive]: 'Архив наград Arcade', [S.bySeason]: 'Подарки по сезонам', [S.rewards2026]: 'Награды Arcade 2026', [S.title2026]: 'Подарки Google Skills Arcade 2026',
+              [S.hero]: 'Посмотрите награды каждого уровня: уже раскрытые подарки, официально обещанные награды, доступные призовые места в реальном времени, оценку ещё не раскрытых предметов и исторический контекст.',
+              [S.lineup]: 'Текущий набор наград', [S.revealed]: 'Раскрыто', [S.promised]: 'Официально обещано', [S.nameHidden]: 'Название ещё не раскрыто', [S.noNamed]: 'Пока нет названных предметов 2026 года', [S.projected]: 'Ожидаемый набор', [S.known]: 'Известно сейчас', [S.unrevealed]: 'Ещё не раскрытые подарки', [S.details]: 'Подробнее', [S.rewardsByTier]: 'Награды 2026 по уровням', [S.officialPending]: 'Официально подтверждено, ожидает раскрытия', [S.historicalEstimate]: 'Историческая оценка', [S.whyApprox]: 'Почему итоговые размеры наборов отмечены ≈?', [S.viewBaseline]: 'Посмотреть базовые данные 2025 года для оценки', [S.hall]: 'Галерея победителей', [S.slotsLeft]: 'Осталось призовых мест', [S.live]: 'Онлайн', [S.totalOnly]: 'Только общее число', [S.slotsRemaining]: 'Осталось призовых мест', [S.crawlerLive]: 'Данные краулера в реальном времени', [S.loadingLive]: 'Загрузка актуальных данных', [S.knowPackage]: 'Что известно о наборе 2026', [S.compareTiers]: 'Сравнить все уровни', [S.historicalProjection]: 'Исторический прогноз', [S.historicalOnly]: 'Только историческая справка', [S.wrap2025]: 'Официальные итоги 2025', [S.rewardDetails]: 'Детали награды', [S.officialAnnouncement]: 'Официальное объявление', [S.rangerBonus]: 'Бонусная награда Ranger', [S.legendOnly]: 'Эксклюзивная награда Legend', [S.championIncluded]: 'Входит в коллекцию Champion', [S.nameDetailsHidden]: 'Название/детали ещё не раскрыты', [S.seasonFinal]: 'Финал сезона 2 за 2025 год',
+              '__swag:knownNow': 'Известно: {known} · ≈{unrevealed} ещё не раскрыто', '__swag:revealedPending': 'Раскрыто: {revealed} · ожидается: {pending}', '__swag:totalPrizeSlots': 'Всего призовых мест: {count}', '__swag:percentLeft': 'Осталось {percent}%', '__swag:baseline': 'База 2025: {count}', '__swag:projectedItems': '≈{count} ожидаемых предметов',
+            },
+            ar: {
+              [S.swagDrops]: 'هدايا Arcade', [S.archive]: 'أرشيف مكافآت Arcade', [S.bySeason]: 'الهدايا حسب الموسم', [S.rewards2026]: 'مكافآت Arcade 2026', [S.title2026]: 'هدايا Google Skills Arcade 2026',
+              [S.hero]: 'اطّلع سريعًا على مكافآت كل فئة: الهدايا المُعلنة، والمكافآت التي أكدت Google أنها قادمة، وعدد فرص الجوائز المتبقية مباشرة، والتقدير للعناصر التي لم تُكشف بعد، والسياق التاريخي.',
+              [S.lineup]: 'المكافآت الحالية', [S.revealed]: 'تم الكشف', [S.promised]: 'مؤكدة رسميًا', [S.nameHidden]: 'الاسم لم يُكشف بعد', [S.noNamed]: 'لا توجد بعد هدية 2026 معلنة بالاسم', [S.projected]: 'الحزمة المتوقعة', [S.known]: 'المعروف حاليًا', [S.unrevealed]: 'هدايا لم تُكشف بعد', [S.details]: 'التفاصيل', [S.rewardsByTier]: 'مكافآت 2026 حسب الفئة', [S.officialPending]: 'مؤكدة رسميًا وبانتظار الكشف', [S.historicalEstimate]: 'تقدير تاريخي', [S.whyApprox]: 'لماذا تظهر أعداد الحزم بعلامة ≈؟', [S.viewBaseline]: 'عرض مرجع 2025 المستخدم في التقدير', [S.hall]: 'معرض الفائزين بالهدايا', [S.slotsLeft]: 'فرص الجوائز المتبقية', [S.live]: 'مباشر', [S.totalOnly]: 'الإجمالي فقط', [S.slotsRemaining]: 'فرص الجوائز المتبقية', [S.crawlerLive]: 'بيانات crawler المباشرة', [S.loadingLive]: 'جارٍ تحميل البيانات المباشرة', [S.knowPackage]: 'ما نعرفه عن حزمة 2026', [S.compareTiers]: 'مقارنة جميع الفئات', [S.historicalProjection]: 'توقع مبني على المواسم السابقة', [S.historicalOnly]: 'مرجع تاريخي فقط', [S.wrap2025]: 'الملخص الرسمي لعام 2025', [S.rewardDetails]: 'تفاصيل المكافأة', [S.officialAnnouncement]: 'الإعلان الرسمي', [S.rangerBonus]: 'مكافأة Ranger الإضافية', [S.legendOnly]: 'مكافأة حصرية لفئة Legend', [S.championIncluded]: 'ضمن مجموعة Champion', [S.nameDetailsHidden]: 'الاسم/التفاصيل لم تُكشف بعد', [S.seasonFinal]: 'النسخة النهائية للموسم الثاني 2025',
+              '__swag:knownNow': 'المعروف حاليًا {known} · نحو {unrevealed} لم يُكشف بعد', '__swag:revealedPending': 'تم الكشف عن {revealed} · {pending} قيد الانتظار', '__swag:totalPrizeSlots': 'إجمالي فرص الجوائز {count}', '__swag:percentLeft': 'متبقٍ {percent}%', '__swag:baseline': 'مرجع 2025: {count}', '__swag:projectedItems': 'نحو {count} عناصر متوقعة',
+            },
+            hi: {
+              [S.swagDrops]: 'Arcade उपहार', [S.archive]: 'Arcade रिवॉर्ड आर्काइव', [S.bySeason]: 'सीज़न के अनुसार उपहार', [S.rewards2026]: 'Arcade 2026 रिवॉर्ड', [S.title2026]: 'Google Skills Arcade 2026 उपहार',
+              [S.hero]: 'हर टियर के मौजूदा रिवॉर्ड एक नज़र में देखें: घोषित उपहार, आधिकारिक रूप से वादा किए गए रिवॉर्ड, लाइव प्राइज़ स्लॉट, अभी तक न बताए गए आइटम का अनुमान और पिछले सीज़न का संदर्भ।',
+              [S.lineup]: 'मौजूदा रिवॉर्ड लाइनअप', [S.revealed]: 'घोषित', [S.promised]: 'आधिकारिक रूप से वादा किया गया', [S.nameHidden]: 'नाम अभी घोषित नहीं', [S.noNamed]: 'अभी कोई 2026 आइटम नाम सहित घोषित नहीं हुआ', [S.projected]: 'अनुमानित पैकेज', [S.known]: 'अभी ज्ञात', [S.unrevealed]: 'अभी तक न बताए गए उपहार', [S.details]: 'विवरण', [S.rewardsByTier]: 'टियर के अनुसार 2026 रिवॉर्ड', [S.officialPending]: 'आधिकारिक, घोषणा लंबित', [S.historicalEstimate]: 'ऐतिहासिक अनुमान', [S.whyApprox]: 'पैकेज कुल पर ≈ क्यों दिखता है?', [S.viewBaseline]: 'अनुमान के लिए इस्तेमाल 2025 आधार देखें', [S.hall]: 'उपहार विजेताओं की गैलरी', [S.slotsLeft]: 'बचे हुए प्राइज़ स्लॉट', [S.live]: 'लाइव', [S.totalOnly]: 'केवल कुल', [S.slotsRemaining]: 'बचे हुए प्राइज़ स्लॉट', [S.crawlerLive]: 'लाइव क्रॉलर डेटा', [S.loadingLive]: 'लाइव डेटा लोड हो रहा है', [S.knowPackage]: '2026 पैकेज के बारे में अभी तक क्या पता है', [S.compareTiers]: 'सभी टियर की तुलना करें', [S.historicalProjection]: 'ऐतिहासिक अनुमान', [S.historicalOnly]: 'केवल ऐतिहासिक संदर्भ', [S.wrap2025]: 'आधिकारिक 2025 सारांश', [S.rewardDetails]: 'रिवॉर्ड विवरण', [S.officialAnnouncement]: 'आधिकारिक घोषणा', [S.rangerBonus]: 'Ranger बोनस रिवॉर्ड', [S.legendOnly]: 'केवल Legend रिवॉर्ड', [S.championIncluded]: 'Champion कलेक्शन में शामिल', [S.nameDetailsHidden]: 'नाम/विवरण अभी घोषित नहीं', [S.seasonFinal]: '2025 Season 2 का अंतिम रूप',
+              '__swag:knownNow': 'अभी {known} ज्ञात · ≈{unrevealed} अभी घोषित नहीं', '__swag:revealedPending': '{revealed} घोषित · {pending} लंबित', '__swag:totalPrizeSlots': 'कुल {count} प्राइज़ स्लॉट', '__swag:percentLeft': '{percent}% बाकी', '__swag:baseline': '2025 आधार: {count}', '__swag:projectedItems': '≈{count} अनुमानित आइटम',
+            },
+          }
+
+          const locales = ['en','vi','ja','ko','zh_CN','fr','de','es','pt_BR','it','ru','ar','hi']
+          for (const locale of locales) {
+            const file = `public/i18n/locales/${locale}.json`
+            const data = JSON.parse(fs.readFileSync(file, 'utf8'))
+            data.additional ||= {}
+            Object.assign(data.additional, translations[locale])
+            fs.writeFileSync(file, `${JSON.stringify(data, null, 2)}\n`)
+          }
+
+          const libPath = 'lib/website-i18n.ts'
+          let lib = fs.readFileSync(libPath, 'utf8')
+          const marker = '  return source\n}\n'
+          if (!lib.includes('__swag:knownNow')) {
+            const dynamic = `  match = source.match(/^(\\d+) known now · ≈(\\d+) still unrevealed$/)\n  if (match) {\n    return (targetCatalog.additional["__swag:knownNow"] ?? "{known} known now · ≈{unrevealed} still unrevealed")\n      .replace("{known}", match[1])\n      .replace("{unrevealed}", match[2])\n  }\n\n  match = source.match(/^(\\d+) revealed · (\\d+) pending$/)\n  if (match) {\n    return (targetCatalog.additional["__swag:revealedPending"] ?? "{revealed} revealed · {pending} pending")\n      .replace("{revealed}", match[1])\n      .replace("{pending}", match[2])\n  }\n\n  match = source.match(/^([\\d,]+) total prize slots$/)\n  if (match) {\n    return (targetCatalog.additional["__swag:totalPrizeSlots"] ?? "{count} total prize slots").replace("{count}", match[1])\n  }\n\n  match = source.match(/^(\\d+)% left$/)\n  if (match) {\n    return (targetCatalog.additional["__swag:percentLeft"] ?? "{percent}% left").replace("{percent}", match[1])\n  }\n\n  match = source.match(/^2025 baseline: (\\d+)$/)\n  if (match) {\n    return (targetCatalog.additional["__swag:baseline"] ?? "2025 baseline: {count}").replace("{count}", match[1])\n  }\n\n  match = source.match(/^≈(\\d+)(?: projected)? items$/)\n  if (match) {\n    return (targetCatalog.additional["__swag:projectedItems"] ?? "≈{count} projected items").replace("{count}", match[1])\n  }\n\n`
+            if (!lib.includes(marker)) throw new Error('translateDynamicText return marker not found')
+            lib = lib.replace(marker, dynamic + marker)
+            fs.writeFileSync(libPath, lib)
+          }
+
+          const required = [...Object.values(S), '__swag:knownNow', '__swag:revealedPending', '__swag:totalPrizeSlots', '__swag:percentLeft', '__swag:baseline', '__swag:projectedItems']
+          const test = `import assert from "node:assert/strict"\nimport { readFileSync } from "node:fs"\nimport test from "node:test"\n\nconst locales = ${JSON.stringify(locales)}\nconst required = ${JSON.stringify(required)}\n\ntest("swag UI copy exists in every locale catalog", () => {\n  for (const locale of locales) {\n    const catalog = JSON.parse(readFileSync(new URL(\`../public/i18n/locales/\${locale}.json\`, import.meta.url), "utf8"))\n    for (const source of required) {\n      assert.equal(typeof catalog.additional?.[source], "string", \`\${locale} missing swag translation: \${source}\`)\n      assert.ok(catalog.additional[source].trim().length > 0, \`\${locale} has empty swag translation: \${source}\`)\n    }\n  }\n})\n\ntest("dynamic swag translation patterns are wired through website i18n", () => {\n  const source = readFileSync(new URL("../lib/website-i18n.ts", import.meta.url), "utf8")\n  for (const key of ["knownNow", "revealedPending", "totalPrizeSlots", "percentLeft", "baseline", "projectedItems"]) {\n    assert.match(source, new RegExp(\`__swag:\${key}\`))\n  }\n})\n`
+          fs.writeFileSync('tests/swag-i18n.test.mjs', test)
+          NODE
+
+      - name: Commit generated source-catalog updates
+        shell: bash
+        run: |
+          rm .github/workflows/one-time-swag-i18n.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "fix: translate swag pages"
+          git push origin HEAD:fix/swag-i18n
