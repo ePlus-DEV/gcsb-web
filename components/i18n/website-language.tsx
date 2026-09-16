@@ -306,7 +306,22 @@ export default function WebsiteLanguage() {
     }
 
     const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ""
-    window.location.assign(`${basePath}${getWebsiteLocaleHref(nextLocale)}`)
+    const pathname = window.location.pathname
+    const pathWithoutBase =
+      basePath && pathname.startsWith(basePath)
+        ? pathname.slice(basePath.length) || "/"
+        : pathname
+    const pathLocale = getWebsiteLocaleFromPathname(pathname)
+    const isHomepage = pathWithoutBase === "/"
+
+    if (isHomepage || pathLocale) {
+      window.location.assign(`${basePath}${getWebsiteLocaleHref(nextLocale)}`)
+      return
+    }
+
+    // Internal non-localized routes (for example /swag-drops/...) keep their
+    // current URL and translate in place using the selected catalog.
+    setLocale(nextLocale)
   }
 
   if (!ready || !portalTarget) return null
