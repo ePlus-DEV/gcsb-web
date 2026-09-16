@@ -66,22 +66,22 @@ export default function SwagDropsArchivePage() {
               </div>
 
               <p className="mt-6 text-xs font-bold uppercase tracking-[.16em] text-cyan-700 dark:text-cyan-300">
-                Season {season}
+                {`Season ${season}`}
               </p>
               <h2 className="mt-2 text-2xl font-bold text-slate-950 dark:text-white">
                 Google Skills Arcade {season}
               </h2>
               <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                Trooper, Ranger, Champion, and Legend requirements plus every confirmed {season} swag drop.
+                {`Trooper, Ranger, Champion, and Legend requirements plus every confirmed ${season} swag drop.`}
               </p>
 
               <div className="mt-6 flex flex-wrap gap-2 text-xs font-semibold text-slate-600 dark:text-slate-300">
                 <span className="rounded-full bg-slate-100 px-3 py-1.5 dark:bg-white/5">
-                  {drops.length} confirmed {drops.length === 1 ? "drop" : "drops"}
+                  {`${drops.length} confirmed ${drops.length === 1 ? "drop" : "drops"}`}
                 </span>
                 {latest ? (
                   <span className="rounded-full bg-violet-50 px-3 py-1.5 text-violet-700 dark:bg-violet-300/10 dark:text-violet-200">
-                    Latest: {latest.shortName}
+                    {`Latest: ${latest.shortName}`}
                   </span>
                 ) : null}
               </div>

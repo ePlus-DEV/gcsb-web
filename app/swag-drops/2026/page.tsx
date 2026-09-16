@@ -157,7 +157,7 @@ function TierRewardRow({ tier }: { tier: ArcadeSwagTier }) {
             {meta.pointsLabel}
           </h3>
           <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-            {meta.slots.toLocaleString("en-US")} total prize slots
+            {`${meta.slots.toLocaleString("en-US")} total prize slots`}
           </p>
         </div>
 
@@ -167,7 +167,7 @@ function TierRewardRow({ tier }: { tier: ArcadeSwagTier }) {
               Current reward lineup
             </span>
             <span className="text-[10px] font-semibold text-slate-400">
-              {knownCount} known now · ≈{projectedMystery} still unrevealed
+              {`${knownCount} known now · ≈${projectedMystery} still unrevealed`}
             </span>
           </div>
 
@@ -257,10 +257,10 @@ function TierRewardRow({ tier }: { tier: ArcadeSwagTier }) {
               Projected package
             </span>
             <strong className="mt-0.5 block text-base text-slate-950 dark:text-white">
-              ≈{meta.historicalEstimateItems} items
+              {`≈${meta.historicalEstimateItems} items`}
             </strong>
             <span className="block text-[10px] text-slate-500">
-              2025 baseline: {PREVIOUS_SEASON_COUNTS[tier]}
+              {`2025 baseline: ${PREVIOUS_SEASON_COUNTS[tier]}`}
             </span>
           </div>
 
@@ -272,7 +272,7 @@ function TierRewardRow({ tier }: { tier: ArcadeSwagTier }) {
               {knownCount}
             </strong>
             <span className="block text-[10px] text-slate-500">
-              {drops.length} revealed · {promised.length} pending
+              {`${drops.length} revealed · ${promised.length} pending`}
             </span>
           </div>
 
@@ -357,7 +357,7 @@ export default function SwagDrops2026Page() {
             </div>
             <div className="flex flex-col justify-center p-5 sm:p-7">
               <span className="inline-flex w-fit items-center gap-2 rounded-full bg-cyan-100 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[.12em] text-cyan-800 dark:bg-cyan-300/10 dark:text-cyan-200">
-                <Sparkles className="h-3.5 w-3.5" aria-hidden="true" /> 2026 swag drop #{latest.dropNumber}
+                <Sparkles className="h-3.5 w-3.5" aria-hidden="true" /> {`${season} swag drop #${latest.dropNumber}`}
               </span>
               <h2 className="mt-3 text-2xl font-bold tracking-tight text-slate-950 dark:text-white">
                 {latest.shortName}
@@ -448,7 +448,7 @@ export default function SwagDrops2026Page() {
                     Arcade {SWAG_TIER_META[tier].label}
                   </span>
                   <strong className="mt-1 block text-lg text-slate-950 dark:text-white">
-                    {PREVIOUS_SEASON_COUNTS[tier]} items
+                    {`${PREVIOUS_SEASON_COUNTS[tier]} items`}
                   </strong>
                   <span className="mt-0.5 block text-[10px] text-slate-500">
                     2025 Season 2 final
@@ -516,7 +516,7 @@ export default function SwagDrops2026Page() {
                     </strong>
                     <span className="mt-1 block text-xs text-slate-500">{item.subtitle}</span>
                     <span className="mt-1.5 block text-[10px] font-semibold text-slate-500">
-                      Shared by {item.author}
+                      {`Shared by ${item.author}`}
                     </span>
                   </div>
                   <ExternalLink className="h-4 w-4 shrink-0 text-slate-400" aria-hidden="true" />

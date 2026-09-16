@@ -158,7 +158,7 @@ export default function LiveTierSlots({
             <span className="text-[10px] text-slate-500">/ {format(state.slots)}</span>
             {remainingPercent !== null ? (
               <span className="ml-auto text-[10px] text-slate-500">
-                {remainingPercent.toFixed(0)}% left
+                {`${remainingPercent.toFixed(0)}% left`}
               </span>
             ) : null}
           </div>
