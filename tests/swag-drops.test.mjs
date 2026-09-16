@@ -127,7 +127,7 @@ test("season hub exposes a balanced reward board without hiding tier rewards", (
   assert.match(detailPage, /generateStaticParams/)
   assert.match(detailPage, /BreadcrumbList/)
   assert.match(detailPage, /package outlook/)
-  assert.match(detailPage, /What we know about the \{season\} package/)
+  assert.match(detailPage, /What we know about the \$\{season\} package/)
   assert.match(detailPage, /Historical reference only/)
   assert.match(detailPage, /historicalReferenceItems\.map/)
   assert.match(detailPage, /projectedRemaining/)

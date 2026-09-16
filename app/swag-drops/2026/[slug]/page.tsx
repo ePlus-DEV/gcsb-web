@@ -138,10 +138,10 @@ function TierPage({ tier }: { tier: ArcadeSwagTier }) {
           <div className="grid gap-6 p-5 sm:p-7 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
             <div>
               <span className="inline-flex rounded-full bg-cyan-100 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[.12em] text-cyan-800 dark:bg-cyan-300/10 dark:text-cyan-200">
-                {season} package outlook
+                {`${season} package outlook`}
               </span>
               <h2 className="mt-4 text-2xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-3xl">
-                {meta.historicalEstimateLabel} projected rewards
+                {`${meta.historicalEstimateLabel} projected rewards`}
               </h2>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-300">
                 {meta.rewardRule}
@@ -151,7 +151,7 @@ function TierPage({ tier }: { tier: ArcadeSwagTier }) {
                   {meta.pointsLabel}
                 </span>
                 <span className="rounded-full border border-slate-200 bg-white/80 px-3 py-1.5 text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-200">
-                  {meta.slots.toLocaleString("en-US")} total prize slots
+                  {`${meta.slots.toLocaleString("en-US")} total prize slots`}
                 </span>
                 <span className="rounded-full border border-violet-200 bg-violet-50 px-3 py-1.5 text-violet-700 dark:border-violet-300/15 dark:bg-violet-300/[0.04] dark:text-violet-200">
                   Historical projection, not final 2026 total
@@ -193,7 +193,7 @@ function TierPage({ tier }: { tier: ArcadeSwagTier }) {
           <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
             <div>
               <h2 id="current-lineup-heading" className="text-2xl font-bold text-slate-950 dark:text-white">
-                What we know about the {season} package
+                {`What we know about the ${season} package`}
               </h2>
               <p className="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400">
                 Revealed rewards and officially promised items are separated from the historical projection.
@@ -222,7 +222,7 @@ function TierPage({ tier }: { tier: ArcadeSwagTier }) {
                     <CheckCircle2 className="h-3 w-3" aria-hidden="true" /> Revealed
                   </span>
                   <strong className="mt-1 block text-base text-slate-950 dark:text-white">{drop.shortName}</strong>
-                  <span className="mt-1 block text-xs text-slate-500">2026 drop #{drop.dropNumber} · {drop.revealedOn}</span>
+                  <span className="mt-1 block text-xs text-slate-500">{`${season} drop #${drop.dropNumber} · ${drop.revealedOn}`}</span>
                 </span>
                 <ArrowRight className="h-4 w-4 shrink-0 text-slate-400 transition group-hover:translate-x-1" aria-hidden="true" />
               </Link>
@@ -254,7 +254,7 @@ function TierPage({ tier }: { tier: ArcadeSwagTier }) {
                 Historical projection
               </span>
               <strong className="mt-1 block text-base text-slate-800 dark:text-slate-100">
-                ≈{projectedRemaining} more item{projectedRemaining === 1 ? "" : "s"} still unrevealed
+                {`≈${projectedRemaining} more item${projectedRemaining === 1 ? "" : "s"} still unrevealed`}
               </strong>
               <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
                 Google has not published these 2026 item names. The count only reflects the prior-season package-size baseline.
@@ -270,10 +270,10 @@ function TierPage({ tier }: { tier: ArcadeSwagTier }) {
                 Historical reference only
               </span>
               <h2 className="mt-1 text-xl font-bold text-slate-950 dark:text-white">
-                2025 {meta.label} package
+                {`2025 ${meta.label} package`}
               </h2>
               <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-500 dark:text-slate-400">
-                These were the official final 2025 Season 2 items for this tier. They explain the {meta.historicalEstimateLabel} projection, but they are not confirmed as 2026 rewards.
+                {`These were the official final 2025 Season 2 items for this tier. They explain the ${meta.historicalEstimateLabel} projection, but they are not confirmed as 2026 rewards.`}
               </p>
             </div>
             <a
@@ -317,7 +317,7 @@ function TierPage({ tier }: { tier: ArcadeSwagTier }) {
 
         <div className="flex flex-wrap gap-3">
           <Link href={swagSeasonPath(season)} className="text-sm font-semibold text-cyan-700 hover:underline dark:text-cyan-300">
-            ← All {season} rewards
+            {`← All ${season} rewards`}
           </Link>
           <a
             href="https://discuss.google.dev/t/google-skills-arcade-2026-tiers/371066"
@@ -367,7 +367,7 @@ function ProductPage({ slug }: { slug: string }) {
           <div className="flex flex-col justify-center p-6 sm:p-9">
             <div className="flex flex-wrap items-center gap-2">
               <span className="rounded-full bg-cyan-100 px-3 py-1.5 text-xs font-semibold text-cyan-800 dark:bg-cyan-300/10 dark:text-cyan-200">
-                2026 swag drop #{drop.dropNumber}
+                {`${season} swag drop #${drop.dropNumber}`}
               </span>
               {drop.dropNumber === 1 ? (
                 <span className="rounded-full bg-violet-100 px-3 py-1.5 text-xs font-semibold text-violet-800 dark:bg-violet-300/10 dark:text-violet-200">
@@ -375,7 +375,7 @@ function ProductPage({ slug }: { slug: string }) {
                 </span>
               ) : null}
             </div>
-            <p className="mt-4 text-sm font-semibold text-cyan-700 dark:text-cyan-300">Revealed {drop.revealedOn}</p>
+            <p className="mt-4 text-sm font-semibold text-cyan-700 dark:text-cyan-300">{`Revealed ${drop.revealedOn}`}</p>
             <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-950 dark:text-white">{drop.shortName}</h2>
             <p className="mt-4 text-sm leading-6 text-slate-600 dark:text-slate-300">{drop.summary}</p>
             <div className="mt-5 flex flex-wrap gap-2">
@@ -454,7 +454,7 @@ function ProductPage({ slug }: { slug: string }) {
             Official Google reveal <ExternalLink className="h-4 w-4" aria-hidden="true" />
           </a>
           <Link href={swagSeasonPath(season)} className="inline-flex items-center gap-2 px-2 py-2.5 text-sm font-semibold text-cyan-700 hover:underline dark:text-cyan-300">
-            All {season} rewards <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            {`All ${season} rewards`} <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </Link>
         </div>
       </div>

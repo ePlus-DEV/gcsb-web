@@ -183,6 +183,11 @@ function facilitatorTemplate(
   return targetCatalog.additional[`__facilitator:${key}`] ?? fallback
 }
 
+
+function swagTemplate(targetCatalog: WebsiteCatalog, key: string, fallback: string): string {
+  return targetCatalog.additional[`__swag:${key}`] ?? fallback
+}
+
 /** Translates UI strings whose values contain runtime numbers or labels. */
 function translateDynamicText(
   source: string,
@@ -320,6 +325,86 @@ function translateDynamicText(
       translateWebsiteText(match[1], sourceCatalog, targetCatalog),
     )
   }
+
+  match = source.match(/^(\d+) known now · ≈(\d+) still unrevealed$/)
+  if (match) {
+    return (targetCatalog.additional["__swag:knownNow"] ?? "{known} known now · ≈{unrevealed} still unrevealed")
+      .replace("{known}", match[1])
+      .replace("{unrevealed}", match[2])
+  }
+
+  match = source.match(/^(\d+) revealed · (\d+) pending$/)
+  if (match) {
+    return (targetCatalog.additional["__swag:revealedPending"] ?? "{revealed} revealed · {pending} pending")
+      .replace("{revealed}", match[1])
+      .replace("{pending}", match[2])
+  }
+
+  match = source.match(/^([\d,]+) total prize slots$/)
+  if (match) {
+    return (targetCatalog.additional["__swag:totalPrizeSlots"] ?? "{count} total prize slots").replace("{count}", match[1])
+  }
+
+  match = source.match(/^(\d+)% left$/)
+  if (match) {
+    return (targetCatalog.additional["__swag:percentLeft"] ?? "{percent}% left").replace("{percent}", match[1])
+  }
+
+  match = source.match(/^2025 baseline: (\d+)$/)
+  if (match) {
+    return (targetCatalog.additional["__swag:baseline"] ?? "2025 baseline: {count}").replace("{count}", match[1])
+  }
+
+  match = source.match(/^≈(\d+)(?: projected)? items$/)
+  if (match) {
+    return (targetCatalog.additional["__swag:projectedItems"] ?? "≈{count} projected items").replace("{count}", match[1])
+  }
+
+
+  match = source.match(/^Arcade (\d{4}) swag drop #(\d+)$/)
+  if (match) return swagTemplate(targetCatalog, "arcadeDropNumber", "Arcade {year} swag drop #{number}").replace("{year}", match[1]).replace("{number}", match[2])
+  match = source.match(/^(\d{4}) swag drop #(\d+)$/)
+  if (match) return swagTemplate(targetCatalog, "dropNumber", "{year} swag drop #{number}").replace("{year}", match[1]).replace("{number}", match[2])
+  match = source.match(/^First (\d{4}) swag drop$/)
+  if (match) return swagTemplate(targetCatalog, "firstDrop", "First {year} swag drop").replace("{year}", match[1])
+  match = source.match(/^Revealed (.+)$/)
+  if (match) return swagTemplate(targetCatalog, "revealedDate", "Revealed {value}").replace("{value}", translateWebsiteText(match[1], sourceCatalog, targetCatalog))
+  match = source.match(/^(\d{4}) drop #(\d+) · (.+)$/)
+  if (match) return swagTemplate(targetCatalog, "dropRevealed", "{year} drop #{number} · {value}").replace("{year}", match[1]).replace("{number}", match[2]).replace("{value}", translateWebsiteText(match[3], sourceCatalog, targetCatalog))
+  match = source.match(/^≈(\d+) more items? still unrevealed$/)
+  if (match) return swagTemplate(targetCatalog, "moreUnrevealed", "≈{count} more items still unrevealed").replace("{count}", match[1])
+  match = source.match(/^(\d{4}) package outlook$/)
+  if (match) return swagTemplate(targetCatalog, "packageOutlook", "{year} package outlook").replace("{year}", match[1])
+  match = source.match(/^≈(\d+) items projected rewards$/)
+  if (match) return swagTemplate(targetCatalog, "projectedRewards", "≈{count} items projected rewards").replace("{count}", match[1])
+  match = source.match(/^(\d{4}) (Trooper|Ranger|Champion|Legend) package$/)
+  if (match) return swagTemplate(targetCatalog, "tierPackage", "{year} {tier} package").replace("{year}", match[1]).replace("{tier}", match[2])
+  match = source.match(/^← All (\d{4}) rewards$/)
+  if (match) return swagTemplate(targetCatalog, "allRewardsArrow", "← All {year} rewards").replace("{year}", match[1])
+  match = source.match(/^All (\d{4}) rewards$/)
+  if (match) return swagTemplate(targetCatalog, "allRewards", "All {year} rewards").replace("{year}", match[1])
+  match = source.match(/^Season (\d{4})$/)
+  if (match) return swagTemplate(targetCatalog, "seasonLabel", "Season {year}").replace("{year}", match[1])
+  match = source.match(/^(\d+) confirmed drops?$/)
+  if (match) return swagTemplate(targetCatalog, "confirmedDrops", "{count} confirmed drops").replace("{count}", match[1])
+  match = source.match(/^Latest: (.+)$/)
+  if (match) return swagTemplate(targetCatalog, "latest", "Latest: {value}").replace("{value}", match[1])
+  match = source.match(/^Shared by (.+)$/)
+  if (match) return swagTemplate(targetCatalog, "sharedBy", "Shared by {value}").replace("{value}", match[1])
+  match = source.match(/^Verified capacity: ([\d,.]+) total slots\. Live remaining count is temporarily unavailable\.$/)
+  if (match) return swagTemplate(targetCatalog, "verifiedCapacity", "Verified capacity: {count} total slots. Live remaining count is temporarily unavailable.").replace("{count}", match[1])
+  match = source.match(/^([\d.]+)% of the current tier capacity remains\.$/)
+  if (match) return swagTemplate(targetCatalog, "capacityRemaining", "{percent}% of the current tier capacity remains.").replace("{percent}", match[1])
+  match = source.match(/^([\d]+(?:–[\d]+|\+)?) points$/)
+  if (match) return swagTemplate(targetCatalog, "pointsLabel", "{value} points").replace("{value}", match[1])
+  match = source.match(/^(\d+) items$/)
+  if (match) return swagTemplate(targetCatalog, "itemCount", "{count} items").replace("{count}", match[1])
+  match = source.match(/^Trooper, Ranger, Champion, and Legend requirements plus every confirmed (\d{4}) swag drop\.$/)
+  if (match) return swagTemplate(targetCatalog, "seasonTierDesc", "Trooper, Ranger, Champion, and Legend requirements plus every confirmed {year} swag drop.").replace("{year}", match[1])
+  match = source.match(/^Arcade (Trooper|Ranger|Champion|Legend) (\d{4}) rewards$/)
+  if (match) return swagTemplate(targetCatalog, "tierRewardsTitle", "Arcade {tier} {year} rewards").replace("{tier}", match[1]).replace("{year}", match[2])
+  match = source.match(/^These were the official final 2025 Season 2 items for this tier\. They explain the (≈\d+ items) projection, but they are not confirmed as 2026 rewards\.$/)
+  if (match) return swagTemplate(targetCatalog, "historicalTierReference", "These were the official final 2025 Season 2 items for this tier. They explain the {estimate} projection, but they are not confirmed as 2026 rewards.").replace("{estimate}", translateWebsiteText(match[1], sourceCatalog, targetCatalog))
 
   return source
 }
