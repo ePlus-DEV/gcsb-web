@@ -54,7 +54,7 @@ test("homepage and sitemap expose the season-aware swag experience", () => {
   assert.match(sitemap, /swagProductPath/)
 })
 
-test("swag routes include archive, visible projections, and static detail pages", () => {
+test("swag routes include the compact season showcase and static detail pages", () => {
   const archivePage = readRepoFile("app/swag-drops/page.tsx")
   const seasonPage = readRepoFile("app/swag-drops/2026/page.tsx")
   const detailPage = readRepoFile("app/swag-drops/2026/[slug]/page.tsx")
@@ -62,17 +62,18 @@ test("swag routes include archive, visible projections, and static detail pages"
 
   assert.match(archivePage, /Swag drops by season/)
   assert.match(seasonPage, /Google Skills Arcade 2026 swag drops/)
-  assert.match(seasonPage, /2026 reward overview/)
-  assert.match(seasonPage, /How the 2026 packages stack/)
+  assert.match(seasonPage, /2026 tier snapshot/)
   assert.match(seasonPage, /Projected package/)
-  assert.match(seasonPage, /Historical estimate/)
-  assert.match(seasonPage, /Est\. waiting/)
-  assert.match(seasonPage, /projected item/)
-  assert.match(seasonPage, /≈5 items/)
-  assert.match(seasonPage, /≈6 items/)
-  assert.match(seasonPage, /≈7 items/)
-  assert.match(seasonPage, /2025 final package baseline/)
-  assert.match(seasonPage, /tierDrops\.map/)
+  assert.match(seasonPage, /2026 revealed swag/)
+  assert.match(seasonPage, /2025 final package reference/)
+  assert.match(seasonPage, /Hall of Swag Winners/)
+  assert.match(seasonPage, /COMMUNITY_SWAG_GALLERY/)
+  assert.match(seasonPage, /Shared by/)
+  assert.match(seasonPage, /SyncWithAni/)
+  assert.match(seasonPage, /Premal_Bhagat/)
+  assert.match(seasonPage, /SWAG_2025_FINAL_REFERENCE_URL/)
+  assert.match(seasonPage, /meta\.historicalEstimateLabel/)
+  assert.match(seasonPage, /meta\.historicalEstimateItems/)
   assert.match(seasonPage, /swagProductPath\(season, drop\.id\)/)
   assert.match(seasonPage, /auto-rows-fr/)
 
