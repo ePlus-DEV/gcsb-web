@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs"
 import path from "node:path"
 import type { Metadata, Viewport } from "next"
+import SwagNavLink from "@/components/arcade/swag-nav-link"
 import WebsiteLanguage from "@/components/i18n/website-language"
 import CookieConsent from "@/components/privacy/cookie-consent"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -233,6 +234,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         >
           <WebsiteLanguage />
           <ThemeToggle />
+          <SwagNavLink />
           {children}
           <CookieConsent
             analyticsEnabled={Boolean(googleAnalyticsId)}
