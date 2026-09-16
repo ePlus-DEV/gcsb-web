@@ -19,6 +19,7 @@ export const SWAG_TIER_META: Record<
     knownMinimumNote: string
     waitingNote: string
     historicalEstimateItems: number
+    historicalEstimateLabel: string
     historicalEstimateBasis: string
   }
 > = {
@@ -39,6 +40,7 @@ export const SWAG_TIER_META: Record<
       "Official minimum: 1+ item from Google's core-pack wording. Historical estimate: about 5 items, because the official 2025 Season 2 Trooper package finished with 5 items.",
     waitingNote: "Core Trooper pack — individual 2026 item names have not been revealed yet.",
     historicalEstimateItems: 5,
+    historicalEstimateLabel: "≈5 items",
     historicalEstimateBasis:
       "2025 Season 2 Trooper finished with 5 items; used as the closest same-tier baseline for the 2026 foundational Trooper pack. This is a historical estimate, not a confirmed 2026 total.",
   },
@@ -59,6 +61,7 @@ export const SWAG_TIER_META: Record<
       "Official minimum: 2+ items from the Snowball rule. Historical estimate: about 6 items if the 2026 Trooper pack follows the 2025 Trooper baseline of about 5, then Ranger adds one bonus reward.",
     waitingNote: "Ranger bonus reward — item name and details have not been revealed yet.",
     historicalEstimateItems: 6,
+    historicalEstimateLabel: "≈6 items",
     historicalEstimateBasis:
       "2026 officially defines Ranger as Trooper + 1. Using the 2025 Season 2 Trooper package of 5 items as the baseline gives an estimated 6-item Ranger package. This is not an official 2026 total.",
   },
@@ -79,6 +82,7 @@ export const SWAG_TIER_META: Record<
       "Official minimum: 1+ item because the Weather-Shield Jacket is confirmed. Historical estimate: about 6 items, matching the official final Champion package in 2025 Season 2.",
     waitingNote: "Champion collection — only the Weather-Shield Jacket has been named so far.",
     historicalEstimateItems: 6,
+    historicalEstimateLabel: "≈6 items",
     historicalEstimateBasis:
       "The official 2025 Season 2 Champion package contained 6 items, so 6 is used as a historical estimate until Google completes the 2026 lineup. This is not an official 2026 total.",
   },
@@ -99,6 +103,7 @@ export const SWAG_TIER_META: Record<
       "Official minimum: 2+ items, including the Champion Jacket plus the promised Legend-exclusive reward. Historical estimate: about 7 items, matching 2025 Season 2 and the 2026 Champion + 1 rule if Champion stays near 6.",
     waitingNote: "Legend-only reward — item name and details have not been revealed yet.",
     historicalEstimateItems: 7,
+    historicalEstimateLabel: "≈7 items",
     historicalEstimateBasis:
       "The official 2025 Season 2 Legend package contained 7 items. The 2026 rule again defines Legend as the Champion package + 1 exclusive reward, supporting a roughly 7-item historical estimate if Champion remains near 6. This is not an official 2026 total.",
   },
