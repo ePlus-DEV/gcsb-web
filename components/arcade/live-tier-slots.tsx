@@ -17,6 +17,60 @@ type LiveSlotState = {
 
 const REQUEST_TIMEOUT_MS = 10_000
 
+const MOBILE_REWARD_LINEUP_STYLES = `
+  @media (max-width: 639px) {
+    section[aria-labelledby="tier-rewards-heading"] article > div:first-child > div:nth-child(2) > div.flex.flex-wrap.gap-2:not(.mb-2) {
+      display: grid !important;
+      grid-auto-flow: column;
+      grid-auto-columns: minmax(82%, 82%);
+      gap: 0.5rem;
+      overflow-x: auto;
+      overflow-y: hidden;
+      overscroll-behavior-inline: contain;
+      scroll-snap-type: x mandatory;
+      scroll-padding-inline: 0;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding-bottom: 0.25rem;
+      padding-right: 1rem;
+      margin-right: -1rem;
+    }
+
+    section[aria-labelledby="tier-rewards-heading"] article > div:first-child > div:nth-child(2) > div.flex.flex-wrap.gap-2:not(.mb-2)::-webkit-scrollbar {
+      display: none;
+    }
+
+    section[aria-labelledby="tier-rewards-heading"] article > div:first-child > div:nth-child(2) > div.flex.flex-wrap.gap-2:not(.mb-2) > * {
+      min-width: 0 !important;
+      width: auto !important;
+      flex: none !important;
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+    }
+  }
+
+  @media (min-width: 640px) and (max-width: 1023px) {
+    section[aria-labelledby="tier-rewards-heading"] article > div:first-child > div:nth-child(2) > div.flex.flex-wrap.gap-2:not(.mb-2) {
+      display: grid !important;
+      grid-auto-flow: column;
+      grid-auto-columns: minmax(46%, 46%);
+      gap: 0.5rem;
+      overflow-x: auto;
+      overscroll-behavior-inline: contain;
+      scroll-snap-type: x proximity;
+      scrollbar-width: thin;
+      padding-bottom: 0.35rem;
+    }
+
+    section[aria-labelledby="tier-rewards-heading"] article > div:first-child > div:nth-child(2) > div.flex.flex-wrap.gap-2:not(.mb-2) > * {
+      min-width: 0 !important;
+      width: auto !important;
+      flex: none !important;
+      scroll-snap-align: start;
+    }
+  }
+`
+
 export default function LiveTierSlots({
   points,
   totalSlots,
@@ -86,39 +140,36 @@ export default function LiveTierSlots({
 
   if (compact) {
     return (
-      <div className="min-w-0">
-        <div className="flex items-center justify-between gap-2">
-          <span className="whitespace-nowrap text-[9px] font-bold uppercase tracking-[.1em] text-slate-500 dark:text-slate-400">
-            Prize slots left
-          </span>
-          <span
-            className={
-              state.live
-                ? "text-[9px] font-bold uppercase tracking-[.08em] text-emerald-600 dark:text-emerald-300"
-                : "text-[9px] font-medium uppercase tracking-[.08em] text-slate-400"
-            }
-          >
-            {state.live ? "Live" : "Loading"}
-          </span>
-        </div>
-        <div className="mt-0.5 flex items-baseline gap-1.5 whitespace-nowrap">
-          <strong className="text-base text-slate-950 dark:text-white">
-            {state.spotsLeft === null ? "—" : format(state.spotsLeft)}
-          </strong>
-          <span className="text-[10px] text-slate-500">/ {format(state.slots)}</span>
-          {remainingPercent !== null ? (
-            <span className="ml-auto text-[10px] font-medium text-slate-500">
-              {remainingPercent.toFixed(0)}% left
+      <>
+        <style>{MOBILE_REWARD_LINEUP_STYLES}</style>
+        <div className="min-w-0">
+          <div className="flex items-center justify-between gap-2 text-[10px]">
+            <span className="font-bold uppercase tracking-[.1em] text-slate-500 dark:text-slate-400">
+              Prize slots left
             </span>
-          ) : null}
+            <span className={state.live ? "font-semibold text-emerald-600 dark:text-emerald-300" : "font-medium text-slate-400"}>
+              {state.live ? "Live" : "Total only"}
+            </span>
+          </div>
+          <div className="mt-1 flex items-baseline gap-1.5">
+            <strong className="text-base text-slate-950 dark:text-white">
+              {state.spotsLeft === null ? "—" : format(state.spotsLeft)}
+            </strong>
+            <span className="text-[10px] text-slate-500">/ {format(state.slots)}</span>
+            {remainingPercent !== null ? (
+              <span className="ml-auto text-[10px] text-slate-500">
+                {remainingPercent.toFixed(0)}% left
+              </span>
+            ) : null}
+          </div>
+          <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-white/5">
+            <div
+              className="h-full rounded-full bg-emerald-400 transition-[width] duration-500"
+              style={{ width: `${remainingPercent ?? 0}%` }}
+            />
+          </div>
         </div>
-        <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-slate-200/70 dark:bg-white/5">
-          <div
-            className="h-full rounded-full bg-emerald-400 transition-[width] duration-500"
-            style={{ width: `${remainingPercent ?? 0}%` }}
-          />
-        </div>
-      </div>
+      </>
     )
   }
 
@@ -136,13 +187,7 @@ export default function LiveTierSlots({
             <span className="text-sm text-slate-500">/ {format(state.slots)}</span>
           </div>
         </div>
-        <span
-          className={
-            state.live
-              ? "rounded-full bg-emerald-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[.08em] text-emerald-700 dark:bg-emerald-300/10 dark:text-emerald-200"
-              : "rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[.08em] text-slate-500 dark:bg-white/5 dark:text-slate-400"
-          }
-        >
+        <span className={state.live ? "rounded-full bg-emerald-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[.08em] text-emerald-700 dark:bg-emerald-300/10 dark:text-emerald-200" : "rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[.08em] text-slate-500 dark:bg-white/5 dark:text-slate-400"}>
           {state.live ? "Live crawler data" : "Loading live data"}
         </span>
       </div>
