@@ -1,7 +1,16 @@
 export type ArcadeSwagTier = "trooper" | "ranger" | "champion" | "legend"
 
+export const ARCADE_SWAG_SEASONS = [2026] as const
+export const ARCADE_SWAG_TIERS: readonly ArcadeSwagTier[] = [
+  "trooper",
+  "ranger",
+  "champion",
+  "legend",
+]
+
 export type ArcadeSwagDrop = {
   id: string
+  season: number
   name: string
   shortName: string
   revealedOn: string
@@ -14,13 +23,14 @@ export type ArcadeSwagDrop = {
 }
 
 /**
- * Confirmed Google Skills Arcade 2026 swag only.
+ * Confirmed Google Skills Arcade swag only.
  * Keep unrevealed items out of this list so the UI never mixes prior-season
- * rewards or community speculation with Google's current announcements.
+ * rewards or speculation with Google's current announcements.
  */
 export const ARCADE_SWAG_DROPS: readonly ArcadeSwagDrop[] = [
   {
     id: "weather-shield-jacket",
+    season: 2026,
     name: "The Arcade Weather-Shield Jacket",
     shortName: "Weather-Shield Jacket",
     revealedOn: "September 15, 2026",
@@ -42,6 +52,19 @@ export const ARCADE_SWAG_DROPS: readonly ArcadeSwagDrop[] = [
   },
 ]
 
-export function getSwagDropsForTier(tier: ArcadeSwagTier): ArcadeSwagDrop[] {
-  return ARCADE_SWAG_DROPS.filter((drop) => drop.tiers.includes(tier))
+export function getSwagDropsForSeason(season: number): ArcadeSwagDrop[] {
+  return ARCADE_SWAG_DROPS.filter((drop) => drop.season === season)
+}
+
+export function getSwagDropsForTier(
+  tier: ArcadeSwagTier,
+  season?: number,
+): ArcadeSwagDrop[] {
+  return ARCADE_SWAG_DROPS.filter(
+    (drop) => drop.tiers.includes(tier) && (season === undefined || drop.season === season),
+  )
+}
+
+export function getSwagDrop(season: number, id: string): ArcadeSwagDrop | undefined {
+  return ARCADE_SWAG_DROPS.find((drop) => drop.season === season && drop.id === id)
 }
