@@ -15,6 +15,7 @@ export type HistoricalSwagItem = {
   name: string
   sourceUrl: string
   sourceKind: HistoricalSwagSourceKind
+  revealedOnIso?: string
 }
 
 export type HistoricalSwagPackage = {
@@ -73,13 +74,46 @@ const S2_SNOWBALL =
   "https://discuss.google.dev/t/swags-that-grow-with-your-skills/268483"
 const S2_WRAP =
   "https://discuss.google.dev/t/that-s-a-wrap-on-google-skills-arcade-2025/311521"
+const S2_USB_HUB =
+  "https://discuss.google.dev/t/swag-drop-the-arcade-usb-hub/273056"
+const S2_PEN_DUO =
+  "https://discuss.google.dev/t/swag-drop-the-arcade-pen-duo/274906"
+const S2_HOODIE =
+  "https://discuss.google.dev/t/the-most-awaited-swag-drop-in-2025/276774"
+const S2_BOTTLE =
+  "https://discuss.google.dev/t/swag-drop-the-arcade-refresh-water-bottle/283341"
+const S2_LAPTOP_SLEEVE =
+  "https://discuss.google.dev/t/swag-drop-the-arcade-laptop-sleeve/286273"
+const S2_DRY_FIT =
+  "https://discuss.google.dev/t/swag-drop-the-arcade-dry-fit-t-shirt/288919"
+const S2_TUMBLER =
+  "https://discuss.google.dev/t/swag-drop-the-arcade-tumbler-led-lantern/291961"
+const S2_STICKERS =
+  "https://discuss.google.dev/t/swag-drop-the-arcade-sticker-sheet/295887"
+const S2_DIY_LOGO =
+  "https://discuss.google.dev/t/swag-drop-the-google-cloud-diy-logo/297749"
+const S2_LEGEND_BACKPACK =
+  "https://discuss.google.dev/t/swag-drop-the-arcade-legend-backpack/298441"
+const S2_MAGNETS =
+  "https://discuss.google.dev/t/swag-drop-the-arcade-magnets/299029"
+const S2_TROOPER_BACKPACK =
+  "https://discuss.google.dev/t/swag-drop-the-arcade-trooper-backpack/300389"
 
-function official(name: string, sourceUrl: string): HistoricalSwagItem {
-  return { name, sourceUrl, sourceKind: "official-announcement" }
+function announcement(
+  name: string,
+  sourceUrl: string,
+  revealedOnIso: string,
+): HistoricalSwagItem {
+  return {
+    name,
+    sourceUrl,
+    sourceKind: "official-announcement",
+    revealedOnIso,
+  }
 }
 
-function wrap(name: string): HistoricalSwagItem {
-  return { name, sourceUrl: S2_WRAP, sourceKind: "official-wrap-up" }
+function deliveryEvidence(name: string, sourceUrl: string): HistoricalSwagItem {
+  return { name, sourceUrl, sourceKind: "delivery-evidence" }
 }
 
 export const ARCADE_2025_SWAG_HISTORY: readonly HistoricalSwagSeason[] = [
@@ -96,61 +130,65 @@ export const ARCADE_2025_SWAG_HISTORY: readonly HistoricalSwagSeason[] = [
         tier: "novice",
         pointsLabel: "20–39 points",
         items: [
-          official("The Arcade Novice T-Shirt", S1_NOVICE_SHIRT),
-          official("The Arcade Mug", S1_NOVICE_BASE),
-          official("The Arcade Laptop Stand", S1_NOVICE_BASE),
-          official("Google Cloud Pin Badges", S1_PINS_STICKERS),
+          announcement("The Arcade Novice T-Shirt", S1_NOVICE_SHIRT, "2025-06-06"),
+          announcement("The Arcade Mug", S1_NOVICE_BASE, "2025-05-09"),
+          announcement("The Arcade Laptop Stand", S1_NOVICE_BASE, "2025-05-09"),
+          announcement("Google Cloud Pin Badges", S1_PINS_STICKERS, "2025-06-26"),
         ],
       },
       {
         tier: "trooper",
         pointsLabel: "40–64 points",
         items: [
-          official("The Arcade Trooper Long-Sleeved T-Shirt", S1_TROOPER_SHIRT),
-          {
-            name: "The Arcade Trooper Backpack",
-            sourceUrl: S1_TROOPER_DELIVERY,
-            sourceKind: "delivery-evidence",
-          },
-          official("The Arcade Fold & Glow Lamp", S1_FOLD_GLOW),
-          official("Google Cloud Pin Badges", S1_PINS_STICKERS),
-          official("The Arcade Sticker Sheet", S1_PINS_STICKERS),
+          announcement(
+            "The Arcade Trooper Long-Sleeved T-Shirt",
+            S1_TROOPER_SHIRT,
+            "2025-05-30",
+          ),
+          deliveryEvidence("The Arcade Trooper Backpack", S1_TROOPER_DELIVERY),
+          announcement("The Arcade Fold & Glow Lamp", S1_FOLD_GLOW, "2025-06-18"),
+          announcement("Google Cloud Pin Badges", S1_PINS_STICKERS, "2025-06-26"),
+          announcement("The Arcade Sticker Sheet", S1_PINS_STICKERS, "2025-06-26"),
         ],
       },
       {
         tier: "ranger",
         pointsLabel: "65–74 points",
         items: [
-          official("The Arcade Ranger Polo T-Shirt", S1_POLO),
-          official("The Arcade Ranger Backpack", S1_BACKPACKS),
-          official("The Arcade Ranger Vacuum Cleaner", S1_VACUUMS),
-          official("The Arcade Screen Cleaner with Refill", S1_RANGER_BASE),
-          official("The Arcade Color Palette Pen Set", S1_RANGER_BASE),
+          announcement("The Arcade Ranger Polo T-Shirt", S1_POLO, "2025-05-22"),
+          announcement("The Arcade Ranger Backpack", S1_BACKPACKS, "2025-06-27"),
+          announcement("The Arcade Ranger Vacuum Cleaner", S1_VACUUMS, "2025-06-23"),
+          announcement(
+            "The Arcade Screen Cleaner with Refill",
+            S1_RANGER_BASE,
+            "2025-05-16",
+          ),
+          announcement("The Arcade Color Palette Pen Set", S1_RANGER_BASE, "2025-05-16"),
         ],
       },
       {
         tier: "champion",
         pointsLabel: "75–84 points",
         items: [
-          official("The Arcade Champion Polo T-Shirt", S1_POLO),
-          official("The Arcade Champion Backpack", S1_BACKPACKS),
-          official("The Arcade Champion Vacuum Cleaner", S1_VACUUMS),
-          official("The Arcade USB Hub", S1_USB_HUB),
-          official("The Arcade Pen Duo", S1_PENS_DIARY),
-          official("The Arcade Lego Diary", S1_PENS_DIARY),
+          announcement("The Arcade Champion Polo T-Shirt", S1_POLO, "2025-05-22"),
+          announcement("The Arcade Champion Backpack", S1_BACKPACKS, "2025-06-27"),
+          announcement("The Arcade Champion Vacuum Cleaner", S1_VACUUMS, "2025-06-23"),
+          announcement("The Arcade USB Hub", S1_USB_HUB, "2025-06-13"),
+          announcement("The Arcade Pen Duo", S1_PENS_DIARY, "2025-06-25"),
+          announcement("The Arcade Lego Diary", S1_PENS_DIARY, "2025-06-25"),
         ],
       },
       {
         tier: "legend",
         pointsLabel: "85+ points",
         items: [
-          official("The Arcade Legend Polo T-Shirt", S1_POLO),
-          official("The Arcade Legend Backpack", S1_BACKPACKS),
-          official("The Arcade Legend Vacuum Cleaner", S1_VACUUMS),
-          official("The Arcade Thermal Printer", S1_THERMAL_PRINTER),
-          official("The Arcade 20-in-1 Cleaning Kit", S1_CLEANING_KIT),
-          official("The Arcade Lumin", S1_LUMIN),
-          official("The Arcade Pen Duo", S1_PENS_DIARY),
+          announcement("The Arcade Legend Polo T-Shirt", S1_POLO, "2025-05-22"),
+          announcement("The Arcade Legend Backpack", S1_BACKPACKS, "2025-06-27"),
+          announcement("The Arcade Legend Vacuum Cleaner", S1_VACUUMS, "2025-06-23"),
+          announcement("The Arcade Thermal Printer", S1_THERMAL_PRINTER, "2025-06-19"),
+          announcement("The Arcade 20-in-1 Cleaning Kit", S1_CLEANING_KIT, "2025-06-20"),
+          announcement("The Arcade Lumin", S1_LUMIN, "2025-06-24"),
+          announcement("The Arcade Pen Duo", S1_PENS_DIARY, "2025-06-25"),
         ],
       },
     ],
@@ -169,57 +207,57 @@ export const ARCADE_2025_SWAG_HISTORY: readonly HistoricalSwagSeason[] = [
         tier: "novice",
         pointsLabel: "25–44 points",
         items: [
-          wrap("The Arcade Magnets"),
-          wrap("The Arcade Sticker Sheet"),
-          wrap("The Arcade Dry-Fit T-Shirt"),
-          wrap("The Arcade Refresh Water Bottle"),
+          announcement("The Arcade Magnets", S2_MAGNETS, "2025-12-22"),
+          announcement("The Arcade Sticker Sheet", S2_STICKERS, "2025-12-10"),
+          announcement("The Arcade Dry-Fit T-Shirt", S2_DRY_FIT, "2025-11-19"),
+          announcement("The Arcade Refresh Water Bottle", S2_BOTTLE, "2025-11-04"),
         ],
       },
       {
         tier: "trooper",
         pointsLabel: "45–64 points",
         items: [
-          wrap("The Arcade Trooper Backpack"),
-          wrap("The Arcade Magnets"),
-          wrap("The Arcade Sticker Sheet"),
-          wrap("The Arcade Dry-Fit T-Shirt"),
-          wrap("The Arcade Refresh Water Bottle"),
+          announcement("The Arcade Trooper Backpack", S2_TROOPER_BACKPACK, "2025-12-26"),
+          announcement("The Arcade Magnets", S2_MAGNETS, "2025-12-22"),
+          announcement("The Arcade Sticker Sheet", S2_STICKERS, "2025-12-10"),
+          announcement("The Arcade Dry-Fit T-Shirt", S2_DRY_FIT, "2025-11-19"),
+          announcement("The Arcade Refresh Water Bottle", S2_BOTTLE, "2025-11-04"),
         ],
       },
       {
         tier: "ranger",
         pointsLabel: "65–74 points",
         items: [
-          wrap("The Google Cloud DIY Logo"),
-          wrap("The Arcade Tumbler LED Lantern"),
-          wrap("The Arcade Laptop Sleeve"),
-          wrap("The Arcade USB Hub"),
-          wrap("The Arcade Pen Duo"),
+          announcement("The Google Cloud DIY Logo", S2_DIY_LOGO, "2025-12-17"),
+          announcement("The Arcade Tumbler LED Lantern", S2_TUMBLER, "2025-11-28"),
+          announcement("The Arcade Laptop Sleeve", S2_LAPTOP_SLEEVE, "2025-11-12"),
+          announcement("The Arcade USB Hub", S2_USB_HUB, "2025-10-13"),
+          announcement("The Arcade Pen Duo", S2_PEN_DUO, "2025-10-17"),
         ],
       },
       {
         tier: "champion",
         pointsLabel: "75–94 points",
         items: [
-          wrap("The Google Cloud DIY Logo"),
-          wrap("The Arcade Tumbler LED Lantern"),
-          wrap("The Arcade Laptop Sleeve"),
-          wrap("The Arcade USB Hub"),
-          wrap("The Arcade Hoodie"),
-          wrap("The Arcade Pen Duo"),
+          announcement("The Google Cloud DIY Logo", S2_DIY_LOGO, "2025-12-17"),
+          announcement("The Arcade Tumbler LED Lantern", S2_TUMBLER, "2025-11-28"),
+          announcement("The Arcade Laptop Sleeve", S2_LAPTOP_SLEEVE, "2025-11-12"),
+          announcement("The Arcade USB Hub", S2_USB_HUB, "2025-10-13"),
+          announcement("The Arcade Hoodie", S2_HOODIE, "2025-10-21"),
+          announcement("The Arcade Pen Duo", S2_PEN_DUO, "2025-10-17"),
         ],
       },
       {
         tier: "legend",
         pointsLabel: "95+ points",
         items: [
-          wrap("The Arcade Legend Backpack"),
-          wrap("The Google Cloud DIY Logo"),
-          wrap("The Arcade Tumbler LED Lantern"),
-          wrap("The Arcade Laptop Sleeve"),
-          wrap("The Arcade USB Hub"),
-          wrap("The Arcade Hoodie"),
-          wrap("The Arcade Pen Duo"),
+          announcement("The Arcade Legend Backpack", S2_LEGEND_BACKPACK, "2025-12-19"),
+          announcement("The Google Cloud DIY Logo", S2_DIY_LOGO, "2025-12-17"),
+          announcement("The Arcade Tumbler LED Lantern", S2_TUMBLER, "2025-11-28"),
+          announcement("The Arcade Laptop Sleeve", S2_LAPTOP_SLEEVE, "2025-11-12"),
+          announcement("The Arcade USB Hub", S2_USB_HUB, "2025-10-13"),
+          announcement("The Arcade Hoodie", S2_HOODIE, "2025-10-21"),
+          announcement("The Arcade Pen Duo", S2_PEN_DUO, "2025-10-17"),
         ],
       },
     ],
@@ -227,6 +265,7 @@ export const ARCADE_2025_SWAG_HISTORY: readonly HistoricalSwagSeason[] = [
 ] as const
 
 export const ARCADE_2025_SEASON_2_SNOWBALL_SOURCE_URL = S2_SNOWBALL
+export const ARCADE_2025_SEASON_2_FINAL_WRAP_URL = S2_WRAP
 
 export function getHistoricalSwagSeason(
   year: number,
