@@ -80,6 +80,11 @@ test("season hub exposes a balanced reward board without hiding tier rewards", (
   const seasonMeta = readRepoFile("components/arcade/swag-seasons.ts")
 
   assert.match(archivePage, /Swag drops by season/)
+  assert.match(archivePage, /HistoricalSwagImage/)
+  assert.match(archivePage, /const previews = drops\.slice\(0, 4\)/)
+  assert.equal((archivePage.match(/flex h-32 gap-px/g) ?? []).length, 2)
+  assert.equal((archivePage.match(/flex h-full flex-col overflow-hidden/g) ?? []).length, 2)
+  assert.equal((archivePage.match(/mt-auto flex flex-wrap gap-2 pt-6/g) ?? []).length, 2)
   assert.match(seasonPage, /Google Skills Arcade 2026 swag drops/)
   assert.match(seasonPage, /2026 rewards by tier/)
   assert.match(seasonPage, /Current reward lineup/)
