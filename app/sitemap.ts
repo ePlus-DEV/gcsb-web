@@ -1,5 +1,15 @@
 import type { MetadataRoute } from "next"
 import {
+  ARCADE_SWAG_SEASONS,
+  ARCADE_SWAG_TIERS,
+  getSwagDropsForSeason,
+} from "@/components/arcade/swag-drops"
+import {
+  swagProductPath,
+  swagSeasonPath,
+  swagTierPath,
+} from "@/components/arcade/swag-seasons"
+import {
   getWebsiteCanonicalUrl,
   WEBSITE_LOCALES,
   WEBSITE_SITE_URL,
@@ -17,6 +27,32 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: locale.code === "vi" ? 0.9 : 0.8,
   }))
 
+  const swagPages: MetadataRoute.Sitemap = [
+    {
+      url: new URL("/swag-drops/", WEBSITE_SITE_URL).toString(),
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    ...ARCADE_SWAG_SEASONS.flatMap((season) => [
+      {
+        url: new URL(swagSeasonPath(season), WEBSITE_SITE_URL).toString(),
+        changeFrequency: "weekly" as const,
+        priority: 0.9,
+      },
+      ...ARCADE_SWAG_TIERS.map((tier) => ({
+        url: new URL(swagTierPath(season, tier), WEBSITE_SITE_URL).toString(),
+        changeFrequency: "weekly" as const,
+        priority: 0.75,
+      })),
+      ...getSwagDropsForSeason(season).map((drop) => ({
+        url: new URL(swagProductPath(season, drop.id), WEBSITE_SITE_URL).toString(),
+        changeFrequency: "weekly" as const,
+        priority: 0.8,
+        lastModified: drop.revealedOnIso,
+      })),
+    ]),
+  ]
+
   return [
     {
       url: WEBSITE_SITE_URL,
@@ -24,11 +60,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1,
     },
     ...localizedPages,
-    {
-      url: new URL("/swag-drops/", WEBSITE_SITE_URL).toString(),
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
+    ...swagPages,
     {
       url: new URL("/about/", WEBSITE_SITE_URL).toString(),
       changeFrequency: "monthly",
