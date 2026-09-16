@@ -12,6 +12,7 @@ import {
   ARCADE_SWAG_TIERS,
   getSwagDropsForSeason,
   getSwagDropsForTier,
+  type ArcadeSwagDrop,
   type ArcadeSwagTier,
 } from "@/components/arcade/swag-drops"
 import {
@@ -27,7 +28,7 @@ import { WEBSITE_SITE_URL } from "@/lib/website-i18n"
 const season = CURRENT_SWAG_SEASON
 const title = "Google Skills Arcade 2026 Swag Drops & Rewards"
 const description =
-  "Google Skills Arcade 2026 rewards by tier, confirmed swag drops, historical package-size estimates, and community swag photos."
+  "Google Skills Arcade 2026 rewards by tier, showing revealed swag, officially promised rewards, projected package slots, and community swag photos."
 const canonical = new URL(`/swag-drops/${season}/`, WEBSITE_SITE_URL).toString()
 
 const PREVIOUS_SEASON_COUNTS: Record<ArcadeSwagTier, number> = {
@@ -35,6 +36,23 @@ const PREVIOUS_SEASON_COUNTS: Record<ArcadeSwagTier, number> = {
   ranger: 5,
   champion: 6,
   legend: 7,
+}
+
+const OFFICIAL_UNNAMED_REWARDS: Partial<
+  Record<ArcadeSwagTier, readonly { title: string; note: string }[]>
+> = {
+  ranger: [
+    {
+      title: "Ranger bonus reward",
+      note: "Officially promised by the 2026 Snowball rule · name not revealed",
+    },
+  ],
+  legend: [
+    {
+      title: "Legend-only reward",
+      note: "Officially promised for Legend · name not revealed",
+    },
+  ],
 }
 
 const COMMUNITY_SWAG_GALLERY = [
@@ -66,72 +84,158 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", title, description },
 }
 
-function TierSnapshot({ tier }: { tier: ArcadeSwagTier }) {
+function revealedRelationship(tier: ArcadeSwagTier, drop: ArcadeSwagDrop): string {
+  if (tier === "legend" && drop.tiers.includes("champion")) {
+    return "Revealed · included with the Champion collection"
+  }
+  if (tier === "ranger" && drop.tiers.includes("trooper")) {
+    return "Revealed · inherited from the Trooper pack"
+  }
+  return `2026 drop #${drop.dropNumber} · revealed`
+}
+
+function TierRewardCard({ tier }: { tier: ArcadeSwagTier }) {
   const meta = SWAG_TIER_META[tier]
   const drops = getSwagDropsForTier(tier, season)
-  const waiting = Math.max(meta.historicalEstimateItems - drops.length, 0)
+  const promised = OFFICIAL_UNNAMED_REWARDS[tier] ?? []
+  const projectedMystery = Math.max(
+    meta.historicalEstimateItems - drops.length - promised.length,
+    0,
+  )
 
   return (
-    <article className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-cyan-300 hover:shadow-lg dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-cyan-400/40">
-      <div className="flex items-start justify-between gap-3">
+    <article className="flex h-full flex-col rounded-3xl border border-slate-200 bg-white p-5 transition hover:border-cyan-300 hover:shadow-lg dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-cyan-400/40 sm:p-6">
+      <div className="flex items-start justify-between gap-4">
         <div>
           <span className="text-[11px] font-bold uppercase tracking-[.14em] text-cyan-700 dark:text-cyan-300">
             Arcade {meta.label}
           </span>
-          <h3 className="mt-1.5 text-lg font-bold text-slate-950 dark:text-white">
-            {meta.pointsLabel}
-          </h3>
+          <div className="mt-1.5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <h3 className="text-xl font-bold text-slate-950 dark:text-white">{meta.pointsLabel}</h3>
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+              {meta.slots.toLocaleString("en-US")} prize slots
+            </span>
+          </div>
         </div>
         <Link
           href={swagTierPath(season, tier)}
           aria-label={`View Arcade ${meta.label} ${season} rewards`}
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-400 transition hover:border-cyan-300 hover:text-cyan-600 dark:border-white/10"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-400 transition hover:border-cyan-300 hover:text-cyan-600 dark:border-white/10"
         >
           <ArrowRight className="h-4 w-4" aria-hidden="true" />
         </Link>
       </div>
 
-      <div className="mt-4 rounded-xl border border-violet-200 bg-violet-50/70 p-3 dark:border-violet-300/15 dark:bg-violet-300/[0.04]">
-        <span className="block text-[10px] font-bold uppercase tracking-[.12em] text-violet-700 dark:text-violet-300">
-          Projected package
-        </span>
-        <div className="mt-1 flex items-end justify-between gap-2">
-          <strong className="text-2xl text-slate-950 dark:text-white">
+      <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <div className="rounded-xl bg-violet-50 p-3 dark:bg-violet-300/[0.04]">
+          <span className="block text-[9px] font-bold uppercase tracking-[.1em] text-violet-700 dark:text-violet-300">
+            Projected package
+          </span>
+          <strong className="mt-1 block text-lg text-slate-950 dark:text-white">
             {meta.historicalEstimateLabel}
           </strong>
-          <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">
-            estimate
+        </div>
+        <div className="rounded-xl bg-emerald-50 p-3 dark:bg-emerald-300/[0.04]">
+          <span className="block text-[9px] font-bold uppercase tracking-[.1em] text-emerald-700 dark:text-emerald-300">
+            Revealed
           </span>
+          <strong className="mt-1 block text-lg text-slate-950 dark:text-white">{drops.length}</strong>
+        </div>
+        <div className="rounded-xl bg-amber-50 p-3 dark:bg-amber-300/[0.04]">
+          <span className="block text-[9px] font-bold uppercase tracking-[.1em] text-amber-700 dark:text-amber-300">
+            Official pending
+          </span>
+          <strong className="mt-1 block text-lg text-slate-950 dark:text-white">{promised.length}</strong>
+        </div>
+        <div className="rounded-xl bg-slate-50 p-3 dark:bg-white/[0.035]">
+          <span className="block text-[9px] font-bold uppercase tracking-[.1em] text-slate-500">
+            Projected mystery
+          </span>
+          <strong className="mt-1 block text-lg text-slate-950 dark:text-white">≈{projectedMystery}</strong>
         </div>
       </div>
 
-      <div className="mt-3 grid grid-cols-3 gap-2 text-center">
-        <div className="rounded-lg bg-emerald-50 px-2 py-2.5 dark:bg-emerald-300/[0.04]">
-          <span className="block text-[9px] font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">Named</span>
-          <strong className="mt-1 block text-sm text-slate-950 dark:text-white">{drops.length}</strong>
+      <div className="mt-5 flex-1 border-t border-slate-200 pt-4 dark:border-white/10">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h4 className="text-sm font-bold text-slate-950 dark:text-white">What this tier currently includes</h4>
+            <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+              Revealed rewards first, then official pending items and historical projections.
+            </p>
+          </div>
         </div>
-        <div className="rounded-lg bg-amber-50 px-2 py-2.5 dark:bg-amber-300/[0.04]">
-          <span className="block text-[9px] font-bold uppercase tracking-wide text-amber-700 dark:text-amber-300">Waiting</span>
-          <strong className="mt-1 block text-sm text-slate-950 dark:text-white">≈{waiting}</strong>
-        </div>
-        <div className="rounded-lg bg-slate-50 px-2 py-2.5 dark:bg-white/[0.035]">
-          <span className="block text-[9px] font-bold uppercase tracking-wide text-slate-500">Slots</span>
-          <strong className="mt-1 block text-sm text-slate-950 dark:text-white">
-            {meta.slots.toLocaleString("en-US")}
-          </strong>
+
+        <div className="mt-4 grid grid-cols-2 gap-2 xl:grid-cols-3">
+          {drops.map((drop) => (
+            <Link
+              key={drop.id}
+              href={swagProductPath(season, drop.id)}
+              className="group/reward overflow-hidden rounded-xl border border-emerald-200 bg-emerald-50/70 transition hover:border-emerald-300 hover:shadow-sm dark:border-emerald-300/15 dark:bg-emerald-300/[0.04]"
+            >
+              <div className="flex h-24 items-center justify-center bg-white/80 p-2 dark:bg-black/15">
+                <SwagArtwork src={drop.imageUrl} alt={drop.name} className="h-full w-full object-contain" />
+              </div>
+              <div className="p-3">
+                <span className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-[.1em] text-emerald-700 dark:text-emerald-300">
+                  <CheckCircle2 className="h-3 w-3" aria-hidden="true" /> Revealed
+                </span>
+                <strong className="mt-1 block text-xs leading-4 text-slate-950 dark:text-white">{drop.shortName}</strong>
+                <span className="mt-1 block text-[10px] leading-4 text-slate-500">
+                  {revealedRelationship(tier, drop)}
+                </span>
+              </div>
+            </Link>
+          ))}
+
+          {promised.map((item) => (
+            <div
+              key={item.title}
+              className="flex min-h-40 flex-col rounded-xl border border-amber-200 bg-amber-50/70 p-3 dark:border-amber-300/15 dark:bg-amber-300/[0.04]"
+            >
+              <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-100 text-amber-700 dark:bg-amber-300/10 dark:text-amber-200">
+                <Sparkles className="h-4 w-4" aria-hidden="true" />
+              </span>
+              <span className="mt-auto pt-3 text-[9px] font-bold uppercase tracking-[.1em] text-amber-700 dark:text-amber-300">
+                Officially promised
+              </span>
+              <strong className="mt-1 text-xs leading-4 text-slate-950 dark:text-white">{item.title}</strong>
+              <span className="mt-1 text-[10px] leading-4 text-slate-500">{item.note}</span>
+            </div>
+          ))}
+
+          {Array.from({ length: projectedMystery }, (_, index) => (
+            <div
+              key={`projected-${tier}-${index}`}
+              className="flex min-h-40 flex-col rounded-xl border border-dashed border-slate-300 bg-slate-50/80 p-3 dark:border-white/10 dark:bg-white/[0.02]"
+            >
+              <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-dashed border-slate-300 text-lg font-bold text-slate-400 dark:border-white/10">
+                ?
+              </span>
+              <span className="mt-auto pt-3 text-[9px] font-bold uppercase tracking-[.1em] text-slate-500">
+                Projected mystery
+              </span>
+              <strong className="mt-1 text-xs leading-4 text-slate-700 dark:text-slate-200">
+                Unrevealed item {index + 1}
+              </strong>
+              <span className="mt-1 text-[10px] leading-4 text-slate-500">
+                Placeholder from the 2025 package-size baseline
+              </span>
+            </div>
+          ))}
         </div>
       </div>
 
-      <p className="mt-3 text-xs leading-5 text-slate-500 dark:text-slate-400">
-        2025 final package: {PREVIOUS_SEASON_COUNTS[tier]} items. {meta.packageRule}.
-      </p>
-
-      <Link
-        href={swagTierPath(season, tier)}
-        className="mt-auto inline-flex items-center gap-1.5 pt-4 text-xs font-semibold text-cyan-700 hover:underline dark:text-cyan-300"
-      >
-        View {meta.label} details <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
-      </Link>
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-4 dark:border-white/10">
+        <div className="text-xs leading-5 text-slate-500 dark:text-slate-400">
+          <span className="font-semibold text-slate-700 dark:text-slate-200">2026 rule:</span> {meta.packageRule}
+        </div>
+        <Link
+          href={swagTierPath(season, tier)}
+          className="inline-flex shrink-0 items-center gap-1.5 text-xs font-semibold text-cyan-700 hover:underline dark:text-cyan-300"
+        >
+          Full {meta.label} details <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+        </Link>
+      </div>
     </article>
   )
 }
@@ -163,7 +267,7 @@ export default function SwagDrops2026Page() {
     <InternalPageShell
       eyebrow="Arcade 2026 rewards"
       title="Google Skills Arcade 2026 swag drops"
-      description="See the 2026 tier packages at a glance, track every named swag drop, compare with the final 2025 packages, and browse community winner photos."
+      description="See what every 2026 tier currently includes without opening a detail page: revealed rewards, officially promised items, projected mystery slots, prize capacity, and historical context."
       updated="September 16, 2026"
     >
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }} />
@@ -211,63 +315,36 @@ export default function SwagDrops2026Page() {
           </section>
         ) : null}
 
-        <section aria-labelledby="tier-snapshot-heading">
-          <div className="mb-5 flex items-end justify-between gap-4">
+        <section aria-labelledby="tier-rewards-heading">
+          <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <h2 id="tier-snapshot-heading" className="text-2xl font-bold text-slate-950 dark:text-white">2026 tier snapshot</h2>
-              <p className="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400">
-                Projected package size, named rewards, estimated unrevealed items, and prize slots in one view.
+              <h2 id="tier-rewards-heading" className="text-2xl font-bold text-slate-950 dark:text-white">2026 rewards by tier</h2>
+              <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-500 dark:text-slate-400">
+                See every currently known reward in-place. Green cards are revealed, amber cards are officially promised but unnamed, and dashed cards are historical projections only.
               </p>
             </div>
-            <a
-              href={SWAG_2025_FINAL_REFERENCE_URL}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="hidden shrink-0 items-center gap-1.5 text-xs font-semibold text-cyan-700 hover:underline dark:text-cyan-300 sm:inline-flex"
-            >
-              2025 baseline <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
-            </a>
+            <div className="flex flex-wrap gap-2 text-[10px] font-bold uppercase tracking-[.08em]">
+              <span className="rounded-full bg-emerald-50 px-2.5 py-1.5 text-emerald-700 dark:bg-emerald-300/[0.05] dark:text-emerald-300">Revealed</span>
+              <span className="rounded-full bg-amber-50 px-2.5 py-1.5 text-amber-700 dark:bg-amber-300/[0.05] dark:text-amber-300">Official pending</span>
+              <span className="rounded-full bg-slate-100 px-2.5 py-1.5 text-slate-500 dark:bg-white/5 dark:text-slate-400">Projected mystery</span>
+            </div>
           </div>
 
-          <div className="grid auto-rows-fr gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {ARCADE_SWAG_TIERS.map((tier) => <TierSnapshot key={tier} tier={tier} />)}
+          <div className="grid auto-rows-fr gap-5 lg:grid-cols-2">
+            {ARCADE_SWAG_TIERS.map((tier) => <TierRewardCard key={tier} tier={tier} />)}
           </div>
 
           <div className="mt-4 flex flex-wrap gap-2 text-xs font-semibold text-slate-600 dark:text-slate-300">
             <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 dark:border-white/10 dark:bg-white/[0.025]">Trooper → Ranger: +1 bonus</span>
             <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 dark:border-white/10 dark:bg-white/[0.025]">Champion → Legend: +1 exclusive</span>
-            <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-amber-800 dark:border-amber-300/15 dark:bg-amber-300/[0.035] dark:text-amber-200">Estimates are not confirmed 2026 totals</span>
-          </div>
-        </section>
-
-        <section aria-labelledby="revealed-heading">
-          <div className="mb-5">
-            <h2 id="revealed-heading" className="text-2xl font-bold text-slate-950 dark:text-white">2026 revealed swag</h2>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Only named rewards publicly announced by Google appear here.</p>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {drops.map((drop) => (
-              <Link
-                key={drop.id}
-                href={swagProductPath(season, drop.id)}
-                className="group overflow-hidden rounded-2xl border border-slate-200 bg-white transition hover:-translate-y-0.5 hover:border-cyan-300 hover:shadow-lg dark:border-white/10 dark:bg-white/[0.035]"
-              >
-                <div className="flex h-48 items-center justify-center bg-slate-50 p-4 dark:bg-black/10">
-                  <SwagArtwork src={drop.imageUrl} alt={drop.name} className="h-full w-full object-contain" />
-                </div>
-                <div className="p-4">
-                  <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[.12em] text-emerald-700 dark:text-emerald-300">
-                    <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" /> Drop #{drop.dropNumber} revealed
-                  </span>
-                  <div className="mt-2 flex items-center justify-between gap-3">
-                    <strong className="text-base text-slate-950 dark:text-white">{drop.shortName}</strong>
-                    <ArrowRight className="h-4 w-4 shrink-0 text-slate-400 transition group-hover:translate-x-1" aria-hidden="true" />
-                  </div>
-                  <p className="mt-1 text-xs text-slate-500">{drop.tiers.map((tier) => `Arcade ${SWAG_TIER_META[tier].label}`).join(" · ")}</p>
-                </div>
-              </Link>
-            ))}
+            <a
+              href={SWAG_2025_FINAL_REFERENCE_URL}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="inline-flex items-center gap-1.5 rounded-full border border-violet-200 bg-violet-50 px-3 py-1.5 text-violet-700 hover:underline dark:border-violet-300/15 dark:bg-violet-300/[0.035] dark:text-violet-200"
+            >
+              Projection baseline: official 2025 final packages <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+            </a>
           </div>
         </section>
 
@@ -275,7 +352,7 @@ export default function SwagDrops2026Page() {
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <h2 id="past-season-heading" className="text-xl font-bold text-slate-950 dark:text-white">2025 final package reference</h2>
-              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">The closest official completed season used for the 2026 projections.</p>
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">The closest official completed season used only as the package-size projection baseline.</p>
             </div>
             <a
               href={SWAG_2025_FINAL_REFERENCE_URL}
@@ -302,7 +379,7 @@ export default function SwagDrops2026Page() {
             <div>
               <div className="flex items-center gap-2">
                 <Trophy className="h-5 w-5 text-amber-500" aria-hidden="true" />
-                <h2 id="hall-heading" className="text-2xl font-bold text-slate-950 dark:text-white">Hall of Swag Winners</h2>
+                <h2 id="hall-heading" className="text-2xl font-bold text-slate-950 dark:text-white">Hall of Swag Winners 🏆</h2>
               </div>
               <p className="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400">
                 Real community delivery photos sourced from public Google Developer forum posts. Each card links back to the original post.
@@ -341,7 +418,7 @@ export default function SwagDrops2026Page() {
           </div>
 
           <div className="mt-4 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm leading-6 text-slate-500 dark:border-white/10 dark:bg-white/[0.025] dark:text-slate-400">
-            Gallery entries are intentionally limited to public posts with a traceable source. More verified community photos can be added without copying another site&apos;s gallery assets.
+            Gallery entries are limited to public posts with a traceable source. More verified community photos can be added without copying another site&apos;s gallery assets.
           </div>
         </section>
 
