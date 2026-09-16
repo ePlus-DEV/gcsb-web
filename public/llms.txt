@@ -1,6 +1,6 @@
 # Arcade Points by ePlus.DEV
 
-> Community tools for Google Skills Arcade 2026: score calculation, badge tracking, prize-slot visibility, and season-aware swag information.
+> Community tools for Google Skills Arcade: score calculation, badge tracking, prize-slot visibility, current swag tracking, and sourced historical reward archives.
 
 ## Primary pages
 
@@ -8,9 +8,13 @@
 - https://arcade.eplus.dev/guide/
 - https://arcade.eplus.dev/about/
 
-## Arcade 2026 swag
+## Swag archive
 
 - https://arcade.eplus.dev/swag-drops/ — Swag archive by season
+- https://arcade.eplus.dev/swag-drops/2025/ — 2025 Season 1 and Season 2 historical tier packages with source links
+
+## Arcade 2026 swag
+
 - https://arcade.eplus.dev/swag-drops/2026/ — 2026 reward overview by tier
 - https://arcade.eplus.dev/swag-drops/2026/trooper/ — Arcade Trooper rewards and prize slots
 - https://arcade.eplus.dev/swag-drops/2026/ranger/ — Arcade Ranger rewards and prize slots
@@ -26,4 +30,4 @@
 
 ## Notes
 
-Google remains the authority for final Arcade scores, reward eligibility, prize allocation, and official swag announcements. Historical package counts and projections on this site are labeled as estimates when they are not confirmed for the current season.
+Google remains the authority for final Arcade scores, reward eligibility, prize allocation, and official swag announcements. The 2025 Season 2 package is verified against Google's official final wrap-up. Season 1 is reconstructed from official item announcements and clearly labeled supporting evidence where a standalone official reveal could not be located. Historical rewards must not be presented as current-season rewards.
