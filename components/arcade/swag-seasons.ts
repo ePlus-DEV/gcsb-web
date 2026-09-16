@@ -12,6 +12,10 @@ export const SWAG_TIER_META: Record<
     slots: number
     rewardRule: string
     allocationNote: string
+    packageRule: string
+    knownMinimumItems: string
+    knownMinimumNote: string
+    waitingNote: string
   }
 > = {
   trooper: {
@@ -22,9 +26,14 @@ export const SWAG_TIER_META: Record<
     pointsLabel: "50–74 points",
     slots: 6000,
     rewardRule:
-      "Trooper is the foundational reward tier. Individual 2026 items have not been publicly revealed yet.",
+      "Trooper is the foundational reward tier. Google describes it as a core swag pack, but the individual 2026 item names and final item count have not been published yet.",
     allocationNote:
       "Trooper is the broadest 2026 prize pool. Waterfall can move eligible participants into this pool when higher-tier capacity is exhausted.",
+    packageRule: "Core Trooper swag pack",
+    knownMinimumItems: "1+",
+    knownMinimumNote:
+      "At least one item is implied by the official core-pack description; the final package size is still TBA.",
+    waitingNote: "Core Trooper pack — individual item names have not been revealed yet.",
   },
   ranger: {
     label: "Ranger",
@@ -34,9 +43,14 @@ export const SWAG_TIER_META: Record<
     pointsLabel: "75–94 points",
     slots: 4000,
     rewardRule:
-      "Ranger builds on the Trooper reward family with an additional bonus reward. Individual 2026 Ranger items have not been publicly revealed yet.",
+      "Ranger receives everything from the Trooper reward family plus one additional bonus reward. The individual 2026 item names have not been published yet.",
     allocationNote:
       "Ranger has its own prize-slot pool. Waterfall allocation is separate from the reward bundle inheritance between Ranger and Trooper.",
+    packageRule: "Trooper pack + 1 Ranger bonus reward",
+    knownMinimumItems: "2+",
+    knownMinimumNote:
+      "The minimum follows from the official Snowball rule: at least one Trooper-pack item plus one additional Ranger reward.",
+    waitingNote: "Ranger bonus reward — item name and details have not been revealed yet.",
   },
   champion: {
     label: "Champion",
@@ -46,9 +60,14 @@ export const SWAG_TIER_META: Record<
     pointsLabel: "95–119 points",
     slots: 3000,
     rewardRule:
-      "Champion starts the upper-tier reward family. Trooper and Ranger rewards do not snowball into Champion or Legend.",
+      "Champion starts the upper-tier reward family. Google describes a high-tier collection of premium Arcade gear, with the Weather-Shield Jacket currently the first named 2026 item.",
     allocationNote:
       "Champion has 3,000 prize slots. If a higher-tier pool fills, Waterfall determines how eligible participants roll into the next prize pool.",
+    packageRule: "High-tier Champion collection",
+    knownMinimumItems: "1+",
+    knownMinimumNote:
+      "The Weather-Shield Jacket is confirmed. Google has not published the final number of items in the Champion collection.",
+    waitingNote: "Champion collection — only the Weather-Shield Jacket has been named so far.",
   },
   legend: {
     label: "Legend",
@@ -58,9 +77,14 @@ export const SWAG_TIER_META: Record<
     pointsLabel: "120+ points",
     slots: 2500,
     rewardRule:
-      "Legend includes the Champion reward family plus a Legend-only reward when Google reveals it for the season.",
+      "Legend receives the complete Champion reward family plus one exclusive Legend-only reward. The Legend-exclusive item has not been named yet.",
     allocationNote:
       "Legend is the highest 2026 prize tier with 2,500 slots. Waterfall applies to prize-slot allocation, not to which swag belongs to a tier.",
+    packageRule: "Champion pack + 1 Legend-only reward",
+    knownMinimumItems: "2+",
+    knownMinimumNote:
+      "The minimum includes the confirmed Champion Jacket plus the officially promised Legend-exclusive reward.",
+    waitingNote: "Legend-only reward — item name and details have not been revealed yet.",
   },
 }
 
