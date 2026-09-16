@@ -1,6 +1,8 @@
 import type { ArcadeSwagTier } from "@/components/arcade/swag-drops"
 
 export const CURRENT_SWAG_SEASON = 2026
+export const SWAG_2025_FINAL_REFERENCE_URL =
+  "https://discuss.google.dev/t/that-s-a-wrap-on-google-skills-arcade-2025/311521"
 
 export const SWAG_TIER_META: Record<
   ArcadeSwagTier,
