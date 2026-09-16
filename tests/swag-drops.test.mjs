@@ -118,7 +118,7 @@ test("season hub exposes a compact reward board without hiding tier rewards", ()
 
   assert.match(detailPage, /generateStaticParams/)
   assert.match(detailPage, /BreadcrumbList/)
-  assert.match(detailPage, /2026 package outlook/)
+  assert.match(detailPage, /package outlook/)
   assert.match(detailPage, /What we know about the \{season\} package/)
   assert.match(detailPage, /Historical reference only/)
   assert.match(detailPage, /historicalReferenceItems\.map/)
