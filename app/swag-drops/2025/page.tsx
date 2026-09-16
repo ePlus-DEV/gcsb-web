@@ -297,16 +297,16 @@ export default function SwagHistory2025Page() {
                             href={item.sourceUrl}
                             target="_blank"
                             rel="noreferrer noopener"
-                            className="group grid min-w-0 grid-cols-[92px_minmax(0,1fr)] overflow-hidden rounded-xl border border-white/70 bg-white/85 transition hover:-translate-y-0.5 hover:border-cyan-300 hover:shadow-md dark:border-white/10 dark:bg-black/15 dark:hover:border-cyan-300/30"
+                            className="group grid min-w-0 grid-cols-[128px_minmax(0,1fr)] overflow-hidden rounded-xl border border-white/70 bg-white/85 transition hover:-translate-y-0.5 hover:border-cyan-300 hover:shadow-md sm:grid-cols-[144px_minmax(0,1fr)] dark:border-white/10 dark:bg-black/15 dark:hover:border-cyan-300/30"
                           >
-                            <span className="flex min-h-28 items-center justify-center overflow-hidden border-r border-slate-100 bg-slate-50 p-2 dark:border-white/10 dark:bg-black/20">
+                            <span className="flex min-h-32 items-center justify-center overflow-hidden border-r border-slate-100 bg-slate-50 p-2 sm:min-h-36 dark:border-white/10 dark:bg-black/20">
                               {imageUrl ? (
                                 <img
                                   src={imageUrl}
                                   alt={item.name}
                                   loading="lazy"
                                   decoding="async"
-                                  className="h-full max-h-28 w-full object-contain transition duration-300 group-hover:scale-[1.05]"
+                                  className="h-full max-h-32 w-full object-contain transition duration-300 group-hover:scale-[1.05] sm:max-h-36"
                                 />
                               ) : (
                                 <Trophy
