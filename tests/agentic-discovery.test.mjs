@@ -4,6 +4,7 @@ import { readRepoFile } from "./helpers/typescript-source.mjs"
 
 const REQUIRED_SWAG_URLS = [
   "https://arcade.eplus.dev/swag-drops/",
+  "https://arcade.eplus.dev/swag-drops/2025/",
   "https://arcade.eplus.dev/swag-drops/2026/",
   "https://arcade.eplus.dev/swag-drops/2026/trooper/",
   "https://arcade.eplus.dev/swag-drops/2026/ranger/",
@@ -12,7 +13,7 @@ const REQUIRED_SWAG_URLS = [
   "https://arcade.eplus.dev/swag-drops/2026/weather-shield-jacket/",
 ]
 
-test("agentic discovery files expose every current swag route", () => {
+test("agentic discovery files expose every current and historical swag route", () => {
   const llms = readRepoFile("public/llms.txt")
   const agents = readRepoFile("public/agents.md")
 
@@ -25,10 +26,12 @@ test("agentic discovery files expose every current swag route", () => {
   assert.ok(llms.includes("https://arcade.eplus.dev/agents.md"))
   assert.ok(agents.includes("https://arcade.eplus.dev/llms.txt"))
   assert.ok(agents.includes("prize slots left"))
+  assert.ok(agents.includes("2025 Season 2 final package contents"))
+  assert.ok(agents.includes("Delivery evidence"))
   assert.ok(agents.includes("estimates rather than confirmed 2026 item counts"))
 })
 
-test("sitemap continues to derive swag URLs from the season registry", () => {
+test("sitemap derives current swag URLs and indexes the 2025 history hub", () => {
   const sitemap = readRepoFile("app/sitemap.ts")
 
   assert.match(sitemap, /ARCADE_SWAG_SEASONS/)
@@ -37,4 +40,5 @@ test("sitemap continues to derive swag URLs from the season registry", () => {
   assert.match(sitemap, /swagTierPath/)
   assert.match(sitemap, /swagProductPath/)
   assert.match(sitemap, /getSwagDropsForSeason/)
+  assert.match(sitemap, /\/swag-drops\/2025\//)
 })
