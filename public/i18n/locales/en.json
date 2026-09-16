@@ -350,7 +350,13 @@
     "Legend-only reward": "Legend-only reward",
     "Included with the Champion collection": "Included with the Champion collection",
     "Name/details not revealed yet": "Name/details not revealed yet",
-    "2025 Season 2 final": "2025 Season 2 final"
+    "2025 Season 2 final": "2025 Season 2 final",
+    "__swag:knownNow": "{known} known now · ≈{unrevealed} still unrevealed",
+    "__swag:revealedPending": "{revealed} revealed · {pending} pending",
+    "__swag:totalPrizeSlots": "{count} total prize slots",
+    "__swag:percentLeft": "{percent}% left",
+    "__swag:baseline": "2025 baseline: {count}",
+    "__swag:projectedItems": "≈{count} projected items"
   },
   "dynamic": {
     "memberSince": "Member since {value}",
