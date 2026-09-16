@@ -146,8 +146,8 @@ function TierRewardRow({ tier }: { tier: ArcadeSwagTier }) {
     <article
       className={`overflow-hidden rounded-2xl border border-slate-200 border-l-4 ${tone.rail} bg-white shadow-sm transition hover:border-slate-300 hover:shadow-md dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-white/15`}
     >
-      <div className="grid gap-4 p-4 sm:p-5 lg:grid-cols-[170px_minmax(0,1fr)_210px] lg:items-center">
-        <div className="min-w-0">
+      <div className="grid gap-5 p-4 sm:p-5 lg:grid-cols-[180px_minmax(0,1fr)] lg:items-start">
+        <div className="min-w-0 lg:pt-1">
           <span
             className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[.12em] ${tone.badge}`}
           >
@@ -156,29 +156,28 @@ function TierRewardRow({ tier }: { tier: ArcadeSwagTier }) {
           <h3 className="mt-2 text-xl font-bold text-slate-950 dark:text-white">
             {meta.pointsLabel}
           </h3>
-          <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
-            <span>{meta.slots.toLocaleString("en-US")} total prize slots</span>
-            <span>≈{meta.historicalEstimateItems} projected items</span>
-          </div>
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+            {meta.slots.toLocaleString("en-US")} total prize slots
+          </p>
         </div>
 
-        <div className="min-w-0 border-y border-slate-200 py-4 dark:border-white/10 lg:border-x lg:border-y-0 lg:px-5 lg:py-0">
-          <div className="mb-2 flex items-center justify-between gap-3">
+        <div className="min-w-0 lg:border-l lg:border-slate-200 lg:pl-5 dark:lg:border-white/10">
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
             <span className="text-[10px] font-bold uppercase tracking-[.12em] text-slate-500 dark:text-slate-400">
               Current reward lineup
             </span>
             <span className="text-[10px] font-semibold text-slate-400">
-              {knownCount} known now
+              {knownCount} known now · ≈{projectedMystery} still unrevealed
             </span>
           </div>
 
           {drops.length + promised.length > 0 ? (
-            <div className="grid gap-2 sm:grid-cols-2">
+            <div className="flex flex-wrap gap-2">
               {drops.map((drop) => (
                 <Link
                   key={drop.id}
                   href={swagProductPath(season, drop.id)}
-                  className="group flex min-w-0 items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50/70 p-2.5 transition hover:border-emerald-300 dark:border-emerald-300/15 dark:bg-emerald-300/[0.04]"
+                  className="group flex min-w-[240px] flex-1 items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50/70 p-2.5 transition hover:border-emerald-300 dark:border-emerald-300/15 dark:bg-emerald-300/[0.04]"
                 >
                   <span className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white dark:bg-black/20">
                     <SwagArtwork
@@ -208,7 +207,7 @@ function TierRewardRow({ tier }: { tier: ArcadeSwagTier }) {
               {promised.map((item) => (
                 <div
                   key={item.title}
-                  className="flex min-w-0 items-center gap-3 rounded-xl border border-amber-200 bg-amber-50/70 p-2.5 dark:border-amber-300/15 dark:bg-amber-300/[0.04]"
+                  className="flex min-w-[240px] flex-1 items-center gap-3 rounded-xl border border-amber-200 bg-amber-50/70 p-2.5 dark:border-amber-300/15 dark:bg-amber-300/[0.04]"
                 >
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-700 dark:bg-amber-300/10 dark:text-amber-200">
                     <Sparkles className="h-4 w-4" aria-hidden="true" />
@@ -243,31 +242,55 @@ function TierRewardRow({ tier }: { tier: ArcadeSwagTier }) {
             </div>
           )}
         </div>
+      </div>
 
-        <div className="min-w-0">
+      <div className="border-t border-slate-200 bg-slate-50/70 px-4 py-3 dark:border-white/10 dark:bg-black/10 sm:px-5">
+        <div className="grid items-center gap-4 sm:grid-cols-2 lg:grid-cols-[minmax(220px,1.35fr)_minmax(115px,.7fr)_minmax(115px,.7fr)_minmax(150px,.9fr)_auto]">
           <LiveTierSlots
             points={TIER_START_POINTS[tier]}
             totalSlots={meta.slots}
             compact
           />
 
-          <div className="mt-3 border-t border-slate-200 pt-3 dark:border-white/10">
-            <div className="flex items-end justify-between gap-3">
+          <div className="min-w-0 lg:border-l lg:border-slate-200 lg:pl-4 dark:lg:border-white/10">
+            <span className="block text-[9px] font-bold uppercase tracking-[.1em] text-slate-500 dark:text-slate-400">
+              Projected package
+            </span>
+            <strong className="mt-0.5 block text-base text-slate-950 dark:text-white">
+              ≈{meta.historicalEstimateItems} items
+            </strong>
+            <span className="block text-[10px] text-slate-500">
+              2025 baseline: {PREVIOUS_SEASON_COUNTS[tier]}
+            </span>
+          </div>
+
+          <div className="min-w-0 lg:border-l lg:border-slate-200 lg:pl-4 dark:lg:border-white/10">
+            <span className="block text-[9px] font-bold uppercase tracking-[.1em] text-slate-500 dark:text-slate-400">
+              Known now
+            </span>
+            <strong className="mt-0.5 block text-base text-slate-950 dark:text-white">
+              {knownCount}
+            </strong>
+            <span className="block text-[10px] text-slate-500">
+              {drops.length} revealed · {promised.length} pending
+            </span>
+          </div>
+
+          <div className="min-w-0 lg:border-l lg:border-slate-200 lg:pl-4 dark:lg:border-white/10">
+            <div className="flex items-end justify-between gap-2">
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-[.12em] text-slate-500 dark:text-slate-400">
+                <span className="block whitespace-nowrap text-[9px] font-bold uppercase tracking-[.1em] text-slate-500 dark:text-slate-400">
                   Swag still unrevealed
                 </span>
-                <strong className="mt-1 block text-xl text-slate-950 dark:text-white">
+                <strong className="mt-0.5 block text-base text-slate-950 dark:text-white">
                   ≈{projectedMystery}
                 </strong>
               </div>
-              <span className="text-right text-[10px] leading-4 text-slate-500">
+              <span className="text-[10px] text-slate-500">
                 {knownCount}/{meta.historicalEstimateItems}
-                <br />known vs projected
               </span>
             </div>
-
-            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-white/5">
+            <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-slate-200/70 dark:bg-white/5">
               <div
                 className={`h-full rounded-full ${tone.progress}`}
                 style={{ width: `${progress}%` }}
@@ -275,17 +298,12 @@ function TierRewardRow({ tier }: { tier: ArcadeSwagTier }) {
             </div>
           </div>
 
-          <div className="mt-3 flex items-center justify-between gap-3">
-            <span className="text-[10px] leading-4 text-slate-500">
-              2025 baseline: {PREVIOUS_SEASON_COUNTS[tier]} items
-            </span>
-            <Link
-              href={swagTierPath(season, tier)}
-              className="inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-cyan-700 hover:underline dark:text-cyan-300"
-            >
-              Details <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
-            </Link>
-          </div>
+          <Link
+            href={swagTierPath(season, tier)}
+            className="inline-flex min-h-9 items-center justify-center gap-1 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-cyan-700 transition hover:border-cyan-300 hover:bg-cyan-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-cyan-300 dark:hover:bg-cyan-300/[0.05]"
+          >
+            Details <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+          </Link>
         </div>
       </div>
     </article>
@@ -386,7 +404,7 @@ export default function SwagDrops2026Page() {
                 2026 rewards by tier
               </h2>
               <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-500 dark:text-slate-400">
-                One row per tier: requirements and total capacity on the left, currently known rewards in the middle, and live remaining prize slots plus unrevealed swag on the right.
+                Reward names stay prominent, while live prize slots and package progress sit in a separate status bar underneath each tier.
               </p>
             </div>
             <div className="flex flex-wrap gap-2 text-[9px] font-bold uppercase tracking-[.08em]">
@@ -482,22 +500,22 @@ export default function SwagDrops2026Page() {
                 href={item.sourceUrl}
                 target="_blank"
                 rel="noreferrer noopener"
-                className="group grid overflow-hidden rounded-2xl border border-slate-200 bg-white transition hover:border-cyan-300 hover:shadow-md dark:border-white/10 dark:bg-white/[0.03] sm:grid-cols-[150px_1fr]"
+                className="group grid overflow-hidden rounded-2xl border border-slate-200 bg-white transition hover:border-cyan-300 hover:shadow-md dark:border-white/10 dark:bg-white/[0.03] sm:grid-cols-[132px_1fr]"
               >
-                <div className="h-32 overflow-hidden bg-slate-100 dark:bg-black/20 sm:h-full sm:min-h-28">
+                <div className="h-28 overflow-hidden bg-slate-100 dark:bg-black/20 sm:h-full sm:min-h-24">
                   <SwagArtwork
                     src={item.imageUrl}
                     alt={`${item.title} shared by ${item.author}`}
                     className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
                   />
                 </div>
-                <div className="flex min-w-0 items-center justify-between gap-3 p-3.5">
+                <div className="flex min-w-0 items-center justify-between gap-3 p-3">
                   <div className="min-w-0">
                     <strong className="block truncate text-sm text-slate-950 dark:text-white">
                       {item.title}
                     </strong>
                     <span className="mt-1 block text-xs text-slate-500">{item.subtitle}</span>
-                    <span className="mt-2 block text-[10px] font-semibold text-slate-500">
+                    <span className="mt-1.5 block text-[10px] font-semibold text-slate-500">
                       Shared by {item.author}
                     </span>
                   </div>
