@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import type { Metadata } from "next"
 import Link from "next/link"
 import { ArrowRight, Calendar, Trophy } from "lucide-react"
@@ -8,6 +7,7 @@ import {
 } from "@/components/arcade/swag-drops"
 import { ARCADE_2025_SWAG_HISTORY } from "@/components/arcade/swag-history"
 import { getHistoricalSeasonPreviewImages } from "@/components/arcade/swag-history-images"
+import HistoricalSwagImage from "@/components/arcade/historical-swag-image"
 import { swagSeasonPath } from "@/components/arcade/swag-seasons"
 import InternalPageShell from "@/components/site/internal-page-shell"
 import { WEBSITE_SITE_URL } from "@/lib/website-i18n"
@@ -63,43 +63,67 @@ export default function SwagDropsArchivePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(itemList) }}
       />
 
-      <div className="not-prose grid gap-5 md:grid-cols-2">
+      <div className="not-prose grid items-stretch gap-5 md:grid-cols-2">
         {ARCADE_SWAG_SEASONS.map((season) => {
           const drops = getSwagDropsForSeason(season)
           const latest = drops[0]
+          const previews = drops.slice(0, 4)
 
           return (
             <Link
               key={season}
               href={swagSeasonPath(season)}
-              className="group rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-cyan-300 hover:shadow-lg dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-cyan-400/40"
+              className="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-cyan-300 hover:shadow-lg dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-cyan-400/40"
             >
-              <div className="flex items-start justify-between gap-4">
-                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-100 text-cyan-700 dark:bg-cyan-300/10 dark:text-cyan-200">
-                  <Trophy className="h-6 w-6" aria-hidden="true" />
-                </span>
-                <ArrowRight className="h-5 w-5 text-slate-400 transition group-hover:translate-x-1 group-hover:text-cyan-600" aria-hidden="true" />
+              <div className="flex h-32 gap-px bg-slate-100 dark:bg-white/10">
+                {previews.length > 0 ? (
+                  previews.map((preview) => (
+                    <div
+                      key={preview.id}
+                      className="flex min-w-0 flex-1 items-center justify-center overflow-hidden bg-white dark:bg-slate-950"
+                    >
+                      <HistoricalSwagImage
+                        src={preview.imageUrl}
+                        alt={preview.shortName}
+                        className="h-full w-full object-contain p-2 transition duration-300 group-hover:scale-[1.04]"
+                      />
+                    </div>
+                  ))
+                ) : (
+                  <div className="flex flex-1 items-center justify-center bg-white dark:bg-slate-950">
+                    <Trophy className="h-10 w-10 text-slate-300 dark:text-slate-600" aria-hidden="true" />
+                  </div>
+                )}
               </div>
 
-              <p className="mt-6 text-xs font-bold uppercase tracking-[.16em] text-cyan-700 dark:text-cyan-300">
-                {`Season ${season}`}
-              </p>
-              <h2 className="mt-2 text-2xl font-bold text-slate-950 dark:text-white">
-                Google Skills Arcade {season}
-              </h2>
-              <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                {`Trooper, Ranger, Champion, and Legend requirements plus every confirmed ${season} swag drop.`}
-              </p>
-
-              <div className="mt-6 flex flex-wrap gap-2 text-xs font-semibold text-slate-600 dark:text-slate-300">
-                <span className="rounded-full bg-slate-100 px-3 py-1.5 dark:bg-white/5">
-                  {`${drops.length} confirmed ${drops.length === 1 ? "drop" : "drops"}`}
-                </span>
-                {latest ? (
-                  <span className="rounded-full bg-violet-50 px-3 py-1.5 text-violet-700 dark:bg-violet-300/10 dark:text-violet-200">
-                    {`Latest: ${latest.shortName}`}
+              <div className="flex flex-1 flex-col p-6">
+                <div className="flex items-start justify-between gap-4">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-100 text-cyan-700 dark:bg-cyan-300/10 dark:text-cyan-200">
+                    <Trophy className="h-6 w-6" aria-hidden="true" />
                   </span>
-                ) : null}
+                  <ArrowRight className="h-5 w-5 text-slate-400 transition group-hover:translate-x-1 group-hover:text-cyan-600" aria-hidden="true" />
+                </div>
+
+                <p className="mt-6 text-xs font-bold uppercase tracking-[.16em] text-cyan-700 dark:text-cyan-300">
+                  {`Season ${season}`}
+                </p>
+                <h2 className="mt-2 text-2xl font-bold text-slate-950 dark:text-white">
+                  Google Skills Arcade {season}
+                </h2>
+                <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                  {`Trooper, Ranger, Champion, and Legend requirements plus every confirmed ${season} swag drop.`}
+                </p>
+
+                <div className="mt-auto flex flex-wrap gap-2 pt-6 text-xs font-semibold text-slate-600 dark:text-slate-300">
+                  <span className="rounded-full bg-slate-100 px-3 py-1.5 dark:bg-white/5">
+                    {`${drops.length} confirmed ${drops.length === 1 ? "drop" : "drops"}`}
+                  </span>
+                  {latest ? (
+                    <span className="rounded-full bg-violet-50 px-3 py-1.5 text-violet-700 dark:bg-violet-300/10 dark:text-violet-200">
+                      {`Latest: ${latest.shortName}`}
+                    </span>
+                  ) : null}
+                </div>
               </div>
             </Link>
           )
@@ -107,23 +131,24 @@ export default function SwagDropsArchivePage() {
 
         <Link
           href="/swag-drops/2025/"
-          className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-violet-300 hover:shadow-lg dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-violet-400/40"
+          className="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-violet-300 hover:shadow-lg dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-violet-400/40"
         >
-          <div className="grid h-32 grid-cols-4 gap-px bg-slate-100 dark:bg-white/10">
+          <div className="flex h-32 gap-px bg-slate-100 dark:bg-white/10">
             {historicalPreview.map((preview) => (
-              <div key={preview.url} className="overflow-hidden bg-white dark:bg-slate-950">
-                <img
+              <div
+                key={preview.url}
+                className="flex min-w-0 flex-1 items-center justify-center overflow-hidden bg-white dark:bg-slate-950"
+              >
+                <HistoricalSwagImage
                   src={preview.url}
                   alt={preview.name}
-                  loading="lazy"
-                  decoding="async"
                   className="h-full w-full object-contain p-2 transition duration-300 group-hover:scale-[1.04]"
                 />
               </div>
             ))}
           </div>
 
-          <div className="p-6">
+          <div className="flex flex-1 flex-col p-6">
             <div className="flex items-start justify-between gap-4">
               <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-100 text-violet-700 dark:bg-violet-300/10 dark:text-violet-200">
                 <Calendar className="h-6 w-6" aria-hidden="true" />
@@ -141,7 +166,7 @@ export default function SwagDropsArchivePage() {
               Season 1 and Season 2 tier packages reconstructed from official announcements, the final 2025 wrap-up, and clearly labeled supporting evidence.
             </p>
 
-            <div className="mt-6 flex flex-wrap gap-2 text-xs font-semibold text-slate-600 dark:text-slate-300">
+            <div className="mt-auto flex flex-wrap gap-2 pt-6 text-xs font-semibold text-slate-600 dark:text-slate-300">
               <span className="rounded-full bg-slate-100 px-3 py-1.5 dark:bg-white/5">
                 {ARCADE_2025_SWAG_HISTORY.length} historical seasons
               </span>
