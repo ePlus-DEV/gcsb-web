@@ -163,7 +163,7 @@ export const ARCADE_2025_SWAG_HISTORY: readonly HistoricalSwagSeason[] = [
             S1_RANGER_BASE,
             "2025-05-16",
           ),
-          announcement("The Arcade Color Palette Pen Set", S1_RANGER_BASE, "2025-05-16"),
+          announcement("The Arcade Pen Set", S1_RANGER_BASE, "2025-05-16"),
         ],
       },
       {
