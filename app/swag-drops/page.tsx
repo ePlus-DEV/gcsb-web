@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { ArrowRight, History, Trophy } from "lucide-react"
+import { ArrowRight, Calendar, Trophy } from "lucide-react"
 import {
   ARCADE_SWAG_SEASONS,
   getSwagDropsForSeason,
@@ -104,7 +104,7 @@ export default function SwagDropsArchivePage() {
         >
           <div className="flex items-start justify-between gap-4">
             <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-100 text-violet-700 dark:bg-violet-300/10 dark:text-violet-200">
-              <History className="h-6 w-6" aria-hidden="true" />
+              <Calendar className="h-6 w-6" aria-hidden="true" />
             </span>
             <ArrowRight className="h-5 w-5 text-slate-400 transition group-hover:translate-x-1 group-hover:text-violet-600" aria-hidden="true" />
           </div>
