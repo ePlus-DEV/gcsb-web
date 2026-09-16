@@ -321,5 +321,39 @@ function translateDynamicText(
     )
   }
 
+  match = source.match(/^(\d+) known now · ≈(\d+) still unrevealed$/)
+  if (match) {
+    return (targetCatalog.additional["__swag:knownNow"] ?? "{known} known now · ≈{unrevealed} still unrevealed")
+      .replace("{known}", match[1])
+      .replace("{unrevealed}", match[2])
+  }
+
+  match = source.match(/^(\d+) revealed · (\d+) pending$/)
+  if (match) {
+    return (targetCatalog.additional["__swag:revealedPending"] ?? "{revealed} revealed · {pending} pending")
+      .replace("{revealed}", match[1])
+      .replace("{pending}", match[2])
+  }
+
+  match = source.match(/^([\d,]+) total prize slots$/)
+  if (match) {
+    return (targetCatalog.additional["__swag:totalPrizeSlots"] ?? "{count} total prize slots").replace("{count}", match[1])
+  }
+
+  match = source.match(/^(\d+)% left$/)
+  if (match) {
+    return (targetCatalog.additional["__swag:percentLeft"] ?? "{percent}% left").replace("{percent}", match[1])
+  }
+
+  match = source.match(/^2025 baseline: (\d+)$/)
+  if (match) {
+    return (targetCatalog.additional["__swag:baseline"] ?? "2025 baseline: {count}").replace("{count}", match[1])
+  }
+
+  match = source.match(/^≈(\d+)(?: projected)? items$/)
+  if (match) {
+    return (targetCatalog.additional["__swag:projectedItems"] ?? "≈{count} projected items").replace("{count}", match[1])
+  }
+
   return source
 }
