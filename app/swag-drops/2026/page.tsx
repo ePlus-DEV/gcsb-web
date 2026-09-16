@@ -26,7 +26,7 @@ import { WEBSITE_SITE_URL } from "@/lib/website-i18n"
 const season = CURRENT_SWAG_SEASON
 const title = "Google Skills Arcade 2026 Swag Drops & Rewards"
 const description =
-  "Google Skills Arcade 2026 rewards by Trooper, Ranger, Champion, and Legend tier, including prize slots, requirements, and confirmed swag drops."
+  "Google Skills Arcade 2026 rewards by Trooper, Ranger, Champion, and Legend tier, including prize slots, package rules, known reward minimums, and confirmed swag drops."
 const canonical = new URL(`/swag-drops/${season}/`, WEBSITE_SITE_URL).toString()
 
 const TIER_CARD_SUMMARY: Record<ArcadeSwagTier, string> = {
@@ -34,13 +34,6 @@ const TIER_CARD_SUMMARY: Record<ArcadeSwagTier, string> = {
   ranger: "Builds on the Trooper reward family with a Ranger bonus.",
   champion: "Starts the upper-tier reward family for 2026.",
   legend: "Includes the Champion reward family plus a Legend exclusive.",
-}
-
-const TIER_PENDING_STATUS: Record<ArcadeSwagTier, string | null> = {
-  trooper: "Core Trooper swag pack — item details not revealed",
-  ranger: "Ranger bonus reward — item details not revealed",
-  champion: null,
-  legend: "Legend-only reward — item details not revealed",
 }
 
 export const metadata: Metadata = {
@@ -80,7 +73,7 @@ export default function SwagDrops2026Page() {
     <InternalPageShell
       eyebrow="Arcade 2026 rewards"
       title="Google Skills Arcade 2026 swag drops"
-      description="The season hub for 2026 tier requirements, prize slots, reward rules, and swag items confirmed by Google."
+      description="The season hub for 2026 tier requirements, prize slots, official package rules, and swag items confirmed by Google."
       updated="September 16, 2026"
     >
       <script
@@ -100,7 +93,7 @@ export default function SwagDrops2026Page() {
             </div>
             <div className="flex flex-col justify-center p-6 sm:p-9">
               <span className="inline-flex w-fit items-center gap-2 rounded-full bg-cyan-100 px-3 py-1.5 text-xs font-semibold uppercase tracking-[.12em] text-cyan-800 dark:bg-cyan-300/10 dark:text-cyan-200">
-                <Sparkles className="h-4 w-4" aria-hidden="true" /> Latest confirmed drop
+                <Sparkles className="h-4 w-4" aria-hidden="true" /> 2026 swag drop #{latest.dropNumber}
               </span>
               <h2 className="mt-4 text-3xl font-bold tracking-tight text-slate-950 dark:text-white">
                 {latest.shortName}
@@ -145,7 +138,7 @@ export default function SwagDrops2026Page() {
               2026 reward overview
             </h2>
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-              A quick snapshot of what Google has confirmed so far. Official item totals are shown as TBA until Google publishes them.
+              A quick snapshot of what Google has confirmed so far. Final package sizes remain TBA until Google publishes the full lineup.
             </p>
           </div>
 
@@ -156,16 +149,16 @@ export default function SwagDrops2026Page() {
               <span className="mt-1 block text-xs text-slate-500">Trooper → Legend</span>
             </div>
             <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-white/[0.035]">
-              <span className="text-xs font-bold uppercase tracking-[.12em] text-slate-500 dark:text-slate-400">Confirmed items</span>
+              <span className="text-xs font-bold uppercase tracking-[.12em] text-slate-500 dark:text-slate-400">Named items</span>
               <strong className="mt-2 block text-2xl text-slate-950 dark:text-white">{drops.length}</strong>
-              <span className="mt-1 block text-xs text-slate-500">Unique swag revealed</span>
+              <span className="mt-1 block text-xs text-slate-500">Unique 2026 swag revealed</span>
             </div>
             <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-white/[0.035]">
-              <span className="text-xs font-bold uppercase tracking-[.12em] text-slate-500 dark:text-slate-400">Tiers with swag</span>
+              <span className="text-xs font-bold uppercase tracking-[.12em] text-slate-500 dark:text-slate-400">Tiers with named swag</span>
               <strong className="mt-2 block text-2xl text-slate-950 dark:text-white">
                 {tiersWithConfirmedSwag}/{ARCADE_SWAG_TIERS.length}
               </strong>
-              <span className="mt-1 block text-xs text-slate-500">Have at least one confirmed item</span>
+              <span className="mt-1 block text-xs text-slate-500">Have at least one named item</span>
             </div>
             <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-white/[0.035]">
               <span className="text-xs font-bold uppercase tracking-[.12em] text-slate-500 dark:text-slate-400">Latest reveal</span>
@@ -174,6 +167,73 @@ export default function SwagDrops2026Page() {
               </strong>
               <span className="mt-1 block text-xs text-slate-500">{latest?.revealedOn ?? "Awaiting announcement"}</span>
             </div>
+          </div>
+        </section>
+
+        <section aria-labelledby="package-rules-heading">
+          <div className="mb-4">
+            <h2 id="package-rules-heading" className="text-xl font-bold text-slate-950 dark:text-white">
+              How the 2026 swag packages stack
+            </h2>
+            <p className="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400">
+              Yugali describes two separate Snowball families. Moving up keeps the rewards inside that family, but the Trooper/Ranger family does not roll into Champion/Legend.
+            </p>
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <article className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/[0.035]">
+              <div className="flex items-center gap-2">
+                <Trophy className="h-5 w-5 text-cyan-600 dark:text-cyan-300" aria-hidden="true" />
+                <h3 className="font-bold text-slate-950 dark:text-white">Trooper → Ranger</h3>
+              </div>
+              <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-center">
+                <div className="rounded-xl bg-slate-50 p-4 dark:bg-white/[0.035]">
+                  <span className="text-xs font-bold uppercase tracking-[.1em] text-slate-500">Trooper</span>
+                  <strong className="mt-1 block text-sm text-slate-950 dark:text-white">Core swag pack</strong>
+                  <span className="mt-1 block text-xs text-slate-500">Known minimum: 1+ item</span>
+                </div>
+                <ArrowRight className="mx-auto h-4 w-4 rotate-90 text-slate-400 sm:rotate-0" aria-hidden="true" />
+                <div className="rounded-xl bg-cyan-50 p-4 dark:bg-cyan-300/[0.04]">
+                  <span className="text-xs font-bold uppercase tracking-[.1em] text-cyan-700 dark:text-cyan-300">Ranger</span>
+                  <strong className="mt-1 block text-sm text-slate-950 dark:text-white">Trooper pack + 1 bonus</strong>
+                  <span className="mt-1 block text-xs text-slate-500">Known minimum: 2+ items</span>
+                </div>
+              </div>
+            </article>
+
+            <article className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/[0.035]">
+              <div className="flex items-center gap-2">
+                <Trophy className="h-5 w-5 text-violet-600 dark:text-violet-300" aria-hidden="true" />
+                <h3 className="font-bold text-slate-950 dark:text-white">Champion → Legend</h3>
+              </div>
+              <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-center">
+                <div className="rounded-xl bg-slate-50 p-4 dark:bg-white/[0.035]">
+                  <span className="text-xs font-bold uppercase tracking-[.1em] text-slate-500">Champion</span>
+                  <strong className="mt-1 block text-sm text-slate-950 dark:text-white">High-tier collection</strong>
+                  <span className="mt-1 block text-xs text-slate-500">Known minimum: 1+ item</span>
+                </div>
+                <ArrowRight className="mx-auto h-4 w-4 rotate-90 text-slate-400 sm:rotate-0" aria-hidden="true" />
+                <div className="rounded-xl bg-violet-50 p-4 dark:bg-violet-300/[0.04]">
+                  <span className="text-xs font-bold uppercase tracking-[.1em] text-violet-700 dark:text-violet-300">Legend</span>
+                  <strong className="mt-1 block text-sm text-slate-950 dark:text-white">Champion pack + 1 exclusive</strong>
+                  <span className="mt-1 block text-xs text-slate-500">Known minimum: 2+ items</span>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-amber-200 bg-amber-50/70 p-4 text-sm leading-6 text-slate-600 dark:border-amber-300/15 dark:bg-amber-300/[0.035] dark:text-slate-300 sm:flex-row sm:items-center sm:justify-between">
+            <span>
+              <strong className="text-slate-950 dark:text-white">Important:</strong> known minimums are derived from Google&apos;s published package relationships, not final item totals. Prize slots are recipient caps, not physical inventory counts.
+            </span>
+            <a
+              href="https://discuss.google.dev/t/swag-drop-the-arcade-weather-shield-jacket/397353"
+              target="_blank"
+              rel="noreferrer noopener"
+              className="inline-flex shrink-0 items-center gap-1.5 font-semibold text-cyan-700 hover:underline dark:text-cyan-300"
+            >
+              Official Snowball rules <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+            </a>
           </div>
         </section>
 
@@ -187,7 +247,7 @@ export default function SwagDrops2026Page() {
                 2026 rewards by tier
               </h2>
               <p className="text-sm text-slate-500 dark:text-slate-400">
-                Compare requirements, confirmed items, and reward details still waiting for an official reveal.
+                Compare package structure, known minimums, named items, and reward details still waiting for an official reveal.
               </p>
             </div>
           </div>
@@ -196,7 +256,6 @@ export default function SwagDrops2026Page() {
             {ARCADE_SWAG_TIERS.map((tier) => {
               const meta = SWAG_TIER_META[tier]
               const tierDrops = getSwagDropsForTier(tier, season)
-              const pendingStatus = TIER_PENDING_STATUS[tier]
 
               return (
                 <article
@@ -225,7 +284,12 @@ export default function SwagDrops2026Page() {
                     {TIER_CARD_SUMMARY[tier]}
                   </p>
 
-                  <div className="mt-4 grid grid-cols-3 gap-2">
+                  <div className="mt-3 rounded-xl border border-cyan-200/70 bg-cyan-50/60 px-3 py-2.5 dark:border-cyan-300/10 dark:bg-cyan-300/[0.035]">
+                    <span className="block text-[10px] font-bold uppercase tracking-[.1em] text-cyan-700 dark:text-cyan-300">Package rule</span>
+                    <strong className="mt-0.5 block text-sm text-slate-950 dark:text-white">{meta.packageRule}</strong>
+                  </div>
+
+                  <div className="mt-3 grid grid-cols-3 gap-2">
                     <div className="rounded-xl bg-slate-50 p-3 dark:bg-white/[0.035]">
                       <span className="block text-[10px] font-bold uppercase tracking-[.1em] text-slate-500">Prize slots</span>
                       <strong className="mt-1 block text-sm text-slate-950 dark:text-white">
@@ -233,21 +297,24 @@ export default function SwagDrops2026Page() {
                       </strong>
                     </div>
                     <div className="rounded-xl bg-slate-50 p-3 dark:bg-white/[0.035]">
-                      <span className="block text-[10px] font-bold uppercase tracking-[.1em] text-slate-500">Total items</span>
-                      <strong className="mt-1 block text-sm text-slate-950 dark:text-white">TBA</strong>
+                      <span className="block text-[10px] font-bold uppercase tracking-[.1em] text-slate-500">Known minimum</span>
+                      <strong className="mt-1 block text-sm text-slate-950 dark:text-white">{meta.knownMinimumItems}</strong>
                     </div>
                     <div className="rounded-xl bg-slate-50 p-3 dark:bg-white/[0.035]">
-                      <span className="block text-[10px] font-bold uppercase tracking-[.1em] text-slate-500">Confirmed</span>
+                      <span className="block text-[10px] font-bold uppercase tracking-[.1em] text-slate-500">Named</span>
                       <strong className="mt-1 block text-sm text-slate-950 dark:text-white">{tierDrops.length}</strong>
                     </div>
                   </div>
+                  <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">
+                    {meta.knownMinimumNote} Final total: TBA.
+                  </p>
 
                   <div className="mt-5 flex flex-1 flex-col border-t border-slate-200 pt-4 dark:border-white/10">
                     <div className="mb-3 flex items-center justify-between gap-3">
                       <span className="text-xs font-bold uppercase tracking-[.12em] text-slate-500 dark:text-slate-400">
                         Swag lineup
                       </span>
-                      <span className="text-[11px] font-semibold text-slate-400">Confirmed + waiting</span>
+                      <span className="text-[11px] font-semibold text-slate-400">Named + waiting</span>
                     </div>
 
                     <div className="space-y-2">
@@ -266,7 +333,7 @@ export default function SwagDrops2026Page() {
                           </span>
                           <span className="min-w-0 flex-1">
                             <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[.1em] text-emerald-700 dark:text-emerald-300">
-                              <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" /> Revealed
+                              <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" /> Drop #{drop.dropNumber} revealed
                             </span>
                             <strong className="mt-0.5 block truncate text-sm text-slate-950 dark:text-white">
                               {drop.shortName}
@@ -276,35 +343,19 @@ export default function SwagDrops2026Page() {
                         </Link>
                       ))}
 
-                      {pendingStatus ? (
-                        <div className="flex min-h-[74px] items-center gap-3 rounded-xl border border-dashed border-amber-300/70 bg-amber-50/60 p-3 dark:border-amber-300/15 dark:bg-amber-300/[0.035]">
-                          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-700 dark:bg-amber-300/10 dark:text-amber-200">
-                            <Sparkles className="h-4 w-4" aria-hidden="true" />
+                      <div className="flex min-h-[74px] items-center gap-3 rounded-xl border border-dashed border-amber-300/70 bg-amber-50/60 p-3 dark:border-amber-300/15 dark:bg-amber-300/[0.035]">
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-700 dark:bg-amber-300/10 dark:text-amber-200">
+                          <Sparkles className="h-4 w-4" aria-hidden="true" />
+                        </span>
+                        <span className="min-w-0">
+                          <span className="block text-[10px] font-bold uppercase tracking-[.1em] text-amber-700 dark:text-amber-300">
+                            Package details pending
                           </span>
-                          <span className="min-w-0">
-                            <span className="block text-[10px] font-bold uppercase tracking-[.1em] text-amber-700 dark:text-amber-300">
-                              Waiting for reveal
-                            </span>
-                            <span className="mt-0.5 block text-sm leading-5 text-slate-600 dark:text-slate-300">
-                              {pendingStatus}
-                            </span>
+                          <span className="mt-0.5 block text-sm leading-5 text-slate-600 dark:text-slate-300">
+                            {meta.waitingNote}
                           </span>
-                        </div>
-                      ) : (
-                        <div className="flex min-h-[74px] items-center gap-3 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-3 dark:border-white/10 dark:bg-white/[0.025]">
-                          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500 dark:bg-white/5 dark:text-slate-400">
-                            <Sparkles className="h-4 w-4" aria-hidden="true" />
-                          </span>
-                          <span className="min-w-0">
-                            <span className="block text-[10px] font-bold uppercase tracking-[.1em] text-slate-500">
-                              Pending status
-                            </span>
-                            <span className="mt-0.5 block text-sm leading-5 text-slate-600 dark:text-slate-300">
-                              No additional named item has been announced yet.
-                            </span>
-                          </span>
-                        </div>
-                      )}
+                        </span>
+                      </div>
                     </div>
 
                     <div className="mt-auto pt-4">
@@ -325,8 +376,26 @@ export default function SwagDrops2026Page() {
         <section className="rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-white/10 dark:bg-white/[0.025]">
           <h2 className="text-lg font-bold text-slate-950 dark:text-white">How this archive is maintained</h2>
           <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-            Only rewards publicly announced by Google are added. Total item counts stay marked as TBA until Google publishes them. Waterfall describes prize-slot allocation between tiers, while Snowball describes which reward families build on one another.
+            Only rewards publicly announced by Google are added as named swag. Known minimums use Google&apos;s published Snowball package rules, while final item totals stay TBA until Google reveals the complete lineup. Waterfall describes prize-slot allocation and does not represent physical inventory.
           </p>
+          <div className="mt-4 flex flex-wrap gap-3 text-sm font-semibold">
+            <a
+              href="https://discuss.google.dev/t/google-skills-arcade-2026-tiers/371066"
+              target="_blank"
+              rel="noreferrer noopener"
+              className="inline-flex items-center gap-1.5 text-cyan-700 hover:underline dark:text-cyan-300"
+            >
+              Official 2026 tiers <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+            </a>
+            <a
+              href="https://discuss.google.dev/t/swag-drop-the-arcade-weather-shield-jacket/397353"
+              target="_blank"
+              rel="noreferrer noopener"
+              className="inline-flex items-center gap-1.5 text-cyan-700 hover:underline dark:text-cyan-300"
+            >
+              Official 2026 Snowball & first drop <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+            </a>
+          </div>
         </section>
       </div>
     </InternalPageShell>
