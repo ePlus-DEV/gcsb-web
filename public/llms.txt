@@ -1,0 +1,29 @@
+# Arcade Points by ePlus.DEV
+
+> Community tools for Google Skills Arcade 2026: score calculation, badge tracking, prize-slot visibility, and season-aware swag information.
+
+## Primary pages
+
+- https://arcade.eplus.dev/
+- https://arcade.eplus.dev/guide/
+- https://arcade.eplus.dev/about/
+
+## Arcade 2026 swag
+
+- https://arcade.eplus.dev/swag-drops/ — Swag archive by season
+- https://arcade.eplus.dev/swag-drops/2026/ — 2026 reward overview by tier
+- https://arcade.eplus.dev/swag-drops/2026/trooper/ — Arcade Trooper rewards and prize slots
+- https://arcade.eplus.dev/swag-drops/2026/ranger/ — Arcade Ranger rewards and prize slots
+- https://arcade.eplus.dev/swag-drops/2026/champion/ — Arcade Champion rewards and prize slots
+- https://arcade.eplus.dev/swag-drops/2026/legend/ — Arcade Legend rewards and prize slots
+- https://arcade.eplus.dev/swag-drops/2026/weather-shield-jacket/ — Weather-Shield Jacket reward detail
+
+## Discovery
+
+- https://arcade.eplus.dev/sitemap.xml
+- https://arcade.eplus.dev/robots.txt
+- https://arcade.eplus.dev/agents.md
+
+## Notes
+
+Google remains the authority for final Arcade scores, reward eligibility, prize allocation, and official swag announcements. Historical package counts and projections on this site are labeled as estimates when they are not confirmed for the current season.
