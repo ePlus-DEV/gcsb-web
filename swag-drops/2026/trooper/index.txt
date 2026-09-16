@@ -1,0 +1,277 @@
+1:"$Sreact.fragment"
+3:I[9304,["874","static/chunks/874-6636e32d520a8252.js","180","static/chunks/180-6ef32ac2752a386c.js","177","static/chunks/app/layout-c7c8e7fb84524bba.js"],"ThemeProvider"]
+4:I[8180,["874","static/chunks/874-6636e32d520a8252.js","180","static/chunks/180-6ef32ac2752a386c.js","177","static/chunks/app/layout-c7c8e7fb84524bba.js"],"default"]
+5:I[7971,["874","static/chunks/874-6636e32d520a8252.js","180","static/chunks/180-6ef32ac2752a386c.js","177","static/chunks/app/layout-c7c8e7fb84524bba.js"],"default"]
+6:I[1545,["874","static/chunks/874-6636e32d520a8252.js","180","static/chunks/180-6ef32ac2752a386c.js","177","static/chunks/app/layout-c7c8e7fb84524bba.js"],"default"]
+7:I[7555,[],""]
+8:I[1295,[],""]
+9:I[6195,["874","static/chunks/874-6636e32d520a8252.js","180","static/chunks/180-6ef32ac2752a386c.js","345","static/chunks/app/not-found-a26c35c5d4f5a5e9.js"],"default"]
+a:I[7098,["874","static/chunks/874-6636e32d520a8252.js","180","static/chunks/180-6ef32ac2752a386c.js","177","static/chunks/app/layout-c7c8e7fb84524bba.js"],"default"]
+c:I[9665,[],"OutletBoundary"]
+f:I[9665,[],"ViewportBoundary"]
+11:I[9665,[],"MetadataBoundary"]
+13:I[6614,[],""]
+:HL["/_next/static/css/bab26a71b3a4b13a.css","style"]
+:HL["/_next/static/css/959507dcd46061c8.css","style"]
+:HL["/_next/static/css/5d9927b705702b80.css","style"]
+2:T1d69,(() => {
+  const installFlag = "__eplusArcadeRequestDeduperInstalled"
+  if (window[installFlag]) return
+
+  const originalFetch = window.fetch.bind(window)
+  const inFlight = new Map()
+  const recent = new Map()
+  const recentTtlMs = 5_000
+  const apiOrigin = "https://hub.eplus.dev"
+  const apiPaths = new Set(["/api/arcade-public", "/api/arcade-widget"])
+  const bonusMilestonePrefix = "arcade-facilitator-bonus-milestone-v1"
+
+  function isRequest(input) {
+    return typeof Request !== "undefined" && input instanceof Request
+  }
+
+  function getRequestUrl(input) {
+    if (typeof input === "string") return input
+    if (input instanceof URL) return input.toString()
+    if (isRequest(input)) return input.url
+    return ""
+  }
+
+  function getRequestMethod(input, init) {
+    if (init?.method) return String(init.method).toUpperCase()
+    if (isRequest(input)) return input.method.toUpperCase()
+    return "GET"
+  }
+
+  function getConsumerSignal(input, init) {
+    if (init?.signal !== undefined) return init.signal
+    if (isRequest(input)) return input.signal
+    return null
+  }
+
+  function getEffectiveHeaders(input, init) {
+    if (typeof Headers === "undefined") return []
+    const headers =
+      init?.headers !== undefined
+        ? new Headers(init.headers)
+        : isRequest(input)
+          ? new Headers(input.headers)
+          : new Headers()
+
+    return [...headers.entries()].sort(([left], [right]) => left.localeCompare(right))
+  }
+
+  function getEffectiveOption(input, init, name, fallback) {
+    if (init?.[name] !== undefined) return init[name]
+    if (isRequest(input) && input[name] !== undefined) return input[name]
+    return fallback
+  }
+
+  function getRequestKey(url, input, init, body) {
+    return JSON.stringify({
+      url: `${url.origin}${url.pathname}${url.search}`,
+      body,
+      headers: getEffectiveHeaders(input, init),
+      credentials: getEffectiveOption(input, init, "credentials", "same-origin"),
+      mode: getEffectiveOption(input, init, "mode", "cors"),
+      cache: getEffectiveOption(input, init, "cache", "default"),
+      redirect: getEffectiveOption(input, init, "redirect", "follow"),
+      referrerPolicy: getEffectiveOption(input, init, "referrerPolicy", ""),
+    })
+  }
+
+  function normalizeProfileUrl(value) {
+    return typeof value === "string" ? value.trim().replace(/\/$/, "") : ""
+  }
+
+  function isSharedProfilePage() {
+    return /\/(?:profiles\/[^/]+|profile)\/?$/i.test(window.location.pathname)
+  }
+
+  function readBonusMilestoneCompleted(profileUrl) {
+    const searchParams = new URLSearchParams(window.location.search)
+    if (isSharedProfilePage()) return searchParams.get("bonus") === "1"
+
+    try {
+      return (
+        window.localStorage.getItem(`${bonusMilestonePrefix}:${profileUrl}`) ===
+        "true"
+      )
+    } catch {
+      return false
+    }
+  }
+
+  function addBonusMilestoneFlag(body) {
+    try {
+      const payload = JSON.parse(body)
+      if (!payload || typeof payload !== "object") return body
+
+      const facilitator =
+        payload.facilitator && typeof payload.facilitator === "object"
+          ? payload.facilitator
+          : {}
+
+      // Widget requests now send the user's explicit confirmation directly.
+      // Do not overwrite that boolean with localStorage or shared-page fallbacks.
+      if (typeof facilitator.bonusMilestoneCompleted === "boolean") {
+        return body
+      }
+
+      const profileUrl = normalizeProfileUrl(payload.url)
+      if (!profileUrl) return body
+
+      payload.facilitator = {
+        ...facilitator,
+        bonusMilestoneCompleted: readBonusMilestoneCompleted(profileUrl),
+      }
+      return JSON.stringify(payload)
+    } catch {
+      return body
+    }
+  }
+
+  function createAbortError() {
+    try {
+      return new DOMException("The operation was aborted.", "AbortError")
+    } catch {
+      const error = new Error("The operation was aborted.")
+      error.name = "AbortError"
+      return error
+    }
+  }
+
+  function responseForConsumer(sharedRequest, signal) {
+    if (!signal) return sharedRequest.then((response) => response.clone())
+    if (signal.aborted) return Promise.reject(createAbortError())
+
+    return new Promise((resolve, reject) => {
+      let settled = false
+
+      const cleanup = () => signal.removeEventListener("abort", onAbort)
+      const onAbort = () => {
+        if (settled) return
+        settled = true
+        cleanup()
+        reject(createAbortError())
+      }
+
+      signal.addEventListener("abort", onAbort, { once: true })
+      sharedRequest.then(
+        (response) => {
+          if (settled) return
+          settled = true
+          cleanup()
+          resolve(response.clone())
+        },
+        (error) => {
+          if (settled) return
+          settled = true
+          cleanup()
+          reject(error)
+        },
+      )
+    })
+  }
+
+  function dedupeRequest(input, init, url, body, consumerSignal) {
+    if (consumerSignal?.aborted) return Promise.reject(createAbortError())
+
+    const key = getRequestKey(url, input, init, body)
+    const now = Date.now()
+    const cached = recent.get(key)
+
+    if (cached) {
+      if (cached.expiresAt > now) {
+        return Promise.resolve(cached.response.clone())
+      }
+      recent.delete(key)
+    }
+
+    const existing = inFlight.get(key)
+    if (existing) return responseForConsumer(existing, consumerSignal)
+
+    const sharedInit = isRequest(input)
+      ? { ...(init ?? {}), signal: null }
+      : init && "signal" in init
+        ? { ...init, signal: null }
+        : init
+
+    const sharedRequest = originalFetch(input, sharedInit)
+      .then((response) => {
+        if (response.ok) {
+          const entry = {
+            response: response.clone(),
+            expiresAt: Date.now() + recentTtlMs,
+          }
+          recent.set(key, entry)
+          window.setTimeout(() => {
+            if (recent.get(key) === entry) recent.delete(key)
+          }, recentTtlMs)
+        }
+        return response
+      })
+      .finally(() => {
+        if (inFlight.get(key) === sharedRequest) inFlight.delete(key)
+      })
+
+    inFlight.set(key, sharedRequest)
+    return responseForConsumer(sharedRequest, consumerSignal)
+  }
+
+  window.fetch = (input, init) => {
+    const rawUrl = getRequestUrl(input)
+    let url
+
+    try {
+      url = new URL(rawUrl, window.location?.href ?? "https://arcade.eplus.dev/")
+    } catch {
+      return originalFetch(input, init)
+    }
+
+    if (
+      getRequestMethod(input, init) !== "POST" ||
+      url.origin !== apiOrigin ||
+      !apiPaths.has(url.pathname)
+    ) {
+      return originalFetch(input, init)
+    }
+
+    const consumerSignal = getConsumerSignal(input, init)
+
+    if (init?.body !== undefined) {
+      if (typeof init.body !== "string") return originalFetch(input, init)
+      const body = addBonusMilestoneFlag(init.body)
+      const nextInit = body === init.body ? init : { ...init, body }
+      return dedupeRequest(input, nextInit, url, body, consumerSignal)
+    }
+
+    if (!isRequest(input) || input.bodyUsed) return originalFetch(input, init)
+
+    return input
+      .clone()
+      .text()
+      .then(
+        (rawBody) => {
+          const body = addBonusMilestoneFlag(rawBody)
+          if (body === rawBody) {
+            return dedupeRequest(input, init, url, body, consumerSignal)
+          }
+          const request = new Request(input, { body })
+          return dedupeRequest(request, init, url, body, consumerSignal)
+        },
+        () => originalFetch(input, init),
+      )
+  }
+
+  window[installFlag] = true
+})()
+0:{"P":null,"b":"XkLe8zpTaBhSx6DzA2Sj8","p":"","c":["","swag-drops","2026","trooper",""],"i":false,"f":[[["",{"children":["swag-drops",{"children":["2026",{"children":[["slug","trooper","d"],{"children":["__PAGE__",{}]}]}]}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/bab26a71b3a4b13a.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}],["$","link","1",{"rel":"stylesheet","href":"/_next/static/css/959507dcd46061c8.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}],["$","link","2",{"rel":"stylesheet","href":"/_next/static/css/5d9927b705702b80.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"en","dir":"ltr","data-locale":"en","suppressHydrationWarning":true,"children":[["$","head",null,{"children":[["$","script",null,{"id":"arcade-request-dedupe","dangerouslySetInnerHTML":{"__html":"$2"}}],["$","script",null,{"id":"website-catalog-cache-buster","dangerouslySetInnerHTML":{"__html":"(() => {\n  const version = \"12efdc2809f9eff3c39d126571cf73a6c7d4fba1\";\n  const originalFetch = window.fetch.bind(window);\n\n  window.fetch = (input, init) => {\n    const rawUrl =\n      typeof input === \"string\"\n        ? input\n        : input instanceof URL\n          ? input.toString()\n          : input instanceof Request\n            ? input.url\n            : \"\";\n\n    let url;\n    try {\n      url = new URL(rawUrl, window.location.href);\n    } catch {\n      return originalFetch(input, init);\n    }\n\n    if (!url.pathname.includes(\"/i18n/\") || !url.pathname.endsWith(\".json\")) {\n      return originalFetch(input, init);\n    }\n\n    url.searchParams.set(\"v\", version);\n    return originalFetch(url.toString(), { ...init, cache: \"no-store\" });\n  };\n})();"}}],["$","link",null,{"rel":"preconnect","href":"https://fonts.googleapis.com"}],["$","link",null,{"rel":"preconnect","href":"https://fonts.gstatic.com","crossOrigin":"anonymous"}],["$","link",null,{"rel":"preconnect","href":"https://cdnjs.cloudflare.com"}],["$","link",null,{"rel":"stylesheet","href":"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Press+Start+2P&display=swap"}],["$","link",null,{"rel":"stylesheet","href":"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css","integrity":"sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==","crossOrigin":"anonymous","referrerPolicy":"no-referrer"}],null,[["$","meta",null,{"name":"google-analytics-id","content":"G-SJNYKL2864"}],["$","meta",null,{"name":"analytics-mode","content":"always-enabled"}],["$","meta",null,{"name":"cookie-notice-storage","content":"arcade-cookie-notice-v1"}],["$","script",null,{"id":"google-analytics-bootstrap","dangerouslySetInnerHTML":{"__html":"(() => {\n  const widgetPathPattern = /^\\/(?:[a-z]{2}(?:-[a-z]{2})?\\/)?widget\\/?$/i;\n  if (widgetPathPattern.test(window.location.pathname)) return;\n\n  const loader = document.createElement(\"script\");\n  loader.id = \"google-analytics\";\n  loader.async = true;\n  loader.src = \"https://www.googletagmanager.com/gtag/js?id=G-SJNYKL2864\";\n  document.head.appendChild(loader);\n\n  window.dataLayer = window.dataLayer || [];\n  function gtag(){dataLayer.push(arguments);}\n  gtag(\"js\", new Date());\n  gtag(\"config\", \"G-SJNYKL2864\", { anonymize_ip: true });\n})();"}}]]]}],["$","body",null,{"children":["$","$L3",null,{"attribute":"class","defaultTheme":"dark","enableSystem":false,"disableTransitionOnChange":true,"storageKey":"arcade-theme","children":[["$","$L4",null,{}],["$","$L5",null,{}],["$","$L6",null,{}],["$","$L7",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","$L9",null,{}],[]],"forbidden":"$undefined","unauthorized":"$undefined"}],["$","$La",null,{"analyticsEnabled":true,"previewMode":false}]]}]}]]}]]}],{"children":["swag-drops",["$","$1","c",{"children":[null,["$","$L7",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":["2026",["$","$1","c",{"children":[null,["$","$L7",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":[["slug","trooper","d"],["$","$1","c",{"children":[null,["$","$L7",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":["__PAGE__",["$","$1","c",{"children":["$Lb","$undefined",null,["$","$Lc",null,{"children":["$Ld","$Le",null]}]]}],{},null,false]},null,false]},null,false]},null,false]},null,false],["$","$1","h",{"children":[null,["$","$1","F0QOaJjE5_mmCgZNBRxT_",{"children":[["$","$Lf",null,{"children":"$L10"}],null]}],["$","$L11",null,{"children":"$L12"}]]}],false]],"m":"$undefined","G":["$13","$undefined"],"s":false,"S":true}
+14:I[6874,["874","static/chunks/874-6636e32d520a8252.js","274","static/chunks/274-d522356fcf35cb4b.js","783","static/chunks/app/swag-drops/2026/%5Bslug%5D/page-ff40c1d9e1fe48db.js"],""]
+15:I[5907,["874","static/chunks/874-6636e32d520a8252.js","274","static/chunks/274-d522356fcf35cb4b.js","783","static/chunks/app/swag-drops/2026/%5Bslug%5D/page-ff40c1d9e1fe48db.js"],"default"]
+16:I[9361,["874","static/chunks/874-6636e32d520a8252.js","274","static/chunks/274-d522356fcf35cb4b.js","783","static/chunks/app/swag-drops/2026/%5Bslug%5D/page-ff40c1d9e1fe48db.js"],"default"]
+b:["$","div",null,{"className":"arcade-dashboard-page min-h-screen","children":[["$","div",null,{"className":"arcade-stars","aria-hidden":"true"}],["$","header",null,{"className":"arcade-header","children":[["$","$L14",null,{"className":"arcade-brand","href":"/","aria-label":"Arcade Points home","children":[["$","span",null,{"className":"arcade-brand-mark","children":["$","i",null,{"ref":"$undefined","className":"fa-icon fa-solid fa-gamepad","style":{"color":"$undefined","width":"$undefined","height":"$undefined","fontSize":"$undefined","lineHeight":1,"textAlign":"center"},"aria-hidden":true}]}],["$","span",null,{"className":"arcade-brand-copy","children":[["$","strong",null,{"children":"ARCADE"}],["$","b",null,{"children":"POINTS"}]]}],["$","em",null,{"children":"PRO"}]]}],["$","nav",null,{"className":"arcade-nav","aria-label":"Main navigation","children":[["$","$L14",null,{"href":"/","children":"Calculator"}],["$","$L14",null,{"href":"/#tiers","children":"Tiers"}],["$","$L14",null,{"href":"/#badges","children":"Badges"}],["$","$L14",null,{"href":"/#extension","children":"Extension"}]]}],["$","div",null,{"className":"arcade-header-actions"}]]}],["$","main",null,{"className":"internal-page-main","children":[["$","section",null,{"className":"internal-page-hero relative overflow-hidden border-b border-white/10","children":[["$","div",null,{"className":"internal-page-glow absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,.18),transparent_35%),radial-gradient(circle_at_top_right,rgba(99,102,241,.18),transparent_40%)]"}],["$","div",null,{"className":"relative mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 sm:py-20","children":[["$","$L15",null,{}],["$","div",null,{"className":"max-w-3xl","children":[["$","div",null,{"className":"internal-eyebrow mb-4 inline-flex items-center rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-xs font-semibold uppercase tracking-[.18em] text-cyan-200","children":[["$","i",null,{"ref":"$undefined","className":"fa-icon fa-solid fa-wand-magic-sparkles mr-2 h-3.5 w-3.5","style":{"color":"$undefined","width":"$undefined","height":"$undefined","fontSize":"$undefined","lineHeight":1,"textAlign":"center"},"aria-hidden":true}]," ","Arcade Trooper · 2026"]}],["$","h1",null,{"className":"internal-page-title text-4xl font-bold tracking-tight text-white sm:text-6xl","children":"Arcade Trooper 2026 rewards"}],["$","p",null,{"className":"internal-page-description mt-5 text-lg leading-8 text-slate-300","children":"See the current 2026 Trooper reward outlook, live prize-slot availability, revealed swag, officially promised items, projected package size, and the official 2025 package used as a historical reference."}],["$","p",null,{"className":"internal-page-updated mt-4 text-sm text-slate-500","children":"Last updated: September 16, 2026"}]]}]]}]]}],["$","section",null,{"className":"mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-16","children":["$","div",null,{"className":"internal-content-card rounded-3xl border border-white/10 bg-white/[0.035] p-6 shadow-2xl shadow-black/20 sm:p-10","children":["$","div",null,{"className":"internal-prose prose prose-invert max-w-none prose-headings:scroll-mt-24 prose-headings:text-white prose-p:text-slate-300 prose-li:text-slate-300 prose-a:text-cyan-300","children":[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"BreadcrumbList\",\"itemListElement\":[{\"@type\":\"ListItem\",\"position\":1,\"name\":\"Swag Drops\",\"item\":\"https://arcade.eplus.dev/swag-drops/\"},{\"@type\":\"ListItem\",\"position\":2,\"name\":\"2026\",\"item\":\"https://arcade.eplus.dev/swag-drops/2026/\"},{\"@type\":\"ListItem\",\"position\":3,\"name\":\"Arcade Trooper\",\"item\":\"https://arcade.eplus.dev/swag-drops/2026/trooper/\"}]}"}}],["$","div",null,{"className":"not-prose space-y-8","children":[["$","section",null,{"className":"overflow-hidden rounded-3xl border border-cyan-300/20 bg-gradient-to-br from-cyan-50 via-white to-violet-50 shadow-sm dark:from-cyan-950/20 dark:via-slate-950/80 dark:to-violet-950/20","children":["$","div",null,{"className":"grid gap-6 p-5 sm:p-7 lg:grid-cols-[1.15fr_0.85fr] lg:items-center","children":[["$","div",null,{"children":[["$","span",null,{"className":"inline-flex rounded-full bg-cyan-100 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[.12em] text-cyan-800 dark:bg-cyan-300/10 dark:text-cyan-200","children":"2026 package outlook"}],["$","h2",null,{"className":"mt-4 text-2xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-3xl","children":"≈5 items projected rewards"}],["$","p",null,{"className":"mt-3 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-300","children":"Trooper is the foundational reward tier. Google describes it as a core swag pack, but the individual 2026 item names and final item count have not been published yet."}],["$","div",null,{"className":"mt-5 flex flex-wrap gap-2 text-xs font-semibold","children":[["$","span",null,{"className":"rounded-full border border-slate-200 bg-white/80 px-3 py-1.5 text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-200","children":"50–74 points"}],["$","span",null,{"className":"rounded-full border border-slate-200 bg-white/80 px-3 py-1.5 text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-200","children":"6,000 total prize slots"}],["$","span",null,{"className":"rounded-full border border-violet-200 bg-violet-50 px-3 py-1.5 text-violet-700 dark:border-violet-300/15 dark:bg-violet-300/[0.04] dark:text-violet-200","children":"Historical projection, not final 2026 total"}]]}]]}],["$","div",null,{"className":"space-y-3","children":[["$","$L16",null,{"points":50,"totalSlots":6000}],["$","div",null,{"className":"grid grid-cols-3 gap-2 text-center","children":[["$","div",null,{"className":"rounded-2xl border border-emerald-200 bg-white/80 p-4 dark:border-emerald-300/15 dark:bg-white/[0.04]","children":[["$","span",null,{"className":"block text-[9px] font-bold uppercase tracking-[.1em] text-emerald-700 dark:text-emerald-300","children":"Revealed"}],["$","strong",null,{"className":"mt-1 block text-2xl text-slate-950 dark:text-white","children":0}]]}],["$","div",null,{"className":"rounded-2xl border border-amber-200 bg-white/80 p-4 dark:border-amber-300/15 dark:bg-white/[0.04]","children":[["$","span",null,{"className":"block text-[9px] font-bold uppercase tracking-[.1em] text-amber-700 dark:text-amber-300","children":"Official pending"}],["$","strong",null,{"className":"mt-1 block text-2xl text-slate-950 dark:text-white","children":0}]]}],["$","div",null,{"className":"rounded-2xl border border-slate-200 bg-white/80 p-4 dark:border-white/10 dark:bg-white/[0.04]","children":[["$","span",null,{"className":"block text-[9px] font-bold uppercase tracking-[.1em] text-slate-500","children":"Swag unrevealed"}],["$","strong",null,{"className":"mt-1 block text-2xl text-slate-950 dark:text-white","children":["≈",5]}]]}]]}]]}]]}]}],["$","section",null,{"aria-labelledby":"current-lineup-heading","children":[["$","div",null,{"className":"mb-4 flex flex-wrap items-end justify-between gap-3","children":[["$","div",null,{"children":[["$","h2",null,{"id":"current-lineup-heading","className":"text-2xl font-bold text-slate-950 dark:text-white","children":"What we know about the 2026 package"}],["$","p",null,{"className":"mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400","children":"Revealed rewards and officially promised items are separated from the historical projection."}]]}],["$","$L14",null,{"href":"/swag-drops/2026/","className":"inline-flex items-center gap-1.5 text-xs font-semibold text-cyan-700 hover:underline dark:text-cyan-300","children":["Compare all tiers ",["$","i",null,{"ref":"$undefined","className":"fa-icon fa-solid fa-arrow-right h-3.5 w-3.5","style":{"color":"$undefined","width":"$undefined","height":"$undefined","fontSize":"$undefined","lineHeight":1,"textAlign":"center"},"aria-hidden":"true"}]]}]]}],["$","div",null,{"className":"grid gap-3 md:grid-cols-2 xl:grid-cols-3","children":[[],[],["$","div",null,{"className":"rounded-2xl border border-dashed border-slate-300 bg-slate-50/80 p-4 dark:border-white/10 dark:bg-white/[0.02]","children":[["$","span",null,{"className":"flex h-10 w-10 items-center justify-center rounded-xl border border-dashed border-slate-300 text-lg font-bold text-slate-400 dark:border-white/10","children":"?"}],["$","span",null,{"className":"mt-3 block text-[9px] font-bold uppercase tracking-[.1em] text-slate-500","children":"Historical projection"}],["$","strong",null,{"className":"mt-1 block text-base text-slate-800 dark:text-slate-100","children":"≈5 more items still unrevealed"}],["$","p",null,{"className":"mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400","children":"Google has not published these 2026 item names. The count only reflects the prior-season package-size baseline."}]]}]]}]]}],["$","section",null,{"className":"overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-white/[0.03]","children":[["$","div",null,{"className":"flex flex-wrap items-start justify-between gap-3 border-b border-slate-200 p-5 dark:border-white/10","children":[["$","div",null,{"children":[["$","span",null,{"className":"text-[10px] font-bold uppercase tracking-[.12em] text-violet-700 dark:text-violet-300","children":"Historical reference only"}],["$","h2",null,{"className":"mt-1 text-xl font-bold text-slate-950 dark:text-white","children":"2025 Trooper package"}],["$","p",null,{"className":"mt-1 max-w-3xl text-sm leading-6 text-slate-500 dark:text-slate-400","children":"These were the official final 2025 Season 2 items for this tier. They explain the ≈5 items projection, but they are not confirmed as 2026 rewards."}]]}],["$","a",null,{"href":"https://discuss.google.dev/t/that-s-a-wrap-on-google-skills-arcade-2025/311521","target":"_blank","rel":"noreferrer noopener","className":"inline-flex shrink-0 items-center gap-1.5 text-xs font-semibold text-cyan-700 hover:underline dark:text-cyan-300","children":["Official 2025 wrap-up ",["$","i",null,{"ref":"$undefined","className":"fa-icon fa-solid fa-arrow-up-right-from-square h-3.5 w-3.5","style":{"color":"$undefined","width":"$undefined","height":"$undefined","fontSize":"$undefined","lineHeight":1,"textAlign":"center"},"aria-hidden":"true"}]]}]]}],["$","div",null,{"className":"grid gap-px bg-slate-200 sm:grid-cols-2 lg:grid-cols-3 dark:bg-white/10","children":[["$","div","The Arcade Trooper Backpack",{"className":"flex items-center gap-3 bg-white p-4 dark:bg-slate-950/70","children":[["$","span",null,{"className":"flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-violet-50 text-xs font-bold text-violet-700 dark:bg-violet-300/10 dark:text-violet-200","children":1}],["$","span",null,{"className":"text-sm font-semibold text-slate-700 dark:text-slate-200","children":"The Arcade Trooper Backpack"}]]}],["$","div","The Arcade Magnets",{"className":"flex items-center gap-3 bg-white p-4 dark:bg-slate-950/70","children":[["$","span",null,{"className":"flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-violet-50 text-xs font-bold text-violet-700 dark:bg-violet-300/10 dark:text-violet-200","children":2}],["$","span",null,{"className":"text-sm font-semibold text-slate-700 dark:text-slate-200","children":"The Arcade Magnets"}]]}],["$","div","The Arcade Sticker Sheet",{"className":"flex items-center gap-3 bg-white p-4 dark:bg-slate-950/70","children":[["$","span",null,{"className":"flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-violet-50 text-xs font-bold text-violet-700 dark:bg-violet-300/10 dark:text-violet-200","children":3}],["$","span",null,{"className":"text-sm font-semibold text-slate-700 dark:text-slate-200","children":"The Arcade Sticker Sheet"}]]}],["$","div","The Arcade Dry-Fit T-Shirt",{"className":"flex items-center gap-3 bg-white p-4 dark:bg-slate-950/70","children":[["$","span",null,{"className":"flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-violet-50 text-xs font-bold text-violet-700 dark:bg-violet-300/10 dark:text-violet-200","children":4}],["$","span",null,{"className":"text-sm font-semibold text-slate-700 dark:text-slate-200","children":"The Arcade Dry-Fit T-Shirt"}]]}],["$","div","The Arcade Refresh Water Bottle",{"className":"flex items-center gap-3 bg-white p-4 dark:bg-slate-950/70","children":[["$","span",null,{"className":"flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-violet-50 text-xs font-bold text-violet-700 dark:bg-violet-300/10 dark:text-violet-200","children":5}],["$","span",null,{"className":"text-sm font-semibold text-slate-700 dark:text-slate-200","children":"The Arcade Refresh Water Bottle"}]]}]]}]]}],["$","section",null,{"className":"grid gap-4 lg:grid-cols-2","children":[["$","article",null,{"className":"rounded-2xl border border-violet-200 bg-violet-50/70 p-5 dark:border-violet-300/15 dark:bg-violet-300/[0.04]","children":[["$","div",null,{"className":"flex items-center gap-2","children":[["$","i",null,{"ref":"$undefined","className":"fa-icon fa-solid fa-trophy h-5 w-5 text-violet-700 dark:text-violet-300","style":{"color":"$undefined","width":"$undefined","height":"$undefined","fontSize":"$undefined","lineHeight":1,"textAlign":"center"},"aria-hidden":"true"}],["$","h2",null,{"className":"text-lg font-bold text-slate-950 dark:text-white","children":"2026 package rule"}]]}],["$","strong",null,{"className":"mt-3 block text-base text-slate-950 dark:text-white","children":"Core Trooper swag pack · historical estimate ≈5 items"}],["$","p",null,{"className":"mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300","children":"Official minimum: 1+ item from Google's core-pack wording. Historical estimate: about 5 items, because the official 2025 Season 2 Trooper package finished with 5 items."}]]}],["$","article",null,{"className":"rounded-2xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/[0.035]","children":[["$","h2",null,{"className":"text-lg font-bold text-slate-950 dark:text-white","children":"Waterfall allocation"}],["$","p",null,{"className":"mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300","children":"Trooper is the broadest 2026 prize pool. Waterfall can move eligible participants into this pool when higher-tier capacity is exhausted."}],["$","p",null,{"className":"mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400","children":"Prize slots are recipient capacity, not a published physical inventory count for each swag item. Live remaining slots are loaded from the automated milestone crawler."}]]}]]}],["$","div",null,{"className":"flex flex-wrap gap-3","children":[["$","$L14",null,{"href":"/swag-drops/2026/","className":"text-sm font-semibold text-cyan-700 hover:underline dark:text-cyan-300","children":"← All 2026 rewards"}],["$","a",null,{"href":"https://discuss.google.dev/t/google-skills-arcade-2026-tiers/371066","target":"_blank","rel":"noreferrer noopener","className":"inline-flex items-center gap-1.5 text-sm font-semibold text-cyan-700 hover:underline dark:text-cyan-300","children":["Official tier announcement ",["$","i",null,{"ref":"$undefined","className":"fa-icon fa-solid fa-arrow-up-right-from-square h-3.5 w-3.5","style":{"color":"$undefined","width":"$undefined","height":"$undefined","fontSize":"$undefined","lineHeight":1,"textAlign":"center"},"aria-hidden":"true"}]]}],["$","a",null,{"href":"https://discuss.google.dev/t/swag-drop-the-arcade-weather-shield-jacket/397353","target":"_blank","rel":"noreferrer noopener","className":"inline-flex items-center gap-1.5 text-sm font-semibold text-cyan-700 hover:underline dark:text-cyan-300","children":["Official Snowball rules ",["$","i",null,{"ref":"$undefined","className":"fa-icon fa-solid fa-arrow-up-right-from-square h-3.5 w-3.5","style":{"color":"$undefined","width":"$undefined","height":"$undefined","fontSize":"$undefined","lineHeight":1,"textAlign":"center"},"aria-hidden":"true"}]]}]]}]]}]]}]}]}]]}],["$","footer",null,{"className":"internal-page-footer border-t border-white/10","children":["$","div",null,{"className":"mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-8 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-6","children":[["$","p",null,{"children":["© ",2026," ePlus.DEV. ",["$","span",null,{"children":"Independent community project."}]]}],["$","div",null,{"className":"flex gap-4","children":[["$","$L14",null,{"href":"/","className":"hover:text-white","children":"Calculator"}],["$","$L14",null,{"href":"/about/","className":"hover:text-white","children":"About"}],["$","$L14",null,{"href":"/guide/","className":"hover:text-white","children":"Guide"}],["$","$L14",null,{"href":"/privacy/","className":"hover:text-white","children":"Privacy"}],["$","$L14",null,{"href":"/terms/","className":"hover:text-white","children":"Terms"}]]}]]}]}]]}]
+10:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","2",{"name":"color-scheme","content":"light dark"}]]
+d:null
+e:null
+12:[["$","title","0",{"children":"Google Skills Arcade Trooper 2026 Rewards & Swag | ePlus.DEV"}],["$","meta","1",{"name":"description","content":"Arcade Trooper 2026 requirements, prize slots, reward rules, Waterfall behavior, historical package-size estimate, and confirmed Google Skills Arcade swag announcements."}],["$","meta","2",{"name":"application-name","content":"Arcade Points by ePlus.DEV"}],["$","link","3",{"rel":"author","href":"https://eplus.dev"}],["$","meta","4",{"name":"author","content":"ePlus.DEV"}],["$","link","5",{"rel":"manifest","href":"/manifest.json","crossOrigin":"$undefined"}],["$","meta","6",{"name":"generator","content":"Next.js"}],["$","meta","7",{"name":"keywords","content":"Google Cloud Arcade points calculator,Google Skills Arcade calculator,Google Cloud Skills Boost badges,Google Skills public profile tracker,Arcade Facilitator points,Google Cloud Arcade milestones,Arcade points 2026,Google Cloud Arcade rewards,Google Cloud Skills Boost Helper"}],["$","meta","8",{"name":"referrer","content":"origin-when-cross-origin"}],["$","meta","9",{"name":"creator","content":"ePlus.DEV"}],["$","meta","10",{"name":"publisher","content":"ePlus.DEV"}],["$","meta","11",{"name":"robots","content":"index, follow"}],["$","meta","12",{"name":"googlebot","content":"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"}],["$","meta","13",{"name":"category","content":"technology"}],["$","link","14",{"rel":"canonical","href":"https://arcade.eplus.dev/swag-drops/2026/trooper/"}],["$","meta","15",{"property":"og:title","content":"Google Skills Arcade Trooper 2026 Rewards & Swag"}],["$","meta","16",{"property":"og:description","content":"Arcade Trooper 2026 requirements, prize slots, reward rules, Waterfall behavior, historical package-size estimate, and confirmed Google Skills Arcade swag announcements."}],["$","meta","17",{"property":"og:url","content":"https://arcade.eplus.dev/swag-drops/2026/trooper/"}],["$","meta","18",{"property":"og:type","content":"website"}],["$","meta","19",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","20",{"name":"twitter:title","content":"Google Skills Arcade Trooper 2026 Rewards & Swag"}],["$","meta","21",{"name":"twitter:description","content":"Arcade Trooper 2026 requirements, prize slots, reward rules, Waterfall behavior, historical package-size estimate, and confirmed Google Skills Arcade swag announcements."}],["$","link","22",{"rel":"icon","href":"/favicon.ico","type":"image/x-icon","sizes":"48x48"}],["$","link","23",{"rel":"icon","href":"/icon0.svg?66a7cd687bde5efd","type":"image/svg+xml","sizes":"any"}],["$","link","24",{"rel":"icon","href":"/icon1.png?52e5d01a77c5680f","type":"image/png","sizes":"96x96"}],["$","link","25",{"rel":"apple-touch-icon","href":"/apple-icon.png?97901d54c640609b","type":"image/png","sizes":"180x180"}]]
