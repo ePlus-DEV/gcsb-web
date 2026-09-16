@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { CalendarDays, ExternalLink, History, Trophy } from "lucide-react"
+import { Calendar, ExternalLink, Trophy } from "lucide-react"
 import {
   ARCADE_2025_SEASON_2_SNOWBALL_SOURCE_URL,
   ARCADE_2025_SWAG_HISTORY,
@@ -82,7 +82,7 @@ export default function SwagHistory2025Page() {
               >
                 <div className="flex items-start justify-between gap-4">
                   <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-50 text-cyan-700 dark:bg-cyan-300/10 dark:text-cyan-200">
-                    <History className="h-5 w-5" aria-hidden="true" />
+                    <Calendar className="h-5 w-5" aria-hidden="true" />
                   </span>
                   <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[.1em] text-slate-500 dark:bg-white/5 dark:text-slate-400">
                     {season.periodLabel}
@@ -110,7 +110,7 @@ export default function SwagHistory2025Page() {
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[.12em] text-cyan-700 dark:text-cyan-300">
-                    <CalendarDays className="h-4 w-4" aria-hidden="true" />
+                    <Calendar className="h-4 w-4" aria-hidden="true" />
                     {season.periodLabel}
                   </div>
                   <h2
