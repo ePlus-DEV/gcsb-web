@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { ArrowRight, CheckCircle2, ExternalLink, Sparkles, Trophy } from "lucide-react"
+import LiveTierSlots from "@/components/arcade/live-tier-slots"
 import SwagArtwork from "@/components/arcade/swag-artwork"
 import {
   ARCADE_SWAG_TIERS,
@@ -22,6 +23,13 @@ import InternalPageShell from "@/components/site/internal-page-shell"
 import { WEBSITE_SITE_URL } from "@/lib/website-i18n"
 
 const season = CURRENT_SWAG_SEASON
+
+const TIER_START_POINTS: Record<ArcadeSwagTier, number> = {
+  trooper: 50,
+  ranger: 75,
+  champion: 95,
+  legend: 120,
+}
 
 type Props = { params: Promise<{ slug: string }> }
 
@@ -57,7 +65,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!drop) return {}
 
   const title = `Google Skills Arcade ${drop.shortName} ${season}`
-  const description = `${drop.summary} See eligible ${season} tiers, reveal date, features, and the official Google announcement.`
+  const description = `${drop.summary} See eligible ${season} tiers, reveal date, features, live prize-slot availability, and the official Google announcement.`
   const canonical = new URL(swagProductPath(season, drop.id), WEBSITE_SITE_URL).toString()
   return {
     title,
@@ -120,7 +128,7 @@ function TierPage({ tier }: { tier: ArcadeSwagTier }) {
     <InternalPageShell
       eyebrow={`Arcade ${meta.label} · ${season}`}
       title={`Arcade ${meta.label} ${season} rewards`}
-      description={`See the current ${season} ${meta.label} reward outlook, revealed swag, officially promised items, projected package size, and the official 2025 package used as a historical reference.`}
+      description={`See the current ${season} ${meta.label} reward outlook, live prize-slot availability, revealed swag, officially promised items, projected package size, and the official 2025 package used as a historical reference.`}
       updated="September 16, 2026"
     >
       <BreadcrumbJsonLd label={`Arcade ${meta.label}`} path={path} />
@@ -143,7 +151,7 @@ function TierPage({ tier }: { tier: ArcadeSwagTier }) {
                   {meta.pointsLabel}
                 </span>
                 <span className="rounded-full border border-slate-200 bg-white/80 px-3 py-1.5 text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-200">
-                  {meta.slots.toLocaleString("en-US")} prize slots
+                  {meta.slots.toLocaleString("en-US")} total prize slots
                 </span>
                 <span className="rounded-full border border-violet-200 bg-violet-50 px-3 py-1.5 text-violet-700 dark:border-violet-300/15 dark:bg-violet-300/[0.04] dark:text-violet-200">
                   Historical projection, not final 2026 total
@@ -151,24 +159,31 @@ function TierPage({ tier }: { tier: ArcadeSwagTier }) {
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 text-center">
-              <div className="rounded-2xl border border-emerald-200 bg-white/80 p-4 dark:border-emerald-300/15 dark:bg-white/[0.04]">
-                <span className="block text-[9px] font-bold uppercase tracking-[.1em] text-emerald-700 dark:text-emerald-300">
-                  Revealed
-                </span>
-                <strong className="mt-1 block text-2xl text-slate-950 dark:text-white">{drops.length}</strong>
-              </div>
-              <div className="rounded-2xl border border-amber-200 bg-white/80 p-4 dark:border-amber-300/15 dark:bg-white/[0.04]">
-                <span className="block text-[9px] font-bold uppercase tracking-[.1em] text-amber-700 dark:text-amber-300">
-                  Official pending
-                </span>
-                <strong className="mt-1 block text-2xl text-slate-950 dark:text-white">{pending.length}</strong>
-              </div>
-              <div className="rounded-2xl border border-slate-200 bg-white/80 p-4 dark:border-white/10 dark:bg-white/[0.04]">
-                <span className="block text-[9px] font-bold uppercase tracking-[.1em] text-slate-500">
-                  Est. remaining
-                </span>
-                <strong className="mt-1 block text-2xl text-slate-950 dark:text-white">≈{projectedRemaining}</strong>
+            <div className="space-y-3">
+              <LiveTierSlots
+                points={TIER_START_POINTS[tier]}
+                totalSlots={meta.slots}
+              />
+
+              <div className="grid grid-cols-3 gap-2 text-center">
+                <div className="rounded-2xl border border-emerald-200 bg-white/80 p-4 dark:border-emerald-300/15 dark:bg-white/[0.04]">
+                  <span className="block text-[9px] font-bold uppercase tracking-[.1em] text-emerald-700 dark:text-emerald-300">
+                    Revealed
+                  </span>
+                  <strong className="mt-1 block text-2xl text-slate-950 dark:text-white">{drops.length}</strong>
+                </div>
+                <div className="rounded-2xl border border-amber-200 bg-white/80 p-4 dark:border-amber-300/15 dark:bg-white/[0.04]">
+                  <span className="block text-[9px] font-bold uppercase tracking-[.1em] text-amber-700 dark:text-amber-300">
+                    Official pending
+                  </span>
+                  <strong className="mt-1 block text-2xl text-slate-950 dark:text-white">{pending.length}</strong>
+                </div>
+                <div className="rounded-2xl border border-slate-200 bg-white/80 p-4 dark:border-white/10 dark:bg-white/[0.04]">
+                  <span className="block text-[9px] font-bold uppercase tracking-[.1em] text-slate-500">
+                    Swag unrevealed
+                  </span>
+                  <strong className="mt-1 block text-2xl text-slate-950 dark:text-white">≈{projectedRemaining}</strong>
+                </div>
               </div>
             </div>
           </div>
@@ -295,7 +310,7 @@ function TierPage({ tier }: { tier: ArcadeSwagTier }) {
             <h2 className="text-lg font-bold text-slate-950 dark:text-white">Waterfall allocation</h2>
             <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">{meta.allocationNote}</p>
             <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">
-              Prize slots are recipient capacity, not a published physical inventory count for each swag item.
+              Prize slots are recipient capacity, not a published physical inventory count for each swag item. Live remaining slots are loaded from the automated milestone crawler.
             </p>
           </article>
         </section>
@@ -391,17 +406,32 @@ function ProductPage({ slug }: { slug: string }) {
 
         <section className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
           <article className="rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-white/10 dark:bg-white/[0.025]">
-            <h2 className="text-lg font-bold text-slate-950 dark:text-white">Eligible tiers</h2>
+            <h2 className="text-lg font-bold text-slate-950 dark:text-white">Eligible tiers & live availability</h2>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               {drop.tiers.map((tier) => (
-                <Link
+                <div
                   key={tier}
-                  href={swagTierPath(season, tier)}
-                  className="rounded-xl border border-slate-200 bg-white p-4 transition hover:border-cyan-300 dark:border-white/10 dark:bg-white/[0.035]"
+                  className="rounded-xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-white/[0.035]"
                 >
-                  <span className="text-xs font-bold uppercase tracking-[.1em] text-cyan-700 dark:text-cyan-300">Arcade {SWAG_TIER_META[tier].label}</span>
-                  <strong className="mt-1 block text-lg text-slate-950 dark:text-white">{SWAG_TIER_META[tier].slots.toLocaleString("en-US")} slots</strong>
-                </Link>
+                  <div className="flex items-center justify-between gap-2">
+                    <Link
+                      href={swagTierPath(season, tier)}
+                      className="text-xs font-bold uppercase tracking-[.1em] text-cyan-700 hover:underline dark:text-cyan-300"
+                    >
+                      Arcade {SWAG_TIER_META[tier].label}
+                    </Link>
+                    <span className="text-[10px] text-slate-400">
+                      {SWAG_TIER_META[tier].pointsLabel}
+                    </span>
+                  </div>
+                  <div className="mt-3">
+                    <LiveTierSlots
+                      points={TIER_START_POINTS[tier]}
+                      totalSlots={SWAG_TIER_META[tier].slots}
+                      compact
+                    />
+                  </div>
+                </div>
               ))}
             </div>
           </article>
@@ -409,7 +439,7 @@ function ProductPage({ slug }: { slug: string }) {
             <span className="text-xs font-bold uppercase tracking-[.12em] text-amber-700 dark:text-amber-300">Combined prize-slot capacity</span>
             <strong className="mt-2 block text-3xl text-slate-950 dark:text-white">{combinedPrizeSlotCapacity.toLocaleString("en-US")}</strong>
             <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-              Maximum recipient capacity across the eligible tier pools. This is not a published stock count for the physical item.
+              Maximum recipient capacity across the eligible tier pools. Live remaining counts are shown per tier because the pools fill independently. This is not a published stock count for the physical item.
             </p>
           </article>
         </section>
