@@ -21,6 +21,8 @@ export const SWAG_TIER_META: Record<
     historicalEstimateItems: number
     historicalEstimateLabel: string
     historicalEstimateBasis: string
+    historicalReferenceItems: readonly string[]
+    officialPendingRewards: readonly string[]
   }
 > = {
   trooper: {
@@ -43,6 +45,14 @@ export const SWAG_TIER_META: Record<
     historicalEstimateLabel: "≈5 items",
     historicalEstimateBasis:
       "2025 Season 2 Trooper finished with 5 items; used as the closest same-tier baseline for the 2026 foundational Trooper pack. This is a historical estimate, not a confirmed 2026 total.",
+    historicalReferenceItems: [
+      "The Arcade Trooper Backpack",
+      "The Arcade Magnets",
+      "The Arcade Sticker Sheet",
+      "The Arcade Dry-Fit T-Shirt",
+      "The Arcade Refresh Water Bottle",
+    ],
+    officialPendingRewards: [],
   },
   ranger: {
     label: "Ranger",
@@ -64,6 +74,14 @@ export const SWAG_TIER_META: Record<
     historicalEstimateLabel: "≈6 items",
     historicalEstimateBasis:
       "2026 officially defines Ranger as Trooper + 1. Using the 2025 Season 2 Trooper package of 5 items as the baseline gives an estimated 6-item Ranger package. This is not an official 2026 total.",
+    historicalReferenceItems: [
+      "The Google Cloud DIY Logo",
+      "The Arcade Tumbler LED Lantern",
+      "The Arcade Laptop Sleeve",
+      "The Arcade USB Hub",
+      "The Arcade Pen Duo",
+    ],
+    officialPendingRewards: ["Ranger bonus reward"],
   },
   champion: {
     label: "Champion",
@@ -85,6 +103,15 @@ export const SWAG_TIER_META: Record<
     historicalEstimateLabel: "≈6 items",
     historicalEstimateBasis:
       "The official 2025 Season 2 Champion package contained 6 items, so 6 is used as a historical estimate until Google completes the 2026 lineup. This is not an official 2026 total.",
+    historicalReferenceItems: [
+      "The Google Cloud DIY Logo",
+      "The Arcade Tumbler LED Lantern",
+      "The Arcade Laptop Sleeve",
+      "The Arcade USB Hub",
+      "The Arcade Hoodie",
+      "The Arcade Pen Duo",
+    ],
+    officialPendingRewards: [],
   },
   legend: {
     label: "Legend",
@@ -106,6 +133,16 @@ export const SWAG_TIER_META: Record<
     historicalEstimateLabel: "≈7 items",
     historicalEstimateBasis:
       "The official 2025 Season 2 Legend package contained 7 items. The 2026 rule again defines Legend as the Champion package + 1 exclusive reward, supporting a roughly 7-item historical estimate if Champion remains near 6. This is not an official 2026 total.",
+    historicalReferenceItems: [
+      "The Arcade Legend Backpack",
+      "The Google Cloud DIY Logo",
+      "The Arcade Tumbler LED Lantern",
+      "The Arcade Laptop Sleeve",
+      "The Arcade USB Hub",
+      "The Arcade Hoodie",
+      "The Arcade Pen Duo",
+    ],
+    officialPendingRewards: ["Legend-only reward"],
   },
 }
 
