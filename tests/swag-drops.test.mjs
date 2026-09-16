@@ -60,6 +60,10 @@ test("swag routes include archive, season hub, and static detail pages", () => {
 
   assert.match(archivePage, /Swag drops by season/)
   assert.match(seasonPage, /Google Skills Arcade 2026 swag drops/)
+  assert.match(seasonPage, /Confirmed swag/)
+  assert.match(seasonPage, /tierDrops\.map/)
+  assert.match(seasonPage, /swagProductPath\(season, drop\.id\)/)
+  assert.match(seasonPage, /Not revealed yet/)
   assert.match(detailPage, /generateStaticParams/)
   assert.match(detailPage, /BreadcrumbList/)
   assert.match(detailPage, /Waterfall allocation/)
