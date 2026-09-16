@@ -3,7 +3,6 @@ import { CalendarDays, ExternalLink, History, Trophy } from "lucide-react"
 import {
   ARCADE_2025_SEASON_2_SNOWBALL_SOURCE_URL,
   ARCADE_2025_SWAG_HISTORY,
-  type HistoricalSwagItem,
   type HistoricalSwagSourceKind,
 } from "@/components/arcade/swag-history"
 import InternalPageShell from "@/components/site/internal-page-shell"
@@ -41,16 +40,6 @@ function sourceLabel(kind: HistoricalSwagSourceKind): string {
     case "delivery-evidence":
       return "Delivery evidence"
   }
-}
-
-function dateLabel(item: HistoricalSwagItem): string | null {
-  if (!item.revealedOnIso) return null
-  return new Intl.DateTimeFormat("en", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    timeZone: "UTC",
-  }).format(new Date(`${item.revealedOnIso}T00:00:00Z`))
 }
 
 export default function SwagHistory2025Page() {
@@ -100,10 +89,10 @@ export default function SwagHistory2025Page() {
                   </span>
                 </div>
                 <h2 className="mt-4 text-xl font-bold text-slate-950 dark:text-white">
-                  Season {season.season}
+                  {`Season ${season.season}`}
                 </h2>
                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                  {season.packages.length} tiers · {totalPackageItems} tier-item entries
+                  {`${season.packages.length} tiers · ${totalPackageItems} tier-item entries`}
                 </p>
               </a>
             )
@@ -128,7 +117,7 @@ export default function SwagHistory2025Page() {
                     id={`season-${season.season}-heading`}
                     className="mt-2 text-2xl font-bold text-slate-950 dark:text-white"
                   >
-                    Google Skills Arcade 2025 · Season {season.season}
+                    {`Google Skills Arcade 2025 · Season ${season.season}`}
                   </h2>
                   <p className="mt-2 max-w-4xl text-sm leading-6 text-slate-600 dark:text-slate-300">
                     {season.distributionRule}
@@ -182,11 +171,11 @@ export default function SwagHistory2025Page() {
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
                       <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/80 text-slate-700 shadow-sm dark:bg-black/20 dark:text-slate-200">
-                        <Trophy className="h-4.5 w-4.5" aria-hidden="true" />
+                        <Trophy className="h-4 w-4" aria-hidden="true" />
                       </span>
                       <div>
                         <h3 className="text-lg font-bold capitalize text-slate-950 dark:text-white">
-                          Arcade {tier.tier}
+                          {`Arcade ${tier.tier}`}
                         </h3>
                         <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
                           {tier.pointsLabel}
@@ -194,37 +183,36 @@ export default function SwagHistory2025Page() {
                       </div>
                     </div>
                     <span className="rounded-full bg-white/80 px-3 py-1 text-xs font-bold text-slate-600 shadow-sm dark:bg-black/20 dark:text-slate-300">
-                      {tier.items.length} items
+                      {`${tier.items.length} items`}
                     </span>
                   </div>
 
                   <div className="mt-4 grid gap-2 md:grid-cols-2">
-                    {tier.items.map((item) => {
-                      const revealed = dateLabel(item)
-                      return (
-                        <a
-                          key={`${tier.tier}-${item.name}`}
-                          href={item.sourceUrl}
-                          target="_blank"
-                          rel="noreferrer noopener"
-                          className="group flex min-w-0 items-start justify-between gap-3 rounded-xl border border-white/70 bg-white/80 px-3 py-3 transition hover:border-cyan-300 dark:border-white/10 dark:bg-black/15 dark:hover:border-cyan-300/30"
-                        >
-                          <span className="min-w-0">
-                            <strong className="block text-sm text-slate-900 dark:text-white">
-                              {item.name}
-                            </strong>
-                            <span className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] text-slate-500 dark:text-slate-400">
-                              <span>{sourceLabel(item.sourceKind)}</span>
-                              {revealed ? <span>{revealed}</span> : null}
-                            </span>
+                    {tier.items.map((item) => (
+                      <a
+                        key={`${tier.tier}-${item.name}`}
+                        href={item.sourceUrl}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        className="group flex min-w-0 items-start justify-between gap-3 rounded-xl border border-white/70 bg-white/80 px-3 py-3 transition hover:border-cyan-300 dark:border-white/10 dark:bg-black/15 dark:hover:border-cyan-300/30"
+                      >
+                        <span className="min-w-0">
+                          <strong className="block text-sm text-slate-900 dark:text-white">
+                            {item.name}
+                          </strong>
+                          <span className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] text-slate-500 dark:text-slate-400">
+                            <span>{sourceLabel(item.sourceKind)}</span>
+                            {item.revealedOnIso ? (
+                              <time dateTime={item.revealedOnIso}>{item.revealedOnIso}</time>
+                            ) : null}
                           </span>
-                          <ExternalLink
-                            className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400 transition group-hover:text-cyan-600"
-                            aria-hidden="true"
-                          />
-                        </a>
-                      )
-                    })}
+                        </span>
+                        <ExternalLink
+                          className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400 transition group-hover:text-cyan-600"
+                          aria-hidden="true"
+                        />
+                      </a>
+                    ))}
                   </div>
                 </article>
               ))}
