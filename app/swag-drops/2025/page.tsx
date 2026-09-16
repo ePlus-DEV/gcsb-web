@@ -47,6 +47,23 @@ function sourceLabel(kind: HistoricalSwagSourceKind): string {
   }
 }
 
+function getUniqueSeasonItems(
+  season: (typeof ARCADE_2025_SWAG_HISTORY)[number],
+) {
+  const items = new Map<
+    string,
+    (typeof season.packages)[number]["items"][number]
+  >()
+
+  for (const tier of season.packages) {
+    for (const item of tier.items) {
+      if (!items.has(item.name)) items.set(item.name, item)
+    }
+  }
+
+  return Array.from(items.values())
+}
+
 export default function SwagHistory2025Page() {
   const itemList = {
     "@context": "https://schema.org",
@@ -79,6 +96,7 @@ export default function SwagHistory2025Page() {
               (sum, tier) => sum + tier.items.length,
               0,
             )
+            const uniqueItems = getUniqueSeasonItems(season)
             const previews = getHistoricalSeasonPreviewImages(season.season, 3)
 
             return (
@@ -117,7 +135,7 @@ export default function SwagHistory2025Page() {
                     {`Season ${season.season}`}
                   </h2>
                   <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                    {`${season.packages.length} tiers · ${totalPackageItems} tier-item entries`}
+                    {`${uniqueItems.length} items · ${season.packages.length} tiers · ${totalPackageItems} tier-item entries`}
                   </p>
                 </div>
               </a>
@@ -126,7 +144,7 @@ export default function SwagHistory2025Page() {
         </section>
 
         {ARCADE_2025_SWAG_HISTORY.map((season) => {
-          const previews = getHistoricalSeasonPreviewImages(season.season, 4)
+          const uniqueItems = getUniqueSeasonItems(season)
 
           return (
             <section
@@ -136,26 +154,53 @@ export default function SwagHistory2025Page() {
               className="scroll-mt-24"
             >
               <div className="mb-5 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-white/[0.025]">
-                <div className="grid min-h-44 gap-px bg-slate-200 sm:grid-cols-4 dark:bg-white/10">
-                  {previews.map((preview, index) => (
-                    <div
-                      key={preview.url}
-                      className={`group relative overflow-hidden bg-white dark:bg-slate-950 ${
-                        index === 0 ? "sm:col-span-2" : ""
-                      }`}
-                    >
-                      <img
-                        src={preview.url}
-                        alt={preview.name}
-                        loading="lazy"
-                        decoding="async"
-                        className="h-44 w-full object-contain p-4 transition duration-300 group-hover:scale-[1.04]"
-                      />
-                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/80 to-transparent px-3 pb-2 pt-8 text-[10px] font-semibold text-white">
-                        {preview.name}
-                      </div>
-                    </div>
-                  ))}
+                <div className="border-b border-slate-200 bg-slate-100/80 p-3 dark:border-white/10 dark:bg-black/20">
+                  <div className="mb-2 flex items-center justify-between gap-3 px-1">
+                    <span className="text-xs font-bold uppercase tracking-[.12em] text-slate-500 dark:text-slate-400">
+                      {`${uniqueItems.length} items`}
+                    </span>
+                    <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500">
+                      Swipe / scroll →
+                    </span>
+                  </div>
+                  <div className="flex snap-x snap-mandatory gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                    {uniqueItems.map((item) => {
+                      const imageUrl = getHistoricalSwagImage(
+                        season.season,
+                        item.name,
+                      )
+
+                      return (
+                        <a
+                          key={item.name}
+                          href={item.sourceUrl}
+                          target="_blank"
+                          rel="noreferrer noopener"
+                          className="group relative w-[72vw] max-w-[220px] shrink-0 snap-start overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-cyan-300 hover:shadow-md sm:w-[190px] dark:border-white/10 dark:bg-slate-950"
+                        >
+                          <span className="flex h-36 items-center justify-center overflow-hidden bg-slate-50 p-3 dark:bg-black/20">
+                            {imageUrl ? (
+                              <img
+                                src={imageUrl}
+                                alt={item.name}
+                                loading="lazy"
+                                decoding="async"
+                                className="h-full w-full object-contain transition duration-300 group-hover:scale-[1.05]"
+                              />
+                            ) : (
+                              <Trophy
+                                className="h-8 w-8 text-slate-300 dark:text-slate-600"
+                                aria-hidden="true"
+                              />
+                            )}
+                          </span>
+                          <span className="block min-h-14 border-t border-slate-100 px-3 py-2 text-xs font-semibold leading-4 text-slate-800 dark:border-white/10 dark:text-slate-100">
+                            {item.name}
+                          </span>
+                        </a>
+                      )
+                    })}
+                  </div>
                 </div>
 
                 <div className="p-5">
