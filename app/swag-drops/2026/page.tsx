@@ -528,7 +528,7 @@ export default function SwagDrops2026Page() {
 
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-4 text-[11px] text-slate-500 dark:border-white/10 dark:text-slate-400">
           <span>
-            Named 2026 rewards come only from official Google Developer forum announcements. Live prize-slot counts come from the same automated crawler feed used by the calculator. Totals marked ≈ are projections, not confirmed counts.
+            Named 2026 rewards come only from official Google Developer forum announcements. Live prize-slot counts use the same continuously updated data source as the calculator. Totals marked ≈ are projections, not confirmed counts.
           </span>
           <div className="flex flex-wrap gap-3 font-semibold">
             <a
