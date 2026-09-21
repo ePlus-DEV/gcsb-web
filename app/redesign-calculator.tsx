@@ -723,7 +723,7 @@ export default function RedesignCalculator() {
                 <dd>Not available <CircleHelp /></dd>
               </dl>
               <p className="allocation-message">
-                Point eligibility and remaining spots are different. The slot count comes from the automated arcade-crawler, but Google does not expose whether your profile is ahead of other eligible users.
+                Point eligibility and remaining spots are different. Remaining slot counts are updated automatically from the latest available data, but Google does not expose whether your profile is ahead of other eligible users.
               </p>
             </article>
           </div>
@@ -865,7 +865,7 @@ export default function RedesignCalculator() {
                 </span>
                 <div>
                   <strong>{scoreComplete ? "All known badges classified" : `${unknownBadgeCount} unknown badge(s)`}</strong>
-                  <p>{scoreComplete ? "The score is complete for the crawler's current badge index." : "These badges are shown instead of being silently ignored."}</p>
+                  <p>{scoreComplete ? "The score is complete for the current badge index." : "These badges are shown instead of being silently ignored."}</p>
                 </div>
               </div>
               {unknownBadges.length > 0 && (
