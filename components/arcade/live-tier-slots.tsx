@@ -115,7 +115,7 @@ export default function LiveTierSlots({
           setState({ spotsLeft, slots, live: true })
         }
       } catch {
-        // Keep the verified total-slot fallback when the crawler is unavailable.
+        // Keep the verified total-slot fallback when live data is unavailable.
       } finally {
         window.clearTimeout(timeoutId)
       }
@@ -188,7 +188,7 @@ export default function LiveTierSlots({
           </div>
         </div>
         <span className={state.live ? "rounded-full bg-emerald-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[.08em] text-emerald-700 dark:bg-emerald-300/10 dark:text-emerald-200" : "rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[.08em] text-slate-500 dark:bg-white/5 dark:text-slate-400"}>
-          {state.live ? "Live crawler data" : "Loading live data"}
+          {state.live ? "Live availability" : "Loading live data"}
         </span>
       </div>
       <div className="mt-3 h-2 overflow-hidden rounded-full bg-white dark:bg-white/5">
