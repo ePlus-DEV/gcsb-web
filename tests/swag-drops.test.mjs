@@ -54,7 +54,7 @@ test("homepage and sitemap expose the season-aware swag experience", () => {
   assert.match(sitemap, /swagProductPath/)
 })
 
-test("swag pages expose live remaining prize-slot data from the crawler", () => {
+test("swag pages expose live remaining prize-slot data", () => {
   const liveSlots = readRepoFile("components/arcade/live-tier-slots.tsx")
   const seasonPage = readRepoFile("app/swag-drops/2026/page.tsx")
   const detailPage = readRepoFile("app/swag-drops/2026/[slug]/page.tsx")
@@ -64,7 +64,7 @@ test("swag pages expose live remaining prize-slot data from the crawler", () => 
   assert.match(liveSlots, /candidate\.spotsLeft/)
   assert.match(liveSlots, /Prize slots left/)
   assert.match(liveSlots, /Prize slots remaining/)
-  assert.match(liveSlots, /Live crawler data/)
+  assert.match(liveSlots, /Live availability/)
   assert.match(liveSlots, /% left/)
 
   assert.match(seasonPage, /LiveTierSlots/)

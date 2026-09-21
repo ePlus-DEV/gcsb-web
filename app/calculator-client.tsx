@@ -214,7 +214,7 @@ export default function ArcadeCalculatorClient() {
           setMilestonesLive(true)
         }
       } catch {
-        // Keep verified total slots if live crawler data is temporarily unavailable.
+        // Keep verified total slots if live availability data is temporarily unavailable.
       } finally {
         window.clearTimeout(timeoutId)
       }
@@ -349,7 +349,7 @@ export default function ArcadeCalculatorClient() {
             ? caught.message
             : "The profile could not be analyzed."
 
-      setError(`${message} You can use manual entry while the crawler is unavailable.`)
+      setError(`${message} You can use manual entry while live data is unavailable.`)
       setManualMode(true)
     } finally {
       window.clearTimeout(timeoutId)
@@ -485,10 +485,10 @@ export default function ArcadeCalculatorClient() {
           <div>
             <p className="eyebrow"><Trophy /> Arcade 2026 tiers</p>
             <h2 id="tier-heading">Every official milestone and prize slot.</h2>
-            <p>The point ranges and total slots are fixed for the 2026 season. Remaining slots are loaded from the automated arcade-crawler repository.</p>
+            <p>The point ranges and total slots are fixed for the 2026 season. Remaining slots are updated automatically from the latest available data.</p>
           </div>
           <p className={milestonesLive ? "tier-data-source is-live" : "tier-data-source"}>
-            {milestonesLive ? "Live crawler data" : "Live availability unavailable"}
+            {milestonesLive ? "Live availability" : "Live availability unavailable"}
           </p>
         </div>
         <div className="tier-grid">
