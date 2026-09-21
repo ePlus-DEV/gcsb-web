@@ -45,7 +45,7 @@ test("displayed Arcade points include the active Facilitator milestone bonus", (
   )
 })
 
-test("participation off keeps the crawler score unchanged", () => {
+test("participation off keeps the base score unchanged", () => {
   assert.deepEqual(
     facilitator.getFacilitatorAdjustedPoints(75, { games: 12, skills: 66 }, false),
     { basePoints: 75, bonus: 0, totalPoints: 75 },
