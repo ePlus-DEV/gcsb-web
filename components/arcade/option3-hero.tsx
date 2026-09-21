@@ -126,7 +126,7 @@ export function Option3Hero({
         <div id="option3-manual-panel" className="option3-manual-panel">
           <div className="option3-manual-copy">
             <strong>Manual entry</strong>
-            <span>Use this when the public crawler is temporarily unavailable.</span>
+            <span>Use this when live data is temporarily unavailable.</span>
           </div>
           <label>
             Current points
