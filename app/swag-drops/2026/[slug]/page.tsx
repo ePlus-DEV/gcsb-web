@@ -310,7 +310,7 @@ function TierPage({ tier }: { tier: ArcadeSwagTier }) {
             <h2 className="text-lg font-bold text-slate-950 dark:text-white">Waterfall allocation</h2>
             <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">{meta.allocationNote}</p>
             <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">
-              Prize slots are recipient capacity, not a published physical inventory count for each swag item. Live remaining slots are loaded from the automated milestone crawler.
+              Prize slots are recipient capacity, not a published physical inventory count for each swag item. Live remaining slots are loaded from the latest available milestone data.
             </p>
           </article>
         </section>
