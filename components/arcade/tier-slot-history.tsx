@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react"
 import type { ArcadeMilestone } from "@/components/arcade/model"
 import {
   MILESTONE_HISTORY_URL,
+  CANONICAL_MILESTONE_HISTORY_URL,
   latestSlotChange,
   decodeSlotHistoryResponse,
   selectSlotWindow,
@@ -38,6 +39,16 @@ export function useTierSlotHistory(): SlotHistoryState {
 
     void fetch(MILESTONE_HISTORY_URL, {
       cache: "no-store", signal: controller.signal,
+    }).then((response) => {
+      // Defensive fallback if an environment override points at a deleted
+      // preview branch. The real public crawler/main feed is authoritative.
+      if (response.status === 404 &&
+          MILESTONE_HISTORY_URL !== CANONICAL_MILESTONE_HISTORY_URL) {
+        return fetch(CANONICAL_MILESTONE_HISTORY_URL, {
+          cache: "no-store", signal: controller.signal,
+        })
+      }
+      return response
     }).then(decodeSlotHistoryResponse).then((result) => {
       if (active) {
         setFeed(result.feed)

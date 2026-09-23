@@ -1,6 +1,9 @@
+export const CANONICAL_MILESTONE_HISTORY_URL =
+  "https://raw.githubusercontent.com/hoangsvit/arcade-crawler/main/data/arcade_milestones_history/latest.json"
+
 export const MILESTONE_HISTORY_URL =
   process.env.NEXT_PUBLIC_ARCADE_MILESTONE_HISTORY_URL ??
-  "https://raw.githubusercontent.com/hoangsvit/arcade-crawler/main/data/arcade_milestones_history/latest.json"
+  CANONICAL_MILESTONE_HISTORY_URL
 
 export type SlotHistoryTier = {
   points: number

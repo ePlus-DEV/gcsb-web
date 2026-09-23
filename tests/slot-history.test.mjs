@@ -96,15 +96,20 @@ test("404 means feed not yet published; other HTTP errors remain retryable failu
   )
 })
 
-test("preview uses real crawler PR branch only until main history is published", () => {
+test("preview always reads permanent crawler main and protects compiled JS against stale branch URLs", () => {
   const panel = readRepoFile("components/arcade/tier-slot-history.tsx")
   const workflow = readRepoFile(".github/workflows/pr-preview.yml")
   assert.match(panel, /status === "pending"/)
   assert.match(panel, /Waiting for the crawler to publish its first history feed/)
   assert.match(panel, /decodeSlotHistoryResponse/)
-  assert.match(workflow, /history_main="https:\/\/raw\.githubusercontent\.com\/hoangsvit\/arcade-crawler\/main/)
-  assert.match(workflow, /feature\/backfill-legacy-slot-history-20260923\/data\/arcade_milestones_history\/latest\.json/)
+  assert.match(workflow, /export NEXT_PUBLIC_ARCADE_MILESTONE_HISTORY_URL="https:\/\/raw\.githubusercontent\.com\/hoangsvit\/arcade-crawler\/main/)
+  assert.match(workflow, /grep -R -F -q/)
+  assert.match(workflow, /Stale deleted crawler branch leaked into compiled preview/)
   assert.match(workflow, /if \[ "\$\{PR_NUMBER\}" = "75" \]/)
+  assert.doesNotMatch(workflow, /export NEXT_PUBLIC_ARCADE_MILESTONE_HISTORY_URL="https:\/\/raw\.githubusercontent\.com\/hoangsvit\/arcade-crawler\/feature\//)
+  const model = readRepoFile("components/arcade/slot-history.ts")
+  assert.match(model, /CANONICAL_MILESTONE_HISTORY_URL/)
+  assert.match(panel, /MILESTONE_HISTORY_URL !== CANONICAL_MILESTONE_HISTORY_URL/)
 })
 
 test("daily unchanged checkpoints do not erase a recent real +/- movement", () => {
