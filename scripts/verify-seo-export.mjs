@@ -28,6 +28,17 @@ for (const [route, lang] of routes) {
   assert.ok(page.includes('data-arcade-swag-nav="true"'), route + ": missing native menu link")
   assert.doesNotMatch(page, /name="robots" content="noindex/i)
 }
+for (const [route, heading] of [
+  ["about", "All the useful Arcade information in one place"],
+  ["guide", "From profile URL to Arcade score"],
+]) {
+  const page = html(route)
+  assert.ok(page.includes(heading), route + ": page-specific content missing")
+  assert.ok(page.includes('href="/guide/"'), route + ": native guide link missing")
+  assert.ok(page.includes('href="/"'), route + ": native calculator link missing")
+  assert.ok(page.includes('rel="canonical" href="https://arcade.eplus.dev/' + route + '/"'), route + ": invalid canonical")
+  assert.doesNotMatch(page, /name="robots" content="noindex/i)
+}
 const vietnamese = html("vi")
 assert.ok(vietnamese.includes("KIỂM TRA"), "Vietnamese heading is not prerendered")
 assert.ok(vietnamese.includes("Hướng dẫn từng bước"), "Vietnamese guide is not prerendered")
