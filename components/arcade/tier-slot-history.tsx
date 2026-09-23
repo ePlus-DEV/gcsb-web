@@ -5,7 +5,7 @@ import type { ArcadeMilestone } from "@/components/arcade/model"
 import {
   MILESTONE_HISTORY_URL,
   latestSlotChange,
-  parseSlotHistory,
+  decodeSlotHistoryResponse,
   selectSlotWindow,
   type SlotHistoryFeed,
   type SlotPeriod,
@@ -14,7 +14,7 @@ import {
 
 export type SlotHistoryState = {
   feed: SlotHistoryFeed | null
-  status: "loading" | "ready" | "unavailable"
+  status: "loading" | "ready" | "pending" | "unavailable"
   retry: () => void
 }
 
@@ -38,13 +38,16 @@ export function useTierSlotHistory(): SlotHistoryState {
 
     void fetch(MILESTONE_HISTORY_URL, {
       cache: "no-store", signal: controller.signal,
-    }).then(async (response) => {
-      if (!response.ok) throw new Error("History unavailable")
-      return parseSlotHistory(await response.json() as unknown)
-    }).then((data) => {
-      if (active) { setFeed(data); setStatus("ready") }
+    }).then(decodeSlotHistoryResponse).then((result) => {
+      if (active) {
+        setFeed(result.feed)
+        setStatus(result.status)
+      }
     }).catch(() => {
-      if (active) setStatus("unavailable")
+      if (active) {
+        setFeed(null)
+        setStatus("unavailable")
+      }
     }).finally(() => window.clearTimeout(timeout))
 
     return () => {
@@ -166,6 +169,11 @@ export function TierSlotHistoryPanel({
         <div className="tier-history-body">
           {status === "loading" ? (
             <p role="status" className="tier-history-muted">Loading slot history…</p>
+          ) : status === "pending" ? (
+            <p role="status" className="tier-history-muted">
+              Waiting for the crawler to publish its first history feed.{" "}
+              <button type="button" className="tier-history-retry" onClick={retry}>Check again</button>
+            </p>
           ) : status === "unavailable" ? (
             <p role="status" className="tier-history-muted">History unavailable.{" "}
               <button type="button" className="tier-history-retry" onClick={retry}>Retry</button>

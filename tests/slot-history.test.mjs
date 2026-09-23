@@ -1,5 +1,4 @@
 import assert from "node:assert/strict"
-import { readFileSync } from "node:fs"
 import test from "node:test"
 import { evaluateTypeScript, readRepoFile } from "./helpers/typescript-source.mjs"
 
@@ -76,4 +75,34 @@ test("browser client and calculator share one real history URL", () => {
   assert.match(component, /24h/)
   assert.match(component, /7d/)
   assert.match(component, /30d/)
+})
+
+test("404 means feed not yet published; other HTTP errors remain retryable failures", async () => {
+  const pending = await mod.decodeSlotHistoryResponse({
+    status: 404, ok: false, json: async () => { throw new Error("should not parse a 404") },
+  })
+  assert.deepEqual(pending, { status: "pending", feed: null })
+  const ready = await mod.decodeSlotHistoryResponse({
+    status: 200, ok: true, json: async () => ({ version: 1, snapshots: [] }),
+  })
+  assert.deepEqual(ready, { status: "ready", feed: { version: 1, snapshots: [] } })
+  await assert.rejects(
+    mod.decodeSlotHistoryResponse({ status: 503, ok: false, json: async () => ({}) }),
+    /request failed: 503/,
+  )
+  await assert.rejects(
+    mod.decodeSlotHistoryResponse({ status: 200, ok: true, json: async () => ({ snapshots: "bad" }) }),
+    /Invalid or oversized/,
+  )
+})
+
+test("preview uses real crawler PR branch only until main history is published", () => {
+  const panel = readRepoFile("components/arcade/tier-slot-history.tsx")
+  const workflow = readRepoFile(".github/workflows/pr-preview.yml")
+  assert.match(panel, /status === "pending"/)
+  assert.match(panel, /Waiting for the crawler to publish its first history feed/)
+  assert.match(panel, /decodeSlotHistoryResponse/)
+  assert.match(workflow, /history_main="https:\/\/raw\.githubusercontent\.com\/hoangsvit\/arcade-crawler\/main/)
+  assert.match(workflow, /feature\/milestone-slot-history-20260923\/data\/arcade_milestones_history\/latest\.json/)
+  assert.match(workflow, /if \[ "\$\{PR_NUMBER\}" = "75" \]/)
 })

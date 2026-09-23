@@ -79,6 +79,24 @@ export function parseSlotHistory(payload: unknown): SlotHistoryFeed {
   return { version: 1, snapshots }
 }
 
+/**
+ * A 404 before the crawler PR is merged is an expected unpublished-feed state,
+ * not a transient network failure. Never fabricate history as a fallback.
+ */
+export async function decodeSlotHistoryResponse(
+  response: Pick<Response, "ok" | "status" | "json">,
+): Promise<
+  | { status: "pending"; feed: null }
+  | { status: "ready"; feed: SlotHistoryFeed }
+> {
+  if (response.status === 404) return { status: "pending", feed: null }
+  if (!response.ok) throw new Error("Slot history request failed: " + response.status)
+  return {
+    status: "ready",
+    feed: parseSlotHistory(await response.json() as unknown),
+  }
+}
+
 export function latestSlotChange(
   feed: SlotHistoryFeed | null,
   points: number,

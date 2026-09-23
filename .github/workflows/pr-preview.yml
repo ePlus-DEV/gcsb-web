@@ -109,6 +109,7 @@ jobs:
         env:
           NEXT_STATIC_EXPORT: "true"
           NEXT_PUBLIC_BASE_PATH: "/pr-preview/pr-${{ github.event.number }}"
+          PR_NUMBER: ${{ github.event.number }}
           NEXT_PUBLIC_ENABLE_ANALYTICS: "false"
           NEXT_PUBLIC_GA_ID: ""
           NEXT_PUBLIC_COOKIE_CONSENT_PREVIEW: "true"
@@ -126,7 +127,20 @@ jobs:
           WXT_COUNTDOWN_ENABLED_ARCADE: ${{ secrets.WXT_COUNTDOWN_ENABLED_ARCADE || vars.WXT_COUNTDOWN_ENABLED_ARCADE }}
           WXT_FORCE_REMOTE_CONFIG: ${{ secrets.WXT_FORCE_REMOTE_CONFIG || vars.WXT_FORCE_REMOTE_CONFIG }}
         run: |
+          set -euo pipefail
           yarn install --frozen-lockfile --non-interactive
+          # PR #75 depends on the history feed introduced by crawler PR #10.
+          # Before #10 merges, main returns 404; point only this preview at
+          # the real, empty test-branch feed so the UI displays "Collecting history".
+          # After main publishes the feed, use the production URL automatically.
+          if [ "${PR_NUMBER}" = "75" ]; then
+            history_main="https://raw.githubusercontent.com/hoangsvit/arcade-crawler/main/data/arcade_milestones_history/latest.json"
+            if ! curl --fail --silent --show-error --location --retry 2 --max-time 15 \
+              "${history_main}" -o /tmp/arcade-slot-history.json; then
+              export NEXT_PUBLIC_ARCADE_MILESTONE_HISTORY_URL="https://raw.githubusercontent.com/hoangsvit/arcade-crawler/feature/milestone-slot-history-20260923/data/arcade_milestones_history/latest.json"
+              echo "Crawler main feed not yet published; preview uses crawler PR #10 branch."
+            fi
+          fi
           yarn build
 
       - name: Verify preview output
