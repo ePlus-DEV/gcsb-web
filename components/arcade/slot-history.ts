@@ -23,7 +23,7 @@ export type SlotHistoryFeed = {
   snapshots: SlotSnapshot[]
 }
 
-export type SlotPeriod = "24h" | "7d" | "30d"
+export type SlotPeriod = "7d" | "14d" | "21d" | "30d"
 export type SlotPoint = {
   at: string
   spotsLeft: number
@@ -38,8 +38,9 @@ export type SlotWindow = {
 }
 
 const PERIOD_MS: Record<SlotPeriod, number> = {
-  "24h": 24 * 60 * 60 * 1000,
   "7d": 7 * 24 * 60 * 60 * 1000,
+  "14d": 14 * 24 * 60 * 60 * 1000,
+  "21d": 21 * 24 * 60 * 60 * 1000,
   "30d": 30 * 24 * 60 * 60 * 1000,
 }
 const EXPECTED_POINTS = [50, 75, 95, 120]
