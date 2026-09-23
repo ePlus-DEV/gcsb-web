@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useRef, useState } from "react"
-import { History, Info, X } from "lucide-react"
+import { Info, X } from "lucide-react"
 import type { ArcadeMilestone } from "@/components/arcade/model"
 import {
   MILESTONE_HISTORY_URL,
@@ -207,7 +207,7 @@ export function TierSlotHistoryPanel({
     <section className="tier-history-panel" aria-label="Prize-slot history">
       <button type="button" className="tier-history-toggle"
         aria-haspopup="dialog" onClick={() => setOpen(true)}>
-        <span className="tier-history-toggle-icon"><History size={17} aria-hidden="true" /></span>
+        <span className="tier-history-toggle-icon" aria-hidden="true">↗</span>
         <span className="tier-history-toggle-copy">
           <strong>Prize slot history</strong>
           <small>See weekly changes and remaining rewards</small>
