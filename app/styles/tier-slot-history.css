@@ -49,3 +49,32 @@ html.light .tier-trends-source{background:#f1edff;color:#6d28d9}
 html.light .tier-trends-about{background:#f8fafc;border-color:#dfe6ef;color:#475569}
 html.light .tier-slot-delta.is-up{color:#15803d}html.light .tier-slot-delta.is-down{color:#be123c}
 @media(max-width:550px){.tier-trends-trigger{gap:8px;padding:10px}.tier-trends-trigger-action{font-size:10px}.tier-trends-filter{font-size:11px!important;padding:8px 3px!important}}
+
+
+/* Four independent, accessible series selectors—two columns on phones. */
+.tier-trends-tier-grid{align-items:stretch!important}
+.tier-trends-tier-card{border-color:#344360!important;background:#151f36!important;color:#e9effb!important;text-align:left!important;transition:border-color .15s,opacity .15s,background .15s}
+.tier-trends-tier-card[data-state=on]{border-color:#7b78af!important;background:#202a46!important;opacity:1}
+.tier-trends-tier-card[data-state=off]{opacity:.52;background:#10182b!important}
+.tier-trends-tier-card:hover{opacity:1;border-color:#a99bfb!important}
+.tier-trends-swatch{display:inline-block;width:9px;height:9px;flex:0 0 9px;border-radius:50%;box-shadow:0 0 0 3px rgba(255,255,255,.05)}
+.tier-trends-check{display:grid;place-items:center;width:18px;height:18px;flex-shrink:0;border:1px solid #556486;border-radius:5px;font-size:12px;font-weight:900;color:#cdd8ed}
+.tier-trends-tier-card[data-state=on] .tier-trends-check{background:#6557bd;border-color:#a99bff;color:#fff}
+.tier-trends-tier-detail,.tier-trends-selection-note{color:#a7b4cd}
+.tier-trends-selection-note{margin:0;font-size:11px;line-height:1.4}
+.tier-trends-tier-delta{font-weight:800;font-variant-numeric:tabular-nums}
+.tier-trends-tier-delta.is-up{color:#7beca5}
+.tier-trends-tier-delta.is-down{color:#ffb4b4}
+.tier-trends-tier-delta.is-flat{color:#b8c4d9}
+.tier-trends-show-all{min-height:32px;padding:5px 10px;border:1px solid #485678;border-radius:8px;color:#d8ccff;font-size:11px;font-weight:750}
+.tier-trends-show-all:disabled{opacity:.45;cursor:default}
+.tier-trends-show-all:not(:disabled):hover{background:#2f2854}
+html.light .tier-trends-tier-card{background:#fff!important;color:#17223b!important;border-color:#dbe3ee!important}
+html.light .tier-trends-tier-card[data-state=on]{background:#f4f2ff!important;border-color:#a29bea!important}
+html.light .tier-trends-tier-card[data-state=off]{background:#f8fafc!important;opacity:.48}
+html.light .tier-trends-tier-detail,html.light .tier-trends-selection-note{color:#67758b}
+html.light .tier-trends-check{border-color:#b5bfd0;color:#718096}
+html.light .tier-trends-show-all{border-color:#d6daee;color:#6343b0}
+html.light .tier-trends-tier-delta.is-up{color:#15803d}
+html.light .tier-trends-tier-delta.is-down{color:#be123c}
+html.light .tier-trends-tier-delta.is-flat{color:#667085}

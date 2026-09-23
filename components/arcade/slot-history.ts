@@ -187,3 +187,59 @@ export function selectSlotWindow(
     latestAt: latest.at,
   }
 }
+
+
+/** A shared timestamp for all four lines: every validated snapshot has all four tiers. */
+export type MultiTierSlotPoint = {
+  at: string
+  trooper: number
+  ranger: number
+  champion: number
+  legend: number
+  source?: { kind: "git-commit"; sha: string }
+}
+
+export type MultiTierSlotWindow = {
+  points: MultiTierSlotPoint[]
+  baselineAt: string | null
+  latestAt: string | null
+  deltas: Record<"trooper" | "ranger" | "champion" | "legend", number | null>
+}
+
+/**
+ * Calculate all four series from the same observed timestamps. This avoids
+ * aligning unrelated points on separate charts or inventing samples.
+ */
+export function selectMultiTierSlotWindow(
+  feed: SlotHistoryFeed,
+  period: SlotPeriod,
+  nowMs = Date.now(),
+): MultiTierSlotWindow {
+  const trooper = selectSlotWindow(feed, 50, period, nowMs)
+  const ranger = selectSlotWindow(feed, 75, period, nowMs)
+  const champion = selectSlotWindow(feed, 95, period, nowMs)
+  const legend = selectSlotWindow(feed, 120, period, nowMs)
+  const series = [ranger, champion, legend]
+  if (series.some((window) => window.points.length !== trooper.points.length ||
+      window.points.some((item, index) => item.at !== trooper.points[index]?.at))) {
+    throw new Error("Misaligned Arcade tier timestamps.")
+  }
+  return {
+    points: trooper.points.map((point, index) => ({
+      at: point.at,
+      trooper: point.spotsLeft,
+      ranger: ranger.points[index].spotsLeft,
+      champion: champion.points[index].spotsLeft,
+      legend: legend.points[index].spotsLeft,
+      ...(point.source ? { source: point.source } : {}),
+    })),
+    baselineAt: trooper.baselineAt,
+    latestAt: trooper.latestAt,
+    deltas: {
+      trooper: trooper.delta,
+      ranger: ranger.delta,
+      champion: champion.delta,
+      legend: legend.delta,
+    },
+  }
+}

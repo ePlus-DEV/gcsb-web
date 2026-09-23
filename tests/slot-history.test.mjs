@@ -80,7 +80,7 @@ test("browser client and calculator share one real history URL", () => {
   assert.match(component, /<DialogTrigger asChild>/)
   assert.match(component, /<DialogContent/)
   assert.match(component, /<ChartContainer/)
-  assert.match(component, /<AreaChart/)
+  assert.match(component, /<LineChart/)
   assert.match(component, /<ToggleGroup/)
   assert.match(component, /<Accordion/)
 })
@@ -208,7 +208,7 @@ test("history opens in an accessible, responsive modal with source info tucked a
   assert.match(component, /<DialogTrigger asChild>/)
   assert.match(component, /<DialogContent/)
   assert.match(component, /<ChartContainer/)
-  assert.match(component, /<AreaChart/)
+  assert.match(component, /<LineChart/)
   assert.match(component, /<Accordion/)
   assert.match(component, /About these numbers/)
   assert.match(component, /Saved observations/)
@@ -226,4 +226,71 @@ test("history chart uses the existing shadcn, Radix, and Recharts components", (
   assert.match(ui, /from "recharts"/)
   assert.doesNotMatch(ui, /<svg/)
   assert.doesNotMatch(ui, /<dialog/)
+})
+
+
+test("all four tier series share observed dates and preserve Git provenance", () => {
+  const sha = "b".repeat(40)
+  const source = { kind: "git-commit", sha }
+  const feed = mod.parseSlotHistory({
+    version: 1,
+    snapshots: [
+      { at: "2026-09-14T00:00:00.000Z", tiers: counts(), source },
+      { at: "2026-09-21T00:00:00.000Z", tiers: counts(3600, 1680, 950, 1490) },
+      { at: "2026-09-23T00:00:00.000Z", tiers: counts(3718, 1622, 781, 1397) },
+    ],
+  })
+  const history = mod.selectMultiTierSlotWindow(feed, "7d", Date.parse("2026-09-23T06:00:00Z"))
+  assert.equal(history.points.length, 3)
+  assert.equal(history.baselineAt, "2026-09-14T00:00:00.000Z")
+  assert.deepEqual(history.points[0].source, source)
+  assert.deepEqual(history.points.map(({trooper, ranger, champion, legend}) =>
+    [trooper, ranger, champion, legend]), [
+    [3514, 1760, 1020, 1511],
+    [3600, 1680, 950, 1490],
+    [3718, 1622, 781, 1397],
+  ])
+  assert.deepEqual(history.deltas, {
+    trooper: 204,
+    ranger: -138,
+    champion: -239,
+    legend: -114,
+  })
+})
+
+test("multi-tier history handles no data, one point and unchanged checkpoints", () => {
+  const empty = mod.selectMultiTierSlotWindow({version: 1, snapshots: []}, "30d",
+    Date.parse("2026-09-23T06:00:00Z"))
+  assert.deepEqual(empty.points, [])
+  assert.deepEqual(empty.deltas, {trooper: null, ranger: null, champion: null, legend: null})
+  const single = mod.selectMultiTierSlotWindow({version: 1, snapshots: [
+    sample("2026-09-23T00:00:00.000Z", counts()),
+  ]}, "7d", Date.parse("2026-09-23T06:00:00Z"))
+  assert.equal(single.points.length, 1)
+  assert.deepEqual(single.deltas, {trooper: null, ranger: null, champion: null, legend: null})
+  const stable = mod.selectMultiTierSlotWindow({version: 1, snapshots: [
+    sample("2026-09-21T00:00:00.000Z", counts()),
+    sample("2026-09-23T00:00:00.000Z", counts()),
+  ]}, "7d", Date.parse("2026-09-23T06:00:00Z"))
+  assert.equal(stable.points.length, 2)
+  assert.deepEqual(stable.deltas, {trooper: 0, ranger: 0, champion: 0, legend: 0})
+})
+
+test("all tier lines are enabled by default and can be independently toggled", () => {
+  const ui = readRepoFile("components/arcade/tier-slot-history.tsx")
+  const css = readRepoFile("app/styles/tier-slot-history.css")
+  assert.match(ui, /useState<TierKey\\[\\]>\(ALL_TIERS\)/)
+  assert.match(ui, /type="multiple" value=\\{visibleTiers\\}/)
+  assert.match(ui, /setVisibleTiers\\(DISPLAY_TIERS\\.filter/)
+  assert.match(ui, /onClick=\\{\\(\\) => setVisibleTiers\\(ALL_TIERS\\)\\}/)
+  assert.match(ui, /DISPLAY_TIERS\\.filter\\(\\(tier\\) => enabled\\.includes\\(tier\\.key\\)\\)\\.map/)
+  assert.match(ui, /<LineChart/)
+  assert.match(ui, /<Line/)
+  assert.match(ui, /All tiers are hidden/)
+  assert.match(ui, /Trooper/)
+  assert.match(ui, /Ranger/)
+  assert.match(ui, /Champion/)
+  assert.match(ui, /Legend/)
+  assert.match(css, /tier-trends-swatch/)
+  assert.match(css, /tier-trends-tier-card/)
 })
