@@ -103,7 +103,7 @@ test("preview uses real crawler PR branch only until main history is published",
   assert.match(panel, /Waiting for the crawler to publish its first history feed/)
   assert.match(panel, /decodeSlotHistoryResponse/)
   assert.match(workflow, /history_main="https:\/\/raw\.githubusercontent\.com\/hoangsvit\/arcade-crawler\/main/)
-  assert.match(workflow, /feature\/milestone-slot-history-20260923\/data\/arcade_milestones_history\/latest\.json/)
+  assert.match(workflow, /feature\/backfill-legacy-slot-history-20260923\/data\/arcade_milestones_history\/latest\.json/)
   assert.match(workflow, /if \[ "\$\{PR_NUMBER\}" = "75" \]/)
 })
 
@@ -136,4 +136,27 @@ test("daily observations with identical slots do not manufacture a change badge"
   })
   assert.equal(mod.latestSlotChange(unchanged, 50, 3514, Date.parse("2026-09-24T04:00:00Z")), null)
   assert.equal(mod.selectSlotWindow(unchanged, 50, "7d", Date.parse("2026-09-24T04:00:00Z")).delta, 0)
+})
+
+test("recovered Git snapshots retain a clearly labelled provenance", () => {
+  const sha = "a".repeat(40)
+  const source = { kind: "git-commit", sha }
+  const original = {
+    version: 1,
+    snapshots: [
+      { at: "2026-09-21T16:41:46.000Z", tiers: counts(), source },
+      { at: "2026-09-23T03:39:30.748Z", tiers: counts(3718, 1622, 781, 1397) },
+    ],
+  }
+  const parsed = mod.parseSlotHistory(original)
+  assert.deepEqual(parsed, original)
+  const window = mod.selectSlotWindow(parsed, 50, "30d", Date.parse("2026-09-23T04:00:00Z"))
+  assert.deepEqual(window.points[0].source, source)
+  assert.equal(window.points[1].source, undefined)
+  assert.throws(() => mod.parseSlotHistory({
+    version: 1, snapshots: [{ ...original.snapshots[0], source: { kind: "git-commit", sha: "bad" } }],
+  }), /Invalid historical Git commit source/)
+  const chart = readRepoFile("components/arcade/tier-slot-history.tsx")
+  assert.match(chart, /not verified original crawl times/)
+  assert.match(chart, /Git commit date, not exact crawl time/)
 })

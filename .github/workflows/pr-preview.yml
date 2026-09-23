@@ -129,16 +129,16 @@ jobs:
         run: |
           set -euo pipefail
           yarn install --frozen-lockfile --non-interactive
-          # PR #75 depends on the history feed introduced by crawler PR #10.
-          # Before #10 merges, main returns 404; point only this preview at
-          # the real, empty test-branch feed so the UI displays "Collecting history".
-          # After main publishes the feed, use the production URL automatically.
+          # PR #75 preview uses the verified historical snapshots in crawler
+          # PR #12 until its commit-labelled backfill is published to main.
+          # Production and unrelated previews continue using crawler/main.
           if [ "${PR_NUMBER}" = "75" ]; then
             history_main="https://raw.githubusercontent.com/hoangsvit/arcade-crawler/main/data/arcade_milestones_history/latest.json"
             if ! curl --fail --silent --show-error --location --retry 2 --max-time 15 \
-              "${history_main}" -o /tmp/arcade-slot-history.json; then
-              export NEXT_PUBLIC_ARCADE_MILESTONE_HISTORY_URL="https://raw.githubusercontent.com/hoangsvit/arcade-crawler/feature/milestone-slot-history-20260923/data/arcade_milestones_history/latest.json"
-              echo "Crawler main feed not yet published; preview uses crawler PR #10 branch."
+              "${history_main}" -o /tmp/arcade-slot-history.json ||
+              ! node -e 'const f=require("/tmp/arcade-slot-history.json");process.exit(f.snapshots?.some(s=>s.source?.kind==="git-commit")?0:1)'; then
+              export NEXT_PUBLIC_ARCADE_MILESTONE_HISTORY_URL="https://raw.githubusercontent.com/hoangsvit/arcade-crawler/feature/backfill-legacy-slot-history-20260923/data/arcade_milestones_history/latest.json"
+              echo "Crawler PR #12 provides the real, commit-labelled historical data for this preview."
             fi
           fi
           yarn build

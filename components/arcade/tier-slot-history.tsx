@@ -126,7 +126,10 @@ function TrendGraph({
         {values.map((item) => (
           <circle key={item.at} cx={x(item.at)} cy={y(item.spotsLeft)} r="4"
             fill="#8b80ff" stroke="#0d1530" strokeWidth="1.5">
-            <title>{dateLabel(item.at) + ": " + item.spotsLeft.toLocaleString("en-US") + " remaining"}</title>
+            <title>{
+              dateLabel(item.at) + ": " + item.spotsLeft.toLocaleString("en-US") + " remaining" +
+              (item.source?.kind === "git-commit" ? " (Git commit date, not exact crawl time)" : "")
+            }</title>
           </circle>
         ))}
         <text x="48" y="169" textAnchor="start" className="tier-history-axis">
@@ -214,11 +217,17 @@ export function TierSlotHistoryPanel({
                   </div>
                   <TrendGraph values={chosen.points} period={period} name={name} now={now} />
                   <p className="tier-history-muted">
-                    Observed: {chosen.latestAt ? dateLabel(chosen.latestAt) : "—"}.
+                    Latest record: {chosen.latestAt ? dateLabel(chosen.latestAt) : "—"}.
                     {" "}Baseline: {chosen.baselineAt ? dateLabel(chosen.baselineAt) : "—"}.
                     {live !== null && live !== latest
                       ? " The latest live count may have changed since this snapshot." : ""}
                   </p>
+                  {chosen.points.some((item) => item.source?.kind === "git-commit") && (
+                    <p className="tier-history-disclaimer">
+                      Earlier points were recovered from saved Git commits. Their dates
+                      are commit times, not verified original crawl times.
+                    </p>
+                  )}
                 </>
               ) : (
                 <p role="status" className="tier-history-muted">

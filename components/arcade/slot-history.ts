@@ -11,6 +11,8 @@ export type SlotHistoryTier = {
 export type SlotSnapshot = {
   at: string
   tiers: SlotHistoryTier[]
+  /** Historical imports use commit time, NOT a guaranteed exact crawl time. */
+  source?: { kind: "git-commit"; sha: string }
 }
 
 export type SlotHistoryFeed = {
@@ -19,7 +21,12 @@ export type SlotHistoryFeed = {
 }
 
 export type SlotPeriod = "24h" | "7d" | "30d"
-export type SlotPoint = { at: string; spotsLeft: number; slots: number }
+export type SlotPoint = {
+  at: string
+  spotsLeft: number
+  slots: number
+  source?: { kind: "git-commit"; sha: string }
+}
 export type SlotWindow = {
   points: SlotPoint[]
   delta: number | null
@@ -74,7 +81,22 @@ export function parseSlotHistory(payload: unknown): SlotHistoryFeed {
     if (!tiers.every((tier, index) => tier.points === EXPECTED_POINTS[index])) {
       throw new Error("Unexpected prize-tier thresholds.")
     }
-    return { at, tiers }
+    const origin = entry.source
+    if (origin !== undefined && (
+      !origin || typeof origin !== "object" || Array.isArray(origin) ||
+      (origin as Record<string, unknown>).kind !== "git-commit" ||
+      typeof (origin as Record<string, unknown>).sha !== "string" ||
+      !/^[a-f0-9]{40}$/.test((origin as { sha: string }).sha)
+    )) {
+      throw new Error("Invalid historical Git commit source.")
+    }
+    return {
+      at,
+      tiers,
+      ...(origin === undefined ? {} : {
+        source: origin as { kind: "git-commit"; sha: string },
+      }),
+    }
   })
   return { version: 1, snapshots }
 }
@@ -147,7 +169,10 @@ export function selectSlotWindow(
   const values = candidates.map((item) => {
     const tier = item.tiers.find((candidate) => candidate.points === points)
     if (!tier) throw new Error("Missing tier observation.")
-    return { at: item.at, spotsLeft: tier.spotsLeft, slots: tier.slots }
+    return {
+      at: item.at, spotsLeft: tier.spotsLeft, slots: tier.slots,
+      ...(item.source ? { source: item.source } : {}),
+    }
   })
   const latest = values[values.length - 1]
   const baseline = values.length >= 2 ? values[0] : null
