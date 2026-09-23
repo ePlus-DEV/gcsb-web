@@ -17,70 +17,237 @@ export const metadata: Metadata = {
   },
 }
 
+const steps = [
+  {
+    number: "01",
+    title: "Open your Google Skills profile",
+    description:
+      "Sign in to Google Skills, open your profile page, and locate the public profile or sharing settings.",
+    detail:
+      "Your public URL normally contains skills.google/public_profiles/ followed by your profile identifier.",
+  },
+  {
+    number: "02",
+    title: "Make the profile public",
+    description:
+      "Enable public profile visibility so your badge list can be viewed without signing in.",
+    detail:
+      "Open the copied URL in a private or incognito window to confirm the profile and badges are publicly visible.",
+  },
+  {
+    number: "03",
+    title: "Copy the complete profile URL",
+    description:
+      "Copy the public profile URL directly from the browser address bar.",
+    detail:
+      "Avoid dashboard URLs, course URLs, badge URLs, shortened links, or pages that still require sign-in.",
+  },
+  {
+    number: "04",
+    title: "Analyze the profile",
+    description:
+      "Paste the public profile URL into Arcade Points and select Analyze profile.",
+    detail:
+      "The calculator reads public badge information and maps recognized badges to supported Arcade points.",
+  },
+  {
+    number: "05",
+    title: "Read your score",
+    description:
+      "Review your total points, badge breakdown, unknown badges, tier progress, and Facilitator information.",
+    detail:
+      "Unknown badges remain visible so a new or renamed badge is not silently excluded from your review.",
+  },
+  {
+    number: "06",
+    title: "Check reward availability",
+    description:
+      "Compare your point tier with the current prize-slot information and reward pages.",
+    detail:
+      "Reaching a threshold does not guarantee a reward. Official program rules, verification, region, timing, and availability still apply.",
+  },
+]
+
+const resultItems = [
+  ["Total points", "Estimated sum of recognized Arcade badge categories."],
+  ["Point breakdown", "Contribution from game, skill, trivia, completion, and special badges."],
+  ["Unknown badges", "Visible badges that do not yet have a verified point mapping."],
+  ["Tier progress", "Your current qualifying threshold and progress toward the next tier."],
+  ["Facilitator", "Separate milestone and bonus information when the program is enabled."],
+]
+
+const errors = [
+  {
+    title: "Profile URL is rejected",
+    body: "Confirm that you copied a public profile URL rather than a badge, course, or signed-in dashboard URL.",
+  },
+  {
+    title: "No badges are found",
+    body: "Open the same profile in an incognito window. If it is hidden or requires sign-in, update its public visibility first.",
+  },
+  {
+    title: "Score looks incomplete",
+    body: "Review the unknown-badge section. New or renamed badges may need verification before they receive a point mapping.",
+  },
+  {
+    title: "Request times out",
+    body: "Wait briefly and retry. Temporary network, upstream profile, or service availability issues can interrupt analysis.",
+  },
+]
+
 export default function GuidePage() {
   return (
     <InternalPageShell
       eyebrow="Step-by-step guide"
       title="How to check your Arcade points"
-      description="Make your Google Skills profile public, copy the correct URL, analyze it, and understand each part of the results dashboard."
+      description="Make your Google Skills profile public, copy the correct URL, analyze it, and understand every important part of the result."
     >
-      <p className="lead">
-        You only need a public Google Skills profile URL. Arcade Points does not require your Google password or a Google sign-in.
-      </p>
+      <div className="not-prose space-y-10">
+        <section className="grid gap-4 rounded-2xl border border-cyan-300/15 bg-cyan-300/[0.045] p-5 sm:grid-cols-[1fr_auto] sm:items-center sm:p-6">
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-[.18em] text-cyan-300">
+              Before you start
+            </span>
+            <h2 className="mt-2 text-xl font-bold text-white sm:text-2xl">
+              You only need a public Google Skills profile URL
+            </h2>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
+              Arcade Points does not need your Google password and does not require a Google sign-in.
+              It works from information already visible on your public profile.
+            </p>
+          </div>
+          <Link
+            href="/"
+            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-cyan-300 px-5 text-sm font-bold text-slate-950 transition hover:bg-cyan-200"
+          >
+            Open calculator
+          </Link>
+        </section>
 
-      <h2>1. Open your Google Skills profile</h2>
-      <p>
-        Sign in to Google Skills, open your profile page, and locate the public profile or sharing settings. Your public URL normally contains <code>skills.google/public_profiles/</code> followed by your profile identifier.
-      </p>
+        <section aria-labelledby="guide-steps-title">
+          <div className="mb-5">
+            <span className="text-[11px] font-bold uppercase tracking-[.18em] text-violet-300">
+              6 simple steps
+            </span>
+            <h2 id="guide-steps-title" className="mt-2 text-2xl font-bold text-white sm:text-3xl">
+              From profile URL to Arcade score
+            </h2>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
+              Each step is independent, so it is easy to identify where a profile or score problem starts.
+            </p>
+          </div>
 
-      <h2>2. Make the profile public</h2>
-      <p>
-        Enable public profile visibility so the badge list can be viewed without signing in. Open the copied URL in a private or incognito window to confirm that the profile and badges are visible publicly.
-      </p>
+          <div className="grid gap-4 lg:grid-cols-2">
+            {steps.map((step) => (
+              <article
+                key={step.number}
+                className="group rounded-2xl border border-white/10 bg-white/[0.035] p-5 transition hover:border-cyan-300/25 hover:bg-white/[0.055] sm:p-6"
+              >
+                <div className="flex items-start gap-4">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-cyan-300/20 bg-cyan-300/10 font-mono text-sm font-black text-cyan-200">
+                    {step.number}
+                  </span>
+                  <div className="min-w-0">
+                    <h3 className="text-base font-bold text-white sm:text-lg">{step.title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-slate-300">{step.description}</p>
+                    <p className="mt-3 border-l border-white/10 pl-3 text-xs leading-5 text-slate-500">
+                      {step.detail}
+                    </p>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
 
-      <h2>3. Copy the complete profile URL</h2>
-      <p>
-        Copy the URL from the browser address bar. Avoid copying a dashboard URL, course URL, badge URL, shortened link, or a page that still requires sign-in.
-      </p>
+        <section className="grid gap-5 xl:grid-cols-[1.1fr_.9fr]">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6">
+            <span className="text-[11px] font-bold uppercase tracking-[.18em] text-emerald-300">
+              Reading the dashboard
+            </span>
+            <h2 className="mt-2 text-2xl font-bold text-white">What each result means</h2>
+            <div className="mt-5 divide-y divide-white/10">
+              {resultItems.map(([title, description]) => (
+                <div key={title} className="grid gap-1 py-4 sm:grid-cols-[150px_1fr] sm:gap-5">
+                  <strong className="text-sm text-slate-100">{title}</strong>
+                  <span className="text-sm leading-6 text-slate-400">{description}</span>
+                </div>
+              ))}
+            </div>
+          </div>
 
-      <h2>4. Analyze the profile</h2>
-      <p>
-        Return to the <Link href="/">Arcade Points calculator</Link>, paste the URL into the profile field, and select <strong>Analyze profile</strong>. The tool retrieves public badge information and calculates supported points.
-      </p>
+          <div className="rounded-2xl border border-violet-300/15 bg-violet-300/[0.045] p-5 sm:p-6">
+            <span className="text-[11px] font-bold uppercase tracking-[.18em] text-violet-300">
+              Reward slots
+            </span>
+            <h2 className="mt-2 text-2xl font-bold text-white">Points and availability are different</h2>
+            <p className="mt-4 text-sm leading-7 text-slate-300">
+              Reaching a tier threshold tells you which tier your score qualifies for. It does not by
+              itself guarantee a reward because some prize pools are limited.
+            </p>
+            <p className="mt-3 text-sm leading-7 text-slate-400">
+              Treat the displayed tier and live slot data as useful tracking information until official
+              Google communications confirm final eligibility and allocation.
+            </p>
+            <div className="mt-5 flex flex-wrap gap-3">
+              <Link
+                href="/swag-drops/2026/"
+                className="inline-flex min-h-10 items-center rounded-lg border border-violet-300/20 bg-violet-300/10 px-4 text-sm font-semibold text-violet-100 transition hover:bg-violet-300/15"
+              >
+                View 2026 rewards
+              </Link>
+              <Link
+                href="/swag-drops/"
+                className="inline-flex min-h-10 items-center rounded-lg border border-white/10 px-4 text-sm font-semibold text-slate-300 transition hover:bg-white/5"
+              >
+                Reward archive
+              </Link>
+            </div>
+          </div>
+        </section>
 
-      <h2>5. Read your score</h2>
-      <ul>
-        <li><strong>Total points:</strong> the estimated sum of recognized badge categories.</li>
-        <li><strong>Point breakdown:</strong> the contribution from game, skill, trivia, completion, and special badges.</li>
-        <li><strong>Unknown badges:</strong> badges that are visible but do not yet have a verified point mapping.</li>
-        <li><strong>Tier progress:</strong> the next point threshold and your estimated qualifying tier.</li>
-        <li><strong>Facilitator:</strong> separate progress or bonus information when supported.</li>
-      </ul>
+        <section aria-labelledby="guide-errors-title">
+          <div className="mb-5">
+            <span className="text-[11px] font-bold uppercase tracking-[.18em] text-amber-300">
+              Troubleshooting
+            </span>
+            <h2 id="guide-errors-title" className="mt-2 text-2xl font-bold text-white sm:text-3xl">
+              Common errors
+            </h2>
+          </div>
 
-      <h2>6. Understand limited reward slots</h2>
-      <p>
-        Reaching a point threshold does not always guarantee a reward. Some tiers have limited quantities and may be assigned based on program rules, timing, verification, region, or availability. Treat the displayed tier as an estimate until confirmed by official communications.
-      </p>
+          <div className="grid gap-4 md:grid-cols-2">
+            {errors.map((error) => (
+              <article key={error.title} className="rounded-2xl border border-white/10 bg-black/10 p-5">
+                <h3 className="text-base font-bold text-white">{error.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-400">{error.body}</p>
+              </article>
+            ))}
+          </div>
+        </section>
 
-      <h2>Common errors</h2>
-      <h3>The profile URL is rejected</h3>
-      <p>Confirm that you copied a public profile URL rather than a badge, course, or signed-in dashboard URL.</p>
-
-      <h3>No badges are found</h3>
-      <p>Open the URL in an incognito window. If the profile is hidden or requires sign-in, update its visibility and try again.</p>
-
-      <h3>The score looks incomplete</h3>
-      <p>
-        Review the unknown badge section. New or renamed badges may need to be verified before they can be included in the point total.
-      </p>
-
-      <h3>The request times out</h3>
-      <p>Wait briefly and retry. Temporary network, upstream profile, or service availability issues can interrupt analysis.</p>
-
-      <h2>Accuracy and official results</h2>
-      <p>
-        Arcade Points provides a community estimate. Official Google Cloud Arcade rules, eligibility checks, communications, and reward confirmation always take precedence. Learn more on the <Link href="/about/">About Arcade Points</Link> page.
-      </p>
+        <section className="overflow-hidden rounded-2xl border border-emerald-300/15 bg-gradient-to-br from-emerald-300/[0.06] via-white/[0.025] to-cyan-300/[0.05] p-5 sm:p-7">
+          <span className="text-[11px] font-bold uppercase tracking-[.18em] text-emerald-300">
+            Accuracy and official results
+          </span>
+          <div className="mt-2 grid gap-5 lg:grid-cols-[1fr_auto] lg:items-end">
+            <div>
+              <h2 className="text-2xl font-bold text-white">Use Arcade Points as a transparent community estimate</h2>
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300">
+                Official Google Cloud Arcade rules, eligibility checks, communications, and reward
+                confirmation always take precedence. Unknown badges and limited public data are shown
+                instead of being hidden so you can review the estimate yourself.
+              </p>
+            </div>
+            <Link
+              href="/about/"
+              className="inline-flex min-h-11 items-center justify-center rounded-xl border border-emerald-300/20 bg-emerald-300/10 px-5 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-300/15"
+            >
+              About Arcade Points
+            </Link>
+          </div>
+        </section>
+      </div>
     </InternalPageShell>
   )
 }
