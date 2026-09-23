@@ -78,3 +78,41 @@ html.light .tier-trends-show-all{border-color:#d6daee;color:#6343b0}
 html.light .tier-trends-tier-delta.is-up{color:#15803d}
 html.light .tier-trends-tier-delta.is-down{color:#be123c}
 html.light .tier-trends-tier-delta.is-flat{color:#667085}
+
+
+/* Keep the history CTA inside the narrow 300–350px Tiers sidebar.
+   The former three flex children included "View trends ↗", forcing the
+   title/description into an unusably narrow column (desktop + tablet). */
+.dashboard-content-grid > .tier-list-panel{min-width:0}
+.tier-list-panel .tier-history-panel{min-width:0;max-width:100%;width:100%}
+.tier-list-panel .tier-trends-trigger{
+  display:grid;
+  grid-template-columns:34px minmax(0,1fr) 24px;
+  align-items:center;
+  column-gap:9px;
+  width:100%;
+  min-width:0;
+  min-height:58px;
+  padding:10px 11px;
+}
+.tier-list-panel .tier-trends-trigger-mark{
+  width:34px;height:34px;min-width:0;flex:none;font-size:18px;
+}
+.tier-list-panel .tier-trends-trigger-copy{display:flex;min-width:0;max-width:100%;gap:3px;overflow:hidden}
+.tier-list-panel .tier-trends-trigger-copy strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}
+.tier-list-panel .tier-trends-trigger-copy small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10px}
+.tier-list-panel .tier-trends-trigger-action{
+  display:grid;place-items:center;justify-self:end;
+  width:24px;height:24px;border:1px solid rgba(190,177,255,.3);
+  border-radius:7px;background:rgba(139,92,246,.13);
+  color:#c9baff;font-size:14px;line-height:1;
+  white-space:nowrap;
+}
+html.light .tier-list-panel .tier-trends-trigger-action{
+  border-color:#d5cdfb;background:#f0ebff;color:#6733c5;
+}
+@media (max-width:360px) {
+  .tier-list-panel .tier-trends-trigger{grid-template-columns:30px minmax(0,1fr) 22px;gap:7px;padding:9px}
+  .tier-list-panel .tier-trends-trigger-mark{width:30px;height:30px}
+  .tier-list-panel .tier-trends-trigger-action{width:22px;height:22px}
+}

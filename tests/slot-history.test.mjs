@@ -294,3 +294,19 @@ test("all tier lines are enabled by default and can be independently toggled", (
   assert.match(css, /tier-trends-swatch/)
   assert.match(css, /tier-trends-tier-card/)
 })
+
+
+test("history launcher does not squeeze text or overflow the 300px desktop tiers sidebar", () => {
+  const ui = readRepoFile("components/arcade/tier-slot-history.tsx")
+  const css = readRepoFile("app/styles/tier-slot-history.css")
+  const responsive = readRepoFile("app/styles/redesign-responsive.css")
+  assert.match(ui, /aria-label="View prize slot history"/)
+  assert.match(ui, /<small>Compare reward tiers<\/small>/)
+  assert.doesNotMatch(ui, /View trends ↗<\/span>/)
+  assert.match(css, /\.tier-list-panel \.tier-trends-trigger\{/)
+  assert.match(css, /grid-template-columns:34px minmax\(0,1fr\) 24px/)
+  assert.match(css, /\.tier-list-panel \.tier-trends-trigger-copy strong\{[^}]*text-overflow:ellipsis/)
+  assert.match(css, /\.tier-list-panel \.tier-trends-trigger-copy small\{[^}]*text-overflow:ellipsis/)
+  assert.match(responsive, /\.dashboard-content-grid\{grid-template-columns:minmax\(0,1fr\) 300px\}/)
+  assert.match(css, /@media \(max-width:360px\)/)
+})

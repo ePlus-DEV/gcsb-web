@@ -225,13 +225,14 @@ export function TierSlotHistoryPanel({
     }}>
       <div className="tier-history-panel" aria-label="Prize-slot history">
         <DialogTrigger asChild>
-          <button type="button" className="tier-trends-trigger" aria-haspopup="dialog">
+          <button type="button" className="tier-trends-trigger"
+            aria-haspopup="dialog" aria-label="View prize slot history">
             <span className="tier-trends-trigger-mark" aria-hidden="true">↗</span>
             <span className="tier-trends-trigger-copy">
               <strong>Prize slot history</strong>
-              <small>Compare all four reward tiers</small>
+              <small>Compare reward tiers</small>
             </span>
-            <span className="tier-trends-trigger-action">View trends ↗</span>
+            <span className="tier-trends-trigger-action" aria-hidden="true">↗</span>
           </button>
         </DialogTrigger>
       </div>
