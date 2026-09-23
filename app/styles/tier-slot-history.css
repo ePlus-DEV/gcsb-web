@@ -1,0 +1,38 @@
+.tier-history-under-empty{position:relative;z-index:1;width:min(1280px,calc(100% - 40px));margin:10px auto 0}
+.tier-history-panel{min-width:0;margin-top:12px;border:1px solid rgba(139,92,246,.24);border-radius:11px;background:rgba(12,22,44,.68);color:#e6edfa}
+.tier-history-toggle{display:flex;width:100%;align-items:center;justify-content:space-between;gap:10px;min-height:44px;padding:10px 13px;border:0;background:transparent;color:#dce5f5;cursor:pointer;text-align:left;font-size:.77rem}
+.tier-history-toggle-label{font-weight:800}
+.tier-history-toggle>span:last-child{color:#bca7ff;font-size:.7rem;white-space:nowrap}
+.tier-history-body{padding:0 13px 14px}
+.tier-history-muted{color:#a1b0c8;font-size:.68rem;line-height:1.6}
+.tier-history-periods,.tier-history-tiers{display:flex;flex-wrap:wrap;gap:5px;margin:12px 0 0}
+.tier-history-periods button,.tier-history-tiers button{flex:1 0 auto;padding:8px 5px;border:1px solid rgba(148,163,184,.18);border-radius:7px;background:rgba(8,19,39,.9);color:#a9b9d0;font-size:.7rem;cursor:pointer}
+.tier-history-periods button.is-active,.tier-history-tiers button.is-active{border-color:rgba(139,92,246,.66);background:rgba(109,53,223,.25);color:#f5f2ff}
+.tier-history-summary{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:16px 0 8px}
+.tier-history-summary strong{font-size:1.4rem;color:#eff3ff}
+.tier-history-summary small{color:#9baac1;font-size:.65rem}
+.tier-history-summary b{font-size:.81rem}
+.tier-history-chart{width:100%;border-radius:9px;background:rgba(0,0,0,.12);overflow:hidden}
+.tier-history-chart svg{display:block;width:100%;max-height:220px}
+.tier-history-grid-line{stroke:rgba(148,163,184,.23);stroke-dasharray:3 3}
+.tier-history-axis{fill:#a1b0c8;font-size:12px}
+.tier-history-disclaimer{margin:10px 0 0;color:#93a5c1;font-size:.65rem;line-height:1.6}
+.tier-history-retry{padding:4px 8px;border:1px solid #8b5cf6;border-radius:6px;background:transparent;color:#d5baff;cursor:pointer}
+.tier-slot-delta{display:inline-block;width:max-content;padding:2px 5px;border-radius:5px;font-size:.62rem;font-weight:700}
+.tier-slot-count .tier-slot-delta{text-align:right;justify-self:end}
+.empty-tier-grid .tier-slot-delta{grid-column:2;justify-self:start}
+.tier-slot-delta.is-up,.tier-history-summary .is-up{color:#4ade80}
+.tier-slot-delta.is-down,.tier-history-summary .is-down{color:#fda4af}
+.tier-slot-delta.is-flat,.tier-history-summary .is-flat{color:#a1b0c8}
+html.light .tier-history-panel{background:#fff;border-color:#d8d5f6;color:#172033}
+html.light .tier-history-toggle,html.light .tier-history-summary strong{color:#172033}
+html.light .tier-history-toggle>span:last-child{color:#6d28d9}
+html.light .tier-history-muted,html.light .tier-history-summary small,html.light .tier-history-disclaimer{color:#52637c}
+html.light .tier-history-periods button,html.light .tier-history-tiers button{background:#f8fafc;color:#475569;border-color:#dbe3ed}
+html.light .tier-history-periods button.is-active,html.light .tier-history-tiers button.is-active{background:#ede9fe;border-color:#a78bfa;color:#5b21b6}
+html.light .tier-history-chart{background:#f8fafc}
+html.light .tier-history-grid-line{stroke:#d5dfed}
+html.light .tier-history-axis{fill:#52637c}
+html.light .tier-slot-delta.is-up,html.light .tier-history-summary .is-up{color:#15803d}
+html.light .tier-slot-delta.is-down,html.light .tier-history-summary .is-down{color:#be123c}
+@media(max-width:600px){.tier-history-under-empty{width:calc(100% - 30px)}.tier-history-chart svg{min-height:150px}.tier-history-toggle{font-size:.73rem}}
