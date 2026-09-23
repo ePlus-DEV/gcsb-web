@@ -105,7 +105,7 @@ test("preview always reads permanent crawler main and protects compiled JS again
   const panel = readRepoFile("components/arcade/tier-slot-history.tsx")
   const workflow = readRepoFile(".github/workflows/pr-preview.yml")
   assert.match(panel, /status === "pending"/)
-  assert.match(panel, /Waiting for the crawler to publish its first history feed/)
+  assert.match(panel, /History has not been published yet/)
   assert.match(panel, /decodeSlotHistoryResponse/)
   assert.match(workflow, /export NEXT_PUBLIC_ARCADE_MILESTONE_HISTORY_URL="https:\/\/raw\.githubusercontent\.com\/hoangsvit\/arcade-crawler\/main/)
   assert.match(workflow, /grep -R -F -q/)
