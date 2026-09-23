@@ -8,6 +8,8 @@ import { ChartContainer, ChartTooltip, type ChartConfig } from "@/components/ui/
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
 import type { ArcadeMilestone } from "@/components/arcade/model"
+import { slotHistoryText, type SlotHistoryTextKey } from "@/components/arcade/slot-history-copy"
+import { getWebsiteLocaleInfo, type WebsiteCatalog, type WebsiteLocale } from "@/lib/website-i18n"
 import {
   MILESTONE_HISTORY_URL,
   CANONICAL_MILESTONE_HISTORY_URL,
@@ -78,21 +80,23 @@ export function useTierSlotHistory(): SlotHistoryState {
 }
 
 export function SlotChangeBadge({
-  feed, points, currentSpotsLeft,
+  feed, points, currentSpotsLeft, catalog, locale,
 }: {
   feed: SlotHistoryFeed | null
   points: number
   currentSpotsLeft: number | null
+  catalog: WebsiteCatalog
+  locale: WebsiteLocale
 }) {
   const change = latestSlotChange(feed, points, currentSpotsLeft)
   if (change === null) return null
   const label = (change > 0 ? "+" : change < 0 ? "−" : "") +
-    Math.abs(change).toLocaleString("en-US")
+    new Intl.NumberFormat(getWebsiteLocaleInfo(locale).htmlLang).format(Math.abs(change))
   return (
     <span
       className={"tier-slot-delta " + (change > 0 ? "is-up" : change < 0 ? "is-down" : "is-flat")}
-      title="Change since the previous recorded observation. An increase does not prove new prizes were added."
-      aria-label={"Change in remaining slots: " + label}
+      title={slotHistoryText(catalog, "changeTitle")}
+      aria-label={slotHistoryText(catalog, "changeAria", { change: label })}
     >
       {change > 0 ? "↑ " : change < 0 ? "↓ " : ""}{label}
     </span>
@@ -117,24 +121,31 @@ const chartConfig = {
   legend: { label: "Legend", color: "#c391ff" },
 } satisfies ChartConfig
 
-function shortDate(value: string): string {
-  return new Date(value).toLocaleDateString(undefined, { month: "short", day: "numeric" })
+function shortDate(value: string, locale: WebsiteLocale): string {
+  return new Date(value).toLocaleDateString(getWebsiteLocaleInfo(locale).htmlLang, {
+    month: "short", day: "numeric",
+  })
 }
 
-function longDate(value: string): string {
-  return new Date(value).toLocaleString(undefined, {
+function longDate(value: string, locale: WebsiteLocale): string {
+  return new Date(value).toLocaleString(getWebsiteLocaleInfo(locale).htmlLang, {
     month: "short", day: "numeric", hour: "numeric", minute: "2-digit",
   })
 }
 
+type SlotText = (key: SlotHistoryTextKey, params?: Record<string, string | number>) => string
+
 function MultiTierHistoryChart({
-  points, enabled, period, now,
+  points, enabled, period, now, locale, t,
 }: {
   points: MultiTierSlotPoint[]
   enabled: TierKey[]
   period: SlotPeriod
   now: number
+  locale: WebsiteLocale
+  t: SlotText
 }) {
+  const numberFormat = new Intl.NumberFormat(getWebsiteLocaleInfo(locale).htmlLang)
   const cutoff = now - Number.parseInt(period, 10) * 86_400_000
   const series = points.map((item) => ({
     ...item,
@@ -152,11 +163,11 @@ function MultiTierHistoryChart({
         <XAxis
           type="number" dataKey="ts" scale="time" domain={[cutoff, now]}
           tickLine={false} axisLine={false} minTickGap={32}
-          tickFormatter={(value: number) => shortDate(new Date(value).toISOString())}
+          tickFormatter={(value: number) => shortDate(new Date(value).toISOString(), locale)}
         />
         <YAxis
           tickLine={false} axisLine={false} width={57}
-          tickFormatter={(value: number) => value.toLocaleString("en-US")}
+          tickFormatter={(value: number) => numberFormat.format(value)}
           domain={["dataMin - 50", "dataMax + 50"]}
           allowDecimals={false}
         />
@@ -167,7 +178,7 @@ function MultiTierHistoryChart({
             const item = payload[0].payload as (typeof series)[number]
             return (
               <div className="tier-trends-tooltip rounded-xl border px-3 py-2.5 text-xs shadow-xl">
-                <p className="font-semibold">{longDate(item.at)}</p>
+                <p className="font-semibold">{longDate(item.at, locale)}</p>
                 <div className="mt-2 grid gap-1.5">
                   {DISPLAY_TIERS.filter((tier) => enabled.includes(tier.key)).map((tier) => (
                     <div className="flex items-center justify-between gap-5" key={tier.key}>
@@ -175,13 +186,10 @@ function MultiTierHistoryChart({
                         <span className="inline-block size-2 rounded-full" style={{ backgroundColor: tier.color }} />
                         {tier.name}
                       </span>
-                      <strong className="tabular-nums">{item[tier.key].toLocaleString("en-US")}</strong>
+                      <strong className="tabular-nums">{t("tooltipValue", { count: numberFormat.format(item[tier.key]) })}</strong>
                     </div>
                   ))}
                 </div>
-                {item.source?.kind === "git-commit" && (
-                  <p className="mt-2 text-[11px] opacity-75">Git commit date, not exact crawl time</p>
-                )}
               </div>
             )
           }}
@@ -202,8 +210,14 @@ function MultiTierHistoryChart({
 }
 
 export function TierSlotHistoryPanel({
-  feed, status, retry, milestones,
-}: SlotHistoryState & { milestones: ArcadeMilestone[] }) {
+  feed, status, retry, milestones, catalog, locale,
+}: SlotHistoryState & {
+  milestones: ArcadeMilestone[]
+  catalog: WebsiteCatalog
+  locale: WebsiteLocale
+}) {
+  const t: SlotText = (key, params) => slotHistoryText(catalog, key, params)
+  const numberFormat = new Intl.NumberFormat(getWebsiteLocaleInfo(locale).htmlLang)
   const [open, setOpen] = useState(false)
   const [period, setPeriod] = useState<SlotPeriod>("30d")
   // All four reward tiers are visible by default; users may hide any or all.
@@ -216,7 +230,6 @@ export function TierSlotHistoryPanel({
     [feed, now, period],
   )
   const comparison = (selectedWindow?.points.length ?? 0) >= 2
-  const recovered = selectedWindow?.points.some((item) => item.source?.kind === "git-commit") ?? false
 
   return (
     <Dialog open={open} onOpenChange={(next) => {
@@ -226,55 +239,55 @@ export function TierSlotHistoryPanel({
       <div className="tier-history-panel" aria-label="Prize-slot history">
         <DialogTrigger asChild>
           <button type="button" className="tier-trends-trigger"
-            aria-haspopup="dialog" aria-label="View prize slot history">
+            aria-haspopup="dialog" aria-label={t("viewAria")}>
             <span className="tier-trends-trigger-mark" aria-hidden="true">↗</span>
             <span className="tier-trends-trigger-copy">
-              <strong>Prize slot history</strong>
-              <small>Compare reward tiers</small>
+              <strong>{t("title")}</strong>
+              <small>{t("subtitle")}</small>
             </span>
             <span className="tier-trends-trigger-action" aria-hidden="true">↗</span>
           </button>
         </DialogTrigger>
       </div>
 
-      <DialogContent className="tier-trends-dialog !w-[calc(100vw-20px)] !max-w-[900px] !gap-0 !rounded-2xl !p-0 max-h-[calc(100dvh-28px)] overflow-y-auto [&>button]:text-slate-400">
+      <DialogContent dir={locale === "ar" ? "rtl" : "ltr"} className="tier-trends-dialog !w-[calc(100vw-20px)] !max-w-[900px] !gap-0 !rounded-2xl !p-0 max-h-[calc(100dvh-28px)] overflow-y-auto [&>button]:text-slate-400">
         <DialogHeader className="tier-trends-header px-5 pb-5 pt-6 text-left sm:px-8 sm:pt-7">
           <span className="text-[10px] font-bold uppercase tracking-[.16em] text-violet-300">
-            ARCADE POINTS / 2026 REWARDS
+            ARCADE POINTS / {t("eyebrow")}
           </span>
           <DialogTitle className="!mt-2 text-[23px] font-extrabold tracking-tight sm:text-[27px]">
-            Prize slot history
+            {t("title")}
           </DialogTitle>
           <DialogDescription className="!mt-2 max-w-lg !text-[13px] !leading-relaxed !text-slate-400">
-            Compare remaining slots across tiers. Tap any tier to show or hide its line.
+            {t("description")}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-5 px-5 pb-6 pt-5 sm:px-8 sm:pb-8">
           {status === "loading" ? (
-            <p className="tier-trends-empty" role="status">Loading history…</p>
+            <p className="tier-trends-empty" role="status">{t("loading")}</p>
           ) : status === "pending" ? (
             <p className="tier-trends-empty" role="status">
-              History has not been published yet.{" "}
-              <button type="button" className="underline" onClick={retry}>Check again</button>
+              {t("pending")}{" "}
+              <button type="button" className="underline" onClick={retry}>{t("checkAgain")}</button>
             </p>
           ) : status === "unavailable" ? (
             <p className="tier-trends-empty" role="status">
-              Could not load history.{" "}
-              <button type="button" className="underline" onClick={retry}>Retry</button>
+              {t("unavailable")}{" "}
+              <button type="button" className="underline" onClick={retry}>{t("retry")}</button>
             </p>
           ) : !feed?.snapshots.length ? (
-            <p className="tier-trends-empty" role="status">Collecting observations. Check back later.</p>
+            <p className="tier-trends-empty" role="status">{t("collecting")}</p>
           ) : (
             <>
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <span className="tier-trends-label !mb-0">TIME RANGE</span>
+                <span className="tier-trends-label !mb-0">{t("timeRange")}</span>
                 <ToggleGroup
                   type="single" value={period}
                   onValueChange={(value) => {
                     if (value) { setPeriod(value as SlotPeriod); setNow(Date.now()) }
                   }}
-                  aria-label="Select history range"
+                  aria-label={t("timeRange")}
                   className="grid w-full grid-cols-4 gap-1.5 rounded-xl p-1 sm:w-auto"
                 >
                   {PERIODS.map((value) => (
@@ -282,21 +295,21 @@ export function TierSlotHistoryPanel({
                       key={value} value={value}
                       className="tier-trends-filter min-w-0 rounded-lg px-3 py-2 text-xs sm:text-sm"
                     >
-                      {value.slice(0, -1)} days
+                      {t("days", { count: value.slice(0, -1) })}
                     </ToggleGroupItem>
                   ))}
                 </ToggleGroup>
               </div>
 
-              <section aria-label="Toggle reward tiers" className="space-y-2.5">
+              <section aria-label={t("toggleTiers")} className="space-y-2.5">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="tier-trends-label !mb-0">REWARD TIERS</span>
+                  <span className="tier-trends-label !mb-0">{t("rewardTiers")}</span>
                   <button
                     type="button" className="tier-trends-show-all"
                     onClick={() => setVisibleTiers(ALL_TIERS)}
                     disabled={visibleTiers.length === ALL_TIERS.length}
                   >
-                    Show all
+                    {t("showAll")}
                   </button>
                 </div>
                 <ToggleGroup
@@ -304,7 +317,7 @@ export function TierSlotHistoryPanel({
                   onValueChange={(values) => {
                     setVisibleTiers(DISPLAY_TIERS.filter((tier) => values.includes(tier.key)).map((tier) => tier.key))
                   }}
-                  aria-label="Show or hide tier lines"
+                  aria-label={t("toggleTiers")}
                   className="tier-trends-tier-grid grid grid-cols-2 gap-2 sm:grid-cols-4"
                 >
                   {DISPLAY_TIERS.map((tier) => {
@@ -316,7 +329,7 @@ export function TierSlotHistoryPanel({
                       <ToggleGroupItem
                         key={tier.key} value={tier.key}
                         className="tier-trends-tier-card group flex h-auto min-h-[105px] min-w-0 flex-col items-start gap-1.5 rounded-xl border p-3 text-left !shadow-none"
-                        aria-label={tier.name + (active ? ", visible" : ", hidden")}
+                        aria-label={tier.name}
                       >
                         <span className="flex w-full items-center justify-between gap-1 text-xs font-bold">
                           <span className="flex min-w-0 items-center gap-2 truncate">
@@ -326,67 +339,62 @@ export function TierSlotHistoryPanel({
                           <span className="tier-trends-check" aria-hidden="true">{active ? "✓" : "+"}</span>
                         </span>
                         <strong className="mt-1 text-xl font-extrabold tabular-nums">
-                          {count?.toLocaleString("en-US") ?? "—"}
+                          {count == null ? "—" : numberFormat.format(count)}
                         </strong>
                         <span className="flex w-full items-center justify-between gap-1 text-[11px]">
-                          <span className="tier-trends-tier-detail">remaining</span>
+                          <span className="tier-trends-tier-detail">{t("remaining")}</span>
                           {delta != null ? (
                             <span
                               className={"tier-trends-tier-delta " + (delta > 0 ? "is-up" : delta < 0 ? "is-down" : "is-flat")}
                             >
                               {(delta > 0 ? "+" : delta < 0 ? "−" : "") +
-                                Math.abs(delta).toLocaleString("en-US")}
+                                numberFormat.format(Math.abs(delta))}
                             </span>
                           ) : null}
                         </span>
                         {live != null && count != null && live !== count ? (
-                          <span className="text-[10px] text-amber-300">Live count differs</span>
+                          <span className="text-[10px] text-amber-300">{t("liveDiffers")}</span>
                         ) : null}
                       </ToggleGroupItem>
                     )
                   })}
                 </ToggleGroup>
                 <p className="tier-trends-selection-note">
-                  {visibleTiers.length} of 4 tiers visible
+                  {t("visibleSummary", { count: numberFormat.format(visibleTiers.length) })}
                   {comparison && selectedWindow?.baselineAt
-                    ? " · Change versus " + shortDate(selectedWindow.baselineAt)
+                    ? t("comparedWith", { date: shortDate(selectedWindow.baselineAt, locale) })
                     : ""}
                 </p>
               </section>
 
               <section className="tier-trends-chart-card rounded-2xl border p-4 sm:p-5"
-                aria-label="Remaining slots comparison chart">
+                aria-label={t("chartTitle")}>
                 <div className="mb-4 flex flex-wrap items-start justify-between gap-2">
                   <div>
-                    <h3 className="text-sm font-bold">Remaining slots</h3>
+                    <h3 className="text-sm font-bold">{t("chartTitle")}</h3>
                     <p className="mt-1 text-xs text-slate-400">
-                      {period.slice(0, -1)} days · Recorded observations
+                      {t("chartSubtitle", { days: period.slice(0, -1) })}
                     </p>
                   </div>
-                  {recovered && (
-                    <span className="tier-trends-source rounded-full px-2.5 py-1 text-[10px] font-semibold">
-                      Recovered history
-                    </span>
-                  )}
                 </div>
                 {visibleTiers.length === 0 ? (
                   <div role="status" className="tier-trends-empty min-h-[220px]">
-                    All tiers are hidden. Select a tier above or click Show all.
+                    {t("noSelection")}
                   </div>
                 ) : selectedWindow && selectedWindow.points.length > 0 ? (
                   <MultiTierHistoryChart
-                    points={selectedWindow.points} enabled={visibleTiers} period={period} now={now}
+                    points={selectedWindow.points} enabled={visibleTiers} period={period} now={now} locale={locale} t={t}
                   />
                 ) : (
                   <div role="status" className="tier-trends-empty min-h-[220px]">
                     {selectedWindow?.latestAt && selectedWindow.points.length === 0
-                      ? "No observations in this range. Try a longer period."
-                      : "Not enough observations to display yet. Try a longer period."}
+                      ? t("noPeriodData")
+                      : t("notEnoughData")}
                   </div>
                 )}
                 <p className="mt-3 text-[11px] leading-relaxed text-slate-500">
-                  Colored dots show saved observations. Lines join the known points; gaps were not continuously measured.
-                  {latest ? " Latest saved: " + longDate(latest.at) + "." : ""}
+                  {t("chartNote")}
+                  {latest ? " " + t("lastSaved", { date: longDate(latest.at, locale) }) : ""}
                 </p>
               </section>
 
@@ -394,14 +402,14 @@ export function TierSlotHistoryPanel({
                 <AccordionItem value="source" className="border-0">
                   <AccordionTrigger className="gap-2 py-3 text-left text-xs font-semibold hover:no-underline">
                     <span className="flex items-center gap-2">
-                      <Info size={15} aria-hidden="true" /> About these numbers
+                      <Info size={15} aria-hidden="true" /> {t("aboutTitle")}
                     </span>
                   </AccordionTrigger>
                   <AccordionContent className="space-y-2 text-xs leading-relaxed">
-                    <p>Counts show published remaining slots, not personal queue positions or reward forecasts.</p>
-                    <p>Each color represents a reward tier. All lines use the same saved observation dates. Counts are absolute remaining slots, not percentages; each tier has a different total capacity.</p>
-                    <p>Earlier points were recovered from saved Git commits. Their dates are commit times, not verified original crawl times. New observations use actual crawler timestamps.</p>
-                    <p>The crawler checks every six hours, but values may stay unchanged for days. An increase does not prove Google added prizes.</p>
+                    <p>{t("aboutCounts")}</p>
+                    <p>{t("aboutCompare")}</p>
+                    <p>{t("aboutDates")}</p>
+                    <p>{t("aboutUpdate")}</p>
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>

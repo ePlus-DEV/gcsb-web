@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { SlotChangeBadge, TierSlotHistoryPanel, useTierSlotHistory } from "@/components/arcade/tier-slot-history"
+import type { WebsiteCatalog, WebsiteLocale } from "@/lib/website-i18n"
 import {
   BadgeCheck,
   Chrome,
@@ -194,9 +195,13 @@ type HeroCopy = { top: string; bottom: string; description: string }
 export default function RedesignCalculator({
   footerContent,
   heroCopy,
+  historyCatalog,
+  historyLocale,
 }: {
   footerContent?: ReactNode
   heroCopy?: HeroCopy
+  historyCatalog: WebsiteCatalog
+  historyLocale: WebsiteLocale
 }) {
   const [profileUrl, setProfileUrl] = useState("")
   const [committedProfileUrl, setCommittedProfileUrl] = useState("")
@@ -842,6 +847,8 @@ export default function RedesignCalculator({
                           feed={slotHistory.feed}
                           points={tier.points}
                           currentSpotsLeft={tier.spotsLeft}
+                  catalog={historyCatalog}
+                  locale={historyLocale}
                         />
                       </div>
                     </div>
@@ -851,7 +858,7 @@ export default function RedesignCalculator({
               <p className="tier-note">
                 Total and remaining spots are refreshed automatically every 6 hours. Your personal queue position is not included in the public data.
               </p>
-              <TierSlotHistoryPanel {...slotHistory} milestones={milestones} />
+              <TierSlotHistoryPanel {...slotHistory} milestones={milestones} catalog={historyCatalog} locale={historyLocale} />
             </aside>
           </div>
 
@@ -941,6 +948,8 @@ export default function RedesignCalculator({
                   feed={slotHistory.feed}
                   points={tier.points}
                   currentSpotsLeft={tier.spotsLeft}
+                  catalog={historyCatalog}
+                  locale={historyLocale}
                 />
               </article>
             ))}
@@ -949,7 +958,7 @@ export default function RedesignCalculator({
       )}
       {!result && (
         <div className="tier-history-under-empty">
-          <TierSlotHistoryPanel {...slotHistory} milestones={milestones} />
+          <TierSlotHistoryPanel {...slotHistory} milestones={milestones} catalog={historyCatalog} locale={historyLocale} />
         </div>
       )}
 
