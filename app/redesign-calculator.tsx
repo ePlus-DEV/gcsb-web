@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import {
   BadgeCheck,
   Chrome,
@@ -21,6 +22,7 @@ import {
 } from "lucide-react"
 import type { FormEvent, ReactNode } from "react"
 import { useEffect, useMemo, useRef, useState } from "react"
+import { CURRENT_SWAG_SEASON, swagSeasonPath } from "@/components/arcade/swag-seasons"
 import { getFacilitatorAdjustedPoints } from "@/components/arcade/facilitator-points"
 import { readFacilitatorParticipation } from "@/components/arcade/facilitator-participation"
 import {
@@ -186,7 +188,15 @@ function readStoredResult(): { profileUrl: string; result: ArcadeApiResponse } |
   }
 }
 
-export default function RedesignCalculator() {
+type HeroCopy = { top: string; bottom: string; description: string }
+
+export default function RedesignCalculator({
+  footerContent,
+  heroCopy,
+}: {
+  footerContent?: ReactNode
+  heroCopy?: HeroCopy
+}) {
   const [profileUrl, setProfileUrl] = useState("")
   const [committedProfileUrl, setCommittedProfileUrl] = useState("")
   const [result, setResult] = useState<ArcadeApiResponse | null>(null)
@@ -530,6 +540,11 @@ export default function RedesignCalculator() {
           <a href="#tiers" onClick={() => setMobileMenuOpen(false)}>Tiers</a>
           <a href="#badges" onClick={() => setMobileMenuOpen(false)}>Badges</a>
           <a href="#extension" onClick={() => setMobileMenuOpen(false)}>Extension</a>
+          <Link
+            data-arcade-swag-nav="true"
+            href={swagSeasonPath(CURRENT_SWAG_SEASON)}
+            onClick={() => setMobileMenuOpen(false)}
+          >Swag Drops</Link>
         </nav>
 
         <div className="arcade-header-actions">
@@ -566,9 +581,9 @@ export default function RedesignCalculator() {
       <section id="top" className="arcade-hero">
         <div className="hero-heading">
           <p className="pixel-kicker"><Sparkles /> Google Cloud Skills Boost Arcade 2026</p>
-          <h1>CHECK YOUR<br /><span>ARCADE SCORE</span></h1>
+          <h1>{heroCopy?.top ?? "CHECK YOUR"}<br /><span>{heroCopy?.bottom ?? "ARCADE SCORE"}</span></h1>
           <p className="hero-description">
-            Analyze your public profile, inspect earned badges and check which 2026 reward tier your score qualifies for.
+            {heroCopy?.description ?? "Analyze your public profile, inspect earned badges and check which 2026 reward tier your score qualifies for."}
           </p>
           <div className="trust-pills">
             <span><ShieldCheck /> Public profile data only</span>
@@ -920,12 +935,21 @@ export default function RedesignCalculator() {
         </section>
       )}
 
+      {footerContent}
+
       <footer className="arcade-footer">
         <div className="arcade-brand footer-brand">
           <span className="arcade-brand-mark"><Gamepad2 /></span>
           <span className="arcade-brand-copy"><strong>ARCADE</strong><b>POINTS</b></span>
         </div>
         <p>Unofficial community calculator by ePlus.DEV. Google remains the authority for final scores and rewards.</p>
+        <nav className="footer-route-links" aria-label="Site information">
+          <Link href="/about/">About</Link>
+          <Link href="/guide/">Guide</Link>
+          <Link href="/swag-drops/">Swag archive</Link>
+          <Link href="/privacy/">Privacy</Link>
+          <Link href="/terms/">Terms</Link>
+        </nav>
         <div className="footer-store-links">
           <a href={CHROME_EXTENSION_URL} target="_blank" rel="noreferrer noopener">
             <Chrome /> Chrome

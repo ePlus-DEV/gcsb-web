@@ -11,7 +11,7 @@ import ProgramCountdown from "@/components/arcade/program-countdown"
 import ShareProfileEnhancer from "@/components/arcade/share-profile-enhancer"
 import SwagDropsPreview from "@/components/arcade/swag-drops-preview"
 import TierStatusIconEnhancer from "@/components/arcade/tier-status-icon-enhancer"
-import ArcadeRouteLinks from "@/components/app/arcade-route-links"
+import HomeSearchGuide from "@/components/seo/home-search-guide"
 import SeoContent from "@/components/seo/seo-content"
 import {
   getWebsiteCanonicalUrl,
@@ -77,14 +77,19 @@ export default async function LocalizedPage({ params }: LocalizedPageProps) {
   const locale = resolveLocale(segment)
   if (!locale) notFound()
 
-  const localeInfo = getWebsiteLocaleInfo(locale)
   const catalog = await readCatalog(locale)
   const { title, description } = getLocalizedSeo(catalog)
 
   return (
     <>
-      <section className="sr-only" lang={localeInfo.htmlLang}><h1>{title}</h1><p>{description}</p></section>
-      <RedesignCalculator />
+      <RedesignCalculator
+        heroCopy={{
+          top: catalog.messages.heroTitleTop,
+          bottom: catalog.messages.heroTitleBottom,
+          description: catalog.messages.heroDescription,
+        }}
+        footerContent={<HomeSearchGuide catalog={catalog} />}
+      />
       <ProgramCountdown />
       <FreshScoreCheckEnhancer />
       <TierStatusIconEnhancer />
@@ -92,7 +97,6 @@ export default async function LocalizedPage({ params }: LocalizedPageProps) {
       <MonthlyGamesPanelGate />
       <ShareProfileEnhancer />
       <FacilitatorAnalyzerOption />
-      <ArcadeRouteLinks />
       <FacilitatorPanelGate />
       <SeoContent locale={locale} title={title} description={description} />
     </>

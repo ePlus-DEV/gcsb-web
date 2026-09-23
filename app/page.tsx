@@ -7,7 +7,8 @@ import ProgramCountdown from "@/components/arcade/program-countdown"
 import ShareProfileEnhancer from "@/components/arcade/share-profile-enhancer"
 import SwagDropsPreview from "@/components/arcade/swag-drops-preview"
 import TierStatusIconEnhancer from "@/components/arcade/tier-status-icon-enhancer"
-import ArcadeRouteLinks from "@/components/app/arcade-route-links"
+import HomeSearchGuide from "@/components/seo/home-search-guide"
+import englishCatalog from "@/public/i18n/locales/en.json"
 import SeoContent from "@/components/seo/seo-content"
 import {
   getWebsiteLanguageAlternates,
@@ -30,7 +31,7 @@ export const metadata: Metadata = {
 export default function Page() {
   return (
     <>
-      <RedesignCalculator />
+      <RedesignCalculator footerContent={<HomeSearchGuide catalog={englishCatalog} />} />
       <ProgramCountdown />
       <FreshScoreCheckEnhancer />
       <TierStatusIconEnhancer />
@@ -38,7 +39,6 @@ export default function Page() {
       <MonthlyGamesPanelGate />
       <ShareProfileEnhancer />
       <FacilitatorAnalyzerOption />
-      <ArcadeRouteLinks />
       <FacilitatorPanelGate />
       <SeoContent />
     </>
