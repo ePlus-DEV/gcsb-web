@@ -43,14 +43,16 @@ test("last change is ± only if fresh and reconciled with the visible live count
   assert.equal(mod.latestSlotChange({ version: 1, snapshots: [two.snapshots[0]] }, 50, 3514, now), null)
 })
 
-test("24h, 7d and 30d windows compare real samples, not fabricated time intervals", () => {
+test("7, 14, 21 and 30 day windows use actual observations", () => {
   const now = Date.parse("2026-09-23T06:00:00Z")
   const feed = mod.parseSlotHistory(two)
   assert.equal(mod.selectSlotWindow(feed, 50, "30d", now).delta, 204)
   assert.equal(mod.selectSlotWindow(feed, 95, "7d", now).delta, -239)
-  const daily = mod.selectSlotWindow(feed, 50, "24h", now)
-  assert.equal(daily.delta, 204) // prior observation is the last known baseline
-  assert.equal(daily.baselineAt, "2026-09-22T00:00:00.000Z")
+  for (const period of ["7d", "14d", "21d", "30d"]) {
+    const selected = mod.selectSlotWindow(feed, 50, period, now)
+    assert.equal(selected.delta, 204, period)
+    assert.equal(selected.baselineAt, "2026-09-22T00:00:00.000Z", period)
+  }
   const sparse = mod.selectSlotWindow({ version: 1, snapshots: [two.snapshots[1]] }, 50, "30d", now)
   assert.equal(sparse.delta, null)
   assert.equal(sparse.points.length, 1)
@@ -59,9 +61,9 @@ test("24h, 7d and 30d windows compare real samples, not fabricated time interval
 test("empty, out-of-window and stale feeds never show made-up changes", () => {
   const now = Date.parse("2026-10-23T00:00:00Z")
   const feed = mod.parseSlotHistory(two)
-  const daily = mod.selectSlotWindow(feed, 50, "24h", now)
-  assert.equal(daily.points.length, 0)
-  assert.equal(daily.delta, null)
+  const weekly = mod.selectSlotWindow(feed, 50, "7d", now)
+  assert.equal(weekly.points.length, 0)
+  assert.equal(weekly.delta, null)
   assert.equal(mod.selectSlotWindow({ version: 1, snapshots: [] }, 50, "30d", now).delta, null)
 })
 
@@ -72,9 +74,12 @@ test("browser client and calculator share one real history URL", () => {
   assert.match(calculator, /useTierSlotHistory/)
   assert.match(calculator, /<TierSlotHistoryPanel/)
   assert.match(calculator, /<SlotChangeBadge/)
-  assert.match(component, /24h/)
-  assert.match(component, /7d/)
-  assert.match(component, /30d/)
+  assert.match(component, /PERIODS: SlotPeriod\[\] = \["7d", "14d", "21d", "30d"\]/)
+  assert.doesNotMatch(component, /"24h"/)
+  assert.match(component, /aria-haspopup="dialog"/)
+  assert.match(component, /aria-labelledby="tier-history-title"/)
+  assert.match(component, /<details className="tier-history-explainer">/)
+  assert.match(component, /dialog\.showModal\(\)/)
 })
 
 test("404 means feed not yet published; other HTTP errors remain retryable failures", async () => {
@@ -164,4 +169,45 @@ test("recovered Git snapshots retain a clearly labelled provenance", () => {
   const chart = readRepoFile("components/arcade/tier-slot-history.tsx")
   assert.match(chart, /not verified original crawl times/)
   assert.match(chart, /Git commit date, not exact crawl time/)
+})
+
+test("7, 14, 21 and 30 days select distinct recorded baselines", () => {
+  const now = Date.parse("2026-09-23T06:00:00Z")
+  const feed = mod.parseSlotHistory({
+    version: 1,
+    snapshots: [
+      sample("2026-08-24T00:00:00.000Z", counts(4200)),
+      sample("2026-09-01T00:00:00.000Z", counts(4000)),
+      sample("2026-09-07T00:00:00.000Z", counts(3800)),
+      sample("2026-09-14T00:00:00.000Z", counts(3514)),
+      sample("2026-09-21T00:00:00.000Z", counts(3600)),
+      sample("2026-09-23T00:00:00.000Z", counts(3718)),
+    ],
+  })
+  const expected = [
+    ["7d", "2026-09-14T00:00:00.000Z", 204],
+    ["14d", "2026-09-07T00:00:00.000Z", -82],
+    ["21d", "2026-09-01T00:00:00.000Z", -282],
+    ["30d", "2026-08-24T00:00:00.000Z", -482],
+  ]
+  for (const [period, baseline, delta] of expected) {
+    const result = mod.selectSlotWindow(feed, 50, period, now)
+    assert.equal(result.baselineAt, baseline, period)
+    assert.equal(result.delta, delta, period)
+    assert.equal(result.points[result.points.length - 1].spotsLeft, 3718, period)
+  }
+})
+
+test("history opens in an accessible, responsive modal with source info tucked away", () => {
+  const component = readRepoFile("components/arcade/tier-slot-history.tsx")
+  const css = readRepoFile("app/styles/tier-slot-history.css")
+  assert.match(component, /aria-haspopup="dialog"/)
+  assert.match(component, /aria-label="Close slot history"/)
+  assert.match(component, /dialogRef\.current\?\.close\(\)/)
+  assert.match(component, /dialog\.showModal\(\)/)
+  assert.match(component, /About these numbers/)
+  assert.match(component, /Saved observations/)
+  assert.match(css, /tier-history-dialog::backdrop/)
+  assert.match(css, /max-height:calc\(100dvh - 28px\)/)
+  assert.match(css, /html\.light \.tier-history-dialog/)
 })
