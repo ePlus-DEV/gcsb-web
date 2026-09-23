@@ -31,6 +31,8 @@ for (const [route, lang] of routes) {
 for (const [route, heading] of [
   ["about", "All the useful Arcade information in one place"],
   ["guide", "From profile URL to Arcade score"],
+  ["privacy", "Your public profile is all the calculator needs"],
+  ["terms", "Clear expectations for a community tool"],
 ]) {
   const page = html(route)
   assert.ok(page.includes(heading), route + ": page-specific content missing")
@@ -39,6 +41,13 @@ for (const [route, heading] of [
   assert.ok(page.includes('rel="canonical" href="https://arcade.eplus.dev/' + route + '/"'), route + ": invalid canonical")
   assert.doesNotMatch(page, /name="robots" content="noindex/i)
 }
+const privacyHtml = html("privacy")
+assert.ok(privacyHtml.includes("View cookie information"), "Privacy cookie information button missing")
+assert.ok(privacyHtml.includes("does not include an analytics disable control"), "Analytics policy disclosure missing")
+assert.ok(privacyHtml.includes("privacy@eplus.dev"), "Privacy contact missing")
+const termsHtml = html("terms")
+assert.ok(termsHtml.includes("Acceptable use"), "Terms acceptable use missing")
+assert.ok(termsHtml.includes("support@eplus.dev"), "Terms contact missing")
 const vietnamese = html("vi")
 assert.ok(vietnamese.includes("KIỂM TRA"), "Vietnamese heading is not prerendered")
 assert.ok(vietnamese.includes("Hướng dẫn từng bước"), "Vietnamese guide is not prerendered")
