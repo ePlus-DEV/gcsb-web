@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
+import { History, Info, X } from "lucide-react"
 import type { ArcadeMilestone } from "@/components/arcade/model"
 import {
   MILESTONE_HISTORY_URL,
@@ -94,10 +95,18 @@ export function SlotChangeBadge({
 }
 
 function dateLabel(value: string): string {
-  return new Date(value).toLocaleString(undefined, {
-    month: "short", day: "2-digit", hour: "2-digit", minute: "2-digit",
+  return new Date(value).toLocaleDateString(undefined, {
+    month: "short", day: "numeric", year: "numeric",
   })
 }
+
+function dateTime(value: string): string {
+  return new Date(value).toLocaleString(undefined, {
+    month: "short", day: "numeric", hour: "2-digit", minute: "2-digit",
+  })
+}
+
+const PERIODS: SlotPeriod[] = ["7d", "14d", "21d", "30d"]
 
 function TrendGraph({
   values, period, name, now,
@@ -107,46 +116,49 @@ function TrendGraph({
   name: string
   now: number
 }) {
-  const days = period === "24h" ? 1 : period === "7d" ? 7 : 30
+  const days = Number.parseInt(period, 10)
   const cutoff = now - days * 86_400_000
-  const lows = values.map((item) => item.spotsLeft)
-  const low = Math.max(0, Math.min(...lows) - Math.max(5, Math.round((Math.max(...lows) - Math.min(...lows)) * .15)))
-  const high = Math.max(...lows) + Math.max(5, Math.round((Math.max(...lows) - Math.min(...lows)) * .15))
-  const x = (at: string) => 48 + (Math.max(cutoff, Date.parse(at)) - cutoff) / (now - cutoff) * 484
-  const y = (value: number) => 16 + (high - value) / Math.max(1, high - low) * 124
-  const path = values.map((point, index) =>
-    (index ? "L" : "M") + x(point.at).toFixed(1) + "," + y(point.spotsLeft).toFixed(1)
-  ).join(" ")
-  const ticks = [...new Set([low, Math.round((high + low) / 2), high])]
+  const numbers = values.map((item) => item.spotsLeft)
+  const min = Math.min(...numbers)
+  const max = Math.max(...numbers)
+  const margin = Math.max(5, Math.round((max - min) * .15))
+  const low = Math.max(0, min - margin)
+  const high = max + margin
+  const x = (at: string) => 54 + (Math.max(cutoff, Date.parse(at)) - cutoff) /
+    Math.max(1, now - cutoff) * 610
+  const y = (n: number) => 20 + (high - n) / Math.max(1, high - low) * 178
+  const path = values.map((item, i) =>
+    (i ? "L" : "M") + x(item.at).toFixed(1) + "," +
+    y(item.spotsLeft).toFixed(1)).join(" ")
 
   return (
     <div className="tier-history-chart">
-      <svg viewBox="0 0 560 180" preserveAspectRatio="xMidYMid meet" role="img"
-        aria-label={"Remaining " + name + " slots, " + period + " recorded trend"}>
-        <title>{"Historical remaining slots for " + name}</title>
-        {ticks.map((tick) => (
+      <svg viewBox="0 0 710 242" preserveAspectRatio="xMidYMid meet" role="img"
+        aria-label={"Saved observations of " + name + " remaining slots over " + days + " days"}>
+        <title>{"Saved remaining slots for " + name}</title>
+        {[low, Math.round((low + high) / 2), high].map((tick) => (
           <g key={tick}>
-            <line x1="48" y1={y(tick)} x2="532" y2={y(tick)} className="tier-history-grid-line" />
-            <text x="42" y={y(tick) + 4} textAnchor="end" className="tier-history-axis">
+            <line x1="54" x2="664" y1={y(tick)} y2={y(tick)} className="tier-history-grid-line" />
+            <text x="45" y={y(tick) + 4} textAnchor="end" className="tier-history-axis">
               {tick.toLocaleString("en-US")}
             </text>
           </g>
         ))}
-        <path d={path} stroke="#8b80ff" strokeWidth="2.5"
-          strokeLinecap="round" strokeLinejoin="round" fill="none" />
+        <path d={path} className="tier-history-line" fill="none"
+          strokeWidth="2.5" strokeDasharray="7 5" />
         {values.map((item) => (
-          <circle key={item.at} cx={x(item.at)} cy={y(item.spotsLeft)} r="4"
-            fill="#8b80ff" stroke="#0d1530" strokeWidth="1.5">
+          <circle key={item.at} cx={x(item.at)} cy={y(item.spotsLeft)} r="5"
+            className="tier-history-point" strokeWidth="2">
             <title>{
-              dateLabel(item.at) + ": " + item.spotsLeft.toLocaleString("en-US") + " remaining" +
+              dateTime(item.at) + ": " + item.spotsLeft.toLocaleString("en-US") + " remaining" +
               (item.source?.kind === "git-commit" ? " (Git commit date, not exact crawl time)" : "")
             }</title>
           </circle>
         ))}
-        <text x="48" y="169" textAnchor="start" className="tier-history-axis">
+        <text x="54" y="231" textAnchor="start" className="tier-history-axis">
           {dateLabel(new Date(cutoff).toISOString())}
         </text>
-        <text x="532" y="169" textAnchor="end" className="tier-history-axis">
+        <text x="664" y="231" textAnchor="end" className="tier-history-axis">
           {dateLabel(new Date(now).toISOString())}
         </text>
       </svg>
@@ -157,104 +169,168 @@ function TrendGraph({
 export function TierSlotHistoryPanel({
   feed, status, retry, milestones,
 }: SlotHistoryState & { milestones: ArcadeMilestone[] }) {
+  const dialogRef = useRef<HTMLDialogElement>(null)
   const [open, setOpen] = useState(false)
   const [period, setPeriod] = useState<SlotPeriod>("30d")
   const [tierPoints, setTierPoints] = useState(50)
   const [now, setNow] = useState(0)
+
   useEffect(() => {
-    if (open) setNow(Date.now())
-  }, [open, period, tierPoints, feed])
+    const dialog = dialogRef.current
+    if (!dialog) return
+    if (open && !dialog.open) {
+      dialog.showModal()
+      setNow(Date.now())
+    } else if (!open && dialog.open) {
+      dialog.close()
+    }
+  }, [open])
 
   const chosen = useMemo(() => feed && now
     ? selectSlotWindow(feed, tierPoints, period, now)
     : null, [feed, tierPoints, period, now])
-  const name = TIERS.find((item) => item.points === tierPoints)?.name ?? "Trooper"
-  const latest = chosen?.points[chosen.points.length - 1]?.spotsLeft
-  const live = milestones.find((item) => item.points === tierPoints)?.spotsLeft
+  const tierName = TIERS.find((tier) => tier.points === tierPoints)?.name ?? "Trooper"
+  const lastSaved = feed?.snapshots[feed.snapshots.length - 1]
+  const lastTier = lastSaved?.tiers.find((tier) => tier.points === tierPoints)
+  const latestCount = lastTier?.spotsLeft
+  const currentCount = milestones.find((tier) => tier.points === tierPoints)?.spotsLeft
+  const delta = chosen?.delta
+  const hasComparison = (chosen?.points.length ?? 0) > 1
+  const recovered = chosen?.points.some((item) => item.source?.kind === "git-commit") ?? false
+
+  const closeDialog = () => {
+    dialogRef.current?.close()
+    setOpen(false)
+  }
 
   return (
     <section className="tier-history-panel" aria-label="Prize-slot history">
       <button type="button" className="tier-history-toggle"
-        aria-expanded={open} onClick={() => setOpen((previous) => !previous)}>
-        <span className="tier-history-toggle-label">↗&nbsp; Prize slot trends</span>
-        <span>{open ? "Hide history ⌃" : "View history ⌄"}</span>
+        aria-haspopup="dialog" onClick={() => setOpen(true)}>
+        <span className="tier-history-toggle-icon"><History size={17} aria-hidden="true" /></span>
+        <span className="tier-history-toggle-copy">
+          <strong>Prize slot history</strong>
+          <small>See weekly changes and remaining rewards</small>
+        </span>
+        <span className="tier-history-toggle-action">View trends ↗</span>
       </button>
-      {open && (
-        <div className="tier-history-body">
-          {status === "loading" ? (
-            <p role="status" className="tier-history-muted">Loading slot history…</p>
-          ) : status === "pending" ? (
-            <p role="status" className="tier-history-muted">
-              Waiting for the crawler to publish its first history feed.{" "}
-              <button type="button" className="tier-history-retry" onClick={retry}>Check again</button>
-            </p>
-          ) : status === "unavailable" ? (
-            <p role="status" className="tier-history-muted">History unavailable.{" "}
-              <button type="button" className="tier-history-retry" onClick={retry}>Retry</button>
-            </p>
-          ) : !feed?.snapshots.length ? (
-            <p role="status" className="tier-history-muted">
-              Collecting history. Real observations begin after the crawler update.
-            </p>
-          ) : (
-            <>
-              <div className="tier-history-periods" role="group" aria-label="History period">
-                {(["24h", "7d", "30d"] as const).map((value) => (
-                  <button type="button" key={value} aria-pressed={period === value}
-                    className={period === value ? "is-active" : ""}
-                    onClick={() => setPeriod(value)}>{value}</button>
-                ))}
-              </div>
-              <div className="tier-history-tiers" role="group" aria-label="Prize tier">
-                {TIERS.map((item) => (
-                  <button type="button" key={item.points}
-                    aria-pressed={tierPoints === item.points}
-                    className={tierPoints === item.points ? "is-active" : ""}
-                    onClick={() => setTierPoints(item.points)}>{item.name}</button>
-                ))}
-              </div>
-              {chosen && chosen.points.length > 1 ? (
-                <>
-                  <div className="tier-history-summary">
-                    <span><strong>{latest?.toLocaleString("en-US")}</strong>
-                      <small> last recorded</small>
-                    </span>
-                    {chosen.delta !== null && (
-                      <b className={chosen.delta > 0 ? "is-up" : chosen.delta < 0 ? "is-down" : "is-flat"}>
-                        {(chosen.delta > 0 ? "+" : chosen.delta < 0 ? "−" : "") +
-                          Math.abs(chosen.delta).toLocaleString("en-US")}
-                      </b>
-                    )}
-                  </div>
-                  <TrendGraph values={chosen.points} period={period} name={name} now={now} />
-                  <p className="tier-history-muted">
-                    Latest record: {chosen.latestAt ? dateLabel(chosen.latestAt) : "—"}.
-                    {" "}Baseline: {chosen.baselineAt ? dateLabel(chosen.baselineAt) : "—"}.
-                    {live !== null && live !== latest
-                      ? " The latest live count may have changed since this snapshot." : ""}
-                  </p>
-                  {chosen.points.some((item) => item.source?.kind === "git-commit") && (
-                    <p className="tier-history-disclaimer">
-                      Earlier points were recovered from saved Git commits. Their dates
-                      are commit times, not verified original crawl times.
-                    </p>
-                  )}
-                </>
-              ) : (
-                <p role="status" className="tier-history-muted">
-                  {chosen?.latestAt && !chosen.points.length
-                    ? "No recorded changes in this period. Last observation: " + dateLabel(chosen.latestAt) + "."
-                    : "Not enough real observations for this period yet."}
-                </p>
-              )}
-              <p className="tier-history-disclaimer">
-                These are changes in published remaining slots, not allocation forecasts.
-                An increase does not prove Google added prizes.
+
+      <dialog ref={dialogRef} className="tier-history-dialog"
+        aria-labelledby="tier-history-title" aria-describedby="tier-history-intro"
+        onClose={() => setOpen(false)}
+        onClick={(event) => {
+          if (event.target === event.currentTarget) closeDialog()
+        }}>
+        <div className="tier-history-dialog-content">
+          <header className="tier-history-dialog-head">
+            <div>
+              <span className="tier-history-eyebrow">ARCADE REWARDS</span>
+              <h2 id="tier-history-title">Prize slot history</h2>
+              <p id="tier-history-intro">See how published remaining slots changed over time.</p>
+            </div>
+            <button type="button" className="tier-history-close"
+              aria-label="Close slot history" onClick={closeDialog}>
+              <X size={18} aria-hidden="true" />
+            </button>
+          </header>
+          <div className="tier-history-body">
+            {status === "loading" ? (
+              <p role="status" className="tier-history-muted">Loading slot history…</p>
+            ) : status === "pending" ? (
+              <p role="status" className="tier-history-muted">
+                History has not been published yet.{" "}
+                <button type="button" className="tier-history-retry" onClick={retry}>Check again</button>
               </p>
-            </>
-          )}
+            ) : status === "unavailable" ? (
+              <p role="status" className="tier-history-muted">
+                Could not load history.{" "}
+                <button type="button" className="tier-history-retry" onClick={retry}>Retry</button>
+              </p>
+            ) : !feed?.snapshots.length ? (
+              <p role="status" className="tier-history-muted">
+                Collecting observations. Charts will appear when recorded data is available.
+              </p>
+            ) : (
+              <>
+                <div className="tier-history-controls">
+                  <div>
+                    <span className="tier-history-label">Reward tier</span>
+                    <div className="tier-history-tiers" role="group" aria-label="Reward tier">
+                      {TIERS.map((tier) => (
+                        <button type="button" key={tier.points}
+                          aria-pressed={tierPoints === tier.points}
+                          className={tierPoints === tier.points ? "is-active" : ""}
+                          onClick={() => setTierPoints(tier.points)}>{tier.name}</button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <span className="tier-history-label">Time range</span>
+                    <div className="tier-history-periods" role="group" aria-label="History period">
+                      {PERIODS.map((value) => (
+                        <button type="button" key={value} aria-pressed={period === value}
+                          className={period === value ? "is-active" : ""}
+                          onClick={() => { setPeriod(value); setNow(Date.now()) }}>
+                          {value.slice(0, -1)} days
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="tier-history-result">
+                  <div>
+                    <span className="tier-history-label">Latest recorded · {tierName}</span>
+                    <div className="tier-history-current">
+                      <strong>{latestCount?.toLocaleString("en-US") ?? "—"}</strong>
+                      <span>slots remaining</span>
+                    </div>
+                    <small>
+                      {lastSaved ? "Saved " + dateTime(lastSaved.at) : "Awaiting a snapshot"}
+                      {currentCount !== undefined && lastSaved && currentCount !== latestCount
+                        ? " · Live count may differ." : ""}
+                    </small>
+                  </div>
+                  {hasComparison && delta !== null && delta !== undefined && (
+                    <div className="tier-history-change">
+                      <b className={delta > 0 ? "is-up" : delta < 0 ? "is-down" : "is-flat"}>
+                        {(delta > 0 ? "+" : delta < 0 ? "−" : "") +
+                          Math.abs(delta).toLocaleString("en-US")}
+                      </b>
+                      <span>vs {chosen?.baselineAt ? dateLabel(chosen.baselineAt) : "earlier record"}</span>
+                    </div>
+                  )}
+                </div>
+
+                {hasComparison && chosen ? (
+                  <>
+                    <TrendGraph values={chosen.points} period={period} name={tierName} now={now} />
+                    <p className="tier-history-chart-note">
+                      Dots are saved observations; dashed lines connect known records.
+                      {recovered ? " Some dates are recovered Git commit timestamps." : ""}
+                    </p>
+                  </>
+                ) : (
+                  <p role="status" className="tier-history-empty">
+                    {chosen?.latestAt && !chosen.points.length
+                      ? "No observations in this range. Try a longer period."
+                      : "Not enough observations to compare yet. Try a longer period."}
+                  </p>
+                )}
+
+                <details className="tier-history-explainer">
+                  <summary><Info size={15} aria-hidden="true" /> About these numbers</summary>
+                  <div className="tier-history-explainer-body">
+                    <p>These are published remaining slot counts, not personal queue positions or reward forecasts.</p>
+                    <p>Older points were recovered from saved Git commits. Their dates are commit times, not verified original crawl times. New observations use crawler timestamps.</p>
+                    <p>The crawler checks every six hours, but counts can remain unchanged for days. Dashed lines connect saved observations; they do not represent continuous measurement. An increase does not prove new prizes were added.</p>
+                  </div>
+                </details>
+              </>
+            )}
+          </div>
         </div>
-      )}
+      </dialog>
     </section>
   )
 }
