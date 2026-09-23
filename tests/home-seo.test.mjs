@@ -4,7 +4,7 @@ import test from "node:test"
 import { readRepoFile } from "./helpers/typescript-source.mjs"
 
 const locales = ["en", "vi", "ja", "ko", "zh_CN", "fr", "de", "es", "pt_BR", "it", "ru", "ar", "hi"]
-const required = ["heroTitleTop", "heroTitleBottom", "heroDescription", "stepGuide", "openProfile", "makePublic", "copyUrl", "analyzeTheProfile", "readScore", "arcadeTiers", "tierNote", "allocationMessage", "accuracyOfficial", "unofficial", "guide", "aboutArcade"]
+const required = ["heroTitleTop", "heroTitleBottom", "heroDescription", "stepGuide", "openProfile", "makePublic", "copyUrl", "analyzeTheProfile", "readScore", "arcadeTiers", "tierNote", "allocationMessage", "accuracyOfficial", "unofficial", "guide", "aboutArcade", "unknownShown"]
 
 test("all published languages can prerender the calculator guide", () => {
   for (const locale of locales) {
@@ -29,4 +29,18 @@ test("homepage navigation and guide have server-renderable native links", () => 
   assert.doesNotMatch(localized, /<section className="sr-only"[^>]*><h1>/)
   assert.match(guide, /id="arcade-seo-guide"/)
   assert.match(guide, /href="\/swag-drops\/2026\/"/)
+})
+
+test("homepage discovery is compact, responsive, and crawlable", () => {
+  const component = readRepoFile("components/seo/home-search-guide.tsx")
+  assert.match(component, /md:grid-cols-3/)
+  assert.match(component, /min\(1280px, calc\(100% - 40px\)\)/)
+  assert.match(component, /dark:bg-white\/\[0\.035\]/)
+  for (const id of ["guide", "rewards", "accuracy"]) {
+    assert.ok(component.includes('data-home-discovery-card="' + id + '"'))
+  }
+  assert.match(component, /href="\/guide\/"/)
+  assert.match(component, /href="\/swag-drops\/2026\/"/)
+  assert.match(component, /href="\/about\/"/)
+  assert.doesNotMatch(component, /lg:grid-cols-2 lg:gap-12/)
 })
