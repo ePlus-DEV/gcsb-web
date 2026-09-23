@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { SlotChangeBadge, TierSlotHistoryPanel, useTierSlotHistory } from "@/components/arcade/tier-slot-history"
 import {
   BadgeCheck,
   Chrome,
@@ -212,6 +213,7 @@ export default function RedesignCalculator({
     })
   const [milestones, setMilestones] = useState<ArcadeMilestone[]>(OFFICIAL_MILESTONES)
   const [milestonesLive, setMilestonesLive] = useState(false)
+  const slotHistory = useTierSlotHistory()
   const abortControllerRef = useRef<AbortController | null>(null)
 
   useEffect(() => {
@@ -836,6 +838,11 @@ export default function RedesignCalculator({
                             ? formatInteger(tier.slots) + " total slots"
                             : "left of " + formatInteger(tier.slots)}
                         </small>
+                        <SlotChangeBadge
+                          feed={slotHistory.feed}
+                          points={tier.points}
+                          currentSpotsLeft={tier.spotsLeft}
+                        />
                       </div>
                     </div>
                   )
@@ -844,6 +851,7 @@ export default function RedesignCalculator({
               <p className="tier-note">
                 Total and remaining spots are refreshed automatically every 6 hours. Your personal queue position is not included in the public data.
               </p>
+              <TierSlotHistoryPanel {...slotHistory} milestones={milestones} />
             </aside>
           </div>
 
@@ -929,10 +937,20 @@ export default function RedesignCalculator({
                       formatInteger(tier.slots) +
                       " left"}
                 </b>
+                <SlotChangeBadge
+                  feed={slotHistory.feed}
+                  points={tier.points}
+                  currentSpotsLeft={tier.spotsLeft}
+                />
               </article>
             ))}
           </div>
         </section>
+      )}
+      {!result && (
+        <div className="tier-history-under-empty">
+          <TierSlotHistoryPanel {...slotHistory} milestones={milestones} />
+        </div>
       )}
 
       {footerContent}
