@@ -58,6 +58,9 @@ jobs:
           WXT_FORCE_REMOTE_CONFIG: ${{ secrets.WXT_FORCE_REMOTE_CONFIG || vars.WXT_FORCE_REMOTE_CONFIG }}
         run: yarn build
 
+      - name: Verify prerendered SEO HTML
+        run: node scripts/verify-seo-export.mjs
+
       - name: Verify production asset paths and analytics
         shell: bash
         run: |
