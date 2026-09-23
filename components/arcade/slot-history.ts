@@ -104,16 +104,30 @@ export function latestSlotChange(
   nowMs = Date.now(),
 ): number | null {
   if (!feed || currentSpotsLeft === null || feed.snapshots.length < 2) return null
-  const latest = feed.snapshots[feed.snapshots.length - 1]
-  const previous = feed.snapshots[feed.snapshots.length - 2]
+  const snapshots = feed.snapshots
+  const latest = snapshots[snapshots.length - 1]
   const currentTier = latest.tiers.find((tier) => tier.points === points)
-  const previousTier = previous.tiers.find((tier) => tier.points === points)
-  if (!currentTier || !previousTier || currentTier.spotsLeft !== currentSpotsLeft) {
-    return null
+  if (!currentTier || currentTier.spotsLeft !== currentSpotsLeft) return null
+  const latestAge = nowMs - Date.parse(latest.at)
+  if (latestAge < -5 * 60_000 || latestAge > 48 * 60 * 60_000) return null
+
+  // The crawler also records a real daily checkpoint when nothing changes.
+  // Skip those identical checkpoints to show the latest actual slot movement,
+  // never a misleading "+0" just because a stable day was recorded.
+  let previousIndex = snapshots.length - 2
+  while (previousIndex >= 0) {
+    const candidate = snapshots[previousIndex].tiers.find((tier) => tier.points === points)
+    if (!candidate) return null
+    if (candidate.spotsLeft !== currentTier.spotsLeft) break
+    previousIndex -= 1
   }
-  const age = nowMs - Date.parse(latest.at)
-  if (age < -5 * 60_000 || age > 48 * 60 * 60_000) return null
-  return currentTier.spotsLeft - previousTier.spotsLeft
+  if (previousIndex < 0) return null
+  const prior = snapshots[previousIndex].tiers.find((tier) => tier.points === points)
+  if (!prior) return null
+  const changeAt = snapshots[previousIndex + 1].at
+  const changeAge = nowMs - Date.parse(changeAt)
+  if (changeAge < -5 * 60_000 || changeAge > 48 * 60 * 60_000) return null
+  return currentTier.spotsLeft - prior.spotsLeft
 }
 
 export function selectSlotWindow(

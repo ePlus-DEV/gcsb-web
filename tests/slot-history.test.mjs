@@ -106,3 +106,34 @@ test("preview uses real crawler PR branch only until main history is published",
   assert.match(workflow, /feature\/milestone-slot-history-20260923\/data\/arcade_milestones_history\/latest\.json/)
   assert.match(workflow, /if \[ "\$\{PR_NUMBER\}" = "75" \]/)
 })
+
+test("daily unchanged checkpoints do not erase a recent real +/- movement", () => {
+  const feed = mod.parseSlotHistory({
+    version: 1,
+    snapshots: [
+      sample("2026-09-22T00:00:00.000Z", counts()),
+      sample("2026-09-23T00:00:00.000Z", counts(3718, 1622, 781, 1397)),
+      sample("2026-09-24T00:00:00.000Z", counts(3718, 1622, 781, 1397)),
+    ],
+  })
+  const nextDay = Date.parse("2026-09-24T04:00:00Z")
+  assert.equal(mod.latestSlotChange(feed, 50, 3718, nextDay), 204)
+  assert.equal(mod.latestSlotChange(feed, 75, 1622, nextDay), -138)
+  assert.equal(mod.latestSlotChange(feed, 95, 781, nextDay), -239)
+  assert.equal(mod.latestSlotChange(feed, 120, 1397, nextDay), -114)
+  assert.equal(mod.latestSlotChange(feed, 50, 3718, Date.parse("2026-09-25T03:00:00Z")), null)
+  assert.equal(mod.latestSlotChange(feed, 50, 3500, nextDay), null)
+})
+
+test("daily observations with identical slots do not manufacture a change badge", () => {
+  const unchanged = mod.parseSlotHistory({
+    version: 1,
+    snapshots: [
+      sample("2026-09-22T00:00:00.000Z", counts()),
+      sample("2026-09-23T00:00:00.000Z", counts()),
+      sample("2026-09-24T00:00:00.000Z", counts()),
+    ],
+  })
+  assert.equal(mod.latestSlotChange(unchanged, 50, 3514, Date.parse("2026-09-24T04:00:00Z")), null)
+  assert.equal(mod.selectSlotWindow(unchanged, 50, "7d", Date.parse("2026-09-24T04:00:00Z")).delta, 0)
+})
