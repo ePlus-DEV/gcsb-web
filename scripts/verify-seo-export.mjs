@@ -14,6 +14,12 @@ for (const href of ["/guide/", "/about/", "/swag-drops/2026/", "/swag-drops/"]) 
 }
 assert.match(home, /id="arcade-seo-guide"/)
 assert.match(home, /Step-by-step guide/)
+for (const id of ["guide", "rewards", "accuracy"]) {
+  assert.ok(
+    home.includes('data-home-discovery-card="' + id + '"'),
+    "Homepage missing compact discovery card: " + id,
+  )
+}
 assert.match(home, /data-arcade-swag-nav="true"/)
 assert.match(home, /<h1[^>]*>CHECK YOUR/)
 assert.match(home, /rel="canonical" href="https:\/\/arcade\.eplus\.dev\/"/)
@@ -23,6 +29,12 @@ for (const [route, lang] of routes) {
   assert.ok(page.includes('lang="' + lang + '"'), route + ": wrong language")
   assert.ok(page.includes('rel="canonical" href="https://arcade.eplus.dev/' + route + '/"'), route + ": canonical")
   assert.ok(page.includes('id="arcade-seo-guide"'), route + ": missing guide")
+  for (const id of ["guide", "rewards", "accuracy"]) {
+    assert.ok(
+      page.includes('data-home-discovery-card="' + id + '"'),
+      route + ": missing discovery card " + id,
+    )
+  }
   assert.ok(page.includes('href="/guide/"'), route + ": missing guide link")
   assert.ok(page.includes('href="/swag-drops/2026/"'), route + ": missing rewards link")
   assert.ok(page.includes('data-arcade-swag-nav="true"'), route + ": missing native menu link")
