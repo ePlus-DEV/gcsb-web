@@ -211,7 +211,7 @@ test("history opens in an accessible, responsive modal with source info tucked a
   assert.match(component, /<LineChart/)
   assert.match(component, /<Accordion/)
   assert.match(component, /About these numbers/)
-  assert.match(component, /Saved observations/)
+  assert.match(component, /Recorded observations/)
   assert.match(css, /html\.light \.tier-trends-dialog/)
 })
 
