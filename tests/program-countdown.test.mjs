@@ -12,6 +12,7 @@ const styles = readFileSync(
 )
 const layout = readFileSync(new URL("../app/layout.tsx", import.meta.url), "utf8")
 const nextConfig = readFileSync(new URL("../next.config.mjs", import.meta.url), "utf8")
+const calculator = readFileSync(new URL("../app/redesign-calculator.tsx", import.meta.url), "utf8")
 const page = readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8")
 const localizedPage = readFileSync(
   new URL("../app/[locale]/page.tsx", import.meta.url),
@@ -23,6 +24,15 @@ test("program countdown is mounted on default and localized homepages", () => {
   assert.match(page, /<ProgramCountdown \/>/)
   assert.match(localizedPage, /import ProgramCountdown/)
   assert.match(localizedPage, /<ProgramCountdown \/>/)
+})
+
+
+test("program countdown keeps a deterministic home position for every locale", () => {
+  assert.match(calculator, /className="program-countdown-host" data-home-order="program-countdown"/)
+  assert.ok(
+    calculator.indexOf('className="program-countdown-host"') <
+      calculator.indexOf('id="extension" className="extension-strip"'),
+  )
 })
 
 test("program countdown uses the same WXT defaults and seasonal fallback as the extension", () => {
