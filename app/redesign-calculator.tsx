@@ -684,6 +684,9 @@ export default function RedesignCalculator({
         </div>
       </section>
 
+      {/* Stable portal anchor: keeps countdown placement identical for every locale. */}
+      <div className="program-countdown-host" data-home-order="program-countdown" />
+
       <section id="extension" className="extension-strip">
         <span className="extension-store-mark"><Download /></span>
         <div className="extension-copy-block">
