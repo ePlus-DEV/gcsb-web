@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { Info } from "lucide-react"
-import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts"
+import { Area, Brush, CartesianGrid, ComposedChart, Line, XAxis, YAxis } from "recharts"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { ChartContainer, ChartTooltip, type ChartConfig } from "@/components/ui/chart"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
@@ -147,65 +147,165 @@ function MultiTierHistoryChart({
 }) {
   const numberFormat = new Intl.NumberFormat(getWebsiteLocaleInfo(locale).htmlLang)
   const cutoff = now - Number.parseInt(period, 10) * 86_400_000
-  const series = points.map((item) => ({
+  const series = useMemo(() => points.map((item) => ({
     ...item,
-    // Older anchor provides the true comparison baseline; show it at the
-    // left edge but preserve its actual date in the hover tooltip.
+    // Preserve the actual observation timestamp for tooltips. The older
+    // baseline sits at the window edge instead of fabricating an observation.
     ts: Math.max(cutoff, Date.parse(item.at)),
-  }))
+  })), [points, cutoff])
+  const visible = DISPLAY_TIERS.filter((tier) => enabled.includes(tier.key))
+  const brushKey = period + ":" + (points[0]?.at ?? "") + ":" + points.length
+  const [zoom, setZoom] = useState<{
+    key: string
+    startIndex: number
+    endIndex: number
+  } | null>(null)
+  const fullEnd = series.length - 1
+  const startIndex = zoom?.key === brushKey
+    ? Math.min(Math.max(0, zoom.startIndex), fullEnd) : 0
+  const endIndex = zoom?.key === brushKey
+    ? Math.min(Math.max(startIndex, zoom.endIndex), fullEnd) : fullEnd
+  const isZoomed = startIndex > 0 || endIndex < fullEnd
+
   return (
-    <ChartContainer config={chartConfig} className="aspect-auto h-[250px] w-full sm:h-[320px]">
-      <LineChart
-        accessibilityLayer data={series}
-        margin={{ top: 14, right: 12, left: -8, bottom: 6 }}
+    <div className="tier-trends-visual">
+      <div className="tier-trends-chart-toolbar">
+        <span className="tier-trends-observation-count">
+          <span aria-hidden="true" className="tier-trends-observation-dot" />
+          {numberFormat.format(series.length)} · {shortDate(points[0].at, locale)}
+          {" — "}{shortDate(points[fullEnd].at, locale)}
+        </span>
+        {isZoomed ? (
+          <button
+            type="button"
+            className="tier-trends-reset-zoom"
+            onClick={() => setZoom(null)}
+            aria-label={t("showAll") + " " + t("timeRange")}
+          >
+            {t("showAll")} ↗
+          </button>
+        ) : null}
+      </div>
+      <ChartContainer
+        config={chartConfig}
+        className="tier-trends-chart-surface aspect-auto h-[290px] w-full sm:h-[380px]"
       >
-        <CartesianGrid vertical={false} strokeDasharray="3 5" />
-        <XAxis
-          type="number" dataKey="ts" scale="time" domain={[cutoff, now]}
-          tickLine={false} axisLine={false} minTickGap={32}
-          tickFormatter={(value: number) => shortDate(new Date(value).toISOString(), locale)}
-        />
-        <YAxis
-          tickLine={false} axisLine={false} width={57}
-          tickFormatter={(value: number) => numberFormat.format(value)}
-          domain={["dataMin - 50", "dataMax + 50"]}
-          allowDecimals={false}
-        />
-        <ChartTooltip
-          cursor={{ stroke: "#98a6cb", strokeDasharray: "4 4" }}
-          content={({ active, payload }) => {
-            if (!active || !payload?.length) return null
-            const item = payload[0].payload as (typeof series)[number]
-            return (
-              <div className="tier-trends-tooltip rounded-xl border px-3 py-2.5 text-xs shadow-xl">
-                <p className="font-semibold">{longDate(item.at, locale)}</p>
-                <div className="mt-2 grid gap-1.5">
-                  {DISPLAY_TIERS.filter((tier) => enabled.includes(tier.key)).map((tier) => (
-                    <div className="flex items-center justify-between gap-5" key={tier.key}>
-                      <span className="flex items-center gap-2">
-                        <span className="inline-block size-2 rounded-full" style={{ backgroundColor: tier.color }} />
-                        {tier.name}
-                      </span>
-                      <strong className="tabular-nums">{t("tooltipValue", { count: numberFormat.format(item[tier.key]) })}</strong>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )
-          }}
-        />
-        {DISPLAY_TIERS.filter((tier) => enabled.includes(tier.key)).map((tier) => (
-          <Line
-            key={tier.key} type="linear" dataKey={tier.key}
-            name={tier.name} stroke={tier.color} strokeWidth={2.6}
-            dot={{ r: 3.5, strokeWidth: 1.5, fill: tier.color }}
-            activeDot={{ r: 6 }}
-            isAnimationActive={false}
-            connectNulls={false}
+        <ComposedChart
+          accessibilityLayer
+          data={series}
+          margin={{ top: 14, right: 12, left: -8, bottom: series.length >= 4 ? 2 : 8 }}
+        >
+          <defs>
+            {DISPLAY_TIERS.map((tier) => (
+              <linearGradient
+                id={"slot-area-" + tier.key}
+                key={tier.key}
+                x1="0" x2="0" y1="0" y2="1"
+              >
+                <stop offset="0%" stopColor={tier.color} stopOpacity={0.23} />
+                <stop offset="95%" stopColor={tier.color} stopOpacity={0} />
+              </linearGradient>
+            ))}
+          </defs>
+          <CartesianGrid vertical={false} strokeDasharray="4 6" />
+          <XAxis
+            type="number"
+            dataKey="ts"
+            scale="time"
+            domain={["dataMin", "dataMax"]}
+            tickLine={false}
+            axisLine={false}
+            minTickGap={30}
+            tickFormatter={(value: number) => shortDate(new Date(value).toISOString(), locale)}
           />
-        ))}
-      </LineChart>
-    </ChartContainer>
+          <YAxis
+            tickLine={false}
+            axisLine={false}
+            width={57}
+            tickFormatter={(value: number) => numberFormat.format(value)}
+            domain={["dataMin - 50", "dataMax + 50"]}
+            allowDecimals={false}
+          />
+          <ChartTooltip
+            isAnimationActive={false}
+            cursor={{ stroke: "#98a6cb", strokeWidth: 1.3, strokeDasharray: "4 4" }}
+            content={({ active, payload }) => {
+              if (!active || !payload?.length) return null
+              const item = payload[0].payload as (typeof series)[number]
+              return (
+                <div className="tier-trends-tooltip rounded-xl border px-3 py-2.5 text-xs shadow-xl">
+                  <p className="font-semibold">{longDate(item.at, locale)}</p>
+                  <div className="mt-2 grid gap-1.5">
+                    {visible.map((tier) => (
+                      <div className="flex items-center justify-between gap-5" key={tier.key}>
+                        <span className="flex items-center gap-2">
+                          <span className="inline-block size-2 rounded-full" style={{ backgroundColor: tier.color }} />
+                          {tier.name}
+                        </span>
+                        <strong className="tabular-nums">
+                          {t("tooltipValue", { count: numberFormat.format(item[tier.key]) })}
+                        </strong>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )
+            }}
+          />
+          {visible.map((tier) => (
+            <Area
+              key={"area-" + tier.key}
+              type="linear"
+              dataKey={tier.key}
+              name={tier.name}
+              stroke="none"
+              fill={"url(#slot-area-" + tier.key + ")"}
+              fillOpacity={1}
+              legendType="none"
+              isAnimationActive={false}
+              connectNulls={false}
+            />
+          ))}
+          {visible.map((tier) => (
+            <Line
+              key={"line-" + tier.key}
+              type="linear"
+              dataKey={tier.key}
+              name={tier.name}
+              stroke={tier.color}
+              strokeWidth={3}
+              style={{ filter: "drop-shadow(0 0 4px " + tier.color + "55)" }}
+              dot={series.length <= 16
+                ? { r: 3.5, strokeWidth: 1.5, fill: tier.color }
+                : false}
+              activeDot={{ r: 6.5, strokeWidth: 2 }}
+              isAnimationActive={false}
+              connectNulls={false}
+            />
+          ))}
+          {series.length >= 4 ? (
+            <Brush
+              dataKey="ts"
+              height={34}
+              stroke="#9887ff"
+              fill="#17213a"
+              travellerWidth={12}
+              tickFormatter={(value: number) => shortDate(new Date(value).toISOString(), locale)}
+              startIndex={startIndex}
+              endIndex={endIndex}
+              onChange={(range) => {
+                if (range.startIndex === undefined || range.endIndex === undefined) return
+                setZoom({
+                  key: brushKey,
+                  startIndex: range.startIndex,
+                  endIndex: range.endIndex,
+                })
+              }}
+            />
+          ) : null}
+        </ComposedChart>
+      </ChartContainer>
+    </div>
   )
 }
 
