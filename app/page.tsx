@@ -31,7 +31,7 @@ export const metadata: Metadata = {
 export default function Page() {
   return (
     <>
-      <RedesignCalculator footerContent={<HomeSearchGuide catalog={englishCatalog} />} />
+      <RedesignCalculator historyCatalog={englishCatalog} historyLocale="en" footerContent={<HomeSearchGuide catalog={englishCatalog} />} />
       <ProgramCountdown />
       <FreshScoreCheckEnhancer />
       <TierStatusIconEnhancer />

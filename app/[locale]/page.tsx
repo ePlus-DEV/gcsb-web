@@ -83,6 +83,8 @@ export default async function LocalizedPage({ params }: LocalizedPageProps) {
   return (
     <>
       <RedesignCalculator
+        historyCatalog={catalog}
+        historyLocale={locale}
         heroCopy={{
           top: catalog.messages.heroTitleTop,
           bottom: catalog.messages.heroTitleBottom,

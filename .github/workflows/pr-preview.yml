@@ -109,6 +109,7 @@ jobs:
         env:
           NEXT_STATIC_EXPORT: "true"
           NEXT_PUBLIC_BASE_PATH: "/pr-preview/pr-${{ github.event.number }}"
+          PR_NUMBER: ${{ github.event.number }}
           NEXT_PUBLIC_ENABLE_ANALYTICS: "false"
           NEXT_PUBLIC_GA_ID: ""
           NEXT_PUBLIC_COOKIE_CONSENT_PREVIEW: "true"
@@ -126,8 +127,25 @@ jobs:
           WXT_COUNTDOWN_ENABLED_ARCADE: ${{ secrets.WXT_COUNTDOWN_ENABLED_ARCADE || vars.WXT_COUNTDOWN_ENABLED_ARCADE }}
           WXT_FORCE_REMOTE_CONFIG: ${{ secrets.WXT_FORCE_REMOTE_CONFIG || vars.WXT_FORCE_REMOTE_CONFIG }}
         run: |
+          set -euo pipefail
           yarn install --frozen-lockfile --non-interactive
+          # PR #75 preview MUST read the permanent main feed. Temporary PR
+          # branch URLs disappear on merge and caused an endless 404/retry UI.
+          if [ "${PR_NUMBER}" = "75" ]; then
+            export NEXT_PUBLIC_ARCADE_MILESTONE_HISTORY_URL="https://raw.githubusercontent.com/hoangsvit/arcade-crawler/main/data/arcade_milestones_history/latest.json"
+            curl --fail --silent --show-error --location --retry 3 --max-time 20 \
+              "${NEXT_PUBLIC_ARCADE_MILESTONE_HISTORY_URL}" -o /tmp/arcade-slot-history.json
+            node -e 'const f=require("/tmp/arcade-slot-history.json"); if (f.version!==1 || !Array.isArray(f.snapshots) || !f.snapshots.length) process.exit(1)'
+          fi
           yarn build
+          if [ "${PR_NUMBER}" = "75" ]; then
+            # Validate the *compiled* JS URL, not only source/workflow text.
+            grep -R -F -q "${NEXT_PUBLIC_ARCADE_MILESTONE_HISTORY_URL}" out/_next/static/chunks
+            if grep -R -F -q "feature/backfill-legacy-slot-history-20260923" out/_next/static/chunks; then
+              echo "Stale deleted crawler branch leaked into compiled preview." >&2
+              exit 1
+            fi
+          fi
 
       - name: Verify preview output
         if: github.event.action != 'closed'
@@ -214,6 +232,15 @@ jobs:
           done
           echo "Preview URL did not become reachable after deployment: ${PREVIEW_URL}" >&2
           exit 1
+
+      - name: Browser regression - cookie notice must not close slot history
+        if: success() && github.event.action != 'closed' && github.event.number == 75
+        working-directory: preview-source
+        env:
+          PREVIEW_URL: https://arcade.eplus.dev/pr-preview/pr-75/
+        run: |
+          yarn playwright install --with-deps chromium
+          node scripts/verify-slot-cookie-preview.mjs
 
       - name: Add preview link to pull request
         if: success()
