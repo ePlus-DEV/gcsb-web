@@ -157,7 +157,7 @@ test("2026 Arcade Backpack is the latest official Ranger drop and generates a pr
   const seasonMeta = readRepoFile("components/arcade/swag-seasons.ts")
   assert.equal(getSwagDropsForSeason(2026)[0]?.id, "arcade-backpack")
   assert.equal(getSwagDropsForTier("ranger", 2026).length, 1)
-  assert.match(preview, /latest\\.tiers/)
+  assert.match(preview, /latest\.tiers/)
   assert.doesNotMatch(preview, /Arcade Champion · Arcade Legend/)
   assert.match(seasonPage, /updated="September 24, 2026"/)
   assert.match(detailPage, /getSwagDropsForSeason\\(season\\)\\.map/)
