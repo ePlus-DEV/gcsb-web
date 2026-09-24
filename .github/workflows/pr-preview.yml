@@ -233,6 +233,15 @@ jobs:
           echo "Preview URL did not become reachable after deployment: ${PREVIEW_URL}" >&2
           exit 1
 
+      - name: Browser regression - cookie notice must not close slot history
+        if: success() && github.event.action != 'closed' && github.event.number == 75
+        working-directory: preview-source
+        env:
+          PREVIEW_URL: https://arcade.eplus.dev/pr-preview/pr-75/
+        run: |
+          yarn playwright install --with-deps chromium
+          node scripts/verify-slot-cookie-preview.mjs
+
       - name: Add preview link to pull request
         if: success()
         uses: actions/github-script@v7

@@ -332,3 +332,20 @@ test("all public slot history strings use a passed catalog and locale", () => {
   assert.doesNotMatch(ui, /"en-US"/)
   assert.doesNotMatch(visible, /git-commit|Git commit|crawler|Recovered history/i)
 })
+
+
+test("cookie notice cannot dismiss the independently opened history dialog", () => {
+  const component = readRepoFile("components/arcade/tier-slot-history.tsx")
+  const cookie = readRepoFile("components/privacy/cookie-consent.tsx")
+  const styles = readRepoFile("app/styles/cookie-consent.css")
+  const workflow = readRepoFile(".github/workflows/pr-preview.yml")
+  const smoke = readRepoFile("scripts/verify-slot-cookie-preview.mjs")
+  assert.match(component, /onInteractOutside=\{\(event\) => \{/)
+  assert.ok(component.includes('target.closest(".cookie-consent-layer")'))
+  assert.match(component, /event\.preventDefault\(\)/)
+  assert.match(cookie, /cookie-consent-card/)
+  assert.match(styles, /z-index: 180/)
+  assert.match(workflow, /Browser regression - cookie notice must not close slot history/)
+  assert.match(workflow, /node scripts\/verify-slot-cookie-preview\.mjs/)
+  assert.match(smoke, /Closing the cookie banner must not close the history dialog/)
+})

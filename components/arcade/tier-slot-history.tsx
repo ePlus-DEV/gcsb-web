@@ -250,7 +250,19 @@ export function TierSlotHistoryPanel({
         </DialogTrigger>
       </div>
 
-      <DialogContent dir={locale === "ar" ? "rtl" : "ltr"} className="tier-trends-dialog !w-[calc(100vw-20px)] !max-w-[900px] !gap-0 !rounded-2xl !p-0 max-h-[calc(100dvh-28px)] overflow-y-auto [&>button]:text-slate-400">
+      <DialogContent
+        dir={locale === "ar" ? "rtl" : "ltr"}
+        className="tier-trends-dialog !w-[calc(100vw-20px)] !max-w-[900px] !gap-0 !rounded-2xl !p-0 max-h-[calc(100dvh-28px)] overflow-y-auto [&>button]:text-slate-400"
+        // The cookie banner is a separate high-z-index overlay. Interacting
+        // with its buttons must not count as dismissal of this history modal.
+        // Keep normal dialog close-button/Escape and unrelated outside clicks.
+        onInteractOutside={(event) => {
+          const target = event.detail.originalEvent.target
+          if (target instanceof Element && target.closest(".cookie-consent-layer")) {
+            event.preventDefault()
+          }
+        }}
+      >
         <DialogHeader className="tier-trends-header px-5 pb-5 pt-6 text-left sm:px-8 sm:pt-7">
           <span className="text-[10px] font-bold uppercase tracking-[.16em] text-violet-300">
             ARCADE POINTS / {t("eyebrow")}
