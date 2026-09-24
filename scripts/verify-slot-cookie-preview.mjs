@@ -97,6 +97,30 @@ try {
   } finally {
     await switchingPage.close()
   }
+  // On the default / page, a remembered language is selected by the global
+  // switcher without a route change. The history React component must follow
+  // that language too, not keep the English SSR catalog from the default page.
+  const storedLocalePage = await browser.newPage({ viewport: { width: 1366, height: 900 } })
+  try {
+    await storedLocalePage.addInitScript(() => {
+      try { localStorage.setItem("arcade-points-locale", "vi") } catch {}
+    })
+    await storedLocalePage.goto(url, { waitUntil: "domcontentloaded", timeout: 30_000 })
+    await storedLocalePage.locator(".website-language-current-code", { hasText: "VI" })
+      .waitFor({ state: "visible", timeout: 20_000 })
+    const localizedButton = storedLocalePage.locator(".tier-trends-trigger").first()
+    await localizedButton.getByText("Lịch sử suất thưởng", { exact: true })
+      .waitFor({ state: "visible", timeout: 20_000 })
+    await localizedButton.click()
+    const dialog = storedLocalePage.getByRole("dialog")
+    await dialog.getByRole("heading", { name: "Lịch sử suất thưởng" })
+      .waitFor({ state: "visible", timeout: 8_000 })
+    await dialog.getByRole("button", { name: "Hiện tất cả" })
+      .waitFor({ state: "visible", timeout: 8_000 })
+    console.log("PASS: remembered Vietnamese on default homepage also localizes React dialog")
+  } finally {
+    await storedLocalePage.close()
+  }
 } finally {
   await browser.close()
 }
