@@ -136,3 +136,31 @@ test("dynamic swag translation patterns are wired through website i18n", () => {
     assert.match(source, new RegExp(`__swag:${key}`))
   }
 })
+
+
+const arcadeBackpackSources = [
+  "The Arcade Backpack",
+  "Arcade Backpack",
+  "A water-resistant everyday backpack announced for the Arcade Ranger tier, with a padded sleeve for laptops up to 15 inches.",
+  "Water-resistant polyester for unexpected rain",
+  "Two main zip compartments with a padded laptop sleeve for devices up to 15 inches",
+  "Padded ergonomic shoulder straps and a ventilated mesh back panel",
+  "Roomy daily-carry storage plus an exterior zippered quick-access pocket",
+  "Black-and-grey color-blocked design with subtle Google Cloud branding",
+  "September 24, 2026",
+  "Ranger receives everything from the Trooper reward family plus The Arcade Backpack as its revealed 2026 Ranger bonus reward.",
+  "Official minimum: 2+ items from the Snowball rule. The Arcade Backpack is now the named Ranger bonus reward; the Trooper core pack remains partially unrevealed.",
+  "The Arcade Backpack is confirmed for Ranger; remaining Trooper-family items are still being revealed."
+]
+
+test("Arcade Backpack copy is available in every website locale", () => {
+  for (const locale of locales) {
+    const catalog = readCatalog(locale)
+    for (const source of arcadeBackpackSources) {
+      assert.equal(typeof catalog.additional?.[source], "string",
+        `${locale} missing Arcade Backpack translation: ${source}`)
+      assert.ok(catalog.additional[source].trim().length > 0,
+        `${locale} has empty Arcade Backpack translation: ${source}`)
+    }
+  }
+})

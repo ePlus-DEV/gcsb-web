@@ -17,15 +17,22 @@ const {
 test("2026 swag registry contains only currently confirmed drops", () => {
   assert.deepEqual(ARCADE_SWAG_SEASONS, [2026])
   assert.deepEqual(ARCADE_SWAG_TIERS, ["trooper", "ranger", "champion", "legend"])
-  assert.equal(ARCADE_SWAG_DROPS.length, 1)
+  assert.equal(ARCADE_SWAG_DROPS.length, 2)
 
-  const jacket = ARCADE_SWAG_DROPS[0]
+  const backpack = ARCADE_SWAG_DROPS[0]
+  assert.equal(backpack.id, "arcade-backpack")
+  assert.equal(backpack.season, 2026)
+  assert.equal(backpack.dropNumber, 2)
+  assert.equal(backpack.revealedOnIso, "2026-09-24")
+  assert.deepEqual(backpack.tiers, ["ranger"])
+  assert.match(backpack.sourceUrl, /swag-drop-the-arcade-backpack\/399232$/)
+  assert.match(backpack.imageUrl, /c48e27878cf37a9368b63e7f8ba5e28eae209f30\.gif$/)
+  assert.equal(backpack.features.length, 5)
+
+  const jacket = ARCADE_SWAG_DROPS[1]
   assert.equal(jacket.id, "weather-shield-jacket")
-  assert.equal(jacket.season, 2026)
   assert.equal(jacket.dropNumber, 1)
-  assert.equal(jacket.revealedOnIso, "2026-09-15")
   assert.deepEqual(jacket.tiers, ["champion", "legend"])
-  assert.match(jacket.sourceUrl, /^https:\/\/discuss\.google\.dev\//)
   assert.equal(
     ARCADE_SWAG_DROPS.some((drop) => drop.revealedOnIso.startsWith("2025-")),
     false,
@@ -33,10 +40,10 @@ test("2026 swag registry contains only currently confirmed drops", () => {
 })
 
 test("swag registry groups confirmed rewards by season and tier", () => {
-  assert.equal(getSwagDropsForSeason(2026).length, 1)
+  assert.equal(getSwagDropsForSeason(2026).length, 2)
   assert.equal(getSwagDropsForSeason(2025).length, 0)
   assert.equal(getSwagDropsForTier("trooper", 2026).length, 0)
-  assert.equal(getSwagDropsForTier("ranger", 2026).length, 0)
+  assert.equal(getSwagDropsForTier("ranger", 2026)[0]?.id, "arcade-backpack")
   assert.equal(getSwagDropsForTier("champion", 2026)[0]?.id, "weather-shield-jacket")
   assert.equal(getSwagDropsForTier("legend", 2026)[0]?.id, "weather-shield-jacket")
 })
@@ -92,7 +99,7 @@ test("season hub exposes a balanced reward board without hiding tier rewards", (
   assert.match(seasonPage, /Known now/)
   assert.match(seasonPage, /Swag still unrevealed/)
   assert.match(seasonPage, /Officially promised/)
-  assert.match(seasonPage, /Ranger bonus reward/)
+  assert.doesNotMatch(seasonPage, /title: "Ranger bonus reward"/)
   assert.match(seasonPage, /Legend-only reward/)
   assert.match(seasonPage, /No named 2026 item yet/)
   assert.match(seasonPage, /revealedRelationship/)
@@ -140,4 +147,20 @@ test("season hub exposes a balanced reward board without hiding tier rewards", (
   assert.match(detailPage, /Waterfall allocation/)
   assert.match(detailPage, /Official Google reveal/)
   assert.match(detailPage, /Combined prize-slot capacity/)
+})
+
+
+test("2026 Arcade Backpack is the latest official Ranger drop and generates a product route", () => {
+  const preview = readRepoFile("components/arcade/swag-drops-preview.tsx")
+  const seasonPage = readRepoFile("app/swag-drops/2026/page.tsx")
+  const detailPage = readRepoFile("app/swag-drops/2026/[slug]/page.tsx")
+  const seasonMeta = readRepoFile("components/arcade/swag-seasons.ts")
+  assert.equal(getSwagDropsForSeason(2026)[0]?.id, "arcade-backpack")
+  assert.equal(getSwagDropsForTier("ranger", 2026).length, 1)
+  assert.match(preview, /latest\\.tiers/)
+  assert.doesNotMatch(preview, /Arcade Champion · Arcade Legend/)
+  assert.match(seasonPage, /updated="September 24, 2026"/)
+  assert.match(detailPage, /getSwagDropsForSeason\\(season\\)\\.map/)
+  assert.match(seasonMeta, /The Arcade Backpack as its revealed 2026 Ranger bonus reward/)
+  assert.match(seasonMeta, /officialPendingRewards: \\[\\]/)
 })

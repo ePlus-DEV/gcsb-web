@@ -129,7 +129,7 @@ function TierPage({ tier }: { tier: ArcadeSwagTier }) {
       eyebrow={`Arcade ${meta.label} · ${season}`}
       title={`Arcade ${meta.label} ${season} rewards`}
       description={`See the current ${season} ${meta.label} reward outlook, live prize-slot availability, revealed swag, officially promised items, projected package size, and the official 2025 package used as a historical reference.`}
-      updated="September 16, 2026"
+      updated="September 24, 2026"
     >
       <BreadcrumbJsonLd label={`Arcade ${meta.label}`} path={path} />
 

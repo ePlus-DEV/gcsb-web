@@ -45,7 +45,9 @@ export default function SwagDropsPreview() {
               {latest.shortName}
             </strong>
             <span className="mt-1 block text-xs font-medium text-slate-500 dark:text-slate-400">
-              Arcade Champion · Arcade Legend
+              {latest.tiers
+                .map((tier) => `Arcade ${tier.charAt(0).toUpperCase() + tier.slice(1)}`)
+                .join(" · ")}
             </span>
           </div>
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition group-hover:border-cyan-300 group-hover:text-cyan-700 dark:border-white/10 dark:text-slate-400 dark:group-hover:border-cyan-400/40 dark:group-hover:text-cyan-200">

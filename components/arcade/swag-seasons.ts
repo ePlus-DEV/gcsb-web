@@ -62,14 +62,14 @@ export const SWAG_TIER_META: Record<
     pointsLabel: "75–94 points",
     slots: 4000,
     rewardRule:
-      "Ranger receives everything from the Trooper reward family plus one additional bonus reward. The individual 2026 item names have not been published yet.",
+      "Ranger receives everything from the Trooper reward family plus The Arcade Backpack as its revealed 2026 Ranger bonus reward.",
     allocationNote:
       "Ranger has its own prize-slot pool. Waterfall allocation is separate from the reward bundle inheritance between Ranger and Trooper.",
     packageRule: "Trooper pack + 1 Ranger bonus · historical estimate ≈6 items",
     knownMinimumItems: "2+",
     knownMinimumNote:
-      "Official minimum: 2+ items from the Snowball rule. Historical estimate: about 6 items if the 2026 Trooper pack follows the 2025 Trooper baseline of about 5, then Ranger adds one bonus reward.",
-    waitingNote: "Ranger bonus reward — item name and details have not been revealed yet.",
+      "Official minimum: 2+ items from the Snowball rule. The Arcade Backpack is now the named Ranger bonus reward; the Trooper core pack remains partially unrevealed.",
+    waitingNote: "The Arcade Backpack is confirmed for Ranger; remaining Trooper-family items are still being revealed.",
     historicalEstimateItems: 6,
     historicalEstimateLabel: "≈6 items",
     historicalEstimateBasis:
@@ -81,7 +81,7 @@ export const SWAG_TIER_META: Record<
       "The Arcade USB Hub",
       "The Arcade Pen Duo",
     ],
-    officialPendingRewards: ["Ranger bonus reward"],
+    officialPendingRewards: [],
   },
   champion: {
     label: "Champion",
