@@ -116,3 +116,36 @@ html.light .tier-list-panel .tier-trends-trigger-action{
   .tier-list-panel .tier-trends-trigger-mark{width:30px;height:30px}
   .tier-list-panel .tier-trends-trigger-action{width:22px;height:22px}
 }
+
+
+/* Interactive slot-history visualization: dark/light Recharts treatment. */
+.tier-trends-visual{min-width:0}
+.tier-trends-chart-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;min-height:28px;margin:0 2px 8px}
+.tier-trends-observation-count{display:inline-flex;align-items:center;gap:8px;font-size:11px;line-height:1.4;font-weight:650;color:#adbad7;white-space:normal}
+.tier-trends-observation-dot{display:inline-block;flex:none;width:7px;height:7px;border-radius:50%;background:#9b8afb;box-shadow:0 0 0 4px rgba(155,138,251,.12)}
+.tier-trends-reset-zoom{min-height:30px;padding:4px 10px;border:1px solid #65578e;border-radius:8px;background:rgba(139,92,246,.15);color:#e1d5ff;font-size:11px;font-weight:750;cursor:pointer;transition:background-color .15s,border-color .15s}
+.tier-trends-reset-zoom:hover{background:rgba(139,92,246,.3);border-color:#a48afa}
+.tier-trends-reset-zoom:focus-visible{outline:2px solid #c4b5fd;outline-offset:2px}
+.tier-trends-chart-surface .recharts-cartesian-axis-tick text{font-size:10px}
+.tier-trends-chart-surface .recharts-line-curve{stroke-linecap:round;stroke-linejoin:round}
+.tier-trends-chart-surface .recharts-active-dot circle{filter:drop-shadow(0 0 5px rgba(255,255,255,.4))}
+.tier-trends-chart-surface .recharts-brush{outline:none}
+.tier-trends-chart-surface .recharts-brush-slide{fill:rgba(152,135,255,.19);stroke:rgba(171,154,255,.65)}
+.tier-trends-chart-surface .recharts-brush-traveller rect{fill:#9887ff;stroke:#d4caff;rx:5}
+.tier-trends-chart-surface .recharts-brush-texts text{fill:#adb7d6;font-size:10px}
+.tier-trends-chart-surface .recharts-brush .recharts-cartesian-axis-tick text{fill:#a6b2cd}
+.tier-trends-tooltip{z-index:30;max-width:min(290px,calc(100vw - 42px));backdrop-filter:blur(16px);box-shadow:0 18px 46px rgba(0,0,0,.4)}
+html.light .tier-trends-observation-count{color:#556780}
+html.light .tier-trends-reset-zoom{background:#f3efff;border-color:#c7b8f4;color:#5b3dab}
+html.light .tier-trends-reset-zoom:hover{background:#eae0ff}
+html.light .tier-trends-chart-surface .recharts-brush-traveller rect{fill:#8871de;stroke:#5f4f9e}
+html.light .tier-trends-chart-surface .recharts-brush-texts text{fill:#556780}
+html.light .tier-trends-chart-surface .recharts-brush-slide{fill:rgba(138,109,221,.14)}
+html.light .tier-trends-chart-surface .recharts-active-dot circle{filter:drop-shadow(0 0 4px rgba(33,44,76,.3))}
+html.light .tier-trends-tooltip{box-shadow:0 14px 42px rgba(30,41,59,.15)}
+@media (max-width:550px){
+  .tier-trends-chart-card{padding:12px!important}
+  .tier-trends-chart-toolbar{margin:0 0 8px;gap:6px}
+  .tier-trends-observation-count{font-size:10px}
+  .tier-trends-chart-surface .recharts-brush-texts text{font-size:9px}
+}
