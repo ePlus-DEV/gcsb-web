@@ -331,6 +331,17 @@ export function TierSlotHistoryPanel({
   )
   const comparison = (selectedWindow?.points.length ?? 0) >= 2
 
+  // Floating page actions must not cover or receive focus above this modal.
+  // CSS :has() handles the initial frame; the body flag also supports older
+  // browsers and is removed when the dialog closes or the page unmounts.
+  useEffect(() => {
+    if (!open) return
+    document.body.dataset.slotHistoryOpen = "true"
+    return () => {
+      delete document.body.dataset.slotHistoryOpen
+    }
+  }, [open])
+
   return (
     <Dialog open={open} onOpenChange={(next) => {
       setOpen(next)
