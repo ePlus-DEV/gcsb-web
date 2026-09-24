@@ -16,6 +16,7 @@ export default function HomeSearchGuide({ catalog }: Props) {
   return (
     <section
       id="arcade-seo-guide"
+      data-home-order="about"
       aria-labelledby="arcade-seo-guide-title"
       className="relative z-[1] mx-auto mt-6 pb-4 sm:mt-8 sm:pb-2"
       style={{ width: "min(1280px, calc(100% - 40px))" }}
