@@ -6,3 +6,10 @@
 .facilitator-launcher::before {
   content: none !important;
 }
+/* Keep the floating Facilitator CTA behind the active prize-slot modal.
+   This also prevents clicks/focus on an obscured launcher. :has() covers the
+   opening frame; the body attribute is a fallback for older engines. */
+body:has(.tier-trends-dialog) .facilitator-launcher,
+body[data-slot-history-open="true"] .facilitator-launcher {
+  display: none !important;
+}
