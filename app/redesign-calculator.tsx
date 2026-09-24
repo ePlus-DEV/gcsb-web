@@ -2,7 +2,13 @@
 
 import Link from "next/link"
 import { SlotChangeBadge, TierSlotHistoryPanel, useTierSlotHistory } from "@/components/arcade/tier-slot-history"
-import type { WebsiteCatalog, WebsiteLocale } from "@/lib/website-i18n"
+import {
+  getWebsiteLocale,
+  getWebsiteLocaleFromPathname,
+  loadWebsiteCatalog,
+  type WebsiteCatalog,
+  type WebsiteLocale,
+} from "@/lib/website-i18n"
 import {
   BadgeCheck,
   Chrome,
@@ -219,6 +225,49 @@ export default function RedesignCalculator({
   const [milestones, setMilestones] = useState<ArcadeMilestone[]>(OFFICIAL_MILESTONES)
   const [milestonesLive, setMilestonesLive] = useState(false)
   const slotHistory = useTierSlotHistory()
+
+  // Localized routes are prerendered with their correct catalog. The default
+  // homepage can also be translated in place from the user's stored/browser
+  // language, however. Keep this React-controlled modal synchronized with
+  // the global language selector rather than freezing it to English SSR props.
+  const [activeHistoryLanguage, setActiveHistoryLanguage] = useState({
+    locale: historyLocale,
+    catalog: historyCatalog,
+  })
+  useEffect(() => {
+    let active = true
+    let requestedLocale = historyLocale
+
+    const syncHistoryLocale = () => {
+      const explicitLocale = getWebsiteLocaleFromPathname(window.location.pathname)
+      const selectedLocale = explicitLocale ??
+        getWebsiteLocale(document.documentElement.dataset.locale)
+      if (requestedLocale === selectedLocale) return
+      requestedLocale = selectedLocale
+
+      void loadWebsiteCatalog(selectedLocale)
+        .then((catalog) => {
+          if (active && requestedLocale === selectedLocale) {
+            setActiveHistoryLanguage({ locale: selectedLocale, catalog })
+          }
+        })
+        .catch(() => {
+          // Keep the existing catalog and retry on the next locale change.
+        })
+    }
+
+    const observer = new MutationObserver(syncHistoryLocale)
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-locale"],
+    })
+    syncHistoryLocale()
+    return () => {
+      active = false
+      observer.disconnect()
+    }
+  }, [historyCatalog, historyLocale])
+
   const abortControllerRef = useRef<AbortController | null>(null)
 
   useEffect(() => {
@@ -847,8 +896,8 @@ export default function RedesignCalculator({
                           feed={slotHistory.feed}
                           points={tier.points}
                           currentSpotsLeft={tier.spotsLeft}
-                  catalog={historyCatalog}
-                  locale={historyLocale}
+                  catalog={activeHistoryLanguage.catalog}
+                  locale={activeHistoryLanguage.locale}
                         />
                       </div>
                     </div>
@@ -858,7 +907,7 @@ export default function RedesignCalculator({
               <p className="tier-note">
                 Total and remaining spots are refreshed automatically every 6 hours. Your personal queue position is not included in the public data.
               </p>
-              <TierSlotHistoryPanel {...slotHistory} milestones={milestones} catalog={historyCatalog} locale={historyLocale} />
+              <TierSlotHistoryPanel {...slotHistory} milestones={milestones} catalog={activeHistoryLanguage.catalog} locale={activeHistoryLanguage.locale} />
             </aside>
           </div>
 
@@ -948,8 +997,8 @@ export default function RedesignCalculator({
                   feed={slotHistory.feed}
                   points={tier.points}
                   currentSpotsLeft={tier.spotsLeft}
-                  catalog={historyCatalog}
-                  locale={historyLocale}
+                  catalog={activeHistoryLanguage.catalog}
+                  locale={activeHistoryLanguage.locale}
                 />
               </article>
             ))}
@@ -958,7 +1007,7 @@ export default function RedesignCalculator({
       )}
       {!result && (
         <div className="tier-history-under-empty">
-          <TierSlotHistoryPanel {...slotHistory} milestones={milestones} catalog={historyCatalog} locale={historyLocale} />
+          <TierSlotHistoryPanel {...slotHistory} milestones={milestones} catalog={activeHistoryLanguage.catalog} locale={activeHistoryLanguage.locale} />
         </div>
       )}
 
