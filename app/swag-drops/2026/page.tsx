@@ -49,12 +49,6 @@ const TIER_START_POINTS: Record<ArcadeSwagTier, number> = {
 const OFFICIAL_UNNAMED_REWARDS: Partial<
   Record<ArcadeSwagTier, readonly { title: string; note: string }[]>
 > = {
-  ranger: [
-    {
-      title: "Ranger bonus reward",
-      note: "Officially promised by the 2026 Snowball rule · name not revealed",
-    },
-  ],
   legend: [
     {
       title: "Legend-only reward",
@@ -338,7 +332,7 @@ export default function SwagDrops2026Page() {
       eyebrow="Arcade 2026 rewards"
       title="Google Skills Arcade 2026 swag drops"
       description="See each tier's current reward lineup at a glance: revealed swag, officially promised rewards, live prize-slot availability, estimated remaining items, and historical context."
-      updated="September 16, 2026"
+      updated="September 24, 2026"
     >
       <script
         type="application/ld+json"

@@ -30,6 +30,29 @@ export type ArcadeSwagDrop = {
  */
 export const ARCADE_SWAG_DROPS: readonly ArcadeSwagDrop[] = [
   {
+    id: "arcade-backpack",
+    season: 2026,
+    dropNumber: 2,
+    name: "The Arcade Backpack",
+    shortName: "Arcade Backpack",
+    revealedOn: "September 24, 2026",
+    revealedOnIso: "2026-09-24",
+    tiers: ["ranger"],
+    imageUrl:
+      "https://d2yds90mtvelsl.cloudfront.net/original/4X/c/4/8/c48e27878cf37a9368b63e7f8ba5e28eae209f30.gif",
+    sourceUrl:
+      "https://discuss.google.dev/t/swag-drop-the-arcade-backpack/399232",
+    summary:
+      "A water-resistant everyday backpack announced for the Arcade Ranger tier, with a padded sleeve for laptops up to 15 inches.",
+    features: [
+      "Water-resistant polyester for unexpected rain",
+      "Two main zip compartments with a padded laptop sleeve for devices up to 15 inches",
+      "Padded ergonomic shoulder straps and a ventilated mesh back panel",
+      "Roomy daily-carry storage plus an exterior zippered quick-access pocket",
+      "Black-and-grey color-blocked design with subtle Google Cloud branding",
+    ],
+  },
+  {
     id: "weather-shield-jacket",
     season: 2026,
     dropNumber: 1,
