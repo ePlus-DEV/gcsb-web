@@ -601,6 +601,7 @@ export default function RedesignCalculator({
             href={swagSeasonPath(CURRENT_SWAG_SEASON)}
             onClick={() => setMobileMenuOpen(false)}
           >Swag Drops</Link>
+          <a href="#monthly-games" onClick={() => setMobileMenuOpen(false)}>Monthly labs</a>
         </nav>
 
         <div className="arcade-header-actions">
@@ -634,7 +635,7 @@ export default function RedesignCalculator({
         </div>
       </header>
 
-      <section id="top" className="arcade-hero">
+      <section id="top" className="arcade-hero" data-home-order="hero">
         <div className="hero-heading">
           <p className="pixel-kicker"><Sparkles /> Google Cloud Skills Boost Arcade 2026</p>
           <h1>{heroCopy?.top ?? "CHECK YOUR"}<br /><span>{heroCopy?.bottom ?? "ARCADE SCORE"}</span></h1>
@@ -687,7 +688,7 @@ export default function RedesignCalculator({
       {/* Stable portal anchor: keeps countdown placement identical for every locale. */}
       <div className="program-countdown-host" data-home-order="program-countdown" />
 
-      <section id="extension" className="extension-strip">
+      <section id="extension" className="extension-strip" data-home-order="extension">
         <span className="extension-store-mark"><Download /></span>
         <div className="extension-copy-block">
           <strong>Install the extension for your browser</strong>
@@ -714,8 +715,8 @@ export default function RedesignCalculator({
       </section>
 
       {result ? (
-        <section className="dashboard-shell" aria-label="Arcade profile results">
-          <div className="dashboard-summary-grid">
+        <section className="dashboard-shell" aria-label="Arcade profile results" data-home-order="dashboard-results">
+          <div className="dashboard-summary-grid" data-home-order="dashboard-summary">
             <article className="dashboard-panel profile-panel">
               <PanelTitle>Profile summary</PanelTitle>
               <div className="profile-overview">
@@ -914,7 +915,9 @@ export default function RedesignCalculator({
             </aside>
           </div>
 
-          <div className="dashboard-bottom-grid">
+          <div id="monthly-games" className="monthly-games-host" data-home-order="monthly-labs" />
+
+          <div className="dashboard-bottom-grid" data-home-order="dashboard-bottom">
             <article className="dashboard-panel compact-panel">
               <div className="compact-heading"><PanelTitle>Recently earned</PanelTitle><span>{recentBadges.length || "—"}</span></div>
               {recentBadges.length > 0 ? (
@@ -977,7 +980,7 @@ export default function RedesignCalculator({
           </div>
         </section>
       ) : (
-        <section className="dashboard-empty-state">
+        <section className="dashboard-empty-state" data-home-order="dashboard-empty">
           <div className="empty-result-message">
             <span><Trophy /></span>
             <strong>Your Arcade dashboard will appear here</strong>
@@ -1009,14 +1012,18 @@ export default function RedesignCalculator({
         </section>
       )}
       {!result && (
-        <div className="tier-history-under-empty">
+        <div className="tier-history-under-empty" data-home-order="tier-history">
           <TierSlotHistoryPanel {...slotHistory} milestones={milestones} catalog={activeHistoryLanguage.catalog} locale={activeHistoryLanguage.locale} />
         </div>
       )}
 
+      {!result && (
+        <div id="monthly-games" className="monthly-games-host dashboard-shell" data-home-order="monthly-labs" />
+      )}
+
       {footerContent}
 
-      <footer className="arcade-footer">
+      <footer className="arcade-footer" data-home-order="footer">
         <div className="arcade-brand footer-brand">
           <span className="arcade-brand-mark"><Gamepad2 /></span>
           <span className="arcade-brand-copy"><strong>ARCADE</strong><b>POINTS</b></span>
