@@ -78,3 +78,14 @@ test("missing remote config is not silently relabeled as an Arcade date", () => 
   assert.match(ui, /Not announced/)
   assert.match(helper, /if \(program === "facilitator"\)/)
 })
+
+test("production refuses to publish a misleading fallback without Firebase settings", () => {
+  const workflow = readRepoFile(".github/workflows/nextjs.yml")
+  assert.match(workflow, /Verify Firebase Remote Config deployment settings/)
+  for (const key of ["WXT_FIREBASE_API_KEY", "WXT_FIREBASE_PROJECT_ID", "WXT_FIREBASE_APP_ID"]) {
+    assert.ok(workflow.includes(key), key)
+  }
+  const ui = readRepoFile("components/arcade/program-countdown.tsx")
+  assert.match(ui, /!config\.apiKey \|\| !config\.projectId \|\| !config\.appId/)
+  assert.match(ui, /Firebase browser config is incomplete/)
+})
