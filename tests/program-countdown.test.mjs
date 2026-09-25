@@ -99,7 +99,7 @@ test("ended programs switch from zero countdown boxes to an archive-style state"
   assert.match(countdown, /program-countdown-ended/)
   assert.match(countdown, /"Unavailable"/)
   assert.match(countdown, /"Event ended"/)
-  assert.match(countdown, />Program tracker</)
+  assert.match(countdown, /"Program tracker"/)
   assert.match(countdown, /View program details/)
   assert.match(countdown, /FACILITATOR_LAUNCHER_SELECTOR/)
   assert.match(styles, /\.program-countdown-card\.is-ended/)
