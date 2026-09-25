@@ -103,7 +103,7 @@ test("ended programs switch from zero countdown boxes to an archive-style state"
   assert.match(styles, /\.program-countdown-ended-action/)
 })
 
-test("unconfigured Facilitator never shows a season-end timer and reports missing Firebase settings", () => {
+test("Facilitator falls back to its own last-known ended deadline when Firebase is unavailable", () => {
   const deadline = readFileSync(
     new URL("../components/arcade/countdown-deadline.ts", import.meta.url),
     "utf8",
@@ -111,11 +111,11 @@ test("unconfigured Facilitator never shows a season-end timer and reports missin
   assert.match(countdown, /deadline: facilitatorDeadline\.deadline/)
   assert.match(countdown, /deadline: arcadeDeadline\.deadline/)
   assert.match(countdown, /countdown_deadline_facilitator: facilitator\.deadline \?\? ""/)
-  assert.match(countdown, /Awaiting Facilitator configuration/)
+  assert.match(countdown, /LAST_KNOWN_FACILITATOR_DEADLINE = "2026-09-14T23:59:59\+05:30"/)
   assert.match(countdown, /Firebase browser config is incomplete/)
   assert.match(countdown, /data-program-state/)
   assert.match(styles, /program-countdown-unconfigured/)
   assert.match(deadline, /if \(program === "facilitator"\)/)
-  assert.match(deadline, /source: "unconfigured"/)
+  assert.match(deadline, /source: "program-fallback"/)
   assert.match(deadline, /source: "season-fallback"/)
 })

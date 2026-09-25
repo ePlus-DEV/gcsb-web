@@ -14,6 +14,7 @@ const HOST_SELECTOR = ".program-countdown-host"
 const HERO_SELECTOR = ".arcade-hero"
 const FACILITATOR_LAUNCHER_SELECTOR = ".facilitator-launcher"
 const DEFAULT_TIME_ZONE_OFFSET = "+05:30"
+const LAST_KNOWN_FACILITATOR_DEADLINE = "2026-09-14T23:59:59+05:30"
 const FIREBASE_CDN_VERSION = "12.18.0"
 const DEFAULT_FETCH_INTERVAL_MS = 900_000
 const DEFAULT_FETCH_TIMEOUT_MS = 60_000
@@ -100,6 +101,7 @@ function defaultPrograms(): ProgramCountdownConfig[] {
     "facilitator",
     process.env.WXT_COUNTDOWN_DEADLINE_FACILITATOR,
     arcadeSeasonDeadline,
+    LAST_KNOWN_FACILITATOR_DEADLINE,
   )
   const arcadeDeadline = initialDeadline(
     "arcade",
