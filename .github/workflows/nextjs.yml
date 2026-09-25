@@ -37,6 +37,25 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile --non-interactive
 
+      # Never publish a plausible but incorrect shared fallback when the
+      # Firebase project is not wired into the browser build. No values logged.
+      - name: Verify Firebase Remote Config deployment settings
+        env:
+          WXT_FIREBASE_API_KEY: ${{ secrets.WXT_FIREBASE_API_KEY || vars.WXT_FIREBASE_API_KEY }}
+          WXT_FIREBASE_PROJECT_ID: ${{ secrets.WXT_FIREBASE_PROJECT_ID || vars.WXT_FIREBASE_PROJECT_ID }}
+          WXT_FIREBASE_APP_ID: ${{ secrets.WXT_FIREBASE_APP_ID || vars.WXT_FIREBASE_APP_ID }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          missing=0
+          for key in WXT_FIREBASE_API_KEY WXT_FIREBASE_PROJECT_ID WXT_FIREBASE_APP_ID; do
+            if [[ -z "${!key:-}" ]]; then
+              echo "::error::Missing ${key} (set it in repository Actions secrets or variables)."
+              missing=1
+            fi
+          done
+          if [[ "${missing}" -ne 0 ]]; then exit 1; fi
+
       - name: Build production static export
         env:
           NEXT_STATIC_EXPORT: "true"
