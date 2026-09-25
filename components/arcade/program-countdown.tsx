@@ -179,7 +179,7 @@ async function loadRemotePrograms(
   }
 
   const config = firebaseConfig()
-  if (!config.apiKey || !config.projectId) {
+  if (!config.apiKey || !config.projectId || !config.appId) {
     // Never hide a missing deployment setting behind a plausible countdown.
     // Do not print Firebase credentials.
     console.warn("Program countdown: Firebase browser config is incomplete; remote deadlines cannot be loaded.")
