@@ -12,7 +12,7 @@ const arcade = "2026-12-31T23:59:59+05:30"
 const facilitator = "2026-09-14T23:59:59+05:30"
 
 test("Firebase console dates are independent: Facilitator Sep 14, Arcade Dec 31", () => {
-  assert.deepEqual(initialDeadline("facilitator", facilitator, arcade), {
+  assert.deepEqual(initialDeadline("facilitator", facilitator, arcade, facilitator), {
     deadline: facilitator, source: "env",
   })
   assert.deepEqual(initialDeadline("arcade", arcade, arcade), {
@@ -21,10 +21,10 @@ test("Firebase console dates are independent: Facilitator Sep 14, Arcade Dec 31"
   assert.notEqual(Date.parse(facilitator), Date.parse(arcade))
 })
 
-test("missing, blank or invalid Facilitator setting never inherits Arcade fallback", () => {
+test("missing, blank or invalid Facilitator setting uses its own ended fallback, never Arcade", () => {
   for (const missing of [null, undefined, "", "   ", "invalid", "2026-09-14"]) {
-    assert.deepEqual(initialDeadline("facilitator", missing, arcade), {
-      deadline: null, source: "unconfigured",
+    assert.deepEqual(initialDeadline("facilitator", missing, arcade, facilitator), {
+      deadline: facilitator, source: "program-fallback",
     })
   }
   assert.deepEqual(initialDeadline("arcade", "", arcade), {
@@ -33,7 +33,7 @@ test("missing, blank or invalid Facilitator setting never inherits Arcade fallba
 })
 
 test("Firebase remote values override only the matching program, including past dates", () => {
-  const missingFacilitator = initialDeadline("facilitator", "", arcade)
+  const missingFacilitator = initialDeadline("facilitator", "", arcade, facilitator)
   const localArcade = initialDeadline("arcade", "", arcade)
   assert.deepEqual(
     resolvedRemoteDeadline(missingFacilitator, facilitator, "remote"),
@@ -77,6 +77,7 @@ test("missing remote config is not silently relabeled as an Arcade date", () => 
   assert.match(ui, /data-deadline-source=\{config\.deadlineSource\}/)
   assert.match(ui, /Not announced/)
   assert.match(helper, /if \(program === "facilitator"\)/)
+  assert.match(helper, /source: "program-fallback"/)
 })
 
 test("production refuses to publish a misleading fallback without Firebase settings", () => {
