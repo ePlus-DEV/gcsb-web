@@ -1,6 +1,6 @@
 /** Choose deadlines independently; never reuse Arcade's seasonal estimate for Facilitator. */
 export type CountdownProgramId = "facilitator" | "arcade"
-export type DeadlineSource = "env" | "remote" | "season-fallback" | "unconfigured"
+export type DeadlineSource = "env" | "remote" | "program-fallback" | "season-fallback" | "unconfigured"
 export type ResolvedDeadline = {
   deadline: string | null
   source: DeadlineSource
@@ -19,14 +19,18 @@ export function initialDeadline(
   program: CountdownProgramId,
   explicit: string | null | undefined,
   arcadeSeasonDeadline: string,
+  facilitatorFallbackDeadline?: string,
 ): ResolvedDeadline {
   const configured = validatedDeadline(explicit)
   if (configured) return { deadline: configured, source: "env" }
 
-  // The season-end estimate is an Arcade-only fallback, never a confirmed
-  // Facilitator deadline. A missing Facilitator value is visibly unconfigured.
+  // Facilitator has its own last-known published deadline. It must never
+  // inherit the Arcade season-end fallback when Remote Config is unavailable.
   if (program === "facilitator") {
-    return { deadline: null, source: "unconfigured" }
+    const facilitatorFallback = validatedDeadline(facilitatorFallbackDeadline)
+    return facilitatorFallback
+      ? { deadline: facilitatorFallback, source: "program-fallback" }
+      : { deadline: null, source: "unconfigured" }
   }
 
   const season = validatedDeadline(arcadeSeasonDeadline)
