@@ -42,6 +42,58 @@ jobs:
           yarn start --hostname 127.0.0.1 --port 3000 > /tmp/gcsb-web.log 2>&1 &
           yarn wait-on http://127.0.0.1:3000/vi/
 
+      - name: Browser regression - expired Facilitator must not await config
+        run: |
+          mkdir -p screenshots
+          node <<'NODE'
+          const assert = require("node:assert/strict")
+          const { chromium } = require("playwright")
+
+          ;(async () => {
+            const browser = await chromium.launch({ headless: true, channel: "chrome" })
+            try {
+              for (const item of [
+                { route: "/", locale: "en", width: 1366, height: 900 },
+                { route: "/vi/", locale: "vi", width: 390, height: 844 },
+              ]) {
+                const page = await browser.newPage({
+                  viewport: { width: item.width, height: item.height },
+                  reducedMotion: "reduce",
+                })
+                try {
+                  await page.goto("http://127.0.0.1:3000" + item.route, {
+                    waitUntil: "domcontentloaded", timeout: 30_000,
+                  })
+                  const facilitator = page.locator('.program-countdown-card[data-program="facilitator"]')
+                  const arcade = page.locator('.program-countdown-card[data-program="arcade"]')
+                  await facilitator.waitFor({ state: "visible", timeout: 15_000 })
+                  await arcade.waitFor({ state: "visible", timeout: 15_000 })
+                  await facilitator.locator(".program-countdown-ended").waitFor({ state: "visible" })
+                  assert.equal(await facilitator.getAttribute("data-program-state"), "ended")
+                  assert.equal(await facilitator.getAttribute("data-deadline-source"), "published-fallback")
+                  assert.equal(await arcade.getAttribute("data-deadline-source"), "season-fallback")
+                  assert.equal(await facilitator.locator(".program-countdown-timer").count(), 0)
+                  assert.doesNotMatch(await facilitator.innerText(), /Awaiting Facilitator configuration/i)
+                  if (item.locale === "en") {
+                    assert.match(await facilitator.innerText(), /Event ended/)
+                  }
+                  await facilitator.screenshot({
+                    path: "screenshots/facilitator-ended-" + item.locale + ".png",
+                  })
+                  console.log("PASS: expired Facilitator fallback on " + item.locale)
+                } finally {
+                  await page.close()
+                }
+              }
+            } finally {
+              await browser.close()
+            }
+          })().catch((error) => {
+            console.error(error)
+            process.exit(1)
+          })
+          NODE
+
       - name: Verify rendered Vietnamese Facilitator UI
         run: |
           mkdir -p screenshots
