@@ -1,6 +1,18 @@
 /** Choose deadlines independently; never reuse Arcade's seasonal estimate for Facilitator. */
 export type CountdownProgramId = "facilitator" | "arcade"
-export type DeadlineSource = "env" | "remote" | "season-fallback" | "unconfigured"
+/** Last published 2026 Facilitator deadline, verified against the project's Firebase console.
+ * Only a safety fallback when an independent env/remote value is unavailable.
+ * Never substitute Arcade's season-end timestamp.
+ */
+export const LAST_PUBLISHED_FACILITATOR_2026_DEADLINE =
+  "2026-09-14T23:59:59+05:30"
+
+export type DeadlineSource =
+  | "env"
+  | "remote"
+  | "published-fallback"
+  | "season-fallback"
+  | "unconfigured"
 export type ResolvedDeadline = {
   deadline: string | null
   source: DeadlineSource
@@ -23,10 +35,14 @@ export function initialDeadline(
   const configured = validatedDeadline(explicit)
   if (configured) return { deadline: configured, source: "env" }
 
-  // The season-end estimate is an Arcade-only fallback, never a confirmed
-  // Facilitator deadline. A missing Facilitator value is visibly unconfigured.
+  // Firebase's last published 2026 Facilitator deadline is known to be
+  // different from the Arcade season. Render it as ended when it has passed
+  // even if Firebase is blocked. A newer env/remote value always overrides it.
   if (program === "facilitator") {
-    return { deadline: null, source: "unconfigured" }
+    return {
+      deadline: LAST_PUBLISHED_FACILITATOR_2026_DEADLINE,
+      source: "published-fallback",
+    }
   }
 
   const season = validatedDeadline(arcadeSeasonDeadline)

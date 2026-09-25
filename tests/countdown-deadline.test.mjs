@@ -6,6 +6,7 @@ const {
   validatedDeadline,
   initialDeadline,
   resolvedRemoteDeadline,
+  LAST_PUBLISHED_FACILITATOR_2026_DEADLINE,
 } = evaluateTypeScript(readRepoFile("components/arcade/countdown-deadline.ts"))
 
 const arcade = "2026-12-31T23:59:59+05:30"
@@ -21,15 +22,18 @@ test("Firebase console dates are independent: Facilitator Sep 14, Arcade Dec 31"
   assert.notEqual(Date.parse(facilitator), Date.parse(arcade))
 })
 
-test("missing, blank or invalid Facilitator setting never inherits Arcade fallback", () => {
+test("Facilitator uses its last published September 2026 date when remote config is unavailable", () => {
+  assert.equal(LAST_PUBLISHED_FACILITATOR_2026_DEADLINE, facilitator)
+  assert.ok(Date.parse(facilitator) < Date.parse("2026-09-25T00:00:00Z"))
   for (const missing of [null, undefined, "", "   ", "invalid", "2026-09-14"]) {
     assert.deepEqual(initialDeadline("facilitator", missing, arcade), {
-      deadline: null, source: "unconfigured",
+      deadline: facilitator, source: "published-fallback",
     })
   }
   assert.deepEqual(initialDeadline("arcade", "", arcade), {
     deadline: arcade, source: "season-fallback",
   })
+  assert.notEqual(initialDeadline("facilitator", "", arcade).deadline, arcade)
 })
 
 test("Firebase remote values override only the matching program, including past dates", () => {
@@ -55,6 +59,11 @@ test("Firebase remote values override only the matching program, including past 
     resolvedRemoteDeadline(missingFacilitator, "invalid", "remote"),
     missingFacilitator,
   )
+  const extended = "2027-01-31T23:59:59+05:30"
+  assert.deepEqual(
+    resolvedRemoteDeadline(missingFacilitator, extended, "remote"),
+    { deadline: extended, source: "remote" },
+  )
 })
 
 test("deadlines need absolute, valid timestamps with timezone", () => {
@@ -75,6 +84,8 @@ test("missing remote config is not silently relabeled as an Arcade date", () => 
   assert.match(ui, /deadlineSource: facilitatorDeadline\.source/)
   assert.match(ui, /deadlineSource: arcadeDeadline\.source/)
   assert.match(ui, /data-deadline-source=\{config\.deadlineSource\}/)
+  assert.match(ui, /Event ended/)
+  assert.match(ui, /Last published 2026 deadline/)
   assert.match(ui, /Not announced/)
   assert.match(helper, /if \(program === "facilitator"\)/)
 })

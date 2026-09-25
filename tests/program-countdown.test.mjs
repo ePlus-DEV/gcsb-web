@@ -35,7 +35,7 @@ test("program countdown keeps a deterministic home position for every locale", (
   )
 })
 
-test("program countdown uses independent WXT defaults and an Arcade-only seasonal fallback", () => {
+test("program countdown separates last published Facilitator date from Arcade seasonal fallback", () => {
   assert.match(countdown, /month <= 6 \? "06-30" : "12-31"/)
   assert.match(countdown, /DEFAULT_TIME_ZONE_OFFSET = "\+05:30"/)
   assert.match(countdown, /WXT_COUNTDOWN_DEADLINE_FACILITATOR/)
@@ -43,6 +43,8 @@ test("program countdown uses independent WXT defaults and an Arcade-only seasona
   assert.match(countdown, /WXT_COUNTDOWN_DEADLINE_ARCADE/)
   assert.match(countdown, /WXT_COUNTDOWN_ENABLED_ARCADE/)
   assert.match(countdown, /initialDeadline\(/)
+  assert.match(countdown, /"facilitator"/)
+  assert.match(countdown, /"arcade"/)
   assert.match(countdown, /setInterval\(\(\) => setNowMs\(Date\.now\(\)\), 1_000\)/)
 })
 
@@ -95,15 +97,16 @@ test("ended programs switch from zero countdown boxes to an archive-style state"
   assert.match(countdown, /data-program-state=\{!remaining \? "unconfigured" : remaining\.ended \? "ended" : "active"\}/)
   assert.match(countdown, /remaining\.ended \? \(/)
   assert.match(countdown, /program-countdown-ended/)
-  assert.match(countdown, />Unavailable</)
-  assert.match(countdown, />Program tracker</)
+  assert.match(countdown, /"Unavailable"/)
+  assert.match(countdown, /"Event ended"/)
+  assert.match(countdown, /"Program tracker"/)
   assert.match(countdown, /View program details/)
   assert.match(countdown, /FACILITATOR_LAUNCHER_SELECTOR/)
   assert.match(styles, /\.program-countdown-card\.is-ended/)
   assert.match(styles, /\.program-countdown-ended-action/)
 })
 
-test("unconfigured Facilitator never shows a season-end timer and reports missing Firebase settings", () => {
+test("expired Facilitator event displays ended rather than awaiting configuration", () => {
   const deadline = readFileSync(
     new URL("../components/arcade/countdown-deadline.ts", import.meta.url),
     "utf8",
@@ -111,11 +114,14 @@ test("unconfigured Facilitator never shows a season-end timer and reports missin
   assert.match(countdown, /deadline: facilitatorDeadline\.deadline/)
   assert.match(countdown, /deadline: arcadeDeadline\.deadline/)
   assert.match(countdown, /countdown_deadline_facilitator: facilitator\.deadline \?\? ""/)
-  assert.match(countdown, /Awaiting Facilitator configuration/)
+  assert.match(countdown, /Last published 2026 deadline/)
+  assert.match(countdown, /Event ended/)
+  assert.doesNotMatch(countdown, /Awaiting Facilitator configuration/)
   assert.match(countdown, /Firebase browser config is incomplete/)
   assert.match(countdown, /data-program-state/)
   assert.match(styles, /program-countdown-unconfigured/)
   assert.match(deadline, /if \(program === "facilitator"\)/)
-  assert.match(deadline, /source: "unconfigured"/)
+  assert.match(deadline, /source: "published-fallback"/)
+  assert.match(deadline, /LAST_PUBLISHED_FACILITATOR_2026_DEADLINE/)
   assert.match(deadline, /source: "season-fallback"/)
 })

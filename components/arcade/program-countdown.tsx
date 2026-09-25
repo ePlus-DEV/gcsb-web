@@ -377,20 +377,20 @@ function ProgramCard({
         <span className="program-countdown-icon" aria-hidden="true"><Icon /></span>
         <div>
           <strong>{config.title}</strong>
-          <span><b>Deadline</b> · {config.deadline ? deadlineLabel(config.deadline, locale) : "Not announced"}</span>
+          <span><b>{config.deadlineSource === "published-fallback" ? "Last published deadline" : "Deadline"}</b> · {config.deadline ? deadlineLabel(config.deadline, locale) : "Not announced"}</span>
         </div>
       </div>
 
       {!remaining ? (
         <div className="program-countdown-unconfigured" role="status">
           <strong>Deadline unavailable</strong>
-          <span>Awaiting Facilitator configuration</span>
+          <span>Unable to confirm the program deadline</span>
         </div>
       ) : remaining.ended ? (
         <div className="program-countdown-ended" role="status">
           <div className="program-countdown-ended-copy">
-            <strong>Unavailable</strong>
-            <span>Program tracker</span>
+            <strong>{config.id === "facilitator" ? "Event ended" : "Unavailable"}</strong>
+            <span>{config.deadlineSource === "published-fallback" ? "Last published 2026 deadline" : "Program tracker"}</span>
           </div>
           {config.id === "facilitator" ? (
             <button
