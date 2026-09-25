@@ -35,13 +35,14 @@ test("program countdown keeps a deterministic home position for every locale", (
   )
 })
 
-test("program countdown uses the same WXT defaults and seasonal fallback as the extension", () => {
+test("program countdown uses independent WXT defaults and an Arcade-only seasonal fallback", () => {
   assert.match(countdown, /month <= 6 \? "06-30" : "12-31"/)
   assert.match(countdown, /DEFAULT_TIME_ZONE_OFFSET = "\+05:30"/)
   assert.match(countdown, /WXT_COUNTDOWN_DEADLINE_FACILITATOR/)
   assert.match(countdown, /WXT_COUNTDOWN_ENABLED_FACILITATOR/)
   assert.match(countdown, /WXT_COUNTDOWN_DEADLINE_ARCADE/)
   assert.match(countdown, /WXT_COUNTDOWN_ENABLED_ARCADE/)
+  assert.match(countdown, /initialDeadline\(/)
   assert.match(countdown, /setInterval\(\(\) => setNowMs\(Date\.now\(\)\), 1_000\)/)
 })
 
@@ -50,8 +51,10 @@ test("program countdown fetches Firebase Remote Config and accepts only remote v
   assert.match(countdown, /firebase-remote-config\.js/)
   assert.match(countdown, /fetchAndActivate\(remoteConfig\)/)
   assert.match(countdown, /getValue: \(remoteConfig: RemoteConfigInstance, key: string\)/)
-  assert.match(countdown, /value\.getSource\?\.\(\) === "remote"/)
-  assert.match(countdown, /source === "remote" && remoteValue/)
+  assert.match(countdown, /resolvedRemoteDeadline\(fallback, value\.asString\(\), value\.getSource\?\.\(\)\)/)
+  assert.match(countdown, /"countdown_deadline_facilitator"/)
+  assert.match(countdown, /"countdown_deadline_arcade"/)
+  assert.match(countdown, /data-deadline-source=\{config\.deadlineSource\}/)
   assert.match(countdown, /minimumFetchIntervalMillis/)
   assert.match(countdown, /fetchTimeoutMillis/)
   assert.match(countdown, /WXT_FORCE_REMOTE_CONFIG/)
@@ -89,7 +92,7 @@ test("program countdown uses localized Intl unit labels and a responsive stylesh
 })
 
 test("ended programs switch from zero countdown boxes to an archive-style state", () => {
-  assert.match(countdown, /data-program-state=\{remaining\.ended \? "ended" : "active"\}/)
+  assert.match(countdown, /data-program-state=\{!remaining \? "unconfigured" : remaining\.ended \? "ended" : "active"\}/)
   assert.match(countdown, /remaining\.ended \? \(/)
   assert.match(countdown, /program-countdown-ended/)
   assert.match(countdown, />Unavailable</)
@@ -98,4 +101,21 @@ test("ended programs switch from zero countdown boxes to an archive-style state"
   assert.match(countdown, /FACILITATOR_LAUNCHER_SELECTOR/)
   assert.match(styles, /\.program-countdown-card\.is-ended/)
   assert.match(styles, /\.program-countdown-ended-action/)
+})
+
+test("unconfigured Facilitator never shows a season-end timer and reports missing Firebase settings", () => {
+  const deadline = readFileSync(
+    new URL("../components/arcade/countdown-deadline.ts", import.meta.url),
+    "utf8",
+  )
+  assert.match(countdown, /deadline: facilitatorDeadline\.deadline/)
+  assert.match(countdown, /deadline: arcadeDeadline\.deadline/)
+  assert.match(countdown, /countdown_deadline_facilitator: facilitator\.deadline \?\? ""/)
+  assert.match(countdown, /Awaiting Facilitator configuration/)
+  assert.match(countdown, /Firebase browser config is incomplete/)
+  assert.match(countdown, /data-program-state/)
+  assert.match(styles, /program-countdown-unconfigured/)
+  assert.match(deadline, /if \(program === "facilitator"\)/)
+  assert.match(deadline, /source: "unconfigured"/)
+  assert.match(deadline, /source: "season-fallback"/)
 })

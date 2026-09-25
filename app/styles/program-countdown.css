@@ -48,6 +48,33 @@
     linear-gradient(145deg,rgba(31,18,31,.95),rgba(13,13,28,.97));
 }
 
+.program-countdown-card.is-unconfigured {
+  --countdown-border:rgba(251,191,36,.28);
+  --countdown-accent-soft:rgba(251,191,36,.07);
+}
+.program-countdown-unconfigured {
+  display:grid;
+  justify-items:end;
+  align-content:center;
+  gap:5px;
+  min-width:0;
+  text-align:right;
+}
+.program-countdown-unconfigured strong {
+  color:#fbbf24;
+  font-size:.78rem;
+  font-weight:800;
+}
+.program-countdown-unconfigured span {
+  color:#a8b8d1;
+  font-size:.69rem;
+}
+.light .program-countdown-unconfigured strong {color:#92400e}
+.light .program-countdown-unconfigured span {color:#64748b}
+@media (max-width:720px) {
+  .program-countdown-unconfigured {justify-items:start;text-align:left}
+}
+
 .program-countdown-heading{
   display:flex;
   align-items:center;

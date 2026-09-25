@@ -3,6 +3,12 @@
 import { Clock, Gamepad2 } from "lucide-react"
 import { createPortal } from "react-dom"
 import { useEffect, useMemo, useState } from "react"
+import {
+  initialDeadline,
+  resolvedRemoteDeadline,
+  type DeadlineSource,
+  type ResolvedDeadline,
+} from "./countdown-deadline"
 
 const HOST_SELECTOR = ".program-countdown-host"
 const HERO_SELECTOR = ".arcade-hero"
@@ -18,7 +24,8 @@ type CountdownSource = "fallback" | "remote"
 type ProgramCountdownConfig = {
   id: "facilitator" | "arcade"
   title: string
-  deadline: string
+  deadline: string | null
+  deadlineSource: DeadlineSource
   enabled: boolean
   tone: "orange" | "blue"
 }
@@ -88,26 +95,32 @@ function defaultSeasonDeadline(now: Date): string {
 }
 
 function defaultPrograms(): ProgramCountdownConfig[] {
-  const fallbackDeadline = defaultSeasonDeadline(new Date())
+  const arcadeSeasonDeadline = defaultSeasonDeadline(new Date())
+  const facilitatorDeadline = initialDeadline(
+    "facilitator",
+    process.env.WXT_COUNTDOWN_DEADLINE_FACILITATOR,
+    arcadeSeasonDeadline,
+  )
+  const arcadeDeadline = initialDeadline(
+    "arcade",
+    process.env.WXT_COUNTDOWN_DEADLINE_ARCADE,
+    arcadeSeasonDeadline,
+  )
 
   return [
     {
       id: "facilitator",
       title: "Facilitator Program",
-      deadline:
-        process.env.WXT_COUNTDOWN_DEADLINE_FACILITATOR?.trim() ||
-        fallbackDeadline,
-      enabled: readBoolean(
-        process.env.WXT_COUNTDOWN_ENABLED_FACILITATOR,
-        true,
-      ),
+      deadline: facilitatorDeadline.deadline,
+      deadlineSource: facilitatorDeadline.source,
+      enabled: readBoolean(process.env.WXT_COUNTDOWN_ENABLED_FACILITATOR, true),
       tone: "orange",
     },
     {
       id: "arcade",
       title: "Arcade",
-      deadline:
-        process.env.WXT_COUNTDOWN_DEADLINE_ARCADE?.trim() || fallbackDeadline,
+      deadline: arcadeDeadline.deadline,
+      deadlineSource: arcadeDeadline.source,
       enabled: readBoolean(process.env.WXT_COUNTDOWN_ENABLED_ARCADE, true),
       tone: "blue",
     },
@@ -138,16 +151,14 @@ async function importBrowserModule<T>(url: string): Promise<T> {
   return import(/* webpackIgnore: true */ url) as Promise<T>
 }
 
-function remoteString(
+function remoteDeadline(
   remoteModule: FirebaseRemoteConfigModule,
   remoteConfig: RemoteConfigInstance,
   key: string,
-  fallback: string,
-): string {
+  fallback: ResolvedDeadline,
+): ResolvedDeadline {
   const value = remoteModule.getValue(remoteConfig, key)
-  const source = value.getSource?.()
-  const remoteValue = value.asString()
-  return source === "remote" && remoteValue ? remoteValue : fallback
+  return resolvedRemoteDeadline(fallback, value.asString(), value.getSource?.())
 }
 
 function remoteBoolean(
@@ -168,7 +179,10 @@ async function loadRemotePrograms(
   }
 
   const config = firebaseConfig()
-  if (!config.apiKey || !config.projectId) {
+  if (!config.apiKey || !config.projectId || !config.appId) {
+    // Never hide a missing deployment setting behind a plausible countdown.
+    // Do not print Firebase credentials.
+    console.warn("Program countdown: Firebase browser config is incomplete; remote deadlines cannot be loaded.")
     return { programs: fallbackPrograms, source: "fallback" }
   }
 
@@ -191,9 +205,9 @@ async function loadRemotePrograms(
     const arcade = fallbackPrograms.find((item) => item.id === "arcade")!
 
     remoteConfig.defaultConfig = {
-      countdown_deadline_facilitator: facilitator.deadline,
+      countdown_deadline_facilitator: facilitator.deadline ?? "",
       countdown_enabled_facilitator: facilitator.enabled,
-      countdown_deadline_arcade: arcade.deadline,
+      countdown_deadline_arcade: arcade.deadline ?? "",
       countdown_enabled_arcade: arcade.enabled,
     }
     remoteConfig.settings = {
@@ -209,17 +223,31 @@ async function loadRemotePrograms(
 
     await remoteModule.fetchAndActivate(remoteConfig)
 
+    // Resolve each program strictly from its own remote key. Firebase defaults
+    // or absent remote values retain that program's own env/fallback status.
+    const facilitatorDeadline = remoteDeadline(
+      remoteModule,
+      remoteConfig,
+      "countdown_deadline_facilitator",
+      { deadline: facilitator.deadline, source: facilitator.deadlineSource },
+    )
+    const arcadeDeadline = remoteDeadline(
+      remoteModule,
+      remoteConfig,
+      "countdown_deadline_arcade",
+      { deadline: arcade.deadline, source: arcade.deadlineSource },
+    )
+
     return {
-      source: "remote",
+      source:
+        facilitatorDeadline.source === "remote" || arcadeDeadline.source === "remote"
+          ? "remote"
+          : "fallback",
       programs: [
         {
           ...facilitator,
-          deadline: remoteString(
-            remoteModule,
-            remoteConfig,
-            "countdown_deadline_facilitator",
-            facilitator.deadline,
-          ),
+          deadline: facilitatorDeadline.deadline,
+          deadlineSource: facilitatorDeadline.source,
           enabled: remoteBoolean(
             remoteModule,
             remoteConfig,
@@ -229,12 +257,8 @@ async function loadRemotePrograms(
         },
         {
           ...arcade,
-          deadline: remoteString(
-            remoteModule,
-            remoteConfig,
-            "countdown_deadline_arcade",
-            arcade.deadline,
-          ),
+          deadline: arcadeDeadline.deadline,
+          deadlineSource: arcadeDeadline.source,
           enabled: remoteBoolean(
             remoteModule,
             remoteConfig,
@@ -330,31 +354,39 @@ function ProgramCard({
   locale?: string
   nowMs: number
 }) {
-  const remaining = countdownParts(config.deadline, nowMs)
+  const remaining = config.deadline ? countdownParts(config.deadline, nowMs) : null
   const Icon = config.id === "arcade" ? Gamepad2 : Clock
-  const timeParts: Array<{ unit: CountdownUnit; value: number }> = [
-    { unit: "day", value: remaining.days },
-    { unit: "hour", value: remaining.hours },
-    { unit: "minute", value: remaining.minutes },
-    { unit: "second", value: remaining.seconds },
-  ]
+  const timeParts: Array<{ unit: CountdownUnit; value: number }> = remaining
+    ? [
+        { unit: "day", value: remaining.days },
+        { unit: "hour", value: remaining.hours },
+        { unit: "minute", value: remaining.minutes },
+        { unit: "second", value: remaining.seconds },
+      ]
+    : []
 
   return (
     <article
-      className={`program-countdown-card tone-${config.tone}${remaining.ended ? " is-ended" : ""}`}
+      className={`program-countdown-card tone-${config.tone}${!remaining ? " is-unconfigured" : remaining.ended ? " is-ended" : ""}`}
       data-program={config.id}
-      data-program-state={remaining.ended ? "ended" : "active"}
+      data-program-state={!remaining ? "unconfigured" : remaining.ended ? "ended" : "active"}
+      data-deadline-source={config.deadlineSource}
       aria-label={config.title}
     >
       <div className="program-countdown-heading">
         <span className="program-countdown-icon" aria-hidden="true"><Icon /></span>
         <div>
           <strong>{config.title}</strong>
-          <span><b>Deadline</b> · {deadlineLabel(config.deadline, locale)}</span>
+          <span><b>Deadline</b> · {config.deadline ? deadlineLabel(config.deadline, locale) : "Not announced"}</span>
         </div>
       </div>
 
-      {remaining.ended ? (
+      {!remaining ? (
+        <div className="program-countdown-unconfigured" role="status">
+          <strong>Deadline unavailable</strong>
+          <span>Awaiting Facilitator configuration</span>
+        </div>
+      ) : remaining.ended ? (
         <div className="program-countdown-ended" role="status">
           <div className="program-countdown-ended-copy">
             <strong>Unavailable</strong>
