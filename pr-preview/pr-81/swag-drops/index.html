@@ -1,0 +1,281 @@
+<!DOCTYPE html><html lang="en" dir="ltr" data-locale="en"><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="/pr-preview/pr-81/_next/static/css/3a0b36c06ab05fac.css" data-precedence="next"/><link rel="stylesheet" href="/pr-preview/pr-81/_next/static/css/151a1c4c08e5b734.css" data-precedence="next"/><link rel="stylesheet" href="/pr-preview/pr-81/_next/static/css/311d12be286187bf.css" data-precedence="next"/><link rel="preload" as="script" fetchPriority="low" href="/pr-preview/pr-81/_next/static/chunks/webpack-cc4435c583e2871a.js"/><script src="/pr-preview/pr-81/_next/static/chunks/4bd1b696-07f73a970a383175.js" async=""></script><script src="/pr-preview/pr-81/_next/static/chunks/684-24688d8584d80795.js" async=""></script><script src="/pr-preview/pr-81/_next/static/chunks/main-app-56fd60aa8dd1326a.js" async=""></script><script src="/pr-preview/pr-81/_next/static/chunks/874-61c82510b2828786.js" async=""></script><script src="/pr-preview/pr-81/_next/static/chunks/180-6923ed6f54e15538.js" async=""></script><script src="/pr-preview/pr-81/_next/static/chunks/app/layout-a9250c181af221bc.js" async=""></script><script src="/pr-preview/pr-81/_next/static/chunks/app/not-found-fc8444a99317c5ca.js" async=""></script><script src="/pr-preview/pr-81/_next/static/chunks/app/swag-drops/page-8dbf009b14bd4fb1.js" async=""></script><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"/><link rel="preconnect" href="https://cdnjs.cloudflare.com"/><meta name="cookie-notice-preview" content="true"/><meta name="color-scheme" content="light dark"/><title>Google Skills Arcade Swag Drops &amp; Rewards by Year | ePlus.DEV</title><meta name="description" content="Browse Google Skills Arcade swag drops, reward tiers, prize slots, and confirmed or sourced historical reward announcements by season."/><meta name="application-name" content="Arcade Points by ePlus.DEV"/><link rel="author" href="https://eplus.dev"/><meta name="author" content="ePlus.DEV"/><link rel="manifest" href="/pr-preview/pr-81/manifest.json"/><meta name="generator" content="Next.js"/><meta name="keywords" content="Google Cloud Arcade points calculator,Google Skills Arcade calculator,Google Cloud Skills Boost badges,Google Skills public profile tracker,Arcade Facilitator points,Google Cloud Arcade milestones,Arcade points 2026,Google Cloud Arcade rewards,Google Cloud Skills Boost Helper"/><meta name="referrer" content="origin-when-cross-origin"/><meta name="creator" content="ePlus.DEV"/><meta name="publisher" content="ePlus.DEV"/><meta name="robots" content="index, follow"/><meta name="googlebot" content="index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"/><meta name="category" content="technology"/><link rel="canonical" href="https://arcade.eplus.dev/swag-drops/"/><meta property="og:title" content="Google Skills Arcade Swag Drops &amp; Rewards by Year"/><meta property="og:description" content="Browse Google Skills Arcade swag drops, reward tiers, prize slots, and confirmed or sourced historical reward announcements by season."/><meta property="og:url" content="https://arcade.eplus.dev/swag-drops/"/><meta property="og:type" content="website"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content="Google Skills Arcade Swag Drops &amp; Rewards by Year"/><meta name="twitter:description" content="Browse Google Skills Arcade swag drops, reward tiers, prize slots, and confirmed or sourced historical reward announcements by season."/><link rel="icon" href="/pr-preview/pr-81/favicon.ico" type="image/x-icon" sizes="48x48"/><link rel="icon" href="/pr-preview/pr-81/icon0.svg?66a7cd687bde5efd" type="image/svg+xml" sizes="any"/><link rel="icon" href="/pr-preview/pr-81/icon1.png?52e5d01a77c5680f" type="image/png" sizes="96x96"/><link rel="apple-touch-icon" href="/pr-preview/pr-81/apple-icon.png?97901d54c640609b" type="image/png" sizes="180x180"/><script id="arcade-request-dedupe">(() => {
+  const installFlag = "__eplusArcadeRequestDeduperInstalled"
+  if (window[installFlag]) return
+
+  const originalFetch = window.fetch.bind(window)
+  const inFlight = new Map()
+  const recent = new Map()
+  const recentTtlMs = 5_000
+  const apiOrigin = "https://hub.eplus.dev"
+  const apiPaths = new Set(["/api/arcade-public", "/api/arcade-widget"])
+  const bonusMilestonePrefix = "arcade-facilitator-bonus-milestone-v1"
+
+  function isRequest(input) {
+    return typeof Request !== "undefined" && input instanceof Request
+  }
+
+  function getRequestUrl(input) {
+    if (typeof input === "string") return input
+    if (input instanceof URL) return input.toString()
+    if (isRequest(input)) return input.url
+    return ""
+  }
+
+  function getRequestMethod(input, init) {
+    if (init?.method) return String(init.method).toUpperCase()
+    if (isRequest(input)) return input.method.toUpperCase()
+    return "GET"
+  }
+
+  function getConsumerSignal(input, init) {
+    if (init?.signal !== undefined) return init.signal
+    if (isRequest(input)) return input.signal
+    return null
+  }
+
+  function getEffectiveHeaders(input, init) {
+    if (typeof Headers === "undefined") return []
+    const headers =
+      init?.headers !== undefined
+        ? new Headers(init.headers)
+        : isRequest(input)
+          ? new Headers(input.headers)
+          : new Headers()
+
+    return [...headers.entries()].sort(([left], [right]) => left.localeCompare(right))
+  }
+
+  function getEffectiveOption(input, init, name, fallback) {
+    if (init?.[name] !== undefined) return init[name]
+    if (isRequest(input) && input[name] !== undefined) return input[name]
+    return fallback
+  }
+
+  function getRequestKey(url, input, init, body) {
+    return JSON.stringify({
+      url: `${url.origin}${url.pathname}${url.search}`,
+      body,
+      headers: getEffectiveHeaders(input, init),
+      credentials: getEffectiveOption(input, init, "credentials", "same-origin"),
+      mode: getEffectiveOption(input, init, "mode", "cors"),
+      cache: getEffectiveOption(input, init, "cache", "default"),
+      redirect: getEffectiveOption(input, init, "redirect", "follow"),
+      referrerPolicy: getEffectiveOption(input, init, "referrerPolicy", ""),
+    })
+  }
+
+  function normalizeProfileUrl(value) {
+    return typeof value === "string" ? value.trim().replace(/\/$/, "") : ""
+  }
+
+  function isSharedProfilePage() {
+    return /\/(?:profiles\/[^/]+|profile)\/?$/i.test(window.location.pathname)
+  }
+
+  function readBonusMilestoneCompleted(profileUrl) {
+    const searchParams = new URLSearchParams(window.location.search)
+    if (isSharedProfilePage()) return searchParams.get("bonus") === "1"
+
+    try {
+      return (
+        window.localStorage.getItem(`${bonusMilestonePrefix}:${profileUrl}`) ===
+        "true"
+      )
+    } catch {
+      return false
+    }
+  }
+
+  function addBonusMilestoneFlag(body) {
+    try {
+      const payload = JSON.parse(body)
+      if (!payload || typeof payload !== "object") return body
+
+      const facilitator =
+        payload.facilitator && typeof payload.facilitator === "object"
+          ? payload.facilitator
+          : {}
+
+      // Widget requests now send the user's explicit confirmation directly.
+      // Do not overwrite that boolean with localStorage or shared-page fallbacks.
+      if (typeof facilitator.bonusMilestoneCompleted === "boolean") {
+        return body
+      }
+
+      const profileUrl = normalizeProfileUrl(payload.url)
+      if (!profileUrl) return body
+
+      payload.facilitator = {
+        ...facilitator,
+        bonusMilestoneCompleted: readBonusMilestoneCompleted(profileUrl),
+      }
+      return JSON.stringify(payload)
+    } catch {
+      return body
+    }
+  }
+
+  function createAbortError() {
+    try {
+      return new DOMException("The operation was aborted.", "AbortError")
+    } catch {
+      const error = new Error("The operation was aborted.")
+      error.name = "AbortError"
+      return error
+    }
+  }
+
+  function responseForConsumer(sharedRequest, signal) {
+    if (!signal) return sharedRequest.then((response) => response.clone())
+    if (signal.aborted) return Promise.reject(createAbortError())
+
+    return new Promise((resolve, reject) => {
+      let settled = false
+
+      const cleanup = () => signal.removeEventListener("abort", onAbort)
+      const onAbort = () => {
+        if (settled) return
+        settled = true
+        cleanup()
+        reject(createAbortError())
+      }
+
+      signal.addEventListener("abort", onAbort, { once: true })
+      sharedRequest.then(
+        (response) => {
+          if (settled) return
+          settled = true
+          cleanup()
+          resolve(response.clone())
+        },
+        (error) => {
+          if (settled) return
+          settled = true
+          cleanup()
+          reject(error)
+        },
+      )
+    })
+  }
+
+  function dedupeRequest(input, init, url, body, consumerSignal) {
+    if (consumerSignal?.aborted) return Promise.reject(createAbortError())
+
+    const key = getRequestKey(url, input, init, body)
+    const now = Date.now()
+    const cached = recent.get(key)
+
+    if (cached) {
+      if (cached.expiresAt > now) {
+        return Promise.resolve(cached.response.clone())
+      }
+      recent.delete(key)
+    }
+
+    const existing = inFlight.get(key)
+    if (existing) return responseForConsumer(existing, consumerSignal)
+
+    const sharedInit = isRequest(input)
+      ? { ...(init ?? {}), signal: null }
+      : init && "signal" in init
+        ? { ...init, signal: null }
+        : init
+
+    const sharedRequest = originalFetch(input, sharedInit)
+      .then((response) => {
+        if (response.ok) {
+          const entry = {
+            response: response.clone(),
+            expiresAt: Date.now() + recentTtlMs,
+          }
+          recent.set(key, entry)
+          window.setTimeout(() => {
+            if (recent.get(key) === entry) recent.delete(key)
+          }, recentTtlMs)
+        }
+        return response
+      })
+      .finally(() => {
+        if (inFlight.get(key) === sharedRequest) inFlight.delete(key)
+      })
+
+    inFlight.set(key, sharedRequest)
+    return responseForConsumer(sharedRequest, consumerSignal)
+  }
+
+  window.fetch = (input, init) => {
+    const rawUrl = getRequestUrl(input)
+    let url
+
+    try {
+      url = new URL(rawUrl, window.location?.href ?? "https://arcade.eplus.dev/")
+    } catch {
+      return originalFetch(input, init)
+    }
+
+    if (
+      getRequestMethod(input, init) !== "POST" ||
+      url.origin !== apiOrigin ||
+      !apiPaths.has(url.pathname)
+    ) {
+      return originalFetch(input, init)
+    }
+
+    const consumerSignal = getConsumerSignal(input, init)
+
+    if (init?.body !== undefined) {
+      if (typeof init.body !== "string") return originalFetch(input, init)
+      const body = addBonusMilestoneFlag(init.body)
+      const nextInit = body === init.body ? init : { ...init, body }
+      return dedupeRequest(input, nextInit, url, body, consumerSignal)
+    }
+
+    if (!isRequest(input) || input.bodyUsed) return originalFetch(input, init)
+
+    return input
+      .clone()
+      .text()
+      .then(
+        (rawBody) => {
+          const body = addBonusMilestoneFlag(rawBody)
+          if (body === rawBody) {
+            return dedupeRequest(input, init, url, body, consumerSignal)
+          }
+          const request = new Request(input, { body })
+          return dedupeRequest(request, init, url, body, consumerSignal)
+        },
+        () => originalFetch(input, init),
+      )
+  }
+
+  window[installFlag] = true
+})()
+</script><script id="website-catalog-cache-buster">(() => {
+  const version = "7ceb2d5cc5410d8da42372812457fb28515672bf";
+  const originalFetch = window.fetch.bind(window);
+
+  window.fetch = (input, init) => {
+    const rawUrl =
+      typeof input === "string"
+        ? input
+        : input instanceof URL
+          ? input.toString()
+          : input instanceof Request
+            ? input.url
+            : "";
+
+    let url;
+    try {
+      url = new URL(rawUrl, window.location.href);
+    } catch {
+      return originalFetch(input, init);
+    }
+
+    if (!url.pathname.includes("/i18n/") || !url.pathname.endsWith(".json")) {
+      return originalFetch(input, init);
+    }
+
+    url.searchParams.set("v", version);
+    return originalFetch(url.toString(), { ...init, cache: "no-store" });
+  };
+})();</script><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Press+Start+2P&amp;display=swap"/><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerPolicy="no-referrer"/><script src="/pr-preview/pr-81/_next/static/chunks/polyfills-42372ed130431b0a.js" noModule=""></script></head><body><script>((e,t,r,n,o,a,i,u)=>{let l=document.documentElement,s=["light","dark"];function c(t){var r;(Array.isArray(e)?e:[e]).forEach(e=>{let r="class"===e,n=r&&a?o.map(e=>a[e]||e):o;r?(l.classList.remove(...n),l.classList.add(a&&a[t]?a[t]:t)):l.setAttribute(e,t)}),r=t,u&&s.includes(r)&&(l.style.colorScheme=r)}if(n)c(n);else try{let e=localStorage.getItem(t)||r,n=i&&"system"===e?window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light":e;c(n)}catch(e){}})("class","arcade-theme","dark",null,["light","dark"],null,false,true)</script><div class="arcade-dashboard-page min-h-screen"><div class="arcade-stars" aria-hidden="true"></div><header class="arcade-header"><a class="arcade-brand" aria-label="Arcade Points home" href="/pr-preview/pr-81/"><span class="arcade-brand-mark"><i class="fa-icon fa-solid fa-gamepad" style="line-height:1;text-align:center" aria-hidden="true"></i></span><span class="arcade-brand-copy"><strong>ARCADE</strong><b>POINTS</b></span><em>PRO</em></a><nav class="arcade-nav" aria-label="Main navigation"><a href="/pr-preview/pr-81/">Calculator</a><a href="/pr-preview/pr-81/#tiers">Tiers</a><a href="/pr-preview/pr-81/#badges">Badges</a><a href="/pr-preview/pr-81/#extension">Extension</a></nav><div class="arcade-header-actions"></div></header><main class="internal-page-main"><section class="internal-page-hero relative overflow-hidden border-b border-white/10"><div class="internal-page-glow absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,.18),transparent_35%),radial-gradient(circle_at_top_right,rgba(99,102,241,.18),transparent_40%)]"></div><div class="relative mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 sm:py-20"><div class="mb-8 h-5" aria-hidden="true"></div><div class="max-w-3xl"><div class="internal-eyebrow mb-4 inline-flex items-center rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-xs font-semibold uppercase tracking-[.18em] text-cyan-200"><i class="fa-icon fa-solid fa-wand-magic-sparkles mr-2 h-3.5 w-3.5" style="line-height:1;text-align:center" aria-hidden="true"></i> <!-- -->Arcade rewards archive</div><h1 class="internal-page-title text-4xl font-bold tracking-tight text-white sm:text-6xl">Swag drops by season</h1><p class="internal-page-description mt-5 text-lg leading-8 text-slate-300">Explore current and historical Google Skills Arcade rewards by year. Each season keeps its own tier requirements and reward rules so older swag never gets mixed into the current season.</p><p class="internal-page-updated mt-4 text-sm text-slate-500">Last updated: September 16, 2026</p></div></div></section><section class="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-16"><div class="internal-content-card rounded-3xl border border-white/10 bg-white/[0.035] p-6 shadow-2xl shadow-black/20 sm:p-10"><div class="internal-prose prose prose-invert max-w-none prose-headings:scroll-mt-24 prose-headings:text-white prose-p:text-slate-300 prose-li:text-slate-300 prose-a:text-cyan-300"><script type="application/ld+json">{"@context":"https://schema.org","@type":"ItemList","name":"Google Skills Arcade swag seasons","itemListElement":[{"@type":"ListItem","position":1,"name":"Google Skills Arcade 2026 swag drops","url":"https://arcade.eplus.dev/swag-drops/2026/"},{"@type":"ListItem","position":2,"name":"Google Skills Arcade 2025 swag history","url":"https://arcade.eplus.dev/swag-drops/2025/"}]}</script><div class="not-prose grid items-stretch gap-5 md:grid-cols-2"><a class="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-cyan-300 hover:shadow-lg dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-cyan-400/40" href="/pr-preview/pr-81/swag-drops/2026/"><div class="flex h-32 gap-px bg-slate-100 dark:bg-white/10"><div class="flex min-w-0 flex-1 items-center justify-center overflow-hidden bg-white dark:bg-slate-950"><img src="https://d2yds90mtvelsl.cloudfront.net/original/4X/c/4/8/c48e27878cf37a9368b63e7f8ba5e28eae209f30.gif" alt="Arcade Backpack" loading="lazy" decoding="async" class="h-full w-full object-contain p-2 transition duration-300 group-hover:scale-[1.04]"/></div><div class="flex min-w-0 flex-1 items-center justify-center overflow-hidden bg-white dark:bg-slate-950"><img src="https://d2yds90mtvelsl.cloudfront.net/original/4X/c/d/1/cd1f29603f7b53e485bede1ff9044751ae1ee722.gif" alt="Weather-Shield Jacket" loading="lazy" decoding="async" class="h-full w-full object-contain p-2 transition duration-300 group-hover:scale-[1.04]"/></div></div><div class="flex flex-1 flex-col p-6"><div class="flex items-start justify-between gap-4"><span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-100 text-cyan-700 dark:bg-cyan-300/10 dark:text-cyan-200"><i class="fa-icon fa-solid fa-trophy h-6 w-6" style="line-height:1;text-align:center" aria-hidden="true"></i></span><i class="fa-icon fa-solid fa-arrow-right h-5 w-5 text-slate-400 transition group-hover:translate-x-1 group-hover:text-cyan-600" style="line-height:1;text-align:center" aria-hidden="true"></i></div><p class="mt-6 text-xs font-bold uppercase tracking-[.16em] text-cyan-700 dark:text-cyan-300">Season 2026</p><h2 class="mt-2 text-2xl font-bold text-slate-950 dark:text-white">Google Skills Arcade <!-- -->2026</h2><p class="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">Trooper, Ranger, Champion, and Legend requirements plus every confirmed 2026 swag drop.</p><div class="mt-auto flex flex-wrap gap-2 pt-6 text-xs font-semibold text-slate-600 dark:text-slate-300"><span class="rounded-full bg-slate-100 px-3 py-1.5 dark:bg-white/5">2 confirmed drops</span><span class="rounded-full bg-violet-50 px-3 py-1.5 text-violet-700 dark:bg-violet-300/10 dark:text-violet-200">Latest: Arcade Backpack</span></div></div></a><a class="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-violet-300 hover:shadow-lg dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-violet-400/40" href="/pr-preview/pr-81/swag-drops/2025/"><div class="flex h-32 gap-px bg-slate-100 dark:bg-white/10"><div class="flex min-w-0 flex-1 items-center justify-center overflow-hidden bg-white dark:bg-slate-950"><img src="https://d2yds90mtvelsl.cloudfront.net/original/3X/f/d/fd193add717a04766732609e97d1b08da451ace0.gif" alt="The Arcade Novice T-Shirt" loading="lazy" decoding="async" class="h-full w-full object-contain p-2 transition duration-300 group-hover:scale-[1.04]"/></div><div class="flex min-w-0 flex-1 items-center justify-center overflow-hidden bg-white dark:bg-slate-950"><img src="https://d2yds90mtvelsl.cloudfront.net/original/3X/0/2/02257e56486630e6c505ff75a5a61fb56640a314.gif" alt="The Arcade Mug" loading="lazy" decoding="async" class="h-full w-full object-contain p-2 transition duration-300 group-hover:scale-[1.04]"/></div><div class="flex min-w-0 flex-1 items-center justify-center overflow-hidden bg-white dark:bg-slate-950"><img src="https://d2yds90mtvelsl.cloudfront.net/original/3X/6/3/63afee5125653833e5a5fb8429b01a10c754d9f7.gif" alt="The Arcade Magnets" loading="lazy" decoding="async" class="h-full w-full object-contain p-2 transition duration-300 group-hover:scale-[1.04]"/></div><div class="flex min-w-0 flex-1 items-center justify-center overflow-hidden bg-white dark:bg-slate-950"><img src="https://d2yds90mtvelsl.cloudfront.net/original/3X/c/3/c3e80e95b024f05ceef1d2bd6318d58b0391ab39.gif" alt="The Arcade Sticker Sheet" loading="lazy" decoding="async" class="h-full w-full object-contain p-2 transition duration-300 group-hover:scale-[1.04]"/></div></div><div class="flex flex-1 flex-col p-6"><div class="flex items-start justify-between gap-4"><span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-100 text-violet-700 dark:bg-violet-300/10 dark:text-violet-200"><i class="fa-icon fa-solid fa-calendar-days h-6 w-6" style="line-height:1;text-align:center" aria-hidden="true"></i></span><i class="fa-icon fa-solid fa-arrow-right h-5 w-5 text-slate-400 transition group-hover:translate-x-1 group-hover:text-violet-600" style="line-height:1;text-align:center" aria-hidden="true"></i></div><p class="mt-6 text-xs font-bold uppercase tracking-[.16em] text-violet-700 dark:text-violet-300">Historical archive</p><h2 class="mt-2 text-2xl font-bold text-slate-950 dark:text-white">Google Skills Arcade 2025</h2><p class="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">Season 1 and Season 2 tier packages reconstructed from official announcements, the final 2025 wrap-up, and clearly labeled supporting evidence.</p><div class="mt-auto flex flex-wrap gap-2 pt-6 text-xs font-semibold text-slate-600 dark:text-slate-300"><span class="rounded-full bg-slate-100 px-3 py-1.5 dark:bg-white/5">2<!-- --> historical seasons</span><span class="rounded-full bg-violet-50 px-3 py-1.5 text-violet-700 dark:bg-violet-300/10 dark:text-violet-200">Season 1 + Season 2</span></div></div></a></div></div></div></section></main><footer class="internal-page-footer border-t border-white/10"><div class="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-8 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-6"><p>© <!-- -->2026<!-- --> ePlus.DEV. <span>Independent community project.</span></p><div class="flex gap-4"><a class="hover:text-white" href="/pr-preview/pr-81/">Calculator</a><a class="hover:text-white" href="/pr-preview/pr-81/about/">About</a><a class="hover:text-white" href="/pr-preview/pr-81/guide/">Guide</a><a class="hover:text-white" href="/pr-preview/pr-81/privacy/">Privacy</a><a class="hover:text-white" href="/pr-preview/pr-81/terms/">Terms</a></div></div></footer></div><script src="/pr-preview/pr-81/_next/static/chunks/webpack-cc4435c583e2871a.js" async=""></script><script>(self.__next_f=self.__next_f||[]).push([0])</script><script>self.__next_f.push([1,"1:\"$Sreact.fragment\"\n3:I[99304,[\"874\",\"static/chunks/874-61c82510b2828786.js\",\"180\",\"static/chunks/180-6923ed6f54e15538.js\",\"177\",\"static/chunks/app/layout-a9250c181af221bc.js\"],\"ThemeProvider\"]\n4:I[8180,[\"874\",\"static/chunks/874-61c82510b2828786.js\",\"180\",\"static/chunks/180-6923ed6f54e15538.js\",\"177\",\"static/chunks/app/layout-a9250c181af221bc.js\"],\"default\"]\n5:I[27971,[\"874\",\"static/chunks/874-61c82510b2828786.js\",\"180\",\"static/chunks/180-6923ed6f54e15538.js\",\"177\",\"static/chunks/app/layout-a9250c181af221bc.js\"],\"default\"]\n6:I[61545,[\"874\",\"static/chunks/874-61c82510b2828786.js\",\"180\",\"static/chunks/180-6923ed6f54e15538.js\",\"177\",\"static/chunks/app/layout-a9250c181af221bc.js\"],\"default\"]\n7:I[87555,[],\"\"]\n8:I[31295,[],\"\"]\n9:I[66195,[\"874\",\"static/chunks/874-61c82510b2828786.js\",\"180\",\"static/chunks/180-6923ed6f54e15538.js\",\"345\",\"static/chunks/app/not-found-fc8444a99317c5ca.js\"],\"default\"]\na:I[7098,[\"874\",\"static/chunks/874-61c82510b2828786.js\",\"180\",\"static/chunks/180-6923ed6f54e15538.js\",\"177\",\"static/chunks/app/layout-a9250c181af221bc.js\"],\"default\"]\nb:I[6874,[\"874\",\"static/chunks/874-61c82510b2828786.js\",\"742\",\"static/chunks/app/swag-drops/page-8dbf009b14bd4fb1.js\"],\"\"]\nc:I[65907,[\"874\",\"static/chunks/874-61c82510b2828786.js\",\"742\",\"static/chunks/app/swag-drops/page-8dbf009b14bd4fb1.js\"],\"default\"]\nd:I[6601,[\"874\",\"static/chunks/874-61c82510b2828786.js\",\"742\",\"static/chunks/app/swag-drops/page-8dbf009b14bd4fb1.js\"],\"default\"]\ne:I[59665,[],\"OutletBoundary\"]\n11:I[59665,[],\"ViewportBoundary\"]\n13:I[59665,[],\"MetadataBoundary\"]\n15:I[26614,[],\"\"]\n:HL[\"/pr-preview/pr-81/_next/static/css/3a0b36c06ab05fac.css\",\"style\"]\n:HL[\"/pr-preview/pr-81/_next/static/css/151a1c4c08e5b734.css\",\"style\"]\n:HL[\"/pr-preview/pr-81/_next/static/css/311d12be286187bf.css\",\"style\"]\n2:T1d69,"])</script><script>self.__next_f.push([1,"(() =\u003e {\n  const installFlag = \"__eplusArcadeRequestDeduperInstalled\"\n  if (window[installFlag]) return\n\n  const originalFetch = window.fetch.bind(window)\n  const inFlight = new Map()\n  const recent = new Map()\n  const recentTtlMs = 5_000\n  const apiOrigin = \"https://hub.eplus.dev\"\n  const apiPaths = new Set([\"/api/arcade-public\", \"/api/arcade-widget\"])\n  const bonusMilestonePrefix = \"arcade-facilitator-bonus-milestone-v1\"\n\n  function isRequest(input) {\n    return typeof Request !== \"undefined\" \u0026\u0026 input instanceof Request\n  }\n\n  function getRequestUrl(input) {\n    if (typeof input === \"string\") return input\n    if (input instanceof URL) return input.toString()\n    if (isRequest(input)) return input.url\n    return \"\"\n  }\n\n  function getRequestMethod(input, init) {\n    if (init?.method) return String(init.method).toUpperCase()\n    if (isRequest(input)) return input.method.toUpperCase()\n    return \"GET\"\n  }\n\n  function getConsumerSignal(input, init) {\n    if (init?.signal !== undefined) return init.signal\n    if (isRequest(input)) return input.signal\n    return null\n  }\n\n  function getEffectiveHeaders(input, init) {\n    if (typeof Headers === \"undefined\") return []\n    const headers =\n      init?.headers !== undefined\n        ? new Headers(init.headers)\n        : isRequest(input)\n          ? new Headers(input.headers)\n          : new Headers()\n\n    return [...headers.entries()].sort(([left], [right]) =\u003e left.localeCompare(right))\n  }\n\n  function getEffectiveOption(input, init, name, fallback) {\n    if (init?.[name] !== undefined) return init[name]\n    if (isRequest(input) \u0026\u0026 input[name] !== undefined) return input[name]\n    return fallback\n  }\n\n  function getRequestKey(url, input, init, body) {\n    return JSON.stringify({\n      url: `${url.origin}${url.pathname}${url.search}`,\n      body,\n      headers: getEffectiveHeaders(input, init),\n      credentials: getEffectiveOption(input, init, \"credentials\", \"same-origin\"),\n      mode: getEffectiveOption(input, init, \"mode\", \"cors\"),\n      cache: getEffectiveOption(input, init, \"cache\", \"default\"),\n      redirect: getEffectiveOption(input, init, \"redirect\", \"follow\"),\n      referrerPolicy: getEffectiveOption(input, init, \"referrerPolicy\", \"\"),\n    })\n  }\n\n  function normalizeProfileUrl(value) {\n    return typeof value === \"string\" ? value.trim().replace(/\\/$/, \"\") : \"\"\n  }\n\n  function isSharedProfilePage() {\n    return /\\/(?:profiles\\/[^/]+|profile)\\/?$/i.test(window.location.pathname)\n  }\n\n  function readBonusMilestoneCompleted(profileUrl) {\n    const searchParams = new URLSearchParams(window.location.search)\n    if (isSharedProfilePage()) return searchParams.get(\"bonus\") === \"1\"\n\n    try {\n      return (\n        window.localStorage.getItem(`${bonusMilestonePrefix}:${profileUrl}`) ===\n        \"true\"\n      )\n    } catch {\n      return false\n    }\n  }\n\n  function addBonusMilestoneFlag(body) {\n    try {\n      const payload = JSON.parse(body)\n      if (!payload || typeof payload !== \"object\") return body\n\n      const facilitator =\n        payload.facilitator \u0026\u0026 typeof payload.facilitator === \"object\"\n          ? payload.facilitator\n          : {}\n\n      // Widget requests now send the user's explicit confirmation directly.\n      // Do not overwrite that boolean with localStorage or shared-page fallbacks.\n      if (typeof facilitator.bonusMilestoneCompleted === \"boolean\") {\n        return body\n      }\n\n      const profileUrl = normalizeProfileUrl(payload.url)\n      if (!profileUrl) return body\n\n      payload.facilitator = {\n        ...facilitator,\n        bonusMilestoneCompleted: readBonusMilestoneCompleted(profileUrl),\n      }\n      return JSON.stringify(payload)\n    } catch {\n      return body\n    }\n  }\n\n  function createAbortError() {\n    try {\n      return new DOMException(\"The operation was aborted.\", \"AbortError\")\n    } catch {\n      const error = new Error(\"The operation was aborted.\")\n      error.name = \"AbortError\"\n      return error\n    }\n  }\n\n  function responseForConsumer(sharedRequest, signal) {\n    if (!signal) return sharedRequest.then((response) =\u003e response.clone())\n    if (signal.aborted) return Promise.reject(createAbortError())\n\n    return new Promise((resolve, reject) =\u003e {\n      let settled = false\n\n      const cleanup = () =\u003e signal.removeEventListener(\"abort\", onAbort)\n      const onAbort = () =\u003e {\n        if (settled) return\n        settled = true\n        cleanup()\n        reject(createAbortError())\n      }\n\n      signal.addEventListener(\"abort\", onAbort, { once: true })\n      sharedRequest.then(\n        (response) =\u003e {\n          if (settled) return\n          settled = true\n          cleanup()\n          resolve(response.clone())\n        },\n        (error) =\u003e {\n          if (settled) return\n          settled = true\n          cleanup()\n          reject(error)\n        },\n      )\n    })\n  }\n\n  function dedupeRequest(input, init, url, body, consumerSignal) {\n    if (consumerSignal?.aborted) return Promise.reject(createAbortError())\n\n    const key = getRequestKey(url, input, init, body)\n    const now = Date.now()\n    const cached = recent.get(key)\n\n    if (cached) {\n      if (cached.expiresAt \u003e now) {\n        return Promise.resolve(cached.response.clone())\n      }\n      recent.delete(key)\n    }\n\n    const existing = inFlight.get(key)\n    if (existing) return responseForConsumer(existing, consumerSignal)\n\n    const sharedInit = isRequest(input)\n      ? { ...(init ?? {}), signal: null }\n      : init \u0026\u0026 \"signal\" in init\n        ? { ...init, signal: null }\n        : init\n\n    const sharedRequest = originalFetch(input, sharedInit)\n      .then((response) =\u003e {\n        if (response.ok) {\n          const entry = {\n            response: response.clone(),\n            expiresAt: Date.now() + recentTtlMs,\n          }\n          recent.set(key, entry)\n          window.setTimeout(() =\u003e {\n            if (recent.get(key) === entry) recent.delete(key)\n          }, recentTtlMs)\n        }\n        return response\n      })\n      .finally(() =\u003e {\n        if (inFlight.get(key) === sharedRequest) inFlight.delete(key)\n      })\n\n    inFlight.set(key, sharedRequest)\n    return responseForConsumer(sharedRequest, consumerSignal)\n  }\n\n  window.fetch = (input, init) =\u003e {\n    const rawUrl = getRequestUrl(input)\n    let url\n\n    try {\n      url = new URL(rawUrl, window.location?.href ?? \"https://arcade.eplus.dev/\")\n    } catch {\n      return originalFetch(input, init)\n    }\n\n    if (\n      getRequestMethod(input, init) !== \"POST\" ||\n      url.origin !== apiOrigin ||\n      !apiPaths.has(url.pathname)\n    ) {\n      return originalFetch(input, init)\n    }\n\n    const consumerSignal = getConsumerSignal(input, init)\n\n    if (init?.body !== undefined) {\n      if (typeof init.body !== \"string\") return originalFetch(input, init)\n      const body = addBonusMilestoneFlag(init.body)\n      const nextInit = body === init.body ? init : { ...init, body }\n      return dedupeRequest(input, nextInit, url, body, consumerSignal)\n    }\n\n    if (!isRequest(input) || input.bodyUsed) return originalFetch(input, init)\n\n    return input\n      .clone()\n      .text()\n      .then(\n        (rawBody) =\u003e {\n          const body = addBonusMilestoneFlag(rawBody)\n          if (body === rawBody) {\n            return dedupeRequest(input, init, url, body, consumerSignal)\n          }\n          const request = new Request(input, { body })\n          return dedupeRequest(request, init, url, body, consumerSignal)\n        },\n        () =\u003e originalFetch(input, init),\n      )\n  }\n\n  window[installFlag] = true\n})()\n"])</script><script>self.__next_f.push([1,"0:{\"P\":null,\"b\":\"dmN55-hwZoY4T9la25FUl\",\"p\":\"/pr-preview/pr-81\",\"c\":[\"\",\"swag-drops\",\"\"],\"i\":false,\"f\":[[[\"\",{\"children\":[\"swag-drops\",{\"children\":[\"__PAGE__\",{}]}]},\"$undefined\",\"$undefined\",true],[\"\",[\"$\",\"$1\",\"c\",{\"children\":[[[\"$\",\"link\",\"0\",{\"rel\":\"stylesheet\",\"href\":\"/pr-preview/pr-81/_next/static/css/3a0b36c06ab05fac.css\",\"precedence\":\"next\",\"crossOrigin\":\"$undefined\",\"nonce\":\"$undefined\"}],[\"$\",\"link\",\"1\",{\"rel\":\"stylesheet\",\"href\":\"/pr-preview/pr-81/_next/static/css/151a1c4c08e5b734.css\",\"precedence\":\"next\",\"crossOrigin\":\"$undefined\",\"nonce\":\"$undefined\"}],[\"$\",\"link\",\"2\",{\"rel\":\"stylesheet\",\"href\":\"/pr-preview/pr-81/_next/static/css/311d12be286187bf.css\",\"precedence\":\"next\",\"crossOrigin\":\"$undefined\",\"nonce\":\"$undefined\"}]],[\"$\",\"html\",null,{\"lang\":\"en\",\"dir\":\"ltr\",\"data-locale\":\"en\",\"suppressHydrationWarning\":true,\"children\":[[\"$\",\"head\",null,{\"children\":[[\"$\",\"script\",null,{\"id\":\"arcade-request-dedupe\",\"dangerouslySetInnerHTML\":{\"__html\":\"$2\"}}],[\"$\",\"script\",null,{\"id\":\"website-catalog-cache-buster\",\"dangerouslySetInnerHTML\":{\"__html\":\"(() =\u003e {\\n  const version = \\\"7ceb2d5cc5410d8da42372812457fb28515672bf\\\";\\n  const originalFetch = window.fetch.bind(window);\\n\\n  window.fetch = (input, init) =\u003e {\\n    const rawUrl =\\n      typeof input === \\\"string\\\"\\n        ? input\\n        : input instanceof URL\\n          ? input.toString()\\n          : input instanceof Request\\n            ? input.url\\n            : \\\"\\\";\\n\\n    let url;\\n    try {\\n      url = new URL(rawUrl, window.location.href);\\n    } catch {\\n      return originalFetch(input, init);\\n    }\\n\\n    if (!url.pathname.includes(\\\"/i18n/\\\") || !url.pathname.endsWith(\\\".json\\\")) {\\n      return originalFetch(input, init);\\n    }\\n\\n    url.searchParams.set(\\\"v\\\", version);\\n    return originalFetch(url.toString(), { ...init, cache: \\\"no-store\\\" });\\n  };\\n})();\"}}],[\"$\",\"link\",null,{\"rel\":\"preconnect\",\"href\":\"https://fonts.googleapis.com\"}],[\"$\",\"link\",null,{\"rel\":\"preconnect\",\"href\":\"https://fonts.gstatic.com\",\"crossOrigin\":\"anonymous\"}],[\"$\",\"link\",null,{\"rel\":\"preconnect\",\"href\":\"https://cdnjs.cloudflare.com\"}],[\"$\",\"link\",null,{\"rel\":\"stylesheet\",\"href\":\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800\u0026family=Press+Start+2P\u0026display=swap\"}],[\"$\",\"link\",null,{\"rel\":\"stylesheet\",\"href\":\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css\",\"integrity\":\"sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==\",\"crossOrigin\":\"anonymous\",\"referrerPolicy\":\"no-referrer\"}],[\"$\",\"meta\",null,{\"name\":\"cookie-notice-preview\",\"content\":\"true\"}],null]}],[\"$\",\"body\",null,{\"children\":[\"$\",\"$L3\",null,{\"attribute\":\"class\",\"defaultTheme\":\"dark\",\"enableSystem\":false,\"disableTransitionOnChange\":true,\"storageKey\":\"arcade-theme\",\"children\":[[\"$\",\"$L4\",null,{}],[\"$\",\"$L5\",null,{}],[\"$\",\"$L6\",null,{}],[\"$\",\"$L7\",null,{\"parallelRouterKey\":\"children\",\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L8\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":[[\"$\",\"$L9\",null,{}],[]],\"forbidden\":\"$undefined\",\"unauthorized\":\"$undefined\"}],[\"$\",\"$La\",null,{\"analyticsEnabled\":false,\"previewMode\":true}]]}]}]]}]]}],{\"children\":[\"swag-drops\",[\"$\",\"$1\",\"c\",{\"children\":[null,[\"$\",\"$L7\",null,{\"parallelRouterKey\":\"children\",\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L8\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":\"$undefined\",\"forbidden\":\"$undefined\",\"unauthorized\":\"$undefined\"}]]}],{\"children\":[\"__PAGE__\",[\"$\",\"$1\",\"c\",{\"children\":[[\"$\",\"div\",null,{\"className\":\"arcade-dashboard-page min-h-screen\",\"children\":[[\"$\",\"div\",null,{\"className\":\"arcade-stars\",\"aria-hidden\":\"true\"}],[\"$\",\"header\",null,{\"className\":\"arcade-header\",\"children\":[[\"$\",\"$Lb\",null,{\"className\":\"arcade-brand\",\"href\":\"/\",\"aria-label\":\"Arcade Points home\",\"children\":[[\"$\",\"span\",null,{\"className\":\"arcade-brand-mark\",\"children\":[\"$\",\"i\",null,{\"ref\":\"$undefined\",\"className\":\"fa-icon fa-solid fa-gamepad\",\"style\":{\"color\":\"$undefined\",\"width\":\"$undefined\",\"height\":\"$undefined\",\"fontSize\":\"$undefined\",\"lineHeight\":1,\"textAlign\":\"center\"},\"aria-hidden\":true}]}],[\"$\",\"span\",null,{\"className\":\"arcade-brand-copy\",\"children\":[[\"$\",\"strong\",null,{\"children\":\"ARCADE\"}],[\"$\",\"b\",null,{\"children\":\"POINTS\"}]]}],[\"$\",\"em\",null,{\"children\":\"PRO\"}]]}],[\"$\",\"nav\",null,{\"className\":\"arcade-nav\",\"aria-label\":\"Main navigation\",\"children\":[[\"$\",\"$Lb\",null,{\"href\":\"/\",\"children\":\"Calculator\"}],[\"$\",\"$Lb\",null,{\"href\":\"/#tiers\",\"children\":\"Tiers\"}],[\"$\",\"$Lb\",null,{\"href\":\"/#badges\",\"children\":\"Badges\"}],[\"$\",\"$Lb\",null,{\"href\":\"/#extension\",\"children\":\"Extension\"}]]}],[\"$\",\"div\",null,{\"className\":\"arcade-header-actions\"}]]}],[\"$\",\"main\",null,{\"className\":\"internal-page-main\",\"children\":[[\"$\",\"section\",null,{\"className\":\"internal-page-hero relative overflow-hidden border-b border-white/10\",\"children\":[[\"$\",\"div\",null,{\"className\":\"internal-page-glow absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,.18),transparent_35%),radial-gradient(circle_at_top_right,rgba(99,102,241,.18),transparent_40%)]\"}],[\"$\",\"div\",null,{\"className\":\"relative mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 sm:py-20\",\"children\":[[\"$\",\"$Lc\",null,{}],[\"$\",\"div\",null,{\"className\":\"max-w-3xl\",\"children\":[[\"$\",\"div\",null,{\"className\":\"internal-eyebrow mb-4 inline-flex items-center rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-xs font-semibold uppercase tracking-[.18em] text-cyan-200\",\"children\":[[\"$\",\"i\",null,{\"ref\":\"$undefined\",\"className\":\"fa-icon fa-solid fa-wand-magic-sparkles mr-2 h-3.5 w-3.5\",\"style\":{\"color\":\"$undefined\",\"width\":\"$undefined\",\"height\":\"$undefined\",\"fontSize\":\"$undefined\",\"lineHeight\":1,\"textAlign\":\"center\"},\"aria-hidden\":true}],\" \",\"Arcade rewards archive\"]}],[\"$\",\"h1\",null,{\"className\":\"internal-page-title text-4xl font-bold tracking-tight text-white sm:text-6xl\",\"children\":\"Swag drops by season\"}],[\"$\",\"p\",null,{\"className\":\"internal-page-description mt-5 text-lg leading-8 text-slate-300\",\"children\":\"Explore current and historical Google Skills Arcade rewards by year. Each season keeps its own tier requirements and reward rules so older swag never gets mixed into the current season.\"}],[\"$\",\"p\",null,{\"className\":\"internal-page-updated mt-4 text-sm text-slate-500\",\"children\":\"Last updated: September 16, 2026\"}]]}]]}]]}],[\"$\",\"section\",null,{\"className\":\"mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-16\",\"children\":[\"$\",\"div\",null,{\"className\":\"internal-content-card rounded-3xl border border-white/10 bg-white/[0.035] p-6 shadow-2xl shadow-black/20 sm:p-10\",\"children\":[\"$\",\"div\",null,{\"className\":\"internal-prose prose prose-invert max-w-none prose-headings:scroll-mt-24 prose-headings:text-white prose-p:text-slate-300 prose-li:text-slate-300 prose-a:text-cyan-300\",\"children\":[[\"$\",\"script\",null,{\"type\":\"application/ld+json\",\"dangerouslySetInnerHTML\":{\"__html\":\"{\\\"@context\\\":\\\"https://schema.org\\\",\\\"@type\\\":\\\"ItemList\\\",\\\"name\\\":\\\"Google Skills Arcade swag seasons\\\",\\\"itemListElement\\\":[{\\\"@type\\\":\\\"ListItem\\\",\\\"position\\\":1,\\\"name\\\":\\\"Google Skills Arcade 2026 swag drops\\\",\\\"url\\\":\\\"https://arcade.eplus.dev/swag-drops/2026/\\\"},{\\\"@type\\\":\\\"ListItem\\\",\\\"position\\\":2,\\\"name\\\":\\\"Google Skills Arcade 2025 swag history\\\",\\\"url\\\":\\\"https://arcade.eplus.dev/swag-drops/2025/\\\"}]}\"}}],[\"$\",\"div\",null,{\"className\":\"not-prose grid items-stretch gap-5 md:grid-cols-2\",\"children\":[[[\"$\",\"$Lb\",\"2026\",{\"href\":\"/swag-drops/2026/\",\"className\":\"group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-cyan-300 hover:shadow-lg dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-cyan-400/40\",\"children\":[[\"$\",\"div\",null,{\"className\":\"flex h-32 gap-px bg-slate-100 dark:bg-white/10\",\"children\":[[\"$\",\"div\",\"arcade-backpack\",{\"className\":\"flex min-w-0 flex-1 items-center justify-center overflow-hidden bg-white dark:bg-slate-950\",\"children\":[\"$\",\"$Ld\",null,{\"src\":\"https://d2yds90mtvelsl.cloudfront.net/original/4X/c/4/8/c48e27878cf37a9368b63e7f8ba5e28eae209f30.gif\",\"alt\":\"Arcade Backpack\",\"className\":\"h-full w-full object-contain p-2 transition duration-300 group-hover:scale-[1.04]\"}]}],[\"$\",\"div\",\"weather-shield-jacket\",{\"className\":\"flex min-w-0 flex-1 items-center justify-center overflow-hidden bg-white dark:bg-slate-950\",\"children\":[\"$\",\"$Ld\",null,{\"src\":\"https://d2yds90mtvelsl.cloudfront.net/original/4X/c/d/1/cd1f29603f7b53e485bede1ff9044751ae1ee722.gif\",\"alt\":\"Weather-Shield Jacket\",\"className\":\"h-full w-full object-contain p-2 transition duration-300 group-hover:scale-[1.04]\"}]}]]}],[\"$\",\"div\",null,{\"className\":\"flex flex-1 flex-col p-6\",\"children\":[[\"$\",\"div\",null,{\"className\":\"flex items-start justify-between gap-4\",\"children\":[[\"$\",\"span\",null,{\"className\":\"flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-100 text-cyan-700 dark:bg-cyan-300/10 dark:text-cyan-200\",\"children\":[\"$\",\"i\",null,{\"ref\":\"$undefined\",\"className\":\"fa-icon fa-solid fa-trophy h-6 w-6\",\"style\":{\"color\":\"$undefined\",\"width\":\"$undefined\",\"height\":\"$undefined\",\"fontSize\":\"$undefined\",\"lineHeight\":1,\"textAlign\":\"center\"},\"aria-hidden\":\"true\"}]}],[\"$\",\"i\",null,{\"ref\":\"$undefined\",\"className\":\"fa-icon fa-solid fa-arrow-right h-5 w-5 text-slate-400 transition group-hover:translate-x-1 group-hover:text-cyan-600\",\"style\":{\"color\":\"$undefined\",\"width\":\"$undefined\",\"height\":\"$undefined\",\"fontSize\":\"$undefined\",\"lineHeight\":1,\"textAlign\":\"center\"},\"aria-hidden\":\"true\"}]]}],[\"$\",\"p\",null,{\"className\":\"mt-6 text-xs font-bold uppercase tracking-[.16em] text-cyan-700 dark:text-cyan-300\",\"children\":\"Season 2026\"}],[\"$\",\"h2\",null,{\"className\":\"mt-2 text-2xl font-bold text-slate-950 dark:text-white\",\"children\":[\"Google Skills Arcade \",2026]}],[\"$\",\"p\",null,{\"className\":\"mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300\",\"children\":\"Trooper, Ranger, Champion, and Legend requirements plus every confirmed 2026 swag drop.\"}],[\"$\",\"div\",null,{\"className\":\"mt-auto flex flex-wrap gap-2 pt-6 text-xs font-semibold text-slate-600 dark:text-slate-300\",\"children\":[[\"$\",\"span\",null,{\"className\":\"rounded-full bg-slate-100 px-3 py-1.5 dark:bg-white/5\",\"children\":\"2 confirmed drops\"}],[\"$\",\"span\",null,{\"className\":\"rounded-full bg-violet-50 px-3 py-1.5 text-violet-700 dark:bg-violet-300/10 dark:text-violet-200\",\"children\":\"Latest: Arcade Backpack\"}]]}]]}]]}]],[\"$\",\"$Lb\",null,{\"href\":\"/swag-drops/2025/\",\"className\":\"group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-violet-300 hover:shadow-lg dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-violet-400/40\",\"children\":[[\"$\",\"div\",null,{\"className\":\"flex h-32 gap-px bg-slate-100 dark:bg-white/10\",\"children\":[[\"$\",\"div\",\"https://d2yds90mtvelsl.cloudfront.net/original/3X/f/d/fd193add717a04766732609e97d1b08da451ace0.gif\",{\"className\":\"flex min-w-0 flex-1 items-center justify-center overflow-hidden bg-white dark:bg-slate-950\",\"children\":[\"$\",\"$Ld\",null,{\"src\":\"https://d2yds90mtvelsl.cloudfront.net/original/3X/f/d/fd193add717a04766732609e97d1b08da451ace0.gif\",\"alt\":\"The Arcade Novice T-Shirt\",\"className\":\"h-full w-full object-contain p-2 transition duration-300 group-hover:scale-[1.04]\"}]}],[\"$\",\"div\",\"https://d2yds90mtvelsl.cloudfront.net/original/3X/0/2/02257e56486630e6c505ff75a5a61fb56640a314.gif\",{\"className\":\"flex min-w-0 flex-1 items-center justify-center overflow-hidden bg-white dark:bg-slate-950\",\"children\":[\"$\",\"$Ld\",null,{\"src\":\"https://d2yds90mtvelsl.cloudfront.net/original/3X/0/2/02257e56486630e6c505ff75a5a61fb56640a314.gif\",\"alt\":\"The Arcade Mug\",\"className\":\"h-full w-full object-contain p-2 transition duration-300 group-hover:scale-[1.04]\"}]}],[\"$\",\"div\",\"https://d2yds90mtvelsl.cloudfront.net/original/3X/6/3/63afee5125653833e5a5fb8429b01a10c754d9f7.gif\",{\"className\":\"flex min-w-0 flex-1 items-center justify-center overflow-hidden bg-white dark:bg-slate-950\",\"children\":[\"$\",\"$Ld\",null,{\"src\":\"https://d2yds90mtvelsl.cloudfront.net/original/3X/6/3/63afee5125653833e5a5fb8429b01a10c754d9f7.gif\",\"alt\":\"The Arcade Magnets\",\"className\":\"h-full w-full object-contain p-2 transition duration-300 group-hover:scale-[1.04]\"}]}],[\"$\",\"div\",\"https://d2yds90mtvelsl.cloudfront.net/original/3X/c/3/c3e80e95b024f05ceef1d2bd6318d58b0391ab39.gif\",{\"className\":\"flex min-w-0 flex-1 items-center justify-center overflow-hidden bg-white dark:bg-slate-950\",\"children\":[\"$\",\"$Ld\",null,{\"src\":\"https://d2yds90mtvelsl.cloudfront.net/original/3X/c/3/c3e80e95b024f05ceef1d2bd6318d58b0391ab39.gif\",\"alt\":\"The Arcade Sticker Sheet\",\"className\":\"h-full w-full object-contain p-2 transition duration-300 group-hover:scale-[1.04]\"}]}]]}],[\"$\",\"div\",null,{\"className\":\"flex flex-1 flex-col p-6\",\"children\":[[\"$\",\"div\",null,{\"className\":\"flex items-start justify-between gap-4\",\"children\":[[\"$\",\"span\",null,{\"className\":\"flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-100 text-violet-700 dark:bg-violet-300/10 dark:text-violet-200\",\"children\":[\"$\",\"i\",null,{\"ref\":\"$undefined\",\"className\":\"fa-icon fa-solid fa-calendar-days h-6 w-6\",\"style\":{\"color\":\"$undefined\",\"width\":\"$undefined\",\"height\":\"$undefined\",\"fontSize\":\"$undefined\",\"lineHeight\":1,\"textAlign\":\"center\"},\"aria-hidden\":\"true\"}]}],[\"$\",\"i\",null,{\"ref\":\"$undefined\",\"className\":\"fa-icon fa-solid fa-arrow-right h-5 w-5 text-slate-400 transition group-hover:translate-x-1 group-hover:text-violet-600\",\"style\":{\"color\":\"$undefined\",\"width\":\"$undefined\",\"height\":\"$undefined\",\"fontSize\":\"$undefined\",\"lineHeight\":1,\"textAlign\":\"center\"},\"aria-hidden\":\"true\"}]]}],[\"$\",\"p\",null,{\"className\":\"mt-6 text-xs font-bold uppercase tracking-[.16em] text-violet-700 dark:text-violet-300\",\"children\":\"Historical archive\"}],[\"$\",\"h2\",null,{\"className\":\"mt-2 text-2xl font-bold text-slate-950 dark:text-white\",\"children\":\"Google Skills Arcade 2025\"}],[\"$\",\"p\",null,{\"className\":\"mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300\",\"children\":\"Season 1 and Season 2 tier packages reconstructed from official announcements, the final 2025 wrap-up, and clearly labeled supporting evidence.\"}],[\"$\",\"div\",null,{\"className\":\"mt-auto flex flex-wrap gap-2 pt-6 text-xs font-semibold text-slate-600 dark:text-slate-300\",\"children\":[[\"$\",\"span\",null,{\"className\":\"rounded-full bg-slate-100 px-3 py-1.5 dark:bg-white/5\",\"children\":[2,\" historical seasons\"]}],[\"$\",\"span\",null,{\"className\":\"rounded-full bg-violet-50 px-3 py-1.5 text-violet-700 dark:bg-violet-300/10 dark:text-violet-200\",\"children\":\"Season 1 + Season 2\"}]]}]]}]]}]]}]]}]}]}]]}],[\"$\",\"footer\",null,{\"className\":\"internal-page-footer border-t border-white/10\",\"children\":[\"$\",\"div\",null,{\"className\":\"mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-8 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-6\",\"children\":[[\"$\",\"p\",null,{\"children\":[\"© \",2026,\" ePlus.DEV. \",[\"$\",\"span\",null,{\"children\":\"Independent community project.\"}]]}],[\"$\",\"div\",null,{\"className\":\"flex gap-4\",\"children\":[[\"$\",\"$Lb\",null,{\"href\":\"/\",\"className\":\"hover:text-white\",\"children\":\"Calculator\"}],[\"$\",\"$Lb\",null,{\"href\":\"/about/\",\"className\":\"hover:text-white\",\"children\":\"About\"}],[\"$\",\"$Lb\",null,{\"href\":\"/guide/\",\"className\":\"hover:text-white\",\"children\":\"Guide\"}],[\"$\",\"$Lb\",null,{\"href\":\"/privacy/\",\"className\":\"hover:text-white\",\"children\":\"Privacy\"}],[\"$\",\"$Lb\",null,{\"href\":\"/terms/\",\"className\":\"hover:text-white\",\"children\":\"Terms\"}]]}]]}]}]]}],\"$undefined\",null,[\"$\",\"$Le\",null,{\"children\":[\"$Lf\",\"$L10\",null]}]]}],{},null,false]},null,false]},null,false],[\"$\",\"$1\",\"h\",{\"children\":[null,[\"$\",\"$1\",\"A3YMRJ6T9qBKxIhE-Nwrq\",{\"children\":[[\"$\",\"$L11\",null,{\"children\":\"$L12\"}],null]}],[\"$\",\"$L13\",null,{\"children\":\"$L14\"}]]}],false]],\"m\":\"$undefined\",\"G\":[\"$15\",\"$undefined\"],\"s\":false,\"S\":true}\n"])</script><script>self.__next_f.push([1,"12:[[\"$\",\"meta\",\"0\",{\"charSet\":\"utf-8\"}],[\"$\",\"meta\",\"1\",{\"name\":\"viewport\",\"content\":\"width=device-width, initial-scale=1\"}],[\"$\",\"meta\",\"2\",{\"name\":\"color-scheme\",\"content\":\"light dark\"}]]\nf:null\n"])</script><script>self.__next_f.push([1,"10:null\n"])</script><script>self.__next_f.push([1,"14:[[\"$\",\"title\",\"0\",{\"children\":\"Google Skills Arcade Swag Drops \u0026 Rewards by Year | ePlus.DEV\"}],[\"$\",\"meta\",\"1\",{\"name\":\"description\",\"content\":\"Browse Google Skills Arcade swag drops, reward tiers, prize slots, and confirmed or sourced historical reward announcements by season.\"}],[\"$\",\"meta\",\"2\",{\"name\":\"application-name\",\"content\":\"Arcade Points by ePlus.DEV\"}],[\"$\",\"link\",\"3\",{\"rel\":\"author\",\"href\":\"https://eplus.dev\"}],[\"$\",\"meta\",\"4\",{\"name\":\"author\",\"content\":\"ePlus.DEV\"}],[\"$\",\"link\",\"5\",{\"rel\":\"manifest\",\"href\":\"/pr-preview/pr-81/manifest.json\",\"crossOrigin\":\"$undefined\"}],[\"$\",\"meta\",\"6\",{\"name\":\"generator\",\"content\":\"Next.js\"}],[\"$\",\"meta\",\"7\",{\"name\":\"keywords\",\"content\":\"Google Cloud Arcade points calculator,Google Skills Arcade calculator,Google Cloud Skills Boost badges,Google Skills public profile tracker,Arcade Facilitator points,Google Cloud Arcade milestones,Arcade points 2026,Google Cloud Arcade rewards,Google Cloud Skills Boost Helper\"}],[\"$\",\"meta\",\"8\",{\"name\":\"referrer\",\"content\":\"origin-when-cross-origin\"}],[\"$\",\"meta\",\"9\",{\"name\":\"creator\",\"content\":\"ePlus.DEV\"}],[\"$\",\"meta\",\"10\",{\"name\":\"publisher\",\"content\":\"ePlus.DEV\"}],[\"$\",\"meta\",\"11\",{\"name\":\"robots\",\"content\":\"index, follow\"}],[\"$\",\"meta\",\"12\",{\"name\":\"googlebot\",\"content\":\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\"}],[\"$\",\"meta\",\"13\",{\"name\":\"category\",\"content\":\"technology\"}],[\"$\",\"link\",\"14\",{\"rel\":\"canonical\",\"href\":\"https://arcade.eplus.dev/swag-drops/\"}],[\"$\",\"meta\",\"15\",{\"property\":\"og:title\",\"content\":\"Google Skills Arcade Swag Drops \u0026 Rewards by Year\"}],[\"$\",\"meta\",\"16\",{\"property\":\"og:description\",\"content\":\"Browse Google Skills Arcade swag drops, reward tiers, prize slots, and confirmed or sourced historical reward announcements by season.\"}],[\"$\",\"meta\",\"17\",{\"property\":\"og:url\",\"content\":\"https://arcade.eplus.dev/swag-drops/\"}],[\"$\",\"meta\",\"18\",{\"property\":\"og:type\",\"content\":\"website\"}],[\"$\",\"meta\",\"19\",{\"name\":\"twitter:card\",\"content\":\"summary_large_image\"}],[\"$\",\"meta\",\"20\",{\"name\":\"twitter:title\",\"content\":\"Google Skills Arcade Swag Drops \u0026 Rewards by Year\"}],[\"$\",\"meta\",\"21\",{\"name\":\"twitter:description\",\"content\":\"Browse Google Skills Arcade swag drops, reward tiers, prize slots, and confirmed or sourced historical reward announcements by season.\"}],[\"$\",\"link\",\"22\",{\"rel\":\"icon\",\"href\":\"/pr-preview/pr-81/favicon.ico\",\"type\":\"image/x-icon\",\"sizes\":\"48x48\"}],[\"$\",\"link\",\"23\",{\"rel\":\"icon\",\"href\":\"/pr-preview/pr-81/icon0.svg?66a7cd687bde5efd\",\"type\":\"image/svg+xml\",\"sizes\":\"any\"}],[\"$\",\"link\",\"24\",{\"rel\":\"icon\",\"href\":\"/pr-preview/pr-81/icon1.png?52e5d01a77c5680f\",\"type\":\"image/png\",\"sizes\":\"96x96\"}],[\"$\",\"link\",\"25\",{\"rel\":\"apple-touch-icon\",\"href\":\"/pr-preview/pr-81/apple-icon.png?97901d54c640609b\",\"type\":\"image/png\",\"sizes\":\"180x180\"}]]\n"])</script></body></html>

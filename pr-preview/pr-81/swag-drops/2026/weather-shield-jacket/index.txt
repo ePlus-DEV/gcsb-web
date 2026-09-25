@@ -1,0 +1,278 @@
+1:"$Sreact.fragment"
+3:I[99304,["874","static/chunks/874-61c82510b2828786.js","180","static/chunks/180-6923ed6f54e15538.js","177","static/chunks/app/layout-a9250c181af221bc.js"],"ThemeProvider"]
+4:I[8180,["874","static/chunks/874-61c82510b2828786.js","180","static/chunks/180-6923ed6f54e15538.js","177","static/chunks/app/layout-a9250c181af221bc.js"],"default"]
+5:I[27971,["874","static/chunks/874-61c82510b2828786.js","180","static/chunks/180-6923ed6f54e15538.js","177","static/chunks/app/layout-a9250c181af221bc.js"],"default"]
+6:I[61545,["874","static/chunks/874-61c82510b2828786.js","180","static/chunks/180-6923ed6f54e15538.js","177","static/chunks/app/layout-a9250c181af221bc.js"],"default"]
+7:I[87555,[],""]
+8:I[31295,[],""]
+9:I[66195,["874","static/chunks/874-61c82510b2828786.js","180","static/chunks/180-6923ed6f54e15538.js","345","static/chunks/app/not-found-fc8444a99317c5ca.js"],"default"]
+a:I[7098,["874","static/chunks/874-61c82510b2828786.js","180","static/chunks/180-6923ed6f54e15538.js","177","static/chunks/app/layout-a9250c181af221bc.js"],"default"]
+c:I[59665,[],"OutletBoundary"]
+f:I[59665,[],"ViewportBoundary"]
+11:I[59665,[],"MetadataBoundary"]
+13:I[26614,[],""]
+:HL["/pr-preview/pr-81/_next/static/css/3a0b36c06ab05fac.css","style"]
+:HL["/pr-preview/pr-81/_next/static/css/151a1c4c08e5b734.css","style"]
+:HL["/pr-preview/pr-81/_next/static/css/311d12be286187bf.css","style"]
+2:T1d69,(() => {
+  const installFlag = "__eplusArcadeRequestDeduperInstalled"
+  if (window[installFlag]) return
+
+  const originalFetch = window.fetch.bind(window)
+  const inFlight = new Map()
+  const recent = new Map()
+  const recentTtlMs = 5_000
+  const apiOrigin = "https://hub.eplus.dev"
+  const apiPaths = new Set(["/api/arcade-public", "/api/arcade-widget"])
+  const bonusMilestonePrefix = "arcade-facilitator-bonus-milestone-v1"
+
+  function isRequest(input) {
+    return typeof Request !== "undefined" && input instanceof Request
+  }
+
+  function getRequestUrl(input) {
+    if (typeof input === "string") return input
+    if (input instanceof URL) return input.toString()
+    if (isRequest(input)) return input.url
+    return ""
+  }
+
+  function getRequestMethod(input, init) {
+    if (init?.method) return String(init.method).toUpperCase()
+    if (isRequest(input)) return input.method.toUpperCase()
+    return "GET"
+  }
+
+  function getConsumerSignal(input, init) {
+    if (init?.signal !== undefined) return init.signal
+    if (isRequest(input)) return input.signal
+    return null
+  }
+
+  function getEffectiveHeaders(input, init) {
+    if (typeof Headers === "undefined") return []
+    const headers =
+      init?.headers !== undefined
+        ? new Headers(init.headers)
+        : isRequest(input)
+          ? new Headers(input.headers)
+          : new Headers()
+
+    return [...headers.entries()].sort(([left], [right]) => left.localeCompare(right))
+  }
+
+  function getEffectiveOption(input, init, name, fallback) {
+    if (init?.[name] !== undefined) return init[name]
+    if (isRequest(input) && input[name] !== undefined) return input[name]
+    return fallback
+  }
+
+  function getRequestKey(url, input, init, body) {
+    return JSON.stringify({
+      url: `${url.origin}${url.pathname}${url.search}`,
+      body,
+      headers: getEffectiveHeaders(input, init),
+      credentials: getEffectiveOption(input, init, "credentials", "same-origin"),
+      mode: getEffectiveOption(input, init, "mode", "cors"),
+      cache: getEffectiveOption(input, init, "cache", "default"),
+      redirect: getEffectiveOption(input, init, "redirect", "follow"),
+      referrerPolicy: getEffectiveOption(input, init, "referrerPolicy", ""),
+    })
+  }
+
+  function normalizeProfileUrl(value) {
+    return typeof value === "string" ? value.trim().replace(/\/$/, "") : ""
+  }
+
+  function isSharedProfilePage() {
+    return /\/(?:profiles\/[^/]+|profile)\/?$/i.test(window.location.pathname)
+  }
+
+  function readBonusMilestoneCompleted(profileUrl) {
+    const searchParams = new URLSearchParams(window.location.search)
+    if (isSharedProfilePage()) return searchParams.get("bonus") === "1"
+
+    try {
+      return (
+        window.localStorage.getItem(`${bonusMilestonePrefix}:${profileUrl}`) ===
+        "true"
+      )
+    } catch {
+      return false
+    }
+  }
+
+  function addBonusMilestoneFlag(body) {
+    try {
+      const payload = JSON.parse(body)
+      if (!payload || typeof payload !== "object") return body
+
+      const facilitator =
+        payload.facilitator && typeof payload.facilitator === "object"
+          ? payload.facilitator
+          : {}
+
+      // Widget requests now send the user's explicit confirmation directly.
+      // Do not overwrite that boolean with localStorage or shared-page fallbacks.
+      if (typeof facilitator.bonusMilestoneCompleted === "boolean") {
+        return body
+      }
+
+      const profileUrl = normalizeProfileUrl(payload.url)
+      if (!profileUrl) return body
+
+      payload.facilitator = {
+        ...facilitator,
+        bonusMilestoneCompleted: readBonusMilestoneCompleted(profileUrl),
+      }
+      return JSON.stringify(payload)
+    } catch {
+      return body
+    }
+  }
+
+  function createAbortError() {
+    try {
+      return new DOMException("The operation was aborted.", "AbortError")
+    } catch {
+      const error = new Error("The operation was aborted.")
+      error.name = "AbortError"
+      return error
+    }
+  }
+
+  function responseForConsumer(sharedRequest, signal) {
+    if (!signal) return sharedRequest.then((response) => response.clone())
+    if (signal.aborted) return Promise.reject(createAbortError())
+
+    return new Promise((resolve, reject) => {
+      let settled = false
+
+      const cleanup = () => signal.removeEventListener("abort", onAbort)
+      const onAbort = () => {
+        if (settled) return
+        settled = true
+        cleanup()
+        reject(createAbortError())
+      }
+
+      signal.addEventListener("abort", onAbort, { once: true })
+      sharedRequest.then(
+        (response) => {
+          if (settled) return
+          settled = true
+          cleanup()
+          resolve(response.clone())
+        },
+        (error) => {
+          if (settled) return
+          settled = true
+          cleanup()
+          reject(error)
+        },
+      )
+    })
+  }
+
+  function dedupeRequest(input, init, url, body, consumerSignal) {
+    if (consumerSignal?.aborted) return Promise.reject(createAbortError())
+
+    const key = getRequestKey(url, input, init, body)
+    const now = Date.now()
+    const cached = recent.get(key)
+
+    if (cached) {
+      if (cached.expiresAt > now) {
+        return Promise.resolve(cached.response.clone())
+      }
+      recent.delete(key)
+    }
+
+    const existing = inFlight.get(key)
+    if (existing) return responseForConsumer(existing, consumerSignal)
+
+    const sharedInit = isRequest(input)
+      ? { ...(init ?? {}), signal: null }
+      : init && "signal" in init
+        ? { ...init, signal: null }
+        : init
+
+    const sharedRequest = originalFetch(input, sharedInit)
+      .then((response) => {
+        if (response.ok) {
+          const entry = {
+            response: response.clone(),
+            expiresAt: Date.now() + recentTtlMs,
+          }
+          recent.set(key, entry)
+          window.setTimeout(() => {
+            if (recent.get(key) === entry) recent.delete(key)
+          }, recentTtlMs)
+        }
+        return response
+      })
+      .finally(() => {
+        if (inFlight.get(key) === sharedRequest) inFlight.delete(key)
+      })
+
+    inFlight.set(key, sharedRequest)
+    return responseForConsumer(sharedRequest, consumerSignal)
+  }
+
+  window.fetch = (input, init) => {
+    const rawUrl = getRequestUrl(input)
+    let url
+
+    try {
+      url = new URL(rawUrl, window.location?.href ?? "https://arcade.eplus.dev/")
+    } catch {
+      return originalFetch(input, init)
+    }
+
+    if (
+      getRequestMethod(input, init) !== "POST" ||
+      url.origin !== apiOrigin ||
+      !apiPaths.has(url.pathname)
+    ) {
+      return originalFetch(input, init)
+    }
+
+    const consumerSignal = getConsumerSignal(input, init)
+
+    if (init?.body !== undefined) {
+      if (typeof init.body !== "string") return originalFetch(input, init)
+      const body = addBonusMilestoneFlag(init.body)
+      const nextInit = body === init.body ? init : { ...init, body }
+      return dedupeRequest(input, nextInit, url, body, consumerSignal)
+    }
+
+    if (!isRequest(input) || input.bodyUsed) return originalFetch(input, init)
+
+    return input
+      .clone()
+      .text()
+      .then(
+        (rawBody) => {
+          const body = addBonusMilestoneFlag(rawBody)
+          if (body === rawBody) {
+            return dedupeRequest(input, init, url, body, consumerSignal)
+          }
+          const request = new Request(input, { body })
+          return dedupeRequest(request, init, url, body, consumerSignal)
+        },
+        () => originalFetch(input, init),
+      )
+  }
+
+  window[installFlag] = true
+})()
+0:{"P":null,"b":"dmN55-hwZoY4T9la25FUl","p":"/pr-preview/pr-81","c":["","swag-drops","2026","weather-shield-jacket",""],"i":false,"f":[[["",{"children":["swag-drops",{"children":["2026",{"children":[["slug","weather-shield-jacket","d"],{"children":["__PAGE__",{}]}]}]}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/pr-preview/pr-81/_next/static/css/3a0b36c06ab05fac.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}],["$","link","1",{"rel":"stylesheet","href":"/pr-preview/pr-81/_next/static/css/151a1c4c08e5b734.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}],["$","link","2",{"rel":"stylesheet","href":"/pr-preview/pr-81/_next/static/css/311d12be286187bf.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"en","dir":"ltr","data-locale":"en","suppressHydrationWarning":true,"children":[["$","head",null,{"children":[["$","script",null,{"id":"arcade-request-dedupe","dangerouslySetInnerHTML":{"__html":"$2"}}],["$","script",null,{"id":"website-catalog-cache-buster","dangerouslySetInnerHTML":{"__html":"(() => {\n  const version = \"7ceb2d5cc5410d8da42372812457fb28515672bf\";\n  const originalFetch = window.fetch.bind(window);\n\n  window.fetch = (input, init) => {\n    const rawUrl =\n      typeof input === \"string\"\n        ? input\n        : input instanceof URL\n          ? input.toString()\n          : input instanceof Request\n            ? input.url\n            : \"\";\n\n    let url;\n    try {\n      url = new URL(rawUrl, window.location.href);\n    } catch {\n      return originalFetch(input, init);\n    }\n\n    if (!url.pathname.includes(\"/i18n/\") || !url.pathname.endsWith(\".json\")) {\n      return originalFetch(input, init);\n    }\n\n    url.searchParams.set(\"v\", version);\n    return originalFetch(url.toString(), { ...init, cache: \"no-store\" });\n  };\n})();"}}],["$","link",null,{"rel":"preconnect","href":"https://fonts.googleapis.com"}],["$","link",null,{"rel":"preconnect","href":"https://fonts.gstatic.com","crossOrigin":"anonymous"}],["$","link",null,{"rel":"preconnect","href":"https://cdnjs.cloudflare.com"}],["$","link",null,{"rel":"stylesheet","href":"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Press+Start+2P&display=swap"}],["$","link",null,{"rel":"stylesheet","href":"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css","integrity":"sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==","crossOrigin":"anonymous","referrerPolicy":"no-referrer"}],["$","meta",null,{"name":"cookie-notice-preview","content":"true"}],null]}],["$","body",null,{"children":["$","$L3",null,{"attribute":"class","defaultTheme":"dark","enableSystem":false,"disableTransitionOnChange":true,"storageKey":"arcade-theme","children":[["$","$L4",null,{}],["$","$L5",null,{}],["$","$L6",null,{}],["$","$L7",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","$L9",null,{}],[]],"forbidden":"$undefined","unauthorized":"$undefined"}],["$","$La",null,{"analyticsEnabled":false,"previewMode":true}]]}]}]]}]]}],{"children":["swag-drops",["$","$1","c",{"children":[null,["$","$L7",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":["2026",["$","$1","c",{"children":[null,["$","$L7",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":[["slug","weather-shield-jacket","d"],["$","$1","c",{"children":[null,["$","$L7",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":["__PAGE__",["$","$1","c",{"children":["$Lb","$undefined",null,["$","$Lc",null,{"children":["$Ld","$Le",null]}]]}],{},null,false]},null,false]},null,false]},null,false]},null,false],["$","$1","h",{"children":[null,["$","$1","pvqT9rcBSMErSZWho_gNj",{"children":[["$","$Lf",null,{"children":"$L10"}],null]}],["$","$L11",null,{"children":"$L12"}]]}],false]],"m":"$undefined","G":["$13","$undefined"],"s":false,"S":true}
+14:I[6874,["874","static/chunks/874-61c82510b2828786.js","364","static/chunks/364-798d984f7c82ea27.js","783","static/chunks/app/swag-drops/2026/%5Bslug%5D/page-a8041f817aca602f.js"],""]
+15:I[65907,["874","static/chunks/874-61c82510b2828786.js","364","static/chunks/364-798d984f7c82ea27.js","783","static/chunks/app/swag-drops/2026/%5Bslug%5D/page-a8041f817aca602f.js"],"default"]
+16:I[33739,["874","static/chunks/874-61c82510b2828786.js","364","static/chunks/364-798d984f7c82ea27.js","783","static/chunks/app/swag-drops/2026/%5Bslug%5D/page-a8041f817aca602f.js"],"default"]
+17:I[79361,["874","static/chunks/874-61c82510b2828786.js","364","static/chunks/364-798d984f7c82ea27.js","783","static/chunks/app/swag-drops/2026/%5Bslug%5D/page-a8041f817aca602f.js"],"default"]
+b:["$","div",null,{"className":"arcade-dashboard-page min-h-screen","children":[["$","div",null,{"className":"arcade-stars","aria-hidden":"true"}],["$","header",null,{"className":"arcade-header","children":[["$","$L14",null,{"className":"arcade-brand","href":"/","aria-label":"Arcade Points home","children":[["$","span",null,{"className":"arcade-brand-mark","children":["$","i",null,{"ref":"$undefined","className":"fa-icon fa-solid fa-gamepad","style":{"color":"$undefined","width":"$undefined","height":"$undefined","fontSize":"$undefined","lineHeight":1,"textAlign":"center"},"aria-hidden":true}]}],["$","span",null,{"className":"arcade-brand-copy","children":[["$","strong",null,{"children":"ARCADE"}],["$","b",null,{"children":"POINTS"}]]}],["$","em",null,{"children":"PRO"}]]}],["$","nav",null,{"className":"arcade-nav","aria-label":"Main navigation","children":[["$","$L14",null,{"href":"/","children":"Calculator"}],["$","$L14",null,{"href":"/#tiers","children":"Tiers"}],["$","$L14",null,{"href":"/#badges","children":"Badges"}],["$","$L14",null,{"href":"/#extension","children":"Extension"}]]}],["$","div",null,{"className":"arcade-header-actions"}]]}],["$","main",null,{"className":"internal-page-main","children":[["$","section",null,{"className":"internal-page-hero relative overflow-hidden border-b border-white/10","children":[["$","div",null,{"className":"internal-page-glow absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,.18),transparent_35%),radial-gradient(circle_at_top_right,rgba(99,102,241,.18),transparent_40%)]"}],["$","div",null,{"className":"relative mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 sm:py-20","children":[["$","$L15",null,{}],["$","div",null,{"className":"max-w-3xl","children":[["$","div",null,{"className":"internal-eyebrow mb-4 inline-flex items-center rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-xs font-semibold uppercase tracking-[.18em] text-cyan-200","children":[["$","i",null,{"ref":"$undefined","className":"fa-icon fa-solid fa-wand-magic-sparkles mr-2 h-3.5 w-3.5","style":{"color":"$undefined","width":"$undefined","height":"$undefined","fontSize":"$undefined","lineHeight":1,"textAlign":"center"},"aria-hidden":true}]," ","Arcade 2026 swag drop #1"]}],["$","h1",null,{"className":"internal-page-title text-4xl font-bold tracking-tight text-white sm:text-6xl","children":"The Arcade Weather-Shield Jacket"}],["$","p",null,{"className":"internal-page-description mt-5 text-lg leading-8 text-slate-300","children":"A lightweight weather layer announced for the Arcade Champion and Arcade Legend tiers."}],["$","p",null,{"className":"internal-page-updated mt-4 text-sm text-slate-500","children":"Last updated: September 15, 2026"}]]}]]}]]}],["$","section",null,{"className":"mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-16","children":["$","div",null,{"className":"internal-content-card rounded-3xl border border-white/10 bg-white/[0.035] p-6 shadow-2xl shadow-black/20 sm:p-10","children":["$","div",null,{"className":"internal-prose prose prose-invert max-w-none prose-headings:scroll-mt-24 prose-headings:text-white prose-p:text-slate-300 prose-li:text-slate-300 prose-a:text-cyan-300","children":[["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"BreadcrumbList\",\"itemListElement\":[{\"@type\":\"ListItem\",\"position\":1,\"name\":\"Swag Drops\",\"item\":\"https://arcade.eplus.dev/swag-drops/\"},{\"@type\":\"ListItem\",\"position\":2,\"name\":\"2026\",\"item\":\"https://arcade.eplus.dev/swag-drops/2026/\"},{\"@type\":\"ListItem\",\"position\":3,\"name\":\"Weather-Shield Jacket\",\"item\":\"https://arcade.eplus.dev/swag-drops/2026/weather-shield-jacket/\"}]}"}}],["$","div",null,{"className":"not-prose space-y-8","children":[["$","section",null,{"className":"grid overflow-hidden rounded-3xl border border-cyan-300/20 bg-gradient-to-br from-cyan-50 via-white to-violet-50 dark:from-cyan-950/20 dark:via-slate-950/80 dark:to-violet-950/20 lg:grid-cols-[0.85fr_1.15fr]","children":[["$","div",null,{"className":"flex min-h-72 items-center justify-center bg-white/50 p-6 dark:bg-black/10","children":["$","$L16",null,{"src":"https://d2yds90mtvelsl.cloudfront.net/original/4X/c/d/1/cd1f29603f7b53e485bede1ff9044751ae1ee722.gif","alt":"The Arcade Weather-Shield Jacket","className":"h-72 w-full object-contain"}]}],["$","div",null,{"className":"flex flex-col justify-center p-6 sm:p-9","children":[["$","div",null,{"className":"flex flex-wrap items-center gap-2","children":[["$","span",null,{"className":"rounded-full bg-cyan-100 px-3 py-1.5 text-xs font-semibold text-cyan-800 dark:bg-cyan-300/10 dark:text-cyan-200","children":"2026 swag drop #1"}],["$","span",null,{"className":"rounded-full bg-violet-100 px-3 py-1.5 text-xs font-semibold text-violet-800 dark:bg-violet-300/10 dark:text-violet-200","children":"First 2026 swag drop"}]]}],["$","p",null,{"className":"mt-4 text-sm font-semibold text-cyan-700 dark:text-cyan-300","children":"Revealed September 15, 2026"}],["$","h2",null,{"className":"mt-2 text-3xl font-bold tracking-tight text-slate-950 dark:text-white","children":"Weather-Shield Jacket"}],["$","p",null,{"className":"mt-4 text-sm leading-6 text-slate-600 dark:text-slate-300","children":"A lightweight weather layer announced for the Arcade Champion and Arcade Legend tiers."}],["$","div",null,{"className":"mt-5 flex flex-wrap gap-2","children":[["$","$L14","champion",{"href":"/swag-drops/2026/champion/","className":"rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 hover:border-cyan-300 dark:border-white/10 dark:bg-white/5 dark:text-slate-200","children":["Arcade ","Champion"]}],["$","$L14","legend",{"href":"/swag-drops/2026/legend/","className":"rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 hover:border-cyan-300 dark:border-white/10 dark:bg-white/5 dark:text-slate-200","children":["Arcade ","Legend"]}]]}]]}]]}],["$","section",null,{"children":[["$","h2",null,{"className":"text-2xl font-bold text-slate-950 dark:text-white","children":"Features announced for this reward"}],["$","ul",null,{"className":"mt-4 grid gap-3 sm:grid-cols-2","children":[["$","li","Light-rain and wind-resistant outer weave",{"className":"flex gap-3 rounded-xl border border-slate-200 bg-white p-4 text-sm leading-6 text-slate-600 dark:border-white/10 dark:bg-white/[0.035] dark:text-slate-300","children":[["$","i",null,{"ref":"$undefined","className":"fa-icon fa-solid fa-circle-check mt-0.5 h-4 w-4 shrink-0 text-cyan-600 dark:text-cyan-300","style":{"color":"$undefined","width":"$undefined","height":"$undefined","fontSize":"$undefined","lineHeight":1,"textAlign":"center"},"aria-hidden":"true"}],["$","span",null,{"children":"Light-rain and wind-resistant outer weave"}]]}],["$","li","Google Cloud chest branding and super cloud sleeve mark",{"className":"flex gap-3 rounded-xl border border-slate-200 bg-white p-4 text-sm leading-6 text-slate-600 dark:border-white/10 dark:bg-white/[0.035] dark:text-slate-300","children":[["$","i",null,{"ref":"$undefined","className":"fa-icon fa-solid fa-circle-check mt-0.5 h-4 w-4 shrink-0 text-cyan-600 dark:text-cyan-300","style":{"color":"$undefined","width":"$undefined","height":"$undefined","fontSize":"$undefined","lineHeight":1,"textAlign":"center"},"aria-hidden":"true"}],["$","span",null,{"children":"Google Cloud chest branding and super cloud sleeve mark"}]]}],["$","li","High collar, adjustable cuffs, and elastic hem",{"className":"flex gap-3 rounded-xl border border-slate-200 bg-white p-4 text-sm leading-6 text-slate-600 dark:border-white/10 dark:bg-white/[0.035] dark:text-slate-300","children":[["$","i",null,{"ref":"$undefined","className":"fa-icon fa-solid fa-circle-check mt-0.5 h-4 w-4 shrink-0 text-cyan-600 dark:text-cyan-300","style":{"color":"$undefined","width":"$undefined","height":"$undefined","fontSize":"$undefined","lineHeight":1,"textAlign":"center"},"aria-hidden":"true"}],["$","span",null,{"children":"High collar, adjustable cuffs, and elastic hem"}]]}],["$","li","Deep zippered hand-warmer pockets",{"className":"flex gap-3 rounded-xl border border-slate-200 bg-white p-4 text-sm leading-6 text-slate-600 dark:border-white/10 dark:bg-white/[0.035] dark:text-slate-300","children":[["$","i",null,{"ref":"$undefined","className":"fa-icon fa-solid fa-circle-check mt-0.5 h-4 w-4 shrink-0 text-cyan-600 dark:text-cyan-300","style":{"color":"$undefined","width":"$undefined","height":"$undefined","fontSize":"$undefined","lineHeight":1,"textAlign":"center"},"aria-hidden":"true"}],["$","span",null,{"children":"Deep zippered hand-warmer pockets"}]]}],["$","li","Lightweight construction for everyday movement",{"className":"flex gap-3 rounded-xl border border-slate-200 bg-white p-4 text-sm leading-6 text-slate-600 dark:border-white/10 dark:bg-white/[0.035] dark:text-slate-300","children":[["$","i",null,{"ref":"$undefined","className":"fa-icon fa-solid fa-circle-check mt-0.5 h-4 w-4 shrink-0 text-cyan-600 dark:text-cyan-300","style":{"color":"$undefined","width":"$undefined","height":"$undefined","fontSize":"$undefined","lineHeight":1,"textAlign":"center"},"aria-hidden":"true"}],["$","span",null,{"children":"Lightweight construction for everyday movement"}]]}]]}]]}],["$","section",null,{"className":"grid gap-4 lg:grid-cols-[1.2fr_0.8fr]","children":[["$","article",null,{"className":"rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-white/10 dark:bg-white/[0.025]","children":[["$","h2",null,{"className":"text-lg font-bold text-slate-950 dark:text-white","children":"Eligible tiers & live availability"}],["$","div",null,{"className":"mt-4 grid gap-3 sm:grid-cols-2","children":[["$","div","champion",{"className":"rounded-xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-white/[0.035]","children":[["$","div",null,{"className":"flex items-center justify-between gap-2","children":[["$","$L14",null,{"href":"/swag-drops/2026/champion/","className":"text-xs font-bold uppercase tracking-[.1em] text-cyan-700 hover:underline dark:text-cyan-300","children":["Arcade ","Champion"]}],["$","span",null,{"className":"text-[10px] text-slate-400","children":"95–119 points"}]]}],["$","div",null,{"className":"mt-3","children":["$","$L17",null,{"points":95,"totalSlots":3000,"compact":true}]}]]}],["$","div","legend",{"className":"rounded-xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-white/[0.035]","children":[["$","div",null,{"className":"flex items-center justify-between gap-2","children":[["$","$L14",null,{"href":"/swag-drops/2026/legend/","className":"text-xs font-bold uppercase tracking-[.1em] text-cyan-700 hover:underline dark:text-cyan-300","children":["Arcade ","Legend"]}],["$","span",null,{"className":"text-[10px] text-slate-400","children":"120+ points"}]]}],["$","div",null,{"className":"mt-3","children":["$","$L17",null,{"points":120,"totalSlots":2500,"compact":true}]}]]}]]}]]}],["$","article",null,{"className":"rounded-2xl border border-amber-200 bg-amber-50/70 p-5 dark:border-amber-300/15 dark:bg-amber-300/[0.035]","children":[["$","span",null,{"className":"text-xs font-bold uppercase tracking-[.12em] text-amber-700 dark:text-amber-300","children":"Combined prize-slot capacity"}],["$","strong",null,{"className":"mt-2 block text-3xl text-slate-950 dark:text-white","children":"5,500"}],["$","p",null,{"className":"mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300","children":"Maximum recipient capacity across the eligible tier pools. Live remaining counts are shown per tier because the pools fill independently. This is not a published stock count for the physical item."}]]}]]}],["$","div",null,{"className":"flex flex-wrap gap-4","children":[["$","a",null,{"href":"https://discuss.google.dev/t/swag-drop-the-arcade-weather-shield-jacket/397353","target":"_blank","rel":"noreferrer noopener","className":"inline-flex items-center gap-2 rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white dark:bg-cyan-300 dark:text-slate-950","children":["Official Google reveal ",["$","i",null,{"ref":"$undefined","className":"fa-icon fa-solid fa-arrow-up-right-from-square h-4 w-4","style":{"color":"$undefined","width":"$undefined","height":"$undefined","fontSize":"$undefined","lineHeight":1,"textAlign":"center"},"aria-hidden":"true"}]]}],["$","$L14",null,{"href":"/swag-drops/2026/","className":"inline-flex items-center gap-2 px-2 py-2.5 text-sm font-semibold text-cyan-700 hover:underline dark:text-cyan-300","children":["All 2026 rewards"," ",["$","i",null,{"ref":"$undefined","className":"fa-icon fa-solid fa-arrow-right h-4 w-4","style":{"color":"$undefined","width":"$undefined","height":"$undefined","fontSize":"$undefined","lineHeight":1,"textAlign":"center"},"aria-hidden":"true"}]]}]]}]]}]]}]}]}]]}],["$","footer",null,{"className":"internal-page-footer border-t border-white/10","children":["$","div",null,{"className":"mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-8 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-6","children":[["$","p",null,{"children":["© ",2026," ePlus.DEV. ",["$","span",null,{"children":"Independent community project."}]]}],["$","div",null,{"className":"flex gap-4","children":[["$","$L14",null,{"href":"/","className":"hover:text-white","children":"Calculator"}],["$","$L14",null,{"href":"/about/","className":"hover:text-white","children":"About"}],["$","$L14",null,{"href":"/guide/","className":"hover:text-white","children":"Guide"}],["$","$L14",null,{"href":"/privacy/","className":"hover:text-white","children":"Privacy"}],["$","$L14",null,{"href":"/terms/","className":"hover:text-white","children":"Terms"}]]}]]}]}]]}]
+10:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","2",{"name":"color-scheme","content":"light dark"}]]
+d:null
+e:null
+12:[["$","title","0",{"children":"Google Skills Arcade Weather-Shield Jacket 2026 | ePlus.DEV"}],["$","meta","1",{"name":"description","content":"A lightweight weather layer announced for the Arcade Champion and Arcade Legend tiers. See eligible 2026 tiers, reveal date, features, live prize-slot availability, and the official Google announcement."}],["$","meta","2",{"name":"application-name","content":"Arcade Points by ePlus.DEV"}],["$","link","3",{"rel":"author","href":"https://eplus.dev"}],["$","meta","4",{"name":"author","content":"ePlus.DEV"}],["$","link","5",{"rel":"manifest","href":"/pr-preview/pr-81/manifest.json","crossOrigin":"$undefined"}],["$","meta","6",{"name":"generator","content":"Next.js"}],["$","meta","7",{"name":"keywords","content":"Google Cloud Arcade points calculator,Google Skills Arcade calculator,Google Cloud Skills Boost badges,Google Skills public profile tracker,Arcade Facilitator points,Google Cloud Arcade milestones,Arcade points 2026,Google Cloud Arcade rewards,Google Cloud Skills Boost Helper"}],["$","meta","8",{"name":"referrer","content":"origin-when-cross-origin"}],["$","meta","9",{"name":"creator","content":"ePlus.DEV"}],["$","meta","10",{"name":"publisher","content":"ePlus.DEV"}],["$","meta","11",{"name":"robots","content":"index, follow"}],["$","meta","12",{"name":"googlebot","content":"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"}],["$","meta","13",{"name":"category","content":"technology"}],["$","link","14",{"rel":"canonical","href":"https://arcade.eplus.dev/swag-drops/2026/weather-shield-jacket/"}],["$","meta","15",{"property":"og:title","content":"Google Skills Arcade Weather-Shield Jacket 2026"}],["$","meta","16",{"property":"og:description","content":"A lightweight weather layer announced for the Arcade Champion and Arcade Legend tiers. See eligible 2026 tiers, reveal date, features, live prize-slot availability, and the official Google announcement."}],["$","meta","17",{"property":"og:url","content":"https://arcade.eplus.dev/swag-drops/2026/weather-shield-jacket/"}],["$","meta","18",{"property":"og:image","content":"https://d2yds90mtvelsl.cloudfront.net/original/4X/c/d/1/cd1f29603f7b53e485bede1ff9044751ae1ee722.gif"}],["$","meta","19",{"property":"og:image:alt","content":"The Arcade Weather-Shield Jacket"}],["$","meta","20",{"property":"og:type","content":"article"}],["$","meta","21",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","22",{"name":"twitter:title","content":"Google Skills Arcade Weather-Shield Jacket 2026"}],["$","meta","23",{"name":"twitter:description","content":"A lightweight weather layer announced for the Arcade Champion and Arcade Legend tiers. See eligible 2026 tiers, reveal date, features, live prize-slot availability, and the official Google announcement."}],["$","meta","24",{"name":"twitter:image","content":"https://d2yds90mtvelsl.cloudfront.net/original/4X/c/d/1/cd1f29603f7b53e485bede1ff9044751ae1ee722.gif"}],["$","link","25",{"rel":"icon","href":"/pr-preview/pr-81/favicon.ico","type":"image/x-icon","sizes":"48x48"}],["$","link","26",{"rel":"icon","href":"/pr-preview/pr-81/icon0.svg?66a7cd687bde5efd","type":"image/svg+xml","sizes":"any"}],["$","link","27",{"rel":"icon","href":"/pr-preview/pr-81/icon1.png?52e5d01a77c5680f","type":"image/png","sizes":"96x96"}],["$","link","28",{"rel":"apple-touch-icon","href":"/pr-preview/pr-81/apple-icon.png?97901d54c640609b","type":"image/png","sizes":"180x180"}]]

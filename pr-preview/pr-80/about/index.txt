@@ -1,0 +1,275 @@
+1:"$Sreact.fragment"
+3:I[99304,["874","static/chunks/874-61c82510b2828786.js","180","static/chunks/180-c247cd0cdb9c92d9.js","177","static/chunks/app/layout-bca9e79140b87baa.js"],"ThemeProvider"]
+4:I[8180,["874","static/chunks/874-61c82510b2828786.js","180","static/chunks/180-c247cd0cdb9c92d9.js","177","static/chunks/app/layout-bca9e79140b87baa.js"],"default"]
+5:I[27971,["874","static/chunks/874-61c82510b2828786.js","180","static/chunks/180-c247cd0cdb9c92d9.js","177","static/chunks/app/layout-bca9e79140b87baa.js"],"default"]
+6:I[61545,["874","static/chunks/874-61c82510b2828786.js","180","static/chunks/180-c247cd0cdb9c92d9.js","177","static/chunks/app/layout-bca9e79140b87baa.js"],"default"]
+7:I[87555,[],""]
+8:I[31295,[],""]
+9:I[66195,["874","static/chunks/874-61c82510b2828786.js","180","static/chunks/180-c247cd0cdb9c92d9.js","345","static/chunks/app/not-found-fc8444a99317c5ca.js"],"default"]
+a:I[7098,["874","static/chunks/874-61c82510b2828786.js","180","static/chunks/180-c247cd0cdb9c92d9.js","177","static/chunks/app/layout-bca9e79140b87baa.js"],"default"]
+b:I[6874,["874","static/chunks/874-61c82510b2828786.js","220","static/chunks/app/about/page-01b95593bad8887f.js"],""]
+c:I[65907,["874","static/chunks/874-61c82510b2828786.js","220","static/chunks/app/about/page-01b95593bad8887f.js"],"default"]
+d:I[59665,[],"OutletBoundary"]
+10:I[59665,[],"ViewportBoundary"]
+12:I[59665,[],"MetadataBoundary"]
+14:I[26614,[],""]
+:HL["/pr-preview/pr-80/_next/static/css/3a0b36c06ab05fac.css","style"]
+:HL["/pr-preview/pr-80/_next/static/css/151a1c4c08e5b734.css","style"]
+:HL["/pr-preview/pr-80/_next/static/css/311d12be286187bf.css","style"]
+2:T1d69,(() => {
+  const installFlag = "__eplusArcadeRequestDeduperInstalled"
+  if (window[installFlag]) return
+
+  const originalFetch = window.fetch.bind(window)
+  const inFlight = new Map()
+  const recent = new Map()
+  const recentTtlMs = 5_000
+  const apiOrigin = "https://hub.eplus.dev"
+  const apiPaths = new Set(["/api/arcade-public", "/api/arcade-widget"])
+  const bonusMilestonePrefix = "arcade-facilitator-bonus-milestone-v1"
+
+  function isRequest(input) {
+    return typeof Request !== "undefined" && input instanceof Request
+  }
+
+  function getRequestUrl(input) {
+    if (typeof input === "string") return input
+    if (input instanceof URL) return input.toString()
+    if (isRequest(input)) return input.url
+    return ""
+  }
+
+  function getRequestMethod(input, init) {
+    if (init?.method) return String(init.method).toUpperCase()
+    if (isRequest(input)) return input.method.toUpperCase()
+    return "GET"
+  }
+
+  function getConsumerSignal(input, init) {
+    if (init?.signal !== undefined) return init.signal
+    if (isRequest(input)) return input.signal
+    return null
+  }
+
+  function getEffectiveHeaders(input, init) {
+    if (typeof Headers === "undefined") return []
+    const headers =
+      init?.headers !== undefined
+        ? new Headers(init.headers)
+        : isRequest(input)
+          ? new Headers(input.headers)
+          : new Headers()
+
+    return [...headers.entries()].sort(([left], [right]) => left.localeCompare(right))
+  }
+
+  function getEffectiveOption(input, init, name, fallback) {
+    if (init?.[name] !== undefined) return init[name]
+    if (isRequest(input) && input[name] !== undefined) return input[name]
+    return fallback
+  }
+
+  function getRequestKey(url, input, init, body) {
+    return JSON.stringify({
+      url: `${url.origin}${url.pathname}${url.search}`,
+      body,
+      headers: getEffectiveHeaders(input, init),
+      credentials: getEffectiveOption(input, init, "credentials", "same-origin"),
+      mode: getEffectiveOption(input, init, "mode", "cors"),
+      cache: getEffectiveOption(input, init, "cache", "default"),
+      redirect: getEffectiveOption(input, init, "redirect", "follow"),
+      referrerPolicy: getEffectiveOption(input, init, "referrerPolicy", ""),
+    })
+  }
+
+  function normalizeProfileUrl(value) {
+    return typeof value === "string" ? value.trim().replace(/\/$/, "") : ""
+  }
+
+  function isSharedProfilePage() {
+    return /\/(?:profiles\/[^/]+|profile)\/?$/i.test(window.location.pathname)
+  }
+
+  function readBonusMilestoneCompleted(profileUrl) {
+    const searchParams = new URLSearchParams(window.location.search)
+    if (isSharedProfilePage()) return searchParams.get("bonus") === "1"
+
+    try {
+      return (
+        window.localStorage.getItem(`${bonusMilestonePrefix}:${profileUrl}`) ===
+        "true"
+      )
+    } catch {
+      return false
+    }
+  }
+
+  function addBonusMilestoneFlag(body) {
+    try {
+      const payload = JSON.parse(body)
+      if (!payload || typeof payload !== "object") return body
+
+      const facilitator =
+        payload.facilitator && typeof payload.facilitator === "object"
+          ? payload.facilitator
+          : {}
+
+      // Widget requests now send the user's explicit confirmation directly.
+      // Do not overwrite that boolean with localStorage or shared-page fallbacks.
+      if (typeof facilitator.bonusMilestoneCompleted === "boolean") {
+        return body
+      }
+
+      const profileUrl = normalizeProfileUrl(payload.url)
+      if (!profileUrl) return body
+
+      payload.facilitator = {
+        ...facilitator,
+        bonusMilestoneCompleted: readBonusMilestoneCompleted(profileUrl),
+      }
+      return JSON.stringify(payload)
+    } catch {
+      return body
+    }
+  }
+
+  function createAbortError() {
+    try {
+      return new DOMException("The operation was aborted.", "AbortError")
+    } catch {
+      const error = new Error("The operation was aborted.")
+      error.name = "AbortError"
+      return error
+    }
+  }
+
+  function responseForConsumer(sharedRequest, signal) {
+    if (!signal) return sharedRequest.then((response) => response.clone())
+    if (signal.aborted) return Promise.reject(createAbortError())
+
+    return new Promise((resolve, reject) => {
+      let settled = false
+
+      const cleanup = () => signal.removeEventListener("abort", onAbort)
+      const onAbort = () => {
+        if (settled) return
+        settled = true
+        cleanup()
+        reject(createAbortError())
+      }
+
+      signal.addEventListener("abort", onAbort, { once: true })
+      sharedRequest.then(
+        (response) => {
+          if (settled) return
+          settled = true
+          cleanup()
+          resolve(response.clone())
+        },
+        (error) => {
+          if (settled) return
+          settled = true
+          cleanup()
+          reject(error)
+        },
+      )
+    })
+  }
+
+  function dedupeRequest(input, init, url, body, consumerSignal) {
+    if (consumerSignal?.aborted) return Promise.reject(createAbortError())
+
+    const key = getRequestKey(url, input, init, body)
+    const now = Date.now()
+    const cached = recent.get(key)
+
+    if (cached) {
+      if (cached.expiresAt > now) {
+        return Promise.resolve(cached.response.clone())
+      }
+      recent.delete(key)
+    }
+
+    const existing = inFlight.get(key)
+    if (existing) return responseForConsumer(existing, consumerSignal)
+
+    const sharedInit = isRequest(input)
+      ? { ...(init ?? {}), signal: null }
+      : init && "signal" in init
+        ? { ...init, signal: null }
+        : init
+
+    const sharedRequest = originalFetch(input, sharedInit)
+      .then((response) => {
+        if (response.ok) {
+          const entry = {
+            response: response.clone(),
+            expiresAt: Date.now() + recentTtlMs,
+          }
+          recent.set(key, entry)
+          window.setTimeout(() => {
+            if (recent.get(key) === entry) recent.delete(key)
+          }, recentTtlMs)
+        }
+        return response
+      })
+      .finally(() => {
+        if (inFlight.get(key) === sharedRequest) inFlight.delete(key)
+      })
+
+    inFlight.set(key, sharedRequest)
+    return responseForConsumer(sharedRequest, consumerSignal)
+  }
+
+  window.fetch = (input, init) => {
+    const rawUrl = getRequestUrl(input)
+    let url
+
+    try {
+      url = new URL(rawUrl, window.location?.href ?? "https://arcade.eplus.dev/")
+    } catch {
+      return originalFetch(input, init)
+    }
+
+    if (
+      getRequestMethod(input, init) !== "POST" ||
+      url.origin !== apiOrigin ||
+      !apiPaths.has(url.pathname)
+    ) {
+      return originalFetch(input, init)
+    }
+
+    const consumerSignal = getConsumerSignal(input, init)
+
+    if (init?.body !== undefined) {
+      if (typeof init.body !== "string") return originalFetch(input, init)
+      const body = addBonusMilestoneFlag(init.body)
+      const nextInit = body === init.body ? init : { ...init, body }
+      return dedupeRequest(input, nextInit, url, body, consumerSignal)
+    }
+
+    if (!isRequest(input) || input.bodyUsed) return originalFetch(input, init)
+
+    return input
+      .clone()
+      .text()
+      .then(
+        (rawBody) => {
+          const body = addBonusMilestoneFlag(rawBody)
+          if (body === rawBody) {
+            return dedupeRequest(input, init, url, body, consumerSignal)
+          }
+          const request = new Request(input, { body })
+          return dedupeRequest(request, init, url, body, consumerSignal)
+        },
+        () => originalFetch(input, init),
+      )
+  }
+
+  window[installFlag] = true
+})()
+0:{"P":null,"b":"m-s3DCJDVBUbp-O1MIXIJ","p":"/pr-preview/pr-80","c":["","about",""],"i":false,"f":[[["",{"children":["about",{"children":["__PAGE__",{}]}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/pr-preview/pr-80/_next/static/css/3a0b36c06ab05fac.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}],["$","link","1",{"rel":"stylesheet","href":"/pr-preview/pr-80/_next/static/css/151a1c4c08e5b734.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}],["$","link","2",{"rel":"stylesheet","href":"/pr-preview/pr-80/_next/static/css/311d12be286187bf.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"en","dir":"ltr","data-locale":"en","suppressHydrationWarning":true,"children":[["$","head",null,{"children":[["$","script",null,{"id":"arcade-request-dedupe","dangerouslySetInnerHTML":{"__html":"$2"}}],["$","script",null,{"id":"website-catalog-cache-buster","dangerouslySetInnerHTML":{"__html":"(() => {\n  const version = \"c6e4dd00217449f66e0c57d795b5c078e515bf87\";\n  const originalFetch = window.fetch.bind(window);\n\n  window.fetch = (input, init) => {\n    const rawUrl =\n      typeof input === \"string\"\n        ? input\n        : input instanceof URL\n          ? input.toString()\n          : input instanceof Request\n            ? input.url\n            : \"\";\n\n    let url;\n    try {\n      url = new URL(rawUrl, window.location.href);\n    } catch {\n      return originalFetch(input, init);\n    }\n\n    if (!url.pathname.includes(\"/i18n/\") || !url.pathname.endsWith(\".json\")) {\n      return originalFetch(input, init);\n    }\n\n    url.searchParams.set(\"v\", version);\n    return originalFetch(url.toString(), { ...init, cache: \"no-store\" });\n  };\n})();"}}],["$","link",null,{"rel":"preconnect","href":"https://fonts.googleapis.com"}],["$","link",null,{"rel":"preconnect","href":"https://fonts.gstatic.com","crossOrigin":"anonymous"}],["$","link",null,{"rel":"preconnect","href":"https://cdnjs.cloudflare.com"}],["$","link",null,{"rel":"stylesheet","href":"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Press+Start+2P&display=swap"}],["$","link",null,{"rel":"stylesheet","href":"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css","integrity":"sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==","crossOrigin":"anonymous","referrerPolicy":"no-referrer"}],["$","meta",null,{"name":"cookie-notice-preview","content":"true"}],null]}],["$","body",null,{"children":["$","$L3",null,{"attribute":"class","defaultTheme":"dark","enableSystem":false,"disableTransitionOnChange":true,"storageKey":"arcade-theme","children":[["$","$L4",null,{}],["$","$L5",null,{}],["$","$L6",null,{}],["$","$L7",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","$L9",null,{}],[]],"forbidden":"$undefined","unauthorized":"$undefined"}],["$","$La",null,{"analyticsEnabled":false,"previewMode":true}]]}]}]]}]]}],{"children":["about",["$","$1","c",{"children":[null,["$","$L7",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":["__PAGE__",["$","$1","c",{"children":[["$","div",null,{"className":"arcade-dashboard-page min-h-screen","children":[["$","div",null,{"className":"arcade-stars","aria-hidden":"true"}],["$","header",null,{"className":"arcade-header","children":[["$","$Lb",null,{"className":"arcade-brand","href":"/","aria-label":"Arcade Points home","children":[["$","span",null,{"className":"arcade-brand-mark","children":["$","i",null,{"ref":"$undefined","className":"fa-icon fa-solid fa-gamepad","style":{"color":"$undefined","width":"$undefined","height":"$undefined","fontSize":"$undefined","lineHeight":1,"textAlign":"center"},"aria-hidden":true}]}],["$","span",null,{"className":"arcade-brand-copy","children":[["$","strong",null,{"children":"ARCADE"}],["$","b",null,{"children":"POINTS"}]]}],["$","em",null,{"children":"PRO"}]]}],["$","nav",null,{"className":"arcade-nav","aria-label":"Main navigation","children":[["$","$Lb",null,{"href":"/","children":"Calculator"}],["$","$Lb",null,{"href":"/#tiers","children":"Tiers"}],["$","$Lb",null,{"href":"/#badges","children":"Badges"}],["$","$Lb",null,{"href":"/#extension","children":"Extension"}]]}],["$","div",null,{"className":"arcade-header-actions"}]]}],["$","main",null,{"className":"internal-page-main","children":[["$","section",null,{"className":"internal-page-hero relative overflow-hidden border-b border-white/10","children":[["$","div",null,{"className":"internal-page-glow absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,.18),transparent_35%),radial-gradient(circle_at_top_right,rgba(99,102,241,.18),transparent_40%)]"}],["$","div",null,{"className":"relative mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 sm:py-20","children":[["$","$Lc",null,{}],["$","div",null,{"className":"max-w-3xl","children":[["$","div",null,{"className":"internal-eyebrow mb-4 inline-flex items-center rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-xs font-semibold uppercase tracking-[.18em] text-cyan-200","children":[["$","i",null,{"ref":"$undefined","className":"fa-icon fa-solid fa-wand-magic-sparkles mr-2 h-3.5 w-3.5","style":{"color":"$undefined","width":"$undefined","height":"$undefined","fontSize":"$undefined","lineHeight":1,"textAlign":"center"},"aria-hidden":true}]," ","About the tool"]}],["$","h1",null,{"className":"internal-page-title text-4xl font-bold tracking-tight text-white sm:text-6xl","children":"About Arcade Points"}],["$","p",null,{"className":"internal-page-description mt-5 text-lg leading-8 text-slate-300","children":"A community-built Google Cloud Arcade calculator and badge tracker focused on clarity, useful progress information, and a mobile-friendly experience."}],null]}]]}]]}],["$","section",null,{"className":"mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-16","children":["$","div",null,{"className":"internal-content-card rounded-3xl border border-white/10 bg-white/[0.035] p-6 shadow-2xl shadow-black/20 sm:p-10","children":["$","div",null,{"className":"internal-prose prose prose-invert max-w-none prose-headings:scroll-mt-24 prose-headings:text-white prose-p:text-slate-300 prose-li:text-slate-300 prose-a:text-cyan-300","children":["$","div",null,{"className":"not-prose space-y-10","children":[["$","section",null,{"className":"overflow-hidden rounded-2xl border border-cyan-200 bg-gradient-to-br from-cyan-50 via-white to-violet-50 p-5 dark:border-cyan-300/15 dark:from-cyan-300/[0.06] dark:via-white/[0.025] dark:to-violet-300/[0.06] sm:p-8","children":["$","div",null,{"className":"grid gap-6 lg:grid-cols-[minmax(0,1.45fr)_minmax(230px,.65fr)] lg:items-center","children":[["$","div",null,{"children":[["$","span",null,{"className":"text-[11px] font-bold uppercase tracking-[.18em] text-cyan-700 dark:text-cyan-300","children":"Built for learners"}],["$","h2",null,{"className":"mt-3 text-2xl font-extrabold tracking-tight text-slate-950 dark:text-white sm:text-3xl","children":"Turn your public badges into a clearer progress overview"}],["$","p",null,{"className":"mt-4 max-w-3xl text-sm leading-7 text-slate-600 dark:text-slate-300","children":"Arcade Points by ePlus.DEV helps you understand badge activity already visible on your public Google Skills profile. It summarizes supported badges, estimates Arcade points, and shows where you stand against reward and Facilitator milestones."}],["$","div",null,{"className":"mt-6 flex flex-wrap gap-3","children":[["$","$Lb",null,{"href":"/","className":"inline-flex min-h-11 items-center justify-center rounded-xl bg-cyan-600 px-5 text-sm font-bold text-white transition hover:bg-cyan-700 dark:bg-cyan-300 dark:text-slate-950 dark:hover:bg-cyan-200","children":"Check your score"}],["$","$Lb",null,{"href":"/guide/","className":"inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 px-5 text-sm font-semibold text-slate-700 transition hover:bg-white dark:border-white/15 dark:text-slate-200 dark:hover:bg-white/10","children":"How it works"}]]}]]}],["$","aside",null,{"className":"rounded-2xl border border-slate-200 bg-white/80 p-5 shadow-sm dark:border-white/10 dark:bg-slate-950/60","children":[["$","div",null,{"className":"flex items-center gap-2 text-xs font-bold uppercase tracking-[.12em] text-emerald-700 dark:text-emerald-300","children":[["$","span",null,{"className":"h-2 w-2 rounded-full bg-emerald-500","aria-hidden":"true"}],"Public-profile tool"]}],["$","p",null,{"className":"mt-3 text-lg font-bold text-slate-900 dark:text-white","children":"No password. No account connection."}],["$","p",null,{"className":"mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400","children":"Paste a public Google Skills profile URL to inspect supported badge activity and estimate your progress."}],["$","$Lb",null,{"href":"/privacy/","className":"mt-4 inline-flex text-sm font-semibold text-cyan-700 underline underline-offset-4 dark:text-cyan-300","children":"Read our privacy policy"}]]}]]}]}],["$","section",null,{"aria-labelledby":"about-features-title","children":[["$","div",null,{"className":"mb-5","children":[["$","span",null,{"className":"text-[11px] font-bold uppercase tracking-[.18em] text-violet-700 dark:text-violet-300","children":"What the tool does"}],["$","h2",null,{"id":"about-features-title","className":"mt-2 text-2xl font-bold text-slate-950 dark:text-white sm:text-3xl","children":"All the useful Arcade information in one place"}],["$","p",null,{"className":"mt-2 max-w-3xl text-sm leading-7 text-slate-600 dark:text-slate-400","children":"Review supported badges, estimated points, reward tiers, and optional Facilitator progress without manually comparing separate program dashboards."}]]}],["$","div",null,{"className":"grid gap-4 md:grid-cols-2","children":[["$","article","01",{"className":"rounded-2xl border border-slate-200 bg-slate-50/80 p-5 transition hover:border-cyan-300 hover:shadow-md dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-cyan-300/30 sm:p-6","children":[["$","div",null,{"className":"flex items-center gap-3","children":[["$","span",null,{"className":"flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-200 bg-cyan-100 font-mono text-sm font-black text-cyan-800 dark:border-cyan-300/20 dark:bg-cyan-300/10 dark:text-cyan-200","children":"01"}],["$","span",null,{"className":"text-[11px] font-bold uppercase tracking-[.14em] text-slate-500 dark:text-slate-400","children":"Profile analysis"}]]}],["$","h3",null,{"className":"mt-5 text-lg font-bold text-slate-950 dark:text-white","children":"See your earned badges"}],["$","p",null,{"className":"mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300","children":"Read badge and profile information from a public Google Skills profile, with supported game, skill, trivia, completion, and special badges grouped together."}]]}],["$","article","02",{"className":"rounded-2xl border border-slate-200 bg-slate-50/80 p-5 transition hover:border-cyan-300 hover:shadow-md dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-cyan-300/30 sm:p-6","children":[["$","div",null,{"className":"flex items-center gap-3","children":[["$","span",null,{"className":"flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-200 bg-cyan-100 font-mono text-sm font-black text-cyan-800 dark:border-cyan-300/20 dark:bg-cyan-300/10 dark:text-cyan-200","children":"02"}],["$","span",null,{"className":"text-[11px] font-bold uppercase tracking-[.14em] text-slate-500 dark:text-slate-400","children":"Score breakdown"}]]}],["$","h3",null,{"className":"mt-5 text-lg font-bold text-slate-950 dark:text-white","children":"Understand your Arcade points"}],["$","p",null,{"className":"mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300","children":"Calculate an estimated point total from supported badge mappings and review unknown badges instead of silently ignoring them."}]]}],["$","article","03",{"className":"rounded-2xl border border-slate-200 bg-slate-50/80 p-5 transition hover:border-cyan-300 hover:shadow-md dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-cyan-300/30 sm:p-6","children":[["$","div",null,{"className":"flex items-center gap-3","children":[["$","span",null,{"className":"flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-200 bg-cyan-100 font-mono text-sm font-black text-cyan-800 dark:border-cyan-300/20 dark:bg-cyan-300/10 dark:text-cyan-200","children":"03"}],["$","span",null,{"className":"text-[11px] font-bold uppercase tracking-[.14em] text-slate-500 dark:text-slate-400","children":"Reward progress"}]]}],["$","h3",null,{"className":"mt-5 text-lg font-bold text-slate-950 dark:text-white","children":"See your tier and milestones"}],["$","p",null,{"className":"mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300","children":"Compare your estimated score with current reward thresholds and published prize-slot information without confusing eligibility with guaranteed rewards."}]]}],["$","article","04",{"className":"rounded-2xl border border-slate-200 bg-slate-50/80 p-5 transition hover:border-cyan-300 hover:shadow-md dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-cyan-300/30 sm:p-6","children":[["$","div",null,{"className":"flex items-center gap-3","children":[["$","span",null,{"className":"flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-200 bg-cyan-100 font-mono text-sm font-black text-cyan-800 dark:border-cyan-300/20 dark:bg-cyan-300/10 dark:text-cyan-200","children":"04"}],["$","span",null,{"className":"text-[11px] font-bold uppercase tracking-[.14em] text-slate-500 dark:text-slate-400","children":"Facilitator"}]]}],["$","h3",null,{"className":"mt-5 text-lg font-bold text-slate-950 dark:text-white","children":"Follow separate program progress"}],["$","p",null,{"className":"mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300","children":"Review Facilitator milestones and supported bonus estimates independently when you confirm program participation."}]]}]]}]]}],["$","section",null,{"className":"grid gap-5 xl:grid-cols-[1.1fr_.9fr]","children":[["$","div",null,{"className":"rounded-2xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/[0.035] sm:p-7","children":[["$","span",null,{"className":"text-[11px] font-bold uppercase tracking-[.18em] text-emerald-700 dark:text-emerald-300","children":"Why it exists"}],["$","h2",null,{"className":"mt-2 text-2xl font-bold text-slate-950 dark:text-white","children":"Less manual checking. More useful context."}],["$","p",null,{"className":"mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300","children":"Arcade badge lists and reward rules can be difficult to review across multiple campaigns. This independent tool brings useful information into one dashboard without asking for private account access."}],["$","div",null,{"className":"mt-6 space-y-5 border-l-2 border-cyan-200 pl-5 dark:border-cyan-300/20","children":[["$","div","01",{"children":[["$","span",null,{"className":"font-mono text-xs font-bold text-cyan-700 dark:text-cyan-300","children":"01"}],["$","h3",null,{"className":"mt-1 text-base font-semibold text-slate-950 dark:text-white","children":"Share your public profile URL"}],["$","p",null,{"className":"mt-1 text-sm leading-6 text-slate-600 dark:text-slate-400","children":"No private account access, Google password, or Google sign-in to this calculator is required."}]]}],["$","div","02",{"children":[["$","span",null,{"className":"font-mono text-xs font-bold text-cyan-700 dark:text-cyan-300","children":"02"}],["$","h3",null,{"className":"mt-1 text-base font-semibold text-slate-950 dark:text-white","children":"Review recognized badge activity"}],["$","p",null,{"className":"mt-1 text-sm leading-6 text-slate-600 dark:text-slate-400","children":"The calculator classifies supported badges and shows items that still need scoring review."}]]}],["$","div","03",{"children":[["$","span",null,{"className":"font-mono text-xs font-bold text-cyan-700 dark:text-cyan-300","children":"03"}],["$","h3",null,{"className":"mt-1 text-base font-semibold text-slate-950 dark:text-white","children":"Compare your progress"}],["$","p",null,{"className":"mt-1 text-sm leading-6 text-slate-600 dark:text-slate-400","children":"Explore estimated points, reward milestones, remaining slots, and optional Facilitator progress."}]]}]]}]]}],["$","div",null,{"className":"rounded-2xl border border-violet-200 bg-violet-50 p-5 dark:border-violet-300/15 dark:bg-violet-300/[0.045] sm:p-7","children":[["$","span",null,{"className":"text-[11px] font-bold uppercase tracking-[.18em] text-violet-700 dark:text-violet-300","children":"How calculations should be understood"}],["$","h2",null,{"className":"mt-2 text-2xl font-bold text-slate-950 dark:text-white","children":"Transparent estimates, not official results"}],["$","p",null,{"className":"mt-4 text-sm leading-7 text-slate-600 dark:text-slate-300","children":"Calculations use supported badge mappings and public profile information. Google may change badge rules, eligibility, tiers, deadlines, or reward availability."}],["$","p",null,{"className":"mt-3 text-sm leading-7 text-slate-600 dark:text-slate-400","children":"Reaching a point threshold does not guarantee a physical reward. Official program pages and Google communications remain the final source of truth."}],["$","$Lb",null,{"href":"/swag-drops/2026/","className":"mt-6 inline-flex min-h-10 items-center rounded-xl border border-violet-200 bg-white/80 px-4 text-sm font-semibold text-violet-800 transition hover:bg-white dark:border-violet-300/20 dark:bg-violet-300/10 dark:text-violet-100 dark:hover:bg-violet-300/15","children":"Explore 2026 rewards"}]]}]]}],["$","section",null,{"className":"grid gap-4 md:grid-cols-2","children":[["$","article",null,{"className":"rounded-2xl border border-emerald-200 bg-emerald-50/70 p-5 dark:border-emerald-300/15 dark:bg-emerald-300/[0.045] sm:p-7","children":[["$","span",null,{"className":"text-[11px] font-bold uppercase tracking-[.18em] text-emerald-700 dark:text-emerald-300","children":"Privacy by design"}],["$","h2",null,{"className":"mt-2 text-xl font-bold text-slate-950 dark:text-white","children":"Public information, not your credentials"}],["$","p",null,{"className":"mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300","children":"The calculator only asks for a public profile URL and never your Google password. Recent results and preferences may be saved locally in your browser."}],["$","$Lb",null,{"href":"/privacy/","className":"mt-4 inline-flex text-sm font-semibold text-emerald-800 underline underline-offset-4 dark:text-emerald-200","children":"Privacy policy"}]]}],["$","article",null,{"className":"rounded-2xl border border-slate-200 bg-slate-50/80 p-5 dark:border-white/10 dark:bg-white/[0.035] sm:p-7","children":[["$","span",null,{"className":"text-[11px] font-bold uppercase tracking-[.18em] text-slate-600 dark:text-slate-400","children":"Independent community project"}],["$","h2",null,{"className":"mt-2 text-xl font-bold text-slate-950 dark:text-white","children":"Built by ePlus.DEV, not Google"}],["$","p",null,{"className":"mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300","children":"Arcade Points is developed by ePlus.DEV. It is not affiliated with, sponsored by, or endorsed by Google. Google Cloud, Google Skills, and related names remain the property of their respective owners."}]]}]]}],["$","section",null,{"className":"rounded-2xl border border-cyan-200 bg-gradient-to-r from-cyan-50 to-slate-50 p-5 dark:border-cyan-300/15 dark:from-cyan-300/[0.06] dark:to-slate-950/40 sm:p-7","children":["$","div",null,{"className":"grid gap-5 lg:grid-cols-[1fr_auto] lg:items-center","children":[["$","div",null,{"children":[["$","span",null,{"className":"text-[11px] font-bold uppercase tracking-[.18em] text-cyan-700 dark:text-cyan-300","children":"Get started"}],["$","h2",null,{"className":"mt-2 text-2xl font-bold text-slate-950 dark:text-white","children":"Ready to check your Arcade points?"}],["$","p",null,{"className":"mt-2 max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-300","children":"Follow the step-by-step guide to make your profile public, or go directly to the calculator and paste your public Google Skills URL."}]]}],["$","div",null,{"className":"flex flex-wrap gap-3","children":[["$","$Lb",null,{"href":"/guide/","className":"inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50 dark:border-white/15 dark:bg-white/5 dark:text-slate-100 dark:hover:bg-white/10","children":"Read the guide"}],["$","$Lb",null,{"href":"/","className":"inline-flex min-h-11 items-center justify-center rounded-xl bg-cyan-600 px-5 text-sm font-bold text-white transition hover:bg-cyan-700 dark:bg-cyan-300 dark:text-slate-950 dark:hover:bg-cyan-200","children":"Open calculator"}]]}]]}]}]]}]}]}]}]]}],["$","footer",null,{"className":"internal-page-footer border-t border-white/10","children":["$","div",null,{"className":"mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-8 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-6","children":[["$","p",null,{"children":["© ",2026," ePlus.DEV. ",["$","span",null,{"children":"Independent community project."}]]}],["$","div",null,{"className":"flex gap-4","children":[["$","$Lb",null,{"href":"/","className":"hover:text-white","children":"Calculator"}],["$","$Lb",null,{"href":"/about/","className":"hover:text-white","children":"About"}],["$","$Lb",null,{"href":"/guide/","className":"hover:text-white","children":"Guide"}],["$","$Lb",null,{"href":"/privacy/","className":"hover:text-white","children":"Privacy"}],["$","$Lb",null,{"href":"/terms/","className":"hover:text-white","children":"Terms"}]]}]]}]}]]}],"$undefined",null,["$","$Ld",null,{"children":["$Le","$Lf",null]}]]}],{},null,false]},null,false]},null,false],["$","$1","h",{"children":[null,["$","$1","SEzjrP2YCUpBwthM6Sl8o",{"children":[["$","$L10",null,{"children":"$L11"}],null]}],["$","$L12",null,{"children":"$L13"}]]}],false]],"m":"$undefined","G":["$14","$undefined"],"s":false,"S":true}
+11:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","2",{"name":"color-scheme","content":"light dark"}]]
+e:null
+f:null
+13:[["$","title","0",{"children":"About Arcade Points | ePlus.DEV"}],["$","meta","1",{"name":"description","content":"Learn how Arcade Points by ePlus.DEV analyzes public Google Skills profiles, estimates Google Cloud Arcade points, and tracks badges and Facilitator milestones."}],["$","meta","2",{"name":"application-name","content":"Arcade Points by ePlus.DEV"}],["$","link","3",{"rel":"author","href":"https://eplus.dev"}],["$","meta","4",{"name":"author","content":"ePlus.DEV"}],["$","link","5",{"rel":"manifest","href":"/pr-preview/pr-80/manifest.json","crossOrigin":"$undefined"}],["$","meta","6",{"name":"generator","content":"Next.js"}],["$","meta","7",{"name":"keywords","content":"Google Cloud Arcade points calculator,Google Skills Arcade calculator,Google Cloud Skills Boost badges,Google Skills public profile tracker,Arcade Facilitator points,Google Cloud Arcade milestones,Arcade points 2026,Google Cloud Arcade rewards,Google Cloud Skills Boost Helper"}],["$","meta","8",{"name":"referrer","content":"origin-when-cross-origin"}],["$","meta","9",{"name":"creator","content":"ePlus.DEV"}],["$","meta","10",{"name":"publisher","content":"ePlus.DEV"}],["$","meta","11",{"name":"robots","content":"index, follow"}],["$","meta","12",{"name":"googlebot","content":"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"}],["$","meta","13",{"name":"category","content":"technology"}],["$","link","14",{"rel":"canonical","href":"https://arcade.eplus.dev/about/"}],["$","meta","15",{"property":"og:title","content":"About Arcade Points"}],["$","meta","16",{"property":"og:description","content":"Learn how the Arcade points calculator, badge tracker, and Facilitator milestone dashboard work."}],["$","meta","17",{"property":"og:url","content":"https://arcade.eplus.dev/about/"}],["$","meta","18",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","19",{"name":"twitter:creator","content":"@ePlusDEV"}],["$","meta","20",{"name":"twitter:title","content":"Google Cloud Arcade Points Calculator & Badge Tracker 2026"}],["$","meta","21",{"name":"twitter:description","content":"Calculate Google Cloud Arcade points from your public Google Skills profile, review completed badges, estimate milestone progress, and track Arcade Facilitator rewards."}],["$","meta","22",{"name":"twitter:image:alt","content":"Arcade Points — Google Cloud Arcade score calculator, badge tracker and reward tier dashboard"}],["$","meta","23",{"name":"twitter:image:type","content":"image/png"}],["$","meta","24",{"name":"twitter:image","content":"https://arcade.eplus.dev/pr-preview/pr-80/twitter-image?5de490c65c7964a7"}],["$","meta","25",{"name":"twitter:image:width","content":"1200"}],["$","meta","26",{"name":"twitter:image:height","content":"630"}],["$","link","27",{"rel":"icon","href":"/pr-preview/pr-80/favicon.ico","type":"image/x-icon","sizes":"48x48"}],["$","link","28",{"rel":"icon","href":"/pr-preview/pr-80/icon0.svg?66a7cd687bde5efd","type":"image/svg+xml","sizes":"any"}],["$","link","29",{"rel":"icon","href":"/pr-preview/pr-80/icon1.png?52e5d01a77c5680f","type":"image/png","sizes":"96x96"}],["$","link","30",{"rel":"apple-touch-icon","href":"/pr-preview/pr-80/apple-icon.png?97901d54c640609b","type":"image/png","sizes":"180x180"}]]
