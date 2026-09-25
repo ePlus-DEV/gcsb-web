@@ -180,6 +180,9 @@ async function loadRemotePrograms(
 
   const config = firebaseConfig()
   if (!config.apiKey || !config.projectId) {
+    // Never hide a missing deployment setting behind a plausible countdown.
+    // Do not print Firebase credentials.
+    console.warn("Program countdown: Firebase browser config is incomplete; remote deadlines cannot be loaded.")
     return { programs: fallbackPrograms, source: "fallback" }
   }
 
@@ -353,12 +356,14 @@ function ProgramCard({
 }) {
   const remaining = config.deadline ? countdownParts(config.deadline, nowMs) : null
   const Icon = config.id === "arcade" ? Gamepad2 : Clock
-  const timeParts: Array<{ unit: CountdownUnit; value: number }> = [
-    { unit: "day", value: remaining.days },
-    { unit: "hour", value: remaining.hours },
-    { unit: "minute", value: remaining.minutes },
-    { unit: "second", value: remaining.seconds },
-  ]
+  const timeParts: Array<{ unit: CountdownUnit; value: number }> = remaining
+    ? [
+        { unit: "day", value: remaining.days },
+        { unit: "hour", value: remaining.hours },
+        { unit: "minute", value: remaining.minutes },
+        { unit: "second", value: remaining.seconds },
+      ]
+    : []
 
   return (
     <article
