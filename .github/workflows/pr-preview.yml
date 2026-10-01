@@ -53,7 +53,7 @@ jobs:
       pages: write
       id-token: write
     concurrency:
-      group: gcsb-pages-content-v3
+      group: gcsb-pages-content-v4
       cancel-in-progress: false
     environment:
       name: pr-preview
