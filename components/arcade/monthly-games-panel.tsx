@@ -184,6 +184,35 @@ function currentMonthHeading(locale?: string): string {
   }).format(new Date())
 }
 
+function gameDeadlineMs(game: MonthlyArcadeGame): number | null {
+  if (!game.deadline) return null
+  const value = new Date(game.deadline).getTime()
+  return Number.isFinite(value) ? value : null
+}
+
+function isGameExpired(game: MonthlyArcadeGame, nowMs: number): boolean {
+  const deadlineMs = gameDeadlineMs(game)
+  return deadlineMs !== null && deadlineMs <= nowMs
+}
+
+function latestGameMonthHeading(
+  games: MonthlyArcadeGame[],
+  locale?: string,
+): string | null {
+  const latestDeadline = games.reduce<number | null>((latest, game) => {
+    const value = gameDeadlineMs(game)
+    if (value === null) return latest
+    return latest === null || value > latest ? value : latest
+  }, null)
+
+  if (latestDeadline === null) return null
+
+  return new Intl.DateTimeFormat(locale, {
+    month: "long",
+    year: "numeric",
+  }).format(new Date(latestDeadline))
+}
+
 export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPanelProps) {
   const [games, setGames] = useState<MonthlyArcadeGame[]>([])
   const [loading, setLoading] = useState(true)
@@ -223,11 +252,17 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
         })
         if (!response.ok) throw new Error(`HTTP ${response.status}`)
 
-        const parsed = parseMonthlyGames(await response.json())
+        const payload = await response.json()
+        if (!Array.isArray(payload)) throw new Error("Invalid monthly games feed")
+
+        const parsed = parseMonthlyGames(payload)
+        if (payload.length > 0 && parsed.length === 0) {
+          throw new Error("Monthly games feed contains no valid games")
+        }
         if (!active) return
 
         setGames(parsed)
-        setLoadFailed(parsed.length === 0)
+        setLoadFailed(false)
       } catch {
         if (active) setLoadFailed(true)
       } finally {
@@ -254,11 +289,27 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
     [badges],
   )
 
+  const activeGames = useMemo(
+    () => games.filter((game) => !isGameExpired(game, nowMs)),
+    [games, nowMs],
+  )
+  const expiredGames = useMemo(
+    () => games.filter((game) => isGameExpired(game, nowMs)),
+    [games, nowMs],
+  )
+  const awaitingNewGames =
+    games.length === 0 ||
+    (expiredGames.length === games.length && activeGames.length === 0)
+  const previousGamesMonth = useMemo(
+    () => latestGameMonthHeading(expiredGames, locale),
+    [expiredGames, locale],
+  )
+
   const completedCount = useMemo(
     () => hasProfile
-      ? games.filter((game) => isCompleted(earnedTitleSet, game.title)).length
+      ? activeGames.filter((game) => isCompleted(earnedTitleSet, game.title)).length
       : 0,
-    [earnedTitleSet, games, hasProfile],
+    [activeGames, earnedTitleSet, hasProfile],
   )
 
   async function copyAccessCode(code: string) {
@@ -280,7 +331,7 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
     )
   }
 
-  if (loadFailed || games.length === 0) return null
+  if (loadFailed) return null
 
   return (
     <section className="monthly-games-panel" aria-labelledby="monthly-games-title">
@@ -288,18 +339,33 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
         <div>
           <span className="monthly-games-kicker"><Gamepad2 /> This month</span>
           <h2 id="monthly-games-title">{currentMonthHeading(locale)}</h2>
-          <p>Track the active Arcade games against badges already present on this public profile.</p>
+          <p>
+            {awaitingNewGames
+              ? "The previous Arcade labs have ended. Waiting for this month's games to be published."
+              : "Track the active Arcade games against badges already present on this public profile."}
+          </p>
         </div>
-        <div className={hasProfile ? "monthly-progress-summary" : "monthly-progress-summary is-pending"}>
-          {hasProfile ? (
+        <div className={
+          awaitingNewGames
+            ? "monthly-progress-summary is-coming-soon"
+            : hasProfile
+              ? "monthly-progress-summary"
+              : "monthly-progress-summary is-pending"
+        }>
+          {awaitingNewGames ? (
             <>
-              <strong>{completedCount}/{games.length}</strong>
+              <strong>Coming soon</strong>
+              <span>New labs not published yet</span>
+            </>
+          ) : hasProfile ? (
+            <>
+              <strong>{completedCount}/{activeGames.length}</strong>
               <span>completed</span>
-              <i aria-hidden="true"><b style={{ width: `${games.length ? (completedCount / games.length) * 100 : 0}%` }} /></i>
+              <i aria-hidden="true"><b style={{ width: `${activeGames.length ? (completedCount / activeGames.length) * 100 : 0}%` }} /></i>
             </>
           ) : (
             <>
-              <strong>—/{games.length}</strong>
+              <strong>—/{activeGames.length}</strong>
               <span>Analyze profile to track completion</span>
               <i aria-hidden="true"><b style={{ width: "0%" }} /></i>
             </>
@@ -307,8 +373,21 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
         </div>
       </div>
 
-      <div className="monthly-games-grid">
-        {games.map((game, index) => {
+      {awaitingNewGames ? (
+        <div className="monthly-games-coming-soon" role="status">
+          <span className="monthly-coming-soon-icon" aria-hidden="true"><Gamepad2 /></span>
+          <div>
+            <span className="monthly-coming-soon-label">Awaiting new Arcade labs</span>
+            <h3>{currentMonthHeading(locale)} games are coming soon</h3>
+            <p>
+              {previousGamesMonth ? `${previousGamesMonth} labs have ended. ` : ""}
+              New games will appear here automatically after they are published.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className="monthly-games-grid">
+        {activeGames.map((game, index) => {
           const completed = hasProfile && isCompleted(earnedTitleSet, game.title)
           const stableKey =
             (game.joinUrl ?? game.accessCode ?? normalizeBadgeTitle(game.title)) ||
@@ -392,7 +471,8 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
             </article>
           )
         })}
-      </div>
+        </div>
+      )}
     </section>
   )
 }
