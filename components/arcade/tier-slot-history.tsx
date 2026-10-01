@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { Info } from "lucide-react"
-import { Area, Brush, CartesianGrid, ComposedChart, Line, XAxis, YAxis } from "recharts"
+import { Area, Brush, CartesianGrid, ComposedChart, Line, ReferenceLine, XAxis, YAxis } from "recharts"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { ChartContainer, ChartTooltip, type ChartConfig } from "@/components/ui/chart"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
@@ -136,10 +136,11 @@ function longDate(value: string, locale: WebsiteLocale): string {
 type SlotText = (key: SlotHistoryTextKey, params?: Record<string, string | number>) => string
 
 function MultiTierHistoryChart({
-  points, enabled, period, now, locale, t,
+  points, enabled, capacities, period, now, locale, t,
 }: {
   points: MultiTierSlotPoint[]
   enabled: TierKey[]
+  capacities: Record<TierKey, number | null>
   period: SlotPeriod
   now: number
   locale: WebsiteLocale
@@ -154,6 +155,11 @@ function MultiTierHistoryChart({
     ts: Math.max(cutoff, Date.parse(item.at)),
   })), [points, cutoff])
   const visible = DISPLAY_TIERS.filter((tier) => enabled.includes(tier.key))
+  const visibleValues = series.flatMap((item) => visible.map((tier) => item[tier.key]))
+  const visibleCapacities = visible
+    .map((tier) => capacities[tier.key])
+    .filter((value): value is number => value !== null)
+  const yMax = Math.ceil(Math.max(1, ...visibleValues, ...visibleCapacities) * 1.05)
   const brushKey = period + ":" + (points[0]?.at ?? "") + ":" + points.length
   const [zoom, setZoom] = useState<{
     key: string
@@ -223,7 +229,7 @@ function MultiTierHistoryChart({
             axisLine={false}
             width={57}
             tickFormatter={(value: number) => numberFormat.format(value)}
-            domain={["dataMin - 50", "dataMax + 50"]}
+            domain={[0, yMax]}
             allowDecimals={false}
           />
           <ChartTooltip
@@ -236,22 +242,50 @@ function MultiTierHistoryChart({
                 <div className="tier-trends-tooltip rounded-xl border px-3 py-2.5 text-xs shadow-xl">
                   <p className="font-semibold">{longDate(item.at, locale)}</p>
                   <div className="mt-2 grid gap-1.5">
-                    {visible.map((tier) => (
-                      <div className="flex items-center justify-between gap-5" key={tier.key}>
-                        <span className="flex items-center gap-2">
-                          <span className="inline-block size-2 rounded-full" style={{ backgroundColor: tier.color }} />
-                          {tier.name}
-                        </span>
-                        <strong className="tabular-nums">
-                          {t("tooltipValue", { count: numberFormat.format(item[tier.key]) })}
-                        </strong>
-                      </div>
-                    ))}
+                    {visible.map((tier) => {
+                      const capacity = capacities[tier.key]
+                      return (
+                        <div className="flex items-center justify-between gap-5" key={tier.key}>
+                          <span className="flex items-center gap-2">
+                            <span className="inline-block size-2 rounded-full" style={{ backgroundColor: tier.color }} />
+                            {tier.name}
+                          </span>
+                          <strong className="tabular-nums">
+                            {t("tooltipValue", { count: numberFormat.format(item[tier.key]) })}
+                            {capacity !== null ? (
+                              <span className="ml-1 font-medium text-slate-400">
+                                / {numberFormat.format(capacity)}
+                              </span>
+                            ) : null}
+                          </strong>
+                        </div>
+                      )
+                    })}
                   </div>
                 </div>
               )
             }}
           />
+          {visible.map((tier) => {
+            const capacity = capacities[tier.key]
+            return capacity === null ? null : (
+              <ReferenceLine
+                key={"capacity-" + tier.key}
+                y={capacity}
+                stroke={tier.color}
+                strokeWidth={1.2}
+                strokeOpacity={0.48}
+                strokeDasharray="6 6"
+                label={{
+                  value: numberFormat.format(capacity),
+                  position: "insideTopRight",
+                  fill: tier.color,
+                  fontSize: 10,
+                  opacity: 0.82,
+                }}
+              />
+            )
+          })}
           {visible.map((tier) => (
             <Area
               key={"area-" + tier.key}
@@ -324,12 +358,21 @@ export function TierSlotHistoryPanel({
   const [visibleTiers, setVisibleTiers] = useState<TierKey[]>(ALL_TIERS)
   const [now, setNow] = useState(0)
 
+  const initial = feed?.snapshots[0]
   const latest = feed?.snapshots[feed.snapshots.length - 1]
   const selectedWindow = useMemo(
     () => feed && now ? selectMultiTierSlotWindow(feed, period, now) : null,
     [feed, now, period],
   )
   const comparison = (selectedWindow?.points.length ?? 0) >= 2
+  const slotCapacities = useMemo(() => Object.fromEntries(
+    DISPLAY_TIERS.map((tier) => [
+      tier.key,
+      initial?.tiers.find((entry) => entry.points === tier.points)?.slots ??
+        milestones.find((entry) => entry.points === tier.points)?.slots ??
+        null,
+    ]),
+  ) as Record<TierKey, number | null>, [initial, milestones])
 
   return (
     <Dialog open={open} onOpenChange={(next) => {
@@ -436,6 +479,7 @@ export function TierSlotHistoryPanel({
                     const active = visibleTiers.includes(tier.key)
                     const count = latest?.tiers.find((entry) => entry.points === tier.points)?.spotsLeft
                     const live = milestones.find((entry) => entry.points === tier.points)?.spotsLeft
+                    const capacity = slotCapacities[tier.key]
                     const delta = comparison ? selectedWindow?.deltas[tier.key] : null
                     return (
                       <ToggleGroupItem
@@ -452,6 +496,11 @@ export function TierSlotHistoryPanel({
                         </span>
                         <strong className="mt-1 text-xl font-extrabold tabular-nums">
                           {count == null ? "—" : numberFormat.format(count)}
+                          {capacity !== null ? (
+                            <span className="ml-1 text-sm font-semibold text-slate-400">
+                              / {numberFormat.format(capacity)}
+                            </span>
+                          ) : null}
                         </strong>
                         <span className="flex w-full items-center justify-between gap-1 text-[11px]">
                           <span className="tier-trends-tier-detail">{t("remaining")}</span>
@@ -495,7 +544,13 @@ export function TierSlotHistoryPanel({
                   </div>
                 ) : selectedWindow && selectedWindow.points.length > 0 ? (
                   <MultiTierHistoryChart
-                    points={selectedWindow.points} enabled={visibleTiers} period={period} now={now} locale={locale} t={t}
+                    points={selectedWindow.points}
+                    enabled={visibleTiers}
+                    capacities={slotCapacities}
+                    period={period}
+                    now={now}
+                    locale={locale}
+                    t={t}
                   />
                 ) : (
                   <div role="status" className="tier-trends-empty min-h-[220px]">

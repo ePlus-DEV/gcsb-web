@@ -316,7 +316,7 @@ test("history launcher does not squeeze text or overflow the 300px desktop tiers
 test("slot-history trend chart has gradient series and navigable zoom without invented samples", () => {
   const ui = readRepoFile("components/arcade/tier-slot-history.tsx")
   const css = readRepoFile("app/styles/tier-slot-history.css")
-  assert.match(ui, /import \{ Area, Brush, CartesianGrid, ComposedChart, Line, XAxis, YAxis \} from "recharts"/)
+  assert.match(ui, /import \{ Area, Brush, CartesianGrid, ComposedChart, Line, ReferenceLine, XAxis, YAxis \} from "recharts"/)
   assert.match(ui, /<linearGradient/)
   assert.match(ui, /<Area/)
   assert.match(ui, /<Brush/)
@@ -329,6 +329,18 @@ test("slot-history trend chart has gradient series and navigable zoom without in
   assert.match(css, /tier-trends-reset-zoom/)
   assert.match(css, /html\.light \.tier-trends-observation-count/)
   assert.match(css, /@media \(max-width:550px\)/)
+})
+
+test("history chart shows each tier's original slot capacity without inventing a historical point", () => {
+  const ui = readRepoFile("components/arcade/tier-slot-history.tsx")
+  assert.match(ui, /capacities: Record<TierKey, number \| null>/)
+  assert.match(ui, /const slotCapacities = useMemo/)
+  assert.match(ui, /initial\?\.tiers\.find\(\(entry\) => entry\.points === tier\.points\)\?\.slots/)
+  assert.match(ui, /<ReferenceLine/)
+  assert.match(ui, /strokeDasharray="6 6"/)
+  assert.match(ui, /domain=\{\[0, yMax\]\}/)
+  assert.match(ui, /\/ \{numberFormat\.format\(capacity\)\}/)
+  assert.doesNotMatch(ui, /at:\s*["']initial["']/)
 })
 
 test("all public slot history strings use a passed catalog and locale", () => {
