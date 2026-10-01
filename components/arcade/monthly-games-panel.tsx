@@ -199,18 +199,22 @@ function latestGameMonthHeading(
   games: MonthlyArcadeGame[],
   locale?: string,
 ): string | null {
-  const latestDeadline = games.reduce<number | null>((latest, game) => {
+  const latestGame = games.reduce<MonthlyArcadeGame | null>((latest, game) => {
     const value = gameDeadlineMs(game)
     if (value === null) return latest
-    return latest === null || value > latest ? value : latest
+    if (!latest) return game
+
+    const latestValue = gameDeadlineMs(latest)
+    return latestValue === null || value > latestValue ? game : latest
   }, null)
 
-  if (latestDeadline === null) return null
+  if (!latestGame?.deadline) return null
 
   return new Intl.DateTimeFormat(locale, {
     month: "long",
     year: "numeric",
-  }).format(new Date(latestDeadline))
+    ...(latestGame.deadlineTimeZone ? { timeZone: latestGame.deadlineTimeZone } : {}),
+  }).format(new Date(latestGame.deadline))
 }
 
 export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPanelProps) {
