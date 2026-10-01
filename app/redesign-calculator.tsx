@@ -41,7 +41,6 @@ import {
   PROFILE_URL_PATTERN,
   formatInteger,
   formatNumber,
-  getTier,
   numeric,
   tierRangeLabel,
 } from "@/components/arcade/model"
@@ -436,8 +435,6 @@ export default function RedesignCalculator({
   const profileImage = profile?.profileImage
   const memberSince = profile?.memberSince
   const qualifiedMilestone = getQualifiedMilestone(points, milestones)
-  const currentTier = getTier(points)
-  const minimumTierPoints = OFFICIAL_MILESTONES[0]?.points ?? 50
   const scoreComplete = result?.beta?.scoreComplete ?? true
   const unknownBadgeCount = numeric(result?.beta?.unknownBadgeCount)
   const unknownBadges = result?.beta?.unknownBadges ?? []
@@ -475,7 +472,7 @@ export default function RedesignCalculator({
             label: "Facilitator bonus",
             icon: <GraduationCap />,
             value: facilitatorBonus,
-            tone: "purple",
+            tone: "violet",
           },
         ]
       : []),
@@ -742,6 +739,30 @@ export default function RedesignCalculator({
             <article className="dashboard-panel breakdown-panel">
               <PanelTitle>Point breakdown</PanelTitle>
               <div className="points-total"><strong>{formatNumber(points)}</strong><span>Total Arcade points</span></div>
+              <div
+                className="point-composition-bar"
+                role="img"
+                aria-label={`Point distribution: ${pointBreakdown
+                  .map((item) => `${item.label} ${formatNumber(item.value)} points`)
+                  .join(", ")}`}
+              >
+                {pointBreakdown.map((item) => {
+                  const share =
+                    points > 0
+                      ? Math.max(0, Math.min(100, (item.value / points) * 100))
+                      : 0
+
+                  return (
+                    <span
+                      key={item.key}
+                      className={`point-composition-segment point-tone-${item.tone}`}
+                      style={{ width: `${share}%` }}
+                      title={`${item.label}: ${formatNumber(item.value)} pts (${share.toFixed(1)}%)`}
+                      aria-hidden="true"
+                    />
+                  )
+                })}
+              </div>
               <div className="point-breakdown-list">
                 {pointBreakdown.map((item) => (
                   <PointRow
@@ -1077,13 +1098,13 @@ function PointRow({
   total: number
   tone: string
 }) {
-  const width = total > 0 ? Math.min(100, (value / total) * 100) : 0
+  const share = total > 0 ? Math.max(0, (value / total) * 100) : 0
 
   return (
-    <div className="point-breakdown-row">
-      <span>{icon}{label}</span>
-      <i><b className={`tone-${tone}`} style={{ width: `${width}%` }} /></i>
+    <div className={`point-breakdown-row point-tone-${tone}`}>
+      <span className="point-breakdown-source"><span className="point-breakdown-swatch" aria-hidden="true" />{icon}<span>{label}</span></span>
       <strong>{formatNumber(value)} pts</strong>
+      <span className="point-breakdown-share">{share.toFixed(1)}%</span>
     </div>
   )
 }
