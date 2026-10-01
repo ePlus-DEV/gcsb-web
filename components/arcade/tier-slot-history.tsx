@@ -358,6 +358,7 @@ export function TierSlotHistoryPanel({
   const [visibleTiers, setVisibleTiers] = useState<TierKey[]>(ALL_TIERS)
   const [now, setNow] = useState(0)
 
+  const initial = feed?.snapshots[0]
   const latest = feed?.snapshots[feed.snapshots.length - 1]
   const selectedWindow = useMemo(
     () => feed && now ? selectMultiTierSlotWindow(feed, period, now) : null,
@@ -367,11 +368,11 @@ export function TierSlotHistoryPanel({
   const slotCapacities = useMemo(() => Object.fromEntries(
     DISPLAY_TIERS.map((tier) => [
       tier.key,
-      latest?.tiers.find((entry) => entry.points === tier.points)?.slots ??
+      initial?.tiers.find((entry) => entry.points === tier.points)?.slots ??
         milestones.find((entry) => entry.points === tier.points)?.slots ??
         null,
     ]),
-  ) as Record<TierKey, number | null>, [latest, milestones])
+  ) as Record<TierKey, number | null>, [initial, milestones])
 
   return (
     <Dialog open={open} onOpenChange={(next) => {
