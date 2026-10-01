@@ -436,8 +436,6 @@ export default function RedesignCalculator({
   const profileImage = profile?.profileImage
   const memberSince = profile?.memberSince
   const qualifiedMilestone = getQualifiedMilestone(points, milestones)
-  const currentTier = getTier(points)
-  const minimumTierPoints = OFFICIAL_MILESTONES[0]?.points ?? 50
   const scoreComplete = result?.beta?.scoreComplete ?? true
   const unknownBadgeCount = numeric(result?.beta?.unknownBadgeCount)
   const unknownBadges = result?.beta?.unknownBadges ?? []
