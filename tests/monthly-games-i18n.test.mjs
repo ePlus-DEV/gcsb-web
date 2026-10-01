@@ -1,6 +1,7 @@
 import assert from "node:assert/strict"
 import { readFile } from "node:fs/promises"
 import test from "node:test"
+import ts from "typescript"
 
 const LOCALES = [
   "en",
@@ -93,14 +94,42 @@ test("MonthlyGamesPanel contains no catalog-owned English UI copy", () => {
   assert.match(panel, /monthlyGamesText/)
   assert.match(panel, /loadWebsiteCatalog\(locale\)/)
 
-  for (const english of Object.values(EXPECTED_ENGLISH)) {
-    assert.equal(
-      panel.includes(JSON.stringify(english)),
-      false,
-      `MonthlyGamesPanel hardcodes catalog string literal: ${english}`,
-    )
+  const expectedEnglish = new Set(Object.values(EXPECTED_ENGLISH))
+  const sourceFile = ts.createSourceFile(
+    "monthly-games-panel.tsx",
+    panel,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TSX,
+  )
+  const leaked = []
+
+  function visit(node) {
+    if (ts.isJsxText(node)) {
+      const value = node.getText(sourceFile).trim()
+      if (expectedEnglish.has(value)) leaked.push(value)
+    }
+
+    if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) {
+      const parent = node.parent
+      const isTranslationKey =
+        ts.isCallExpression(parent) &&
+        parent.arguments[0] === node &&
+        ts.isIdentifier(parent.expression) &&
+        parent.expression.text === "text"
+
+      if (!isTranslationKey && expectedEnglish.has(node.text)) {
+        leaked.push(node.text)
+      }
+    }
+
+    ts.forEachChild(node, visit)
   }
 
-  assert.doesNotMatch(panel, />\s*(?:Completed|Copy|Deadline|Coming soon|Open game)\s*</)
-  assert.doesNotMatch(panel, /(?:aria-label|title)="(?:Copy access code|Loading current Arcade games)"/)
+  visit(sourceFile)
+  assert.deepEqual(
+    leaked,
+    [],
+    `MonthlyGamesPanel hardcodes catalog UI copy: ${leaked.join(", ")}`,
+  )
 })
