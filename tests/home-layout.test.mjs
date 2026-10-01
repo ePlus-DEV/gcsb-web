@@ -79,6 +79,12 @@ test("Monthly Labs hides expired games and shows a coming-soon state between mon
   assert.match(monthlyStyles, /\.monthly-progress-summary\.is-coming-soon/)
 })
 
+test("previous monthly lab label uses the Arcade source timezone instead of the browser timezone", () => {
+  assert.match(monthlyPanel, /latestGame\.deadlineTimeZone/)
+  assert.match(monthlyPanel, /timeZone: latestGame\.deadlineTimeZone/)
+  assert.match(monthlyPanel, /new Date\(latestGame\.deadline\)/)
+})
+
 test("an empty published monthly feed is treated as awaiting publication, not a fetch failure", () => {
   assert.match(monthlyPanel, /if \(!Array\.isArray\(payload\)\) throw new Error/)
   assert.match(monthlyPanel, /payload\.length > 0 && parsed\.length === 0/)
