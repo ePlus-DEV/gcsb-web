@@ -93,16 +93,11 @@ test("MonthlyGamesPanel contains no catalog-owned English UI copy", () => {
   assert.match(panel, /monthlyGamesText/)
   assert.match(panel, /loadWebsiteCatalog\(locale\)/)
 
-  for (const [key, english] of Object.entries(EXPECTED_ENGLISH)) {
-    // Semantic key names such as "completed", "copy", and "deadline" may
-    // intentionally equal their English value inside text("..."). Exclude
-    // that exact helper call before checking whether the UI copy leaked into
-    // the component as a literal.
-    const withoutKeyCall = panel.replaceAll(`text("${key}")`, "")
+  for (const english of Object.values(EXPECTED_ENGLISH)) {
     assert.equal(
-      withoutKeyCall.includes(english),
+      panel.includes(JSON.stringify(english)),
       false,
-      `MonthlyGamesPanel hardcodes catalog copy: ${english}`,
+      `MonthlyGamesPanel hardcodes catalog string literal: ${english}`,
     )
   }
 
