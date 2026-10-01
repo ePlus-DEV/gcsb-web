@@ -137,6 +137,14 @@ jobs:
               "${NEXT_PUBLIC_ARCADE_MILESTONE_HISTORY_URL}" -o /tmp/arcade-slot-history.json
             node -e 'const f=require("/tmp/arcade-slot-history.json"); if (f.version!==1 || !Array.isArray(f.snapshots) || !f.snapshots.length) process.exit(1)'
           fi
+          if [ "${PR_NUMBER}" = "83" ]; then
+            # PR #83 depends on crawler #13 restoring the known September deadlines.
+            # Use that branch in preview so the UI can be reviewed before either PR is merged.
+            export NEXT_PUBLIC_ARCADE_MONTHLY_GAMES_URL="https://raw.githubusercontent.com/hoangsvit/arcade-crawler/fix/preserve-monthly-deadline-on-enrichment-failure/data/arcade_monthly_games.json"
+            curl --fail --silent --show-error --location --retry 3 --max-time 20 \
+              "${NEXT_PUBLIC_ARCADE_MONTHLY_GAMES_URL}" -o /tmp/arcade-monthly-games.json
+            node -e 'const f=require("/tmp/arcade-monthly-games.json"); if (!Array.isArray(f) || !f.length || f.some(g => !g.deadline)) process.exit(1)'
+          fi
           yarn build
           if [ "${PR_NUMBER}" = "75" ]; then
             # Validate the *compiled* JS URL, not only source/workflow text.
@@ -145,6 +153,9 @@ jobs:
               echo "Stale deleted crawler branch leaked into compiled preview." >&2
               exit 1
             fi
+          fi
+          if [ "${PR_NUMBER}" = "83" ]; then
+            grep -R -F -q "${NEXT_PUBLIC_ARCADE_MONTHLY_GAMES_URL}" out/_next/static/chunks
           fi
 
       - name: Verify preview output
