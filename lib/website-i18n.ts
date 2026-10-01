@@ -188,14 +188,6 @@ function swagTemplate(targetCatalog: WebsiteCatalog, key: string, fallback: stri
   return targetCatalog.additional[`__swag:${key}`] ?? fallback
 }
 
-function monthlyGamesTemplate(
-  targetCatalog: WebsiteCatalog,
-  key: string,
-  fallback: string,
-): string {
-  return targetCatalog.additional[`__monthlyGames:${key}`] ?? fallback
-}
-
 /** Translates UI strings whose values contain runtime numbers or labels. */
 function translateDynamicText(
   source: string,
@@ -413,60 +405,6 @@ function translateDynamicText(
   if (match) return swagTemplate(targetCatalog, "tierRewardsTitle", "Arcade {tier} {year} rewards").replace("{tier}", match[1]).replace("{year}", match[2])
   match = source.match(/^These were the official final 2025 Season 2 items for this tier\. They explain the (≈\d+ items) projection, but they are not confirmed as 2026 rewards\.$/)
   if (match) return swagTemplate(targetCatalog, "historicalTierReference", "These were the official final 2025 Season 2 items for this tier. They explain the {estimate} projection, but they are not confirmed as 2026 rewards.").replace("{estimate}", translateWebsiteText(match[1], sourceCatalog, targetCatalog))
-
-  match = source.match(/^(.+) games are coming soon$/)
-  if (match) {
-    return monthlyGamesTemplate(
-      targetCatalog,
-      "comingSoonTitle",
-      "{month} games are coming soon",
-    ).replace("{month}", match[1])
-  }
-
-  match = source.match(/^(.+) labs have ended\.$/)
-  if (match) {
-    return monthlyGamesTemplate(
-      targetCatalog,
-      "previousEnded",
-      "{month} labs have ended.",
-    ).replace("{month}", match[1])
-  }
-
-  match = source.match(/^Arcade point: (.+)$/)
-  if (match) {
-    return monthlyGamesTemplate(
-      targetCatalog,
-      "arcadePoint",
-      "Arcade point: {count}",
-    ).replace("{count}", match[1])
-  }
-
-  match = source.match(/^Arcade points: (.+)$/)
-  if (match) {
-    return monthlyGamesTemplate(
-      targetCatalog,
-      "arcadePoints",
-      "Arcade points: {count}",
-    ).replace("{count}", match[1])
-  }
-
-  match = source.match(/^(.+) spots left$/)
-  if (match) {
-    return monthlyGamesTemplate(
-      targetCatalog,
-      "spotsLeft",
-      "{count} spots left",
-    ).replace("{count}", match[1])
-  }
-
-  match = source.match(/^Deadline: (.+)$/)
-  if (match) {
-    return monthlyGamesTemplate(
-      targetCatalog,
-      "deadlineAria",
-      "Deadline: {value}",
-    ).replace("{value}", match[1])
-  }
 
   return source
 }
