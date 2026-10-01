@@ -335,7 +335,7 @@ test("history chart shows each tier's original slot capacity without inventing a
   const ui = readRepoFile("components/arcade/tier-slot-history.tsx")
   assert.match(ui, /capacities: Record<TierKey, number \| null>/)
   assert.match(ui, /const slotCapacities = useMemo/)
-  assert.match(ui, /latest\?\.tiers\.find\(\(entry\) => entry\.points === tier\.points\)\?\.slots/)
+  assert.match(ui, /initial\?\.tiers\.find\(\(entry\) => entry\.points === tier\.points\)\?\.slots/)
   assert.match(ui, /<ReferenceLine/)
   assert.match(ui, /strokeDasharray="6 6"/)
   assert.match(ui, /domain=\{\[0, yMax\]\}/)
