@@ -212,7 +212,18 @@ jobs:
           include-hidden-files: true
 
       - name: Deploy GitHub Pages
+        id: deployment_first
+        continue-on-error: true
+        uses: actions/deploy-pages@v4
+
+      - name: Wait before retrying GitHub Pages
+        if: steps.deployment_first.outcome == 'failure'
+        shell: bash
+        run: sleep 8
+
+      - name: Retry GitHub Pages deployment
         id: deployment
+        if: steps.deployment_first.outcome == 'failure'
         uses: actions/deploy-pages@v4
 
       - name: Verify live preview URL
