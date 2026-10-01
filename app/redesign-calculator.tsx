@@ -747,7 +747,7 @@ export default function RedesignCalculator({
                   .join(", ")}`}
               >
                 {pointBreakdown.map((item) => {
-                  const width =
+                  const share =
                     points > 0
                       ? Math.max(0, Math.min(100, (item.value / points) * 100))
                       : 0
@@ -756,7 +756,8 @@ export default function RedesignCalculator({
                     <span
                       key={item.key}
                       className={`point-composition-segment point-tone-${item.tone}`}
-                      style={{ width: `${width}%` }}
+                      style={{ width: `${share}%` }}
+                      title={`${item.label}: ${formatNumber(item.value)} pts (${share.toFixed(1)}%)`}
                       aria-hidden="true"
                     />
                   )
@@ -1101,7 +1102,7 @@ function PointRow({
 
   return (
     <div className={`point-breakdown-row point-tone-${tone}`}>
-      <span className="point-breakdown-source">{icon}<span>{label}</span></span>
+      <span className="point-breakdown-source"><span className="point-breakdown-swatch" aria-hidden="true" />{icon}<span>{label}</span></span>
       <strong>{formatNumber(value)} pts</strong>
       <span className="point-breakdown-share">{share.toFixed(1)}%</span>
     </div>
