@@ -53,7 +53,7 @@ jobs:
       pages: write
       id-token: write
     concurrency:
-      group: gcsb-pages-content-v3
+      group: gcsb-pages-content-v4
       cancel-in-progress: false
     environment:
       name: pr-preview
@@ -212,7 +212,18 @@ jobs:
           include-hidden-files: true
 
       - name: Deploy GitHub Pages
+        id: deployment_first
+        continue-on-error: true
+        uses: actions/deploy-pages@v4
+
+      - name: Wait before retrying GitHub Pages
+        if: steps.deployment_first.outcome == 'failure'
+        shell: bash
+        run: sleep 8
+
+      - name: Retry GitHub Pages deployment
         id: deployment
+        if: steps.deployment_first.outcome == 'failure'
         uses: actions/deploy-pages@v4
 
       - name: Verify live preview URL
