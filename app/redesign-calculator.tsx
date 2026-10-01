@@ -41,7 +41,6 @@ import {
   PROFILE_URL_PATTERN,
   formatInteger,
   formatNumber,
-  getTier,
   numeric,
   tierRangeLabel,
 } from "@/components/arcade/model"
