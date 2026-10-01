@@ -6,6 +6,8 @@ const home = readRepoFile("app/page.tsx")
 const localizedHome = readRepoFile("app/[locale]/page.tsx")
 const calculator = readRepoFile("app/redesign-calculator.tsx")
 const monthlyGate = readRepoFile("components/arcade/monthly-games-panel-gate.tsx")
+const monthlyPanel = readRepoFile("components/arcade/monthly-games-panel.tsx")
+const monthlyStyles = readRepoFile("app/styles/monthly-games.css")
 const guide = readRepoFile("components/seo/home-search-guide.tsx")
 
 const sharedBlocks = /<(RedesignCalculator|ProgramCountdown|FreshScoreCheckEnhancer|TierStatusIconEnhancer|SwagDropsPreview|MonthlyGamesPanelGate|ShareProfileEnhancer|FacilitatorAnalyzerOption|FacilitatorPanelGate|SeoContent)\b/g
@@ -61,4 +63,26 @@ test("portal targets cannot depend on translated labels or mutation timing", () 
   assert.ok(monthlyGate.includes('page?.querySelector<HTMLElement>(`#${HOST_ID}.${HOST_CLASS_NAME}`)'))
   assert.doesNotMatch(monthlyGate, /\[aria-label=/)
   assert.doesNotMatch(monthlyGate, /insertAdjacentElement|document\.createElement/)
+})
+
+
+test("Monthly Labs hides expired games and shows a coming-soon state between monthly releases", () => {
+  assert.match(monthlyPanel, /function isGameExpired/)
+  assert.match(monthlyPanel, /games\.filter\(\(game\) => !isGameExpired\(game, nowMs\)\)/)
+  assert.match(monthlyPanel, /expiredGames\.length === games\.length/)
+  assert.match(monthlyPanel, /games\.length === 0/)
+  assert.match(monthlyPanel, /Awaiting new Arcade labs/)
+  assert.match(monthlyPanel, /New games will appear here automatically after they are published\./)
+  assert.match(monthlyPanel, /activeGames\.map\(\(game, index\) =>/)
+  assert.doesNotMatch(monthlyPanel, /games\.map\(\(game, index\) =>/)
+  assert.match(monthlyStyles, /\.monthly-games-coming-soon/)
+  assert.match(monthlyStyles, /\.monthly-progress-summary\.is-coming-soon/)
+})
+
+test("an empty published monthly feed is treated as awaiting publication, not a fetch failure", () => {
+  assert.match(monthlyPanel, /if \(!Array\.isArray\(payload\)\) throw new Error/)
+  assert.match(monthlyPanel, /payload\.length > 0 && parsed\.length === 0/)
+  assert.match(monthlyPanel, /setLoadFailed\(false\)/)
+  assert.match(monthlyPanel, /if \(loadFailed\) return null/)
+  assert.doesNotMatch(monthlyPanel, /loadFailed \|\| games\.length === 0/)
 })
