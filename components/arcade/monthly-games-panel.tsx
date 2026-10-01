@@ -13,8 +13,19 @@ import {
 } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import {
+  DEFAULT_WEBSITE_LOCALE,
+  getWebsiteLocale,
+  getWebsiteLocaleInfo,
+  loadWebsiteCatalog,
+  type WebsiteCatalog,
+  type WebsiteLocale,
+} from "@/lib/website-i18n"
+import {
+  monthlyGamesText,
+  type MonthlyGamesTextKey,
+} from "./monthly-games-copy"
+import {
   ARCADE_MONTHLY_GAMES_URL,
-  formatInteger,
   type ArcadeBadge,
   type MonthlyArcadeGame,
 } from "./model"
@@ -106,38 +117,49 @@ function parseMonthlyGames(payload: unknown): MonthlyArcadeGame[] {
   })
 }
 
-function readCurrentLocale(): string | undefined {
-  if (typeof document === "undefined") return undefined
+function readCurrentLocale(): WebsiteLocale {
+  if (typeof document === "undefined") return DEFAULT_WEBSITE_LOCALE
 
   const host = document.querySelector<HTMLElement>(".monthly-games-host")
   const localizedAncestor = host?.closest<HTMLElement>("[lang]")
-  return localizedAncestor?.lang || document.documentElement.lang || undefined
+  return getWebsiteLocale(
+    localizedAncestor?.lang || document.documentElement.lang || DEFAULT_WEBSITE_LOCALE,
+  )
 }
 
-function formatDeadline(value: string | null, locale?: string): string {
-  if (!value) return "Deadline unavailable"
+function formatDeadline(
+  value: string | null,
+  locale: string,
+  timeZone: string | null,
+  unavailable: string,
+): string {
+  if (!value) return unavailable
 
   const parsed = new Date(value)
-  if (Number.isNaN(parsed.getTime())) return "Deadline unavailable"
+  if (Number.isNaN(parsed.getTime())) return unavailable
 
+  const zone = timeZone ? { timeZone } : {}
   const date = new Intl.DateTimeFormat(locale, {
     year: "numeric",
     month: "short",
     day: "numeric",
+    ...zone,
   }).format(parsed)
 
   const time = new Intl.DateTimeFormat(locale, {
     hour: "2-digit",
     minute: "2-digit",
+    ...zone,
   }).format(parsed)
 
-  const timeZone = new Intl.DateTimeFormat(locale, {
+  const timeZoneName = new Intl.DateTimeFormat(locale, {
     timeZoneName: "short",
+    ...zone,
   })
     .formatToParts(parsed)
     .find((part) => part.type === "timeZoneName")?.value
 
-  return [date, time, timeZone].filter(Boolean).join(" · ")
+  return [date, time, timeZoneName].filter(Boolean).join(" · ")
 }
 
 function formatDeadlineCountdown(
@@ -184,14 +206,53 @@ function currentMonthHeading(locale?: string): string {
   }).format(new Date())
 }
 
+function gameDeadlineMs(game: MonthlyArcadeGame): number | null {
+  if (!game.deadline) return null
+  const value = new Date(game.deadline).getTime()
+  return Number.isFinite(value) ? value : null
+}
+
+function isGameExpired(game: MonthlyArcadeGame, nowMs: number): boolean {
+  const deadlineMs = gameDeadlineMs(game)
+  return deadlineMs !== null && deadlineMs <= nowMs
+}
+
+function latestGameMonthHeading(
+  games: MonthlyArcadeGame[],
+  locale?: string,
+): string | null {
+  const latestGame = games.reduce<MonthlyArcadeGame | null>((latest, game) => {
+    const value = gameDeadlineMs(game)
+    if (value === null) return latest
+    if (!latest) return game
+
+    const latestValue = gameDeadlineMs(latest)
+    return latestValue === null || value > latestValue ? game : latest
+  }, null)
+
+  if (!latestGame?.deadline) return null
+
+  return new Intl.DateTimeFormat(locale, {
+    month: "long",
+    year: "numeric",
+    ...(latestGame.deadlineTimeZone ? { timeZone: latestGame.deadlineTimeZone } : {}),
+  }).format(new Date(latestGame.deadline))
+}
+
 export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPanelProps) {
   const [games, setGames] = useState<MonthlyArcadeGame[]>([])
   const [loading, setLoading] = useState(true)
   const [loadFailed, setLoadFailed] = useState(false)
   const [copiedCode, setCopiedCode] = useState<string | null>(null)
   const [expandedDeadline, setExpandedDeadline] = useState<string | null>(null)
-  const [locale, setLocale] = useState<string | undefined>(undefined)
+  const [locale, setLocale] = useState<WebsiteLocale>(DEFAULT_WEBSITE_LOCALE)
+  const [catalog, setCatalog] = useState<WebsiteCatalog | null>(null)
   const [nowMs, setNowMs] = useState(() => Date.now())
+  const intlLocale = getWebsiteLocaleInfo(locale).htmlLang
+  const text = (
+    key: MonthlyGamesTextKey,
+    params?: Record<string, string | number>,
+  ) => catalog ? monthlyGamesText(catalog, key, params) : ""
 
   useEffect(() => {
     const syncLocale = () => setLocale(readCurrentLocale())
@@ -204,6 +265,23 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
     })
     return () => observer.disconnect()
   }, [])
+
+  useEffect(() => {
+    let active = true
+    setCatalog(null)
+
+    void loadWebsiteCatalog(locale)
+      .then((nextCatalog) => {
+        if (active) setCatalog(nextCatalog)
+      })
+      .catch(() => {
+        if (active) setCatalog(null)
+      })
+
+    return () => {
+      active = false
+    }
+  }, [locale])
 
   useEffect(() => {
     const timer = window.setInterval(() => setNowMs(Date.now()), 60_000)
@@ -223,11 +301,17 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
         })
         if (!response.ok) throw new Error(`HTTP ${response.status}`)
 
-        const parsed = parseMonthlyGames(await response.json())
+        const payload = await response.json()
+        if (!Array.isArray(payload)) throw new Error("Invalid monthly games feed")
+
+        const parsed = parseMonthlyGames(payload)
+        if (payload.length > 0 && parsed.length === 0) {
+          throw new Error("Monthly games feed contains no valid games")
+        }
         if (!active) return
 
         setGames(parsed)
-        setLoadFailed(parsed.length === 0)
+        setLoadFailed(false)
       } catch {
         if (active) setLoadFailed(true)
       } finally {
@@ -254,11 +338,27 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
     [badges],
   )
 
+  const activeGames = useMemo(
+    () => games.filter((game) => !isGameExpired(game, nowMs)),
+    [games, nowMs],
+  )
+  const expiredGames = useMemo(
+    () => games.filter((game) => isGameExpired(game, nowMs)),
+    [games, nowMs],
+  )
+  const awaitingNewGames =
+    games.length === 0 ||
+    (expiredGames.length === games.length && activeGames.length === 0)
+  const previousGamesMonth = useMemo(
+    () => latestGameMonthHeading(expiredGames, intlLocale),
+    [expiredGames, intlLocale],
+  )
+
   const completedCount = useMemo(
     () => hasProfile
-      ? games.filter((game) => isCompleted(earnedTitleSet, game.title)).length
+      ? activeGames.filter((game) => isCompleted(earnedTitleSet, game.title)).length
       : 0,
-    [earnedTitleSet, games, hasProfile],
+    [activeGames, earnedTitleSet, hasProfile],
   )
 
   async function copyAccessCode(code: string) {
@@ -271,50 +371,95 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
     }
   }
 
-  if (loading) {
+  if (!catalog) {
     return (
-      <section className="monthly-games-panel is-loading" aria-label="Loading current Arcade games">
+      <section className="monthly-games-panel is-loading" aria-busy="true">
         <LoaderCircle className="spin" />
-        <span>Loading current Arcade games…</span>
       </section>
     )
   }
 
-  if (loadFailed || games.length === 0) return null
+  if (loading) {
+    return (
+      <section
+        className="monthly-games-panel is-loading"
+        aria-label={text("loadingAria")}
+        aria-busy="true"
+      >
+        <LoaderCircle className="spin" />
+        <span>{text("loading")}</span>
+      </section>
+    )
+  }
+
+  if (loadFailed) return null
 
   return (
     <section className="monthly-games-panel" aria-labelledby="monthly-games-title">
       <div className="monthly-games-heading">
         <div>
-          <span className="monthly-games-kicker"><Gamepad2 /> This month</span>
-          <h2 id="monthly-games-title">{currentMonthHeading(locale)}</h2>
-          <p>Track the active Arcade games against badges already present on this public profile.</p>
+          <span className="monthly-games-kicker"><Gamepad2 /> {text("thisMonth")}</span>
+          <h2 id="monthly-games-title">{currentMonthHeading(intlLocale)}</h2>
+          <p>
+            {awaitingNewGames
+              ? text("previousEndedWaiting")
+              : text("activeDescription")}
+          </p>
         </div>
-        <div className={hasProfile ? "monthly-progress-summary" : "monthly-progress-summary is-pending"}>
-          {hasProfile ? (
+        <div className={
+          awaitingNewGames
+            ? "monthly-progress-summary is-coming-soon"
+            : hasProfile
+              ? "monthly-progress-summary"
+              : "monthly-progress-summary is-pending"
+        }>
+          {awaitingNewGames ? (
             <>
-              <strong>{completedCount}/{games.length}</strong>
-              <span>completed</span>
-              <i aria-hidden="true"><b style={{ width: `${games.length ? (completedCount / games.length) * 100 : 0}%` }} /></i>
+              <strong>{text("comingSoon")}</strong>
+              <span>{text("newLabsNotPublished")}</span>
+            </>
+          ) : hasProfile ? (
+            <>
+              <strong>{completedCount}/{activeGames.length}</strong>
+              <span>{text("completedLower")}</span>
+              <i aria-hidden="true"><b style={{ width: `${activeGames.length ? (completedCount / activeGames.length) * 100 : 0}%` }} /></i>
             </>
           ) : (
             <>
-              <strong>—/{games.length}</strong>
-              <span>Analyze profile to track completion</span>
+              <strong>—/{activeGames.length}</strong>
+              <span>{text("analyzeProfileTracking")}</span>
               <i aria-hidden="true"><b style={{ width: "0%" }} /></i>
             </>
           )}
         </div>
       </div>
 
-      <div className="monthly-games-grid">
-        {games.map((game, index) => {
+      {awaitingNewGames ? (
+        <div className="monthly-games-coming-soon" role="status">
+          <span className="monthly-coming-soon-icon" aria-hidden="true"><Gamepad2 /></span>
+          <div>
+            <span className="monthly-coming-soon-label">{text("awaitingNewLabs")}</span>
+            <h3>{text("comingSoonTitle", { month: currentMonthHeading(intlLocale) })}</h3>
+            <p>
+              {previousGamesMonth ? `${text("previousEnded", { month: previousGamesMonth })} ` : ""}
+              {text("newGamesAuto")}
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className="monthly-games-grid">
+        {activeGames.map((game, index) => {
           const completed = hasProfile && isCompleted(earnedTitleSet, game.title)
           const stableKey =
             (game.joinUrl ?? game.accessCode ?? normalizeBadgeTitle(game.title)) ||
             "game"
           const deadlineKey = `${stableKey}-${index}`
-          const deadlineDetail = formatDeadline(game.deadline, locale)
+          const deadlineDetail = formatDeadline(
+            game.deadline,
+            intlLocale,
+            game.deadlineTimeZone,
+            text("deadlineUnavailable"),
+          )
 
           return (
             <article className={completed ? "monthly-game-card is-complete" : "monthly-game-card"} key={deadlineKey}>
@@ -331,7 +476,11 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
                 )}
                 <span className={completed ? "monthly-game-status is-complete" : hasProfile ? "monthly-game-status" : "monthly-game-status is-pending"}>
                   {completed ? <BadgeCheck /> : <Circle />}
-                  {completed ? "Completed" : hasProfile ? "Not completed" : "Analyze profile to check"}
+                  {completed
+                    ? text("completed")
+                    : hasProfile
+                      ? text("notCompleted")
+                      : text("analyzeProfileCheck")}
                 </span>
               </div>
 
@@ -343,39 +492,54 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
                   {game.accessCode && (
                     <div className="monthly-access-row">
                       <div className="monthly-access-value">
-                        <span>Access code</span>
+                        <span>{text("accessCode")}</span>
                         <code>{game.accessCode}</code>
                       </div>
                       <button
                         className={copiedCode === game.accessCode ? "monthly-copy-button is-copied" : "monthly-copy-button"}
                         type="button"
                         onClick={() => void copyAccessCode(game.accessCode as string)}
-                        aria-label="Copy access code"
-                        title="Copy access code"
+                        aria-label={text("copyAccessCode")}
+                        title={text("copyAccessCode")}
                       >
                         {copiedCode === game.accessCode ? <Check /> : <Copy />}
-                        <span>{copiedCode === game.accessCode ? "Copied" : "Copy"}</span>
+                        <span>{copiedCode === game.accessCode ? text("copied") : text("copy")}</span>
                       </button>
                     </div>
                   )}
 
                   <div className="monthly-game-facts">
-                    {game.points !== null && <span className="monthly-game-points"><Trophy /> Arcade point{game.points === 1 ? "" : "s"}: {game.points}</span>}
-                    {game.spotsRemaining !== null && <span><Circle /> {formatInteger(game.spotsRemaining)} spots left</span>}
+                    {game.points !== null && (
+                      <span className="monthly-game-points">
+                        <Trophy /> {text(
+                          game.points === 1 ? "arcadePoint" : "arcadePoints",
+                          { count: game.points },
+                        )}
+                      </span>
+                    )}
+                    {game.spotsRemaining !== null && (
+                      <span>
+                        <Circle /> {text("spotsLeft", {
+                          count: new Intl.NumberFormat(intlLocale, {
+                            maximumFractionDigits: 0,
+                          }).format(game.spotsRemaining),
+                        })}
+                      </span>
+                    )}
                   </div>
 
                   <button
                     className={expandedDeadline === deadlineKey ? "monthly-game-deadline is-open" : "monthly-game-deadline"}
                     type="button"
                     data-source-time-zone={game.deadlineTimeZone ?? undefined}
-                    aria-label={`Deadline: ${deadlineDetail}`}
+                    aria-label={text("deadlineAria", { value: deadlineDetail })}
                     aria-expanded={expandedDeadline === deadlineKey}
                     onClick={() => setExpandedDeadline((current) => current === deadlineKey ? null : deadlineKey)}
                   >
                     <Clock />
-                    <strong>Deadline</strong>
+                    <strong>{text("deadline")}</strong>
                     <time dateTime={game.deadline ?? undefined}>
-                      {formatDeadlineCountdown(game.deadline, locale, nowMs)}
+                      {formatDeadlineCountdown(game.deadline, intlLocale, nowMs)}
                     </time>
                     <span className="monthly-deadline-tooltip" role="tooltip">
                       {deadlineDetail}
@@ -385,14 +549,15 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
 
                 {game.joinUrl && (
                   <a className="monthly-game-link" href={game.joinUrl} target="_blank" rel="noreferrer noopener">
-                    Open game <ExternalLink />
+                    {text("openGame")} <ExternalLink />
                   </a>
                 )}
               </div>
             </article>
           )
         })}
-      </div>
+        </div>
+      )}
     </section>
   )
 }
