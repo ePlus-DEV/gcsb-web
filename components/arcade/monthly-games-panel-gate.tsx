@@ -1,11 +1,10 @@
 "use client"
 
 import { createPortal } from "react-dom"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import MonthlyGamesPanel from "./monthly-games-panel"
-import { PREVIEW_DEBUG_PROFILE_RESULT } from "./preview-debug-profile"
+import { readActiveDashboard, observeDashboardMode } from "./dashboard-state"
 import {
-  DASHBOARD_STORAGE_KEY,
   type ArcadeApiResponse,
   type ArcadeBadge,
 } from "./model"
@@ -23,34 +22,6 @@ function asBadgeArray(value: unknown): ArcadeBadge[] {
       item !== null &&
       typeof (item as { title?: unknown }).title === "string",
   )
-}
-
-function readDashboardState(): { viewMode: "guest" | "profile"; debugFake: boolean } {
-  const page = document.querySelector<HTMLElement>(".arcade-dashboard-page")
-  return {
-    viewMode: page?.dataset.dashboardView === "profile" ? "profile" : "guest",
-    debugFake: page?.dataset.dashboardDebugFake === "true",
-  }
-}
-
-function readStoredRaw(): string {
-  try {
-    return window.localStorage.getItem(DASHBOARD_STORAGE_KEY) ?? ""
-  } catch {
-    return ""
-  }
-}
-
-function parseStoredResult(raw: string): ArcadeApiResponse | null {
-  if (!raw) return null
-
-  try {
-    const parsed = JSON.parse(raw) as { result?: ArcadeApiResponse }
-    const result = parsed.result
-    return result && typeof result === "object" ? result : null
-  } catch {
-    return null
-  }
 }
 
 function parseStoredBadges(result: ArcadeApiResponse | null): ArcadeBadge[] {
@@ -76,25 +47,21 @@ export default function MonthlyGamesPanelGate() {
   const [host, setHost] = useState<HTMLElement | null>(null)
   const [badges, setBadges] = useState<ArcadeBadge[]>([])
   const [hasProfile, setHasProfile] = useState(false)
-  const lastRawRef = useRef<string | null>(null)
 
   useEffect(() => {
     const sync = () => {
       const nextHost = findMonthlyGamesHost()
       setHost((current) => (current === nextHost ? current : nextHost))
 
-      const { viewMode, debugFake } = readDashboardState()
-      const raw = viewMode === "profile" && !debugFake ? readStoredRaw() : ""
-      const syncKey = `${viewMode}:${debugFake ? "preview-fake" : raw}`
-      if (syncKey === lastRawRef.current) return
-
-      lastRawRef.current = syncKey
-      const result = debugFake ? PREVIEW_DEBUG_PROFILE_RESULT : parseStoredResult(raw)
-      setHasProfile(viewMode === "profile" && Boolean(result))
-      setBadges(viewMode === "profile" ? parseStoredBadges(result) : [])
+      const dashboard = readActiveDashboard()
+      const result = dashboard?.result ?? null
+      setHasProfile(Boolean(dashboard))
+      const nextBadges = parseStoredBadges(result)
+      setBadges((current) => JSON.stringify(current) === JSON.stringify(nextBadges) ? current : nextBadges)
     }
 
     sync()
+    const stopObserving = observeDashboardMode(sync)
     const timer = window.setInterval(sync, DASHBOARD_SYNC_INTERVAL_MS)
     const observer = new MutationObserver((records) => {
       const hasExternalMutation = records.some((record) => {
@@ -109,6 +76,7 @@ export default function MonthlyGamesPanelGate() {
     window.addEventListener("storage", sync)
 
     return () => {
+      stopObserving()
       window.clearInterval(timer)
       observer.disconnect()
       window.removeEventListener("focus", sync)

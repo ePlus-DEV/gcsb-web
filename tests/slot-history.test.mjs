@@ -351,7 +351,7 @@ test("all public slot history strings use a passed catalog and locale", () => {
   const visible = ui.slice(ui.indexOf("const PERIODS: SlotPeriod[]"))
   assert.match(calc, /historyCatalog: WebsiteCatalog/)
   assert.match(calc, /historyLocale: WebsiteLocale/)
-  assert.equal((calc.match(/catalog=\{activeHistoryLanguage.catalog\}/g) ?? []).length, 4)
+  assert.equal((calc.match(/catalog=\{activeHistoryLanguage.catalog\}/g) ?? []).length, 5)
   assert.equal((calc.match(/locale=\{activeHistoryLanguage.locale\}/g) ?? []).length, 4)
   assert.match(calc, /attributeFilter: \["data-locale"\]/)
   assert.match(calc, /getWebsiteLocaleFromPathname\(window.location.pathname\)/)

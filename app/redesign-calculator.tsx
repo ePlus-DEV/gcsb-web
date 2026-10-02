@@ -1,6 +1,9 @@
 "use client"
 
 import Link from "next/link"
+import GuestDashboard from "@/components/arcade/guest-dashboard"
+import PreviewModeToolbar from "@/components/arcade/preview-mode-toolbar"
+import { readStoredDashboard, type DashboardViewMode } from "@/components/arcade/dashboard-state"
 import { SlotChangeBadge, TierSlotHistoryPanel, useTierSlotHistory } from "@/components/arcade/tier-slot-history"
 import {
   getWebsiteLocale,
@@ -63,8 +66,6 @@ const FIREFOX_EXTENSION_URL =
   "https://addons.mozilla.org/addon/cloud-skills-boost-helper"
 const BADGE_PREVIEW_LIMIT = 8
 const DASHBOARD_VIEW_MODE_STORAGE_KEY = "eplus-arcade-dashboard-view-mode-v1"
-
-type DashboardViewMode = "guest" | "profile"
 
 const FILTERS: Array<{ value: BadgeFilter; label: string }> = [
   { value: "all", label: "All" },
@@ -186,33 +187,6 @@ function readStoredViewMode(): DashboardViewMode | null {
   }
 }
 
-function readStoredResult(): { profileUrl: string; result: ArcadeApiResponse } | null {
-  try {
-    const raw = window.localStorage.getItem(DASHBOARD_STORAGE_KEY)
-    if (!raw) return null
-
-    const parsed = JSON.parse(raw) as {
-      profileUrl?: unknown
-      result?: unknown
-    }
-
-    if (
-      typeof parsed.profileUrl !== "string" ||
-      typeof parsed.result !== "object" ||
-      parsed.result === null
-    ) {
-      return null
-    }
-
-    return {
-      profileUrl: parsed.profileUrl,
-      result: parsed.result as ArcadeApiResponse,
-    }
-  } catch {
-    return null
-  }
-}
-
 type HeroCopy = { top: string; bottom: string; description: string }
 
 export default function RedesignCalculator({
@@ -231,6 +205,7 @@ export default function RedesignCalculator({
   const [result, setResult] = useState<ArcadeApiResponse | null>(null)
   const [viewMode, setViewMode] = useState<DashboardViewMode>(IS_PR_PREVIEW ? "guest" : "profile")
   const [usingPreviewFakeProfile, setUsingPreviewFakeProfile] = useState(false)
+  const [viewModeRestored, setViewModeRestored] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [filter, setFilter] = useState<BadgeFilter>("all")
@@ -290,7 +265,8 @@ export default function RedesignCalculator({
   const abortControllerRef = useRef<AbortController | null>(null)
 
   useEffect(() => {
-    const stored = readStoredResult()
+    const stored = readStoredDashboard()
+    setViewModeRestored(true)
     const storedViewMode = IS_PR_PREVIEW ? readStoredViewMode() : null
 
     if (!stored) {
@@ -313,14 +289,14 @@ export default function RedesignCalculator({
   }, [])
 
   useEffect(() => {
-    if (!IS_PR_PREVIEW) return
+    if (!IS_PR_PREVIEW || !viewModeRestored) return
 
     try {
       window.localStorage.setItem(DASHBOARD_VIEW_MODE_STORAGE_KEY, viewMode)
     } catch {
       // Preview-only debug selection still works for the current session.
     }
-  }, [viewMode])
+  }, [viewMode, viewModeRestored])
 
   useEffect(() => {
     if (!result || usingPreviewFakeProfile) return
@@ -631,7 +607,7 @@ export default function RedesignCalculator({
     setViewMode(nextMode)
 
     if (nextMode === "profile" && !result) {
-      const stored = readStoredResult()
+      const stored = readStoredDashboard()
 
       if (stored) {
         setProfileUrl(stored.profileUrl)
@@ -648,7 +624,6 @@ export default function RedesignCalculator({
   }
 
   const showProfileDashboard = viewMode === "profile" && Boolean(result)
-  const viewMessages = activeHistoryLanguage.catalog.messages
 
   return (
     <main
@@ -789,29 +764,11 @@ export default function RedesignCalculator({
       </section>
 
       {IS_PR_PREVIEW && (
-        <aside className="preview-mode-toolbar" aria-label={viewMessages.dashboardView}>
-          <span className="preview-mode-badge" aria-hidden="true">PR</span>
-          <div className="dashboard-view-switch" role="group" aria-label={viewMessages.dashboardView}>
-            <button
-              type="button"
-              className={viewMode === "guest" ? "is-active" : ""}
-              aria-pressed={viewMode === "guest"}
-              onClick={() => activatePreviewMode("guest")}
-            >
-              <Globe2 />
-              <span>{viewMessages.guestView}</span>
-            </button>
-            <button
-              type="button"
-              className={viewMode === "profile" ? "is-active" : ""}
-              aria-pressed={viewMode === "profile"}
-              onClick={() => activatePreviewMode("profile")}
-            >
-              <Users />
-              <span>{viewMessages.profileView}</span>
-            </button>
-          </div>
-        </aside>
+        <PreviewModeToolbar
+          viewMode={viewMode}
+          onChange={activatePreviewMode}
+          catalog={activeHistoryLanguage.catalog}
+        />
       )}
 
       {showProfileDashboard ? (
@@ -1106,67 +1063,14 @@ export default function RedesignCalculator({
           </div>
         </section>
       ) : (
-        <section
-          className={`dashboard-empty-state guest-dashboard${viewMode === "guest" ? " is-guest" : " is-profile-empty"}`}
-          data-home-order="dashboard-empty"
-        >
-          <div className="guest-dashboard-hero">
-            <span className="guest-dashboard-orb" aria-hidden="true"><Trophy /></span>
-            <div className="guest-dashboard-copy">
-              <strong>{viewMode === "guest" ? viewMessages.guestDashboardTitle : viewMessages.dashboardPlaceholder}</strong>
-              <p>{viewMode === "guest" ? viewMessages.guestDashboardHint : viewMessages.dashboardHint}</p>
-            </div>
-            <span className="guest-dashboard-decoration" aria-hidden="true"><Gamepad2 /></span>
-          </div>
-
-          <div className="guest-tier-heading">
-            <div>
-              <span className="guest-tier-heading-icon" aria-hidden="true"><Trophy /></span>
-              <div>
-                <strong>{viewMessages.arcadeTiers}</strong>
-                <span>{milestonesLive ? viewMessages.liveSlots : viewMessages.totalSlotsOnly}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="empty-tier-grid">
-            {[...milestones].reverse().map((tier) => {
-              const remainingPercent =
-                tier.spotsLeft === null || tier.slots <= 0
-                  ? 0
-                  : Math.max(0, Math.min(100, (tier.spotsLeft / tier.slots) * 100))
-
-              return (
-                <article className={`guest-tier-card tier-${tier.points}`} key={tier.points}>
-                  <span className="guest-tier-icon" aria-hidden="true"><Trophy /></span>
-                  <div className="guest-tier-main">
-                    <div className="guest-tier-copy">
-                      <strong>{tier.league.replace("Arcade ", "")}</strong>
-                      <span>{tierRangeLabel(tier)}</span>
-                    </div>
-                    <div className="guest-tier-progress" aria-hidden="true">
-                      <span style={{ width: `${remainingPercent}%` }} />
-                    </div>
-                  </div>
-                  <div className="guest-tier-availability">
-                    <strong>
-                      {tier.spotsLeft === null ? "—" : formatInteger(tier.spotsLeft)}
-                      <span> / {formatInteger(tier.slots)}</span>
-                    </strong>
-                    <small>{tier.spotsLeft === null ? viewMessages.totalSlotsOnly : viewMessages.spotsLeft}</small>
-                    <SlotChangeBadge
-                      feed={slotHistory.feed}
-                      points={tier.points}
-                      currentSpotsLeft={tier.spotsLeft}
-                      catalog={activeHistoryLanguage.catalog}
-                      locale={activeHistoryLanguage.locale}
-                    />
-                  </div>
-                </article>
-              )
-            })}
-          </div>
-        </section>
+        <GuestDashboard
+          viewMode={viewMode}
+          milestones={milestones}
+          milestonesLive={milestonesLive}
+          slotHistory={slotHistory}
+          catalog={activeHistoryLanguage.catalog}
+          locale={activeHistoryLanguage.locale}
+        />
       )}
       {!showProfileDashboard && (
         <div className="tier-history-under-empty" data-home-order="tier-history">

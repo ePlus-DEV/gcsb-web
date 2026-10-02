@@ -10,25 +10,12 @@ import {
   readFacilitatorParticipation,
   type FacilitatorParticipationDetail,
 } from "./facilitator-participation"
-import { DASHBOARD_STORAGE_KEY } from "./model"
-import { PREVIEW_DEBUG_PROFILE_URL } from "./preview-debug-profile"
+import { readActiveDashboard, observeDashboardMode } from "./dashboard-state"
 
 const DASHBOARD_SYNC_INTERVAL_MS = 1_000
 
 function readStoredProfileUrl(): string {
-  const page = document.querySelector<HTMLElement>(".arcade-dashboard-page")
-  if (page?.dataset.dashboardView === "guest") return ""
-  if (page?.dataset.dashboardDebugFake === "true") return PREVIEW_DEBUG_PROFILE_URL
-
-  try {
-    const raw = window.localStorage.getItem(DASHBOARD_STORAGE_KEY)
-    if (!raw) return ""
-
-    const parsed = JSON.parse(raw) as { profileUrl?: unknown }
-    return typeof parsed.profileUrl === "string" ? parsed.profileUrl : ""
-  } catch {
-    return ""
-  }
+  return readActiveDashboard()?.profileUrl ?? ""
 }
 
 export default function FacilitatorPanelGate() {
@@ -41,11 +28,13 @@ export default function FacilitatorPanelGate() {
     const syncProfile = () => setProfileUrl(readStoredProfileUrl())
 
     syncProfile()
+    const stopObserving = observeDashboardMode(syncProfile)
     const timer = window.setInterval(syncProfile, DASHBOARD_SYNC_INTERVAL_MS)
     window.addEventListener("focus", syncProfile)
     window.addEventListener("storage", syncProfile)
 
     return () => {
+      stopObserving()
       window.clearInterval(timer)
       window.removeEventListener("focus", syncProfile)
       window.removeEventListener("storage", syncProfile)
