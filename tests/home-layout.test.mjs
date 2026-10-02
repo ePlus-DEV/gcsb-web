@@ -101,6 +101,9 @@ test("home dashboard v2 stays scoped and its visual overrides load last", () => 
   assert.match(calculator, /arcade-dashboard-page arcade-dashboard-v2/)
   assert.match(refactorStyles, /\.arcade-dashboard-v2/)
   assert.match(refactorStyles, /\.arcade-dashboard-v2 \.program-countdown-host/)
+  assert.match(refactorStyles, /\.guest-dashboard-hero/)
+  assert.match(refactorStyles, /\.guest-tier-card\.tier-120/)
+  assert.match(refactorStyles, /\.guest-tier-progress/)
   assert.match(refactorStyles, /html\.light \.arcade-dashboard-v2/)
   assert.match(refactorStyles, /@media \(max-width: 600px\)/)
 
@@ -133,6 +136,10 @@ test("guest and profile dashboard modes stay profile-safe and fully localized", 
 
   assert.match(calculator, /data-dashboard-view=\{viewMode\}/)
   assert.match(calculator, /className="dashboard-view-switch"/)
+  assert.match(calculator, /className="dashboard-mode-bar"/)
+  assert.match(calculator, /guest-dashboard-hero/)
+  assert.match(calculator, /guest-tier-card tier-/)
+  assert.match(calculator, /guest-tier-progress/)
   assert.match(calculator, /showProfileDashboard/)
   assert.match(calculator, /setViewMode\("profile"\)/)
   assert.match(monthlyGateSource, /dataset\.dashboardView === "profile"/)
