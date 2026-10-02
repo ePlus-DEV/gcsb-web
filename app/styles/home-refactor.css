@@ -694,6 +694,21 @@ html.light .arcade-dashboard-v2 .guest-dashboard-hero {
   box-shadow: inset 3px 0 0 var(--tier-accent);
 }
 
+.arcade-dashboard-v2 .shared-tier-panel .empty-tier-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.arcade-dashboard-v2 .guest-tier-card.is-current {
+  border-color: var(--tier-accent);
+  outline: 1px solid var(--tier-accent);
+  outline-offset: 2px;
+  box-shadow: inset 3px 0 0 var(--tier-accent), 0 0 22px var(--tier-soft);
+}
+
+.arcade-dashboard-v2 .guest-tier-card.is-current .guest-tier-icon {
+  border-color: var(--tier-accent);
+}
+
 .arcade-dashboard-v2 .guest-tier-card.tier-120 {
   --tier-accent: #ffd43b;
   --tier-soft: rgba(255, 212, 59, 0.09);
@@ -1203,5 +1218,46 @@ html.light .arcade-dashboard-v2 .guest-dashboard-hero {
 
   .arcade-dashboard-v2 .header-store-link {
     display: none;
+  }
+}
+
+/* The same cards also fit the narrower desktop profile sidebar. */
+.arcade-dashboard-v2 .shared-tier-panel {
+  container-type: inline-size;
+}
+
+@container (max-width: 420px) {
+  .arcade-dashboard-v2 .guest-tier-card {
+    grid-template-columns: 44px minmax(0, 1fr) auto;
+    gap: 8px;
+    min-height: 88px;
+    padding: 11px 12px;
+  }
+
+  .arcade-dashboard-v2 .guest-tier-icon {
+    width: 44px;
+    height: 44px;
+  }
+
+  .arcade-dashboard-v2 .guest-tier-copy strong {
+    font-size: 0.78rem;
+  }
+
+  .arcade-dashboard-v2 .guest-tier-copy span {
+    font-size: 0.64rem;
+  }
+
+  .arcade-dashboard-v2 .guest-tier-availability {
+    min-width: 94px;
+    padding-left: 8px;
+  }
+
+  .arcade-dashboard-v2 .guest-tier-availability > strong {
+    font-size: 0.78rem;
+  }
+
+  .arcade-dashboard-v2 .guest-tier-availability small {
+    max-width: 88px;
+    font-size: 0.56rem;
   }
 }

@@ -4,6 +4,7 @@ import { readRepoFile } from "./helpers/typescript-source.mjs"
 
 const home = readRepoFile("app/page.tsx")
 const localizedHome = readRepoFile("app/[locale]/page.tsx")
+const dashboardTiers = readRepoFile("components/arcade/dashboard-tiers.tsx")
 const guestDashboard = readRepoFile("components/arcade/guest-dashboard.tsx")
 const previewToolbar = readRepoFile("components/arcade/preview-mode-toolbar.tsx")
 const dashboardState = readRepoFile("components/arcade/dashboard-state.ts")
@@ -44,10 +45,11 @@ test("Monthly Labs has deterministic React-owned anchors in both dashboard state
   assert.ok(summary >= 0 && summary < resultsMonthly && resultsMonthly < bottom)
 
   const empty = calculator.indexOf("<GuestDashboard")
-  const history = calculator.indexOf('data-home-order="tier-history"')
   const emptyMonthly = calculator.lastIndexOf('data-home-order="monthly-labs"')
   const about = calculator.indexOf("{footerContent}")
-  assert.ok(empty > bottom && history > empty && emptyMonthly > history)
+  assert.ok(empty > bottom && emptyMonthly > empty)
+  assert.match(guestDashboard, /<DashboardTiers/)
+  assert.match(dashboardTiers, /data-home-order="tier-history"/)
   assert.ok(about > emptyMonthly)
   assert.match(calculator, /href="#monthly-games"/)
   assert.match(guide, /data-home-order="about"/)
@@ -156,8 +158,8 @@ test("PR-preview guest and profile debug modes stay profile-safe and fully local
   assert.match(previewToolbar, /className="preview-mode-toolbar"/)
   assert.match(previewToolbar, /className="preview-mode-badge"/)
   assert.match(guestDashboard, /guest-dashboard-hero/)
-  assert.match(guestDashboard, /guest-tier-card tier-/)
-  assert.match(guestDashboard, /guest-tier-progress/)
+  assert.match(dashboardTiers, /guest-tier-card tier-/)
+  assert.match(dashboardTiers, /guest-tier-progress/)
   assert.match(calculator, /showProfileDashboard/)
   assert.match(calculator, /setViewMode\("profile"\)/)
   assert.match(monthlyGateSource, /readActiveDashboard\(\)/)
@@ -180,4 +182,18 @@ test("PR-preview guest and profile debug modes stay profile-safe and fully local
       assert.ok(catalog.messages[key].trim().length > 0, `${locale} has empty ${key}`)
     }
   }
+})
+
+
+test("guest and profile share one tier renderer; only profile passes the attained tier", () => {
+  assert.equal((calculator.match(/<DashboardTiers\b/g) ?? []).length, 1)
+  assert.equal((guestDashboard.match(/<DashboardTiers\b/g) ?? []).length, 1)
+  assert.match(calculator, /activeTierPoints=\{qualifiedMilestone\?\.points\}/)
+  assert.doesNotMatch(guestDashboard, /activeTierPoints=/)
+  assert.doesNotMatch(calculator, /tier-list-row|guest-tier-card/)
+  assert.doesNotMatch(guestDashboard, /guest-tier-card/)
+  assert.match(dashboardTiers, /activeTierPoints === tier.points/)
+  assert.match(dashboardTiers, /aria-current=\{active \? "step" : undefined\}/)
+  assert.match(dashboardTiers, /viewMessages.tierNote/)
+  assert.match(dashboardTiers, /guest-tier-progress/)
 })
