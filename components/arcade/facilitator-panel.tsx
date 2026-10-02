@@ -29,6 +29,7 @@ import {
 } from "./facilitator-syllabus"
 import type { ArcadeApiResponse } from "./model"
 import { DASHBOARD_STORAGE_KEY, formatNumber, numeric } from "./model"
+import { PREVIEW_DEBUG_PROFILE_RESULT, PREVIEW_DEBUG_PROFILE_URL } from "./preview-debug-profile"
 
 const SYNC_INTERVAL_MS = 1_500
 const BONUS_MILESTONE_POINTS = 10
@@ -112,6 +113,14 @@ type TrackFilter = "all" | FacilitatorTrack
 type EvaluatedSyllabus = ReturnType<typeof evaluateFacilitatorSyllabus>
 
 function readDashboard(): StoredDashboard | null {
+  const page = document.querySelector<HTMLElement>(".arcade-dashboard-page")
+  if (page?.dataset.dashboardDebugFake === "true") {
+    return {
+      profileUrl: PREVIEW_DEBUG_PROFILE_URL,
+      result: PREVIEW_DEBUG_PROFILE_RESULT,
+    }
+  }
+
   try {
     const value = window.localStorage.getItem(DASHBOARD_STORAGE_KEY)
     if (!value) return null
