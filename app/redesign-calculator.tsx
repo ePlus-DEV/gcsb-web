@@ -26,6 +26,7 @@ import {
   Sparkles,
   Star,
   Trophy,
+  UserRound,
   Users,
   X,
 } from "lucide-react"
@@ -57,6 +58,9 @@ const CHROME_EXTENSION_URL =
 const FIREFOX_EXTENSION_URL =
   "https://addons.mozilla.org/addon/cloud-skills-boost-helper"
 const BADGE_PREVIEW_LIMIT = 8
+const DASHBOARD_VIEW_MODE_STORAGE_KEY = "eplus-arcade-dashboard-view-mode-v1"
+
+type DashboardViewMode = "guest" | "profile"
 
 const FILTERS: Array<{ value: BadgeFilter; label: string }> = [
   { value: "all", label: "All" },
@@ -169,6 +173,15 @@ function SafeExternalLink({
   )
 }
 
+function readStoredViewMode(): DashboardViewMode | null {
+  try {
+    const value = window.localStorage.getItem(DASHBOARD_VIEW_MODE_STORAGE_KEY)
+    return value === "guest" || value === "profile" ? value : null
+  } catch {
+    return null
+  }
+}
+
 function readStoredResult(): { profileUrl: string; result: ArcadeApiResponse } | null {
   try {
     const raw = window.localStorage.getItem(DASHBOARD_STORAGE_KEY)
@@ -212,6 +225,7 @@ export default function RedesignCalculator({
   const [profileUrl, setProfileUrl] = useState("")
   const [committedProfileUrl, setCommittedProfileUrl] = useState("")
   const [result, setResult] = useState<ArcadeApiResponse | null>(null)
+  const [viewMode, setViewMode] = useState<DashboardViewMode>("guest")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [filter, setFilter] = useState<BadgeFilter>("all")
@@ -272,12 +286,26 @@ export default function RedesignCalculator({
 
   useEffect(() => {
     const stored = readStoredResult()
-    if (!stored) return
+    const storedViewMode = readStoredViewMode()
+
+    if (!stored) {
+      if (storedViewMode) setViewMode(storedViewMode)
+      return
+    }
 
     setProfileUrl(stored.profileUrl)
     setCommittedProfileUrl(stored.profileUrl)
     setResult(stored.result)
+    setViewMode(storedViewMode ?? "profile")
   }, [])
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(DASHBOARD_VIEW_MODE_STORAGE_KEY, viewMode)
+    } catch {
+      // View selection still works for the current session without storage.
+    }
+  }, [viewMode])
 
   useEffect(() => {
     if (!result) return
@@ -537,6 +565,7 @@ export default function RedesignCalculator({
       setProfileUrl(normalized)
       setCommittedProfileUrl(normalized)
       setResult(payload)
+      setViewMode("profile")
       setFilter("all")
       setShowAllBadges(false)
     } catch (caught) {
@@ -567,6 +596,7 @@ export default function RedesignCalculator({
     setProfileUrl("")
     setCommittedProfileUrl("")
     setResult(null)
+    setViewMode("guest")
     setError("")
     setFilter("all")
     setShowAllBadges(false)
@@ -578,8 +608,11 @@ export default function RedesignCalculator({
     }
   }
 
+  const showProfileDashboard = viewMode === "profile" && Boolean(result)
+  const viewMessages = activeHistoryLanguage.catalog.messages
+
   return (
-    <main className="arcade-dashboard-page arcade-dashboard-v2">
+    <main className="arcade-dashboard-page arcade-dashboard-v2" data-dashboard-view={viewMode}>
       <div className="arcade-stars" aria-hidden="true" />
 
       <header className="arcade-header">
@@ -647,6 +680,26 @@ export default function RedesignCalculator({
         </div>
 
         <div id="calculator" className="profile-analyzer-card">
+          <div className="dashboard-view-switch" role="group" aria-label={viewMessages.dashboardView}>
+            <button
+              type="button"
+              className={viewMode === "guest" ? "is-active" : ""}
+              aria-pressed={viewMode === "guest"}
+              onClick={() => setViewMode("guest")}
+            >
+              <Globe2 />
+              <span>{viewMessages.guestView}</span>
+            </button>
+            <button
+              type="button"
+              className={viewMode === "profile" ? "is-active" : ""}
+              aria-pressed={viewMode === "profile"}
+              onClick={() => setViewMode("profile")}
+            >
+              <UserRound />
+              <span>{viewMessages.profileView}</span>
+            </button>
+          </div>
           <div className="analyzer-title"><span>1</span> Paste your public profile URL</div>
           <form onSubmit={analyzeProfile} noValidate>
             <label className={error ? "profile-input has-error" : "profile-input"}>
@@ -712,7 +765,7 @@ export default function RedesignCalculator({
         </div>
       </section>
 
-      {result ? (
+      {showProfileDashboard ? (
         <section className="dashboard-shell" aria-label="Arcade profile results" data-home-order="dashboard-results">
           <div className="dashboard-summary-grid" data-home-order="dashboard-summary">
             <article className="dashboard-panel profile-panel">
@@ -1007,8 +1060,8 @@ export default function RedesignCalculator({
         <section className="dashboard-empty-state" data-home-order="dashboard-empty">
           <div className="empty-result-message">
             <span><Trophy /></span>
-            <strong>Your Arcade dashboard will appear here</strong>
-            <p>Paste a public profile URL above to load real points, score eligibility and earned badges.</p>
+            <strong>{viewMode === "guest" ? viewMessages.guestDashboardTitle : viewMessages.dashboardPlaceholder}</strong>
+            <p>{viewMode === "guest" ? viewMessages.guestDashboardHint : viewMessages.dashboardHint}</p>
           </div>
           <div className="empty-tier-grid">
             {[...milestones].reverse().map((tier) => (
@@ -1035,13 +1088,13 @@ export default function RedesignCalculator({
           </div>
         </section>
       )}
-      {!result && (
+      {!showProfileDashboard && (
         <div className="tier-history-under-empty" data-home-order="tier-history">
           <TierSlotHistoryPanel {...slotHistory} milestones={milestones} catalog={activeHistoryLanguage.catalog} locale={activeHistoryLanguage.locale} />
         </div>
       )}
 
-      {!result && (
+      {!showProfileDashboard && (
         <div id="monthly-games" className="monthly-games-host dashboard-shell" data-home-order="monthly-labs" />
       )}
 
