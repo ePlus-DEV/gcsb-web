@@ -27,8 +27,8 @@ import {
   normalizeFacilitatorBadgeTitle,
   type FacilitatorTrack,
 } from "./facilitator-syllabus"
-import type { ArcadeApiResponse } from "./model"
-import { DASHBOARD_STORAGE_KEY, formatNumber, numeric } from "./model"
+import { formatNumber, numeric } from "./model"
+import { readActiveDashboard, observeDashboardMode, type StoredDashboard } from "./dashboard-state"
 
 const SYNC_INTERVAL_MS = 1_500
 const BONUS_MILESTONE_POINTS = 10
@@ -96,11 +96,6 @@ const ARCADE_GEAR_BADGE_ALIASES = [
   "GEAR Arcade Badge",
 ]
 
-type StoredDashboard = {
-  profileUrl?: string
-  result?: ArcadeApiResponse
-}
-
 type Counts = {
   games: number
   skills: number
@@ -110,20 +105,6 @@ type StatusFilter = "missing" | "completed" | "all"
 type TrackFilter = "all" | FacilitatorTrack
 
 type EvaluatedSyllabus = ReturnType<typeof evaluateFacilitatorSyllabus>
-
-function readDashboard(): StoredDashboard | null {
-  try {
-    const value = window.localStorage.getItem(DASHBOARD_STORAGE_KEY)
-    if (!value) return null
-
-    const parsed = JSON.parse(value) as unknown
-    return typeof parsed === "object" && parsed !== null
-      ? (parsed as StoredDashboard)
-      : null
-  } catch {
-    return null
-  }
-}
 
 function getParticipationStorageKey(profileUrl?: string): string {
   const profileKey = profileUrl?.trim() || "default-profile"
@@ -193,22 +174,25 @@ export default function FacilitatorPanel() {
   const closeRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
-    let previous = ""
+    let previous: string | undefined
 
     const sync = () => {
-      const raw = window.localStorage.getItem(DASHBOARD_STORAGE_KEY) ?? ""
+      const dashboard = readActiveDashboard()
+      const raw = JSON.stringify(dashboard)
       if (raw === previous) return
 
       previous = raw
-      setDashboard(readDashboard())
+      setDashboard(dashboard)
     }
 
     sync()
+    const stopObserving = observeDashboardMode(sync)
     const timer = window.setInterval(sync, SYNC_INTERVAL_MS)
     window.addEventListener("focus", sync)
     window.addEventListener("storage", sync)
 
     return () => {
+      stopObserving()
       window.clearInterval(timer)
       window.removeEventListener("focus", sync)
       window.removeEventListener("storage", sync)

@@ -12,20 +12,14 @@ import {
 import { getFacilitatorAdjustedPoints } from "./facilitator-points"
 import { normalizeFacilitatorProfileUrl } from "./facilitator-participation"
 import {
-  DASHBOARD_STORAGE_KEY,
   formatNumber,
   numeric,
-  type ArcadeApiResponse,
 } from "./model"
+import { readActiveDashboard } from "./dashboard-state"
 
 type Props = {
   profileUrl: string
   participating: boolean
-}
-
-type StoredDashboard = {
-  profileUrl?: string
-  result?: ArcadeApiResponse
 }
 
 function setText(element: Element | null, value: string): void {
@@ -50,19 +44,6 @@ function findBonusSection(): HTMLElement | null {
         ) !== null,
     ) ?? null
   )
-}
-
-function readStoredDashboard(): StoredDashboard | null {
-  try {
-    const raw = window.localStorage.getItem(DASHBOARD_STORAGE_KEY)
-    if (!raw) return null
-    const parsed = JSON.parse(raw) as unknown
-    return typeof parsed === "object" && parsed !== null
-      ? (parsed as StoredDashboard)
-      : null
-  } catch {
-    return null
-  }
 }
 
 export default function FacilitatorBonusMilestoneControl({
@@ -219,7 +200,7 @@ export default function FacilitatorBonusMilestoneControl({
     if (!portalTarget) return
 
     const syncScoreSummary = () => {
-      const dashboard = readStoredDashboard()
+      const dashboard = readActiveDashboard()
       const result = dashboard?.result
       if (!result) return
 

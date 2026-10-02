@@ -1,7 +1,11 @@
 "use client"
 
 import Link from "next/link"
-import { SlotChangeBadge, TierSlotHistoryPanel, useTierSlotHistory } from "@/components/arcade/tier-slot-history"
+import DashboardTiers from "@/components/arcade/dashboard-tiers"
+import GuestDashboard from "@/components/arcade/guest-dashboard"
+import PreviewModeToolbar from "@/components/arcade/preview-mode-toolbar"
+import { readStoredDashboard, type DashboardViewMode } from "@/components/arcade/dashboard-state"
+import { useTierSlotHistory } from "@/components/arcade/tier-slot-history"
 import {
   getWebsiteLocale,
   getWebsiteLocaleFromPathname,
@@ -33,6 +37,11 @@ import type { FormEvent, ReactNode } from "react"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { CURRENT_SWAG_SEASON, swagSeasonPath } from "@/components/arcade/swag-seasons"
 import { getFacilitatorAdjustedPoints } from "@/components/arcade/facilitator-points"
+import {
+  IS_PR_PREVIEW,
+  PREVIEW_DEBUG_PROFILE_RESULT,
+  PREVIEW_DEBUG_PROFILE_URL,
+} from "@/components/arcade/preview-debug-profile"
 import { readFacilitatorParticipation } from "@/components/arcade/facilitator-participation"
 import {
   API_URL,
@@ -57,6 +66,7 @@ const CHROME_EXTENSION_URL =
 const FIREFOX_EXTENSION_URL =
   "https://addons.mozilla.org/addon/cloud-skills-boost-helper"
 const BADGE_PREVIEW_LIMIT = 8
+const DASHBOARD_VIEW_MODE_STORAGE_KEY = "eplus-arcade-dashboard-view-mode-v1"
 
 const FILTERS: Array<{ value: BadgeFilter; label: string }> = [
   { value: "all", label: "All" },
@@ -169,28 +179,10 @@ function SafeExternalLink({
   )
 }
 
-function readStoredResult(): { profileUrl: string; result: ArcadeApiResponse } | null {
+function readStoredViewMode(): DashboardViewMode | null {
   try {
-    const raw = window.localStorage.getItem(DASHBOARD_STORAGE_KEY)
-    if (!raw) return null
-
-    const parsed = JSON.parse(raw) as {
-      profileUrl?: unknown
-      result?: unknown
-    }
-
-    if (
-      typeof parsed.profileUrl !== "string" ||
-      typeof parsed.result !== "object" ||
-      parsed.result === null
-    ) {
-      return null
-    }
-
-    return {
-      profileUrl: parsed.profileUrl,
-      result: parsed.result as ArcadeApiResponse,
-    }
+    const value = window.localStorage.getItem(DASHBOARD_VIEW_MODE_STORAGE_KEY)
+    return value === "guest" || value === "profile" ? value : null
   } catch {
     return null
   }
@@ -212,6 +204,9 @@ export default function RedesignCalculator({
   const [profileUrl, setProfileUrl] = useState("")
   const [committedProfileUrl, setCommittedProfileUrl] = useState("")
   const [result, setResult] = useState<ArcadeApiResponse | null>(null)
+  const [viewMode, setViewMode] = useState<DashboardViewMode>(IS_PR_PREVIEW ? "guest" : "profile")
+  const [usingPreviewFakeProfile, setUsingPreviewFakeProfile] = useState(false)
+  const [viewModeRestored, setViewModeRestored] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [filter, setFilter] = useState<BadgeFilter>("all")
@@ -271,16 +266,41 @@ export default function RedesignCalculator({
   const abortControllerRef = useRef<AbortController | null>(null)
 
   useEffect(() => {
-    const stored = readStoredResult()
-    if (!stored) return
+    const stored = readStoredDashboard()
+    setViewModeRestored(true)
+    const storedViewMode = IS_PR_PREVIEW ? readStoredViewMode() : null
+
+    if (!stored) {
+      const initialMode = IS_PR_PREVIEW ? (storedViewMode ?? "guest") : "profile"
+      setViewMode(initialMode)
+
+      if (IS_PR_PREVIEW && initialMode === "profile") {
+        setCommittedProfileUrl(PREVIEW_DEBUG_PROFILE_URL)
+        setResult(PREVIEW_DEBUG_PROFILE_RESULT)
+        setUsingPreviewFakeProfile(true)
+      }
+      return
+    }
 
     setProfileUrl(stored.profileUrl)
     setCommittedProfileUrl(stored.profileUrl)
     setResult(stored.result)
+    setUsingPreviewFakeProfile(false)
+    setViewMode(IS_PR_PREVIEW ? (storedViewMode ?? "profile") : "profile")
   }, [])
 
   useEffect(() => {
-    if (!result) return
+    if (!IS_PR_PREVIEW || !viewModeRestored) return
+
+    try {
+      window.localStorage.setItem(DASHBOARD_VIEW_MODE_STORAGE_KEY, viewMode)
+    } catch {
+      // Preview-only debug selection still works for the current session.
+    }
+  }, [viewMode, viewModeRestored])
+
+  useEffect(() => {
+    if (!result || usingPreviewFakeProfile) return
 
     try {
       window.localStorage.setItem(
@@ -290,7 +310,7 @@ export default function RedesignCalculator({
     } catch {
       // Storage is optional. The calculator still works without persistence.
     }
-  }, [committedProfileUrl, result])
+  }, [committedProfileUrl, result, usingPreviewFakeProfile])
 
   useEffect(() => {
     const syncParticipation = () => {
@@ -537,6 +557,8 @@ export default function RedesignCalculator({
       setProfileUrl(normalized)
       setCommittedProfileUrl(normalized)
       setResult(payload)
+      setUsingPreviewFakeProfile(false)
+      setViewMode("profile")
       setFilter("all")
       setShowAllBadges(false)
     } catch (caught) {
@@ -567,6 +589,8 @@ export default function RedesignCalculator({
     setProfileUrl("")
     setCommittedProfileUrl("")
     setResult(null)
+    setUsingPreviewFakeProfile(false)
+    setViewMode(IS_PR_PREVIEW ? "guest" : "profile")
     setError("")
     setFilter("all")
     setShowAllBadges(false)
@@ -578,8 +602,36 @@ export default function RedesignCalculator({
     }
   }
 
+  function activatePreviewMode(nextMode: DashboardViewMode) {
+    if (!IS_PR_PREVIEW) return
+
+    setViewMode(nextMode)
+
+    if (nextMode === "profile" && !result) {
+      const stored = readStoredDashboard()
+
+      if (stored) {
+        setProfileUrl(stored.profileUrl)
+        setCommittedProfileUrl(stored.profileUrl)
+        setResult(stored.result)
+        setUsingPreviewFakeProfile(false)
+        return
+      }
+
+      setCommittedProfileUrl(PREVIEW_DEBUG_PROFILE_URL)
+      setResult(PREVIEW_DEBUG_PROFILE_RESULT)
+      setUsingPreviewFakeProfile(true)
+    }
+  }
+
+  const showProfileDashboard = viewMode === "profile" && Boolean(result)
+
   return (
-    <main className="arcade-dashboard-page">
+    <main
+      className="arcade-dashboard-page arcade-dashboard-v2"
+      data-dashboard-view={viewMode}
+      data-dashboard-debug-fake={usingPreviewFakeProfile ? "true" : undefined}
+    >
       <div className="arcade-stars" aria-hidden="true" />
 
       <header className="arcade-header">
@@ -632,6 +684,14 @@ export default function RedesignCalculator({
           </button>
         </div>
       </header>
+
+      {IS_PR_PREVIEW && (
+        <PreviewModeToolbar
+          viewMode={viewMode}
+          onChange={activatePreviewMode}
+          catalog={activeHistoryLanguage.catalog}
+        />
+      )}
 
       <section id="top" className="arcade-hero" data-home-order="hero">
         <div className="hero-heading">
@@ -712,7 +772,9 @@ export default function RedesignCalculator({
         </div>
       </section>
 
-      {result ? (
+
+
+      {showProfileDashboard ? (
         <section className="dashboard-shell" aria-label="Arcade profile results" data-home-order="dashboard-results">
           <div className="dashboard-summary-grid" data-home-order="dashboard-summary">
             <article className="dashboard-panel profile-panel">
@@ -895,48 +957,14 @@ export default function RedesignCalculator({
               )}
             </article>
 
-            <aside id="tiers" className="dashboard-panel tier-list-panel">
-              <div className="panel-title-row">
-                <PanelTitle>Arcade 2026 tiers</PanelTitle>
-                <span className={milestonesLive ? "tier-help is-live" : "tier-help"}>
-                  {milestonesLive ? "Live slot data" : "Total slots only"}
-                </span>
-              </div>
-              <div className="tier-list">
-                {[...milestones].reverse().map((tier) => {
-                  const active = qualifiedMilestone?.points === tier.points
-                  return (
-                    <div className={`tier-list-row tier-${tier.points}${active ? " is-current" : ""}`} key={tier.points}>
-                      <span className="tier-list-icon"><Trophy /></span>
-                      <div><strong>{tier.league.replace("Arcade ", "")}</strong><span>{tierRangeLabel(tier)}</span></div>
-                      <div className="tier-slot-count">
-                        <b>
-                          {tier.spotsLeft === null
-                            ? "—"
-                            : formatInteger(tier.spotsLeft)}
-                        </b>
-                        <small>
-                          {tier.spotsLeft === null
-                            ? formatInteger(tier.slots) + " total slots"
-                            : "left of " + formatInteger(tier.slots)}
-                        </small>
-                        <SlotChangeBadge
-                          feed={slotHistory.feed}
-                          points={tier.points}
-                          currentSpotsLeft={tier.spotsLeft}
-                  catalog={activeHistoryLanguage.catalog}
-                  locale={activeHistoryLanguage.locale}
-                        />
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-              <p className="tier-note">
-                Total and remaining spots are refreshed automatically every 6 hours. Your personal queue position is not included in the public data.
-              </p>
-              <TierSlotHistoryPanel {...slotHistory} milestones={milestones} catalog={activeHistoryLanguage.catalog} locale={activeHistoryLanguage.locale} />
-            </aside>
+            <DashboardTiers
+              milestones={milestones}
+              milestonesLive={milestonesLive}
+              slotHistory={slotHistory}
+              catalog={activeHistoryLanguage.catalog}
+              locale={activeHistoryLanguage.locale}
+              activeTierPoints={qualifiedMilestone?.points}
+            />
           </div>
 
           <div id="monthly-games" className="monthly-games-host" data-home-order="monthly-labs" />
@@ -1004,44 +1032,18 @@ export default function RedesignCalculator({
           </div>
         </section>
       ) : (
-        <section className="dashboard-empty-state" data-home-order="dashboard-empty">
-          <div className="empty-result-message">
-            <span><Trophy /></span>
-            <strong>Your Arcade dashboard will appear here</strong>
-            <p>Paste a public profile URL above to load real points, score eligibility and earned badges.</p>
-          </div>
-          <div className="empty-tier-grid">
-            {[...milestones].reverse().map((tier) => (
-              <article key={tier.points}>
-                <Trophy />
-                <div><strong>{tier.league.replace("Arcade ", "")}</strong><span>{tierRangeLabel(tier)}</span></div>
-                <b>
-                  {tier.spotsLeft === null
-                    ? formatInteger(tier.slots) + " total slots"
-                    : formatInteger(tier.spotsLeft) +
-                      " / " +
-                      formatInteger(tier.slots) +
-                      " left"}
-                </b>
-                <SlotChangeBadge
-                  feed={slotHistory.feed}
-                  points={tier.points}
-                  currentSpotsLeft={tier.spotsLeft}
-                  catalog={activeHistoryLanguage.catalog}
-                  locale={activeHistoryLanguage.locale}
-                />
-              </article>
-            ))}
-          </div>
-        </section>
-      )}
-      {!result && (
-        <div className="tier-history-under-empty" data-home-order="tier-history">
-          <TierSlotHistoryPanel {...slotHistory} milestones={milestones} catalog={activeHistoryLanguage.catalog} locale={activeHistoryLanguage.locale} />
-        </div>
+        <GuestDashboard
+          viewMode={viewMode}
+          milestones={milestones}
+          milestonesLive={milestonesLive}
+          slotHistory={slotHistory}
+          catalog={activeHistoryLanguage.catalog}
+          locale={activeHistoryLanguage.locale}
+        />
       )}
 
-      {!result && (
+
+      {!showProfileDashboard && (
         <div id="monthly-games" className="monthly-games-host dashboard-shell" data-home-order="monthly-labs" />
       )}
 

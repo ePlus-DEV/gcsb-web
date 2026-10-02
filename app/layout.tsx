@@ -27,6 +27,7 @@ import "./styles/facilitator-participation.css"
 import "./styles/facilitator-launcher-visibility.css"
 import "./styles/internal-page-theme.css"
 import "./styles/cookie-consent.css"
+import "./styles/home-refactor.css"
 
 const arcadeRequestDedupeBootstrap = readFileSync(
   path.join(process.cwd(), "scripts", "arcade-request-dedupe.js"),
