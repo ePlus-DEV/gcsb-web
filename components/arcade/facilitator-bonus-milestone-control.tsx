@@ -17,6 +17,7 @@ import {
   numeric,
   type ArcadeApiResponse,
 } from "./model"
+import { PREVIEW_DEBUG_PROFILE_RESULT, PREVIEW_DEBUG_PROFILE_URL } from "./preview-debug-profile"
 
 type Props = {
   profileUrl: string
@@ -53,6 +54,14 @@ function findBonusSection(): HTMLElement | null {
 }
 
 function readStoredDashboard(): StoredDashboard | null {
+  const page = document.querySelector<HTMLElement>(".arcade-dashboard-page")
+  if (page?.dataset.dashboardDebugFake === "true") {
+    return {
+      profileUrl: PREVIEW_DEBUG_PROFILE_URL,
+      result: PREVIEW_DEBUG_PROFILE_RESULT,
+    }
+  }
+
   try {
     const raw = window.localStorage.getItem(DASHBOARD_STORAGE_KEY)
     if (!raw) return null
