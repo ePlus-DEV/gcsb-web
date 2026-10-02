@@ -21,6 +21,14 @@ Arcade Points is an independent community project for Google Skills Arcade parti
 - 2026 Legend: https://arcade.eplus.dev/swag-drops/2026/legend/
 - 2026 Weather-Shield Jacket: https://arcade.eplus.dev/swag-drops/2026/weather-shield-jacket/
 
+## Monthly Arcade labs
+
+- https://arcade.eplus.dev/monthly-labs/ — Recorded months, newest first
+- https://arcade.eplus.dev/monthly-labs/2026/09/ — September 2026 lab/game records
+- https://arcade.eplus.dev/monthly-labs/2026/09/game-7441/ — An official game record with description, code, deadline and source links
+
+Month pages use `/monthly-labs/YYYY/MM/`; detail pages add an official `game-ID` or reconstructed `badge-…` slug. Archived place counts and access codes are captured records, not live enrollment guarantees. Ended labs and missing source fields are explicitly identified. Descriptions remain in the official source language; individual lab steps are not invented from game summaries.
+
 ## Historical-source rules
 
 - The 2025 archive separates Season 1 (January–June) from Season 2 (July–December); their tier thresholds and reward rules differ.

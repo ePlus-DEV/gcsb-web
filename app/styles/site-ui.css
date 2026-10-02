@@ -204,3 +204,15 @@ html[lang="en"] .hero-heading h1 { font-weight: 400; }
 }
 .site-content-page .content-primary-action { color: var(--ui-on-accent); }
 .content-primary-action:hover { filter: brightness(.94); }
+
+.monthly-lab-breadcrumbs { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin-bottom: 2rem; font-size: .875rem; color: var(--ui-muted); overflow-wrap: anywhere; }
+.monthly-lab-breadcrumbs [aria-current] { color: var(--ui-text); }
+.monthly-lab-art { display: flex; align-items: center; justify-content: center; border-radius: var(--ui-radius); background: var(--ui-soft); padding: 1rem; }
+.monthly-lab-status { display: inline-flex; align-self: flex-start; margin-top: 1rem; padding: .25rem .65rem; border-radius: var(--ui-radius-sm); font-size: .75rem; font-weight: 600; background: var(--ui-soft); color: var(--ui-muted); }
+.monthly-lab-status.labActive { background: var(--ui-accent-soft); color: var(--ui-accent); }
+.monthly-lab-facts { display: grid; gap: 1rem; margin-top: 1.25rem; }
+.monthly-lab-facts dt { font-size: .75rem; color: var(--ui-muted); margin-bottom: .3rem; }
+.monthly-lab-facts dd { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; font-size: .875rem; overflow-wrap: anywhere; }
+.monthly-lab-facts code { user-select: all; overflow-wrap: anywhere; }
+.monthly-lab-facts [role=status]:empty { display: none; }
+.monthly-lab-source { display: inline-flex; align-items: center; gap: .5rem; min-height: 44px; color: var(--ui-accent); font-size: .875rem; }

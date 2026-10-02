@@ -7,12 +7,13 @@
     "generate:i18n": "node scripts/generate-website-i18n.mjs",
     "predev": "node scripts/generate-website-i18n.mjs",
     "dev": "next dev",
-    "prebuild": "node scripts/generate-website-i18n.mjs",
+    "prebuild": "node scripts/sync-monthly-labs.mjs && node scripts/generate-website-i18n.mjs",
     "build": "next build && node scripts/patch-localized-html.mjs",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "test:unit": "node --test tests/*.test.mjs"
+    "test:unit": "node --test tests/*.test.mjs",
+    "sync:monthly-labs": "node scripts/sync-monthly-labs.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

@@ -10,12 +10,16 @@ export default function InternalPageShell({
   description,
   updated,
   children,
+  breadcrumbs,
+  catalogDriven,
 }: {
   eyebrow: string
   title: string
   description: string
   updated?: string
   children: ReactNode
+  breadcrumbs?: ReactNode
+  catalogDriven?: boolean
 }) {
   return (
     <div className="arcade-dashboard-page site-content-page min-h-screen">
@@ -23,11 +27,11 @@ export default function InternalPageShell({
 
       <SiteHeader />
 
-      <main className="internal-page-main">
+      <main className="internal-page-main" data-no-translate={catalogDriven || undefined}>
         <section className="internal-page-hero relative overflow-hidden border-b border-white/10">
           <div className="internal-page-glow absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,.18),transparent_35%),radial-gradient(circle_at_top_right,rgba(99,102,241,.18),transparent_40%)]" />
           <div className="relative mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
-            <InternalBreadcrumbs />
+            {breadcrumbs ?? <InternalBreadcrumbs />}
             <div className="max-w-3xl">
               <div className="internal-eyebrow mb-4 inline-flex items-center rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-xs font-semibold uppercase tracking-[.18em] text-cyan-200">
                 <Sparkles className="mr-2 h-3.5 w-3.5" /> {eyebrow}

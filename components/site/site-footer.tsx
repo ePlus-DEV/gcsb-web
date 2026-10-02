@@ -12,6 +12,7 @@ export default function SiteFooter() {
         <Link href="/about/">{messages.about}</Link>
         <Link href="/guide/">{messages.guide}</Link>
         <Link href="/swag-drops/">{messages.swagDrops}</Link>
+        <Link href="/monthly-labs/">{messages.monthlyLabs}</Link>
         <Link href="/privacy/">{messages.privacy}</Link>
         <Link href="/terms/">{messages.terms}</Link>
       </nav>

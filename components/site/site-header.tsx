@@ -47,7 +47,7 @@ export default function SiteHeader({ homeHref = "/", dashboard = false, actions 
         <Link href={anchor("badges")} onClick={close}>{messages.badges}</Link>
         <Link href={anchor("extension")} onClick={close}>{messages.extension}</Link>
         <Link data-arcade-swag-nav="true" className={pathname?.includes("/swag-drops") ? "active" : undefined} href={swagSeasonPath(CURRENT_SWAG_SEASON)} onClick={close}>{messages.swagDrops}</Link>
-        <Link href={anchor("monthly-games")} onClick={close}>{messages.monthlyLabs}</Link>
+        <Link className={pathname?.includes("/monthly-labs") ? "active" : undefined} href="/monthly-labs/" onClick={close}>{messages.monthlyLabs}</Link>
       </nav>
       <div className="arcade-header-actions">
         {actions}
