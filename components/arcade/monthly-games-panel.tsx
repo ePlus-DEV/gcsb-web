@@ -1,5 +1,8 @@
 "use client"
 
+import Link from "next/link"
+import { monthlyGameDetailPath } from "@/components/monthly-labs/model"
+
 import {
   BadgeCheck,
   Check,
@@ -96,6 +99,7 @@ function parseMonthlyGames(payload: unknown): MonthlyArcadeGame[] {
 
     return [{
       title,
+      month: typeof candidate.month === "string" ? candidate.month : undefined,
       imageUrl: safeHttpsUrl(candidate.imageUrl),
       accessCode:
         typeof candidate.accessCode === "string" && candidate.accessCode.trim()
@@ -400,6 +404,7 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
         <div>
           <span className="monthly-games-kicker"><Gamepad2 /> {text("thisMonth")}</span>
           <h2 id="monthly-games-title">{currentMonthHeading(intlLocale)}</h2>
+          <Link href="/monthly-labs/" className="monthly-lab-source">{catalog.messages.monthlyLabs}</Link>
           <p>
             {awaitingNewGames
               ? text("previousEndedWaiting")
@@ -449,6 +454,7 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
       ) : (
         <div className="monthly-games-grid">
         {activeGames.map((game, index) => {
+          const detailPath = monthlyGameDetailPath(game)
           const completed = hasProfile && isCompleted(earnedTitleSet, game.title)
           const stableKey =
             (game.joinUrl ?? game.accessCode ?? normalizeBadgeTitle(game.title)) ||
@@ -547,6 +553,7 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
                   </button>
                 </div>
 
+                {detailPath && <Link href={detailPath} className="monthly-lab-source">{catalog.messages.labDetails}</Link>}
                 {game.joinUrl && (
                   <a className="monthly-game-link" href={game.joinUrl} target="_blank" rel="noreferrer noopener">
                     {text("openGame")} <ExternalLink />

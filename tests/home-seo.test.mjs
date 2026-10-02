@@ -15,12 +15,12 @@ test("all published languages can prerender the calculator guide", () => {
 })
 
 test("homepage navigation and guide have server-renderable native links", () => {
-  const calc = readRepoFile("app/redesign-calculator.tsx")
+  const calc = readRepoFile("app/redesign-calculator.tsx") + readRepoFile("components/site/site-footer.tsx") + readRepoFile("components/site/site-header.tsx")
   const root = readRepoFile("app/page.tsx")
   const localized = readRepoFile("app/[locale]/page.tsx")
   const guide = readRepoFile("components/seo/home-search-guide.tsx")
   assert.match(calc, /data-arcade-swag-nav="true"/)
-  assert.match(calc, /<nav className="footer-route-links" aria-label="Site information">/)
+  assert.match(calc, /<nav className="footer-route-links" aria-label=\{messages.aboutTool\}>/)
   assert.match(calc, /href="\/guide\/"/)
   assert.match(calc, /href="\/about\/"/)
   assert.match(root, /footerContent=\{<HomeSearchGuide catalog=\{englishCatalog\} \/>\}/)
@@ -34,7 +34,7 @@ test("homepage navigation and guide have server-renderable native links", () => 
 test("homepage discovery is compact, responsive, and crawlable", () => {
   const component = readRepoFile("components/seo/home-search-guide.tsx")
   assert.match(component, /md:grid-cols-3/)
-  assert.match(component, /min\(1280px, calc\(100% - 40px\)\)/)
+  assert.match(component, /var\(--ui-width\)/)
   assert.match(component, /dark:bg-white\/\[0\.035\]/)
   for (const id of ["guide", "rewards", "accuracy"]) {
     assert.ok(component.includes('data-home-discovery-card="' + id + '"'))

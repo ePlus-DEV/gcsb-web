@@ -3,74 +3,26 @@
  */
 
 .arcade-dashboard-v2 {
-  --v2-shell: 1200px;
-  --v2-gutter: 24px;
-  --v2-radius-lg: 20px;
-  --v2-radius-md: 16px;
-  --v2-radius-sm: 12px;
-  --v2-surface: rgba(9, 17, 36, 0.78);
-  --v2-surface-strong: rgba(10, 19, 40, 0.94);
-  --v2-surface-soft: rgba(15, 27, 52, 0.62);
-  --v2-border: rgba(148, 163, 184, 0.14);
-  --v2-border-strong: rgba(139, 92, 246, 0.28);
-  --v2-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
-  --v2-shadow-soft: 0 4px 16px rgba(0, 0, 0, 0.10);
-  background:
-    radial-gradient(circle at 82% 5%, rgba(99, 102, 241, 0.16), transparent 31rem),
-    radial-gradient(circle at 12% 24%, rgba(14, 165, 233, 0.11), transparent 29rem),
-    linear-gradient(180deg, #050918 0%, #071126 48%, #050918 100%);
+  --v2-shell: var(--ui-width);
+  --v2-gutter: var(--ui-gutter);
+  --v2-radius-lg: var(--ui-radius-lg);
+  --v2-radius-md: var(--ui-radius);
+  --v2-radius-sm: var(--ui-radius-sm);
+  --v2-surface: var(--ui-surface);
+  --v2-surface-strong: var(--ui-surface);
+  --v2-surface-soft: var(--ui-soft);
+  --v2-border: var(--ui-border);
+  --v2-border-strong: var(--ui-accent-border);
+  --v2-shadow: var(--ui-shadow);
+  --v2-shadow-soft: var(--ui-shadow);
 }
 
-html.light .arcade-dashboard-v2 {
-  --v2-surface: rgba(255, 255, 255, 0.82);
-  --v2-surface-strong: rgba(255, 255, 255, 0.96);
-  --v2-surface-soft: rgba(248, 250, 252, 0.82);
-  --v2-border: rgba(100, 116, 139, 0.15);
-  --v2-border-strong: rgba(79, 70, 229, 0.20);
-  --v2-shadow: 0 22px 58px rgba(51, 65, 85, 0.11);
-  --v2-shadow-soft: 0 10px 30px rgba(51, 65, 85, 0.08);
-  background:
-    radial-gradient(circle at 82% 5%, rgba(99, 102, 241, 0.11), transparent 31rem),
-    radial-gradient(circle at 12% 24%, rgba(14, 165, 233, 0.08), transparent 29rem),
-    linear-gradient(180deg, #f8faff 0%, #eef3ff 48%, #f8faff 100%);
-}
-
-.arcade-dashboard-v2 .arcade-header,
-.arcade-dashboard-v2 .arcade-hero,
 .arcade-dashboard-v2 .program-countdown-host,
 .arcade-dashboard-v2 .extension-strip,
 .arcade-dashboard-v2 .dashboard-shell,
 .arcade-dashboard-v2 .dashboard-empty-state,
 .arcade-dashboard-v2 .arcade-footer {
   width: min(var(--v2-shell), calc(100% - (var(--v2-gutter) * 2)));
-}
-
-/* Header: compact floating workspace bar instead of a full-width divider. */
-.arcade-dashboard-v2 .arcade-header {
-  top: 10px;
-  min-height: 64px;
-  margin-top: 10px;
-  padding: 0 12px 0 14px;
-  border: 1px solid var(--v2-border);
-  border-radius: var(--v2-radius-md);
-  background: var(--v2-surface-strong);
-  box-shadow: var(--v2-shadow-soft);
-  backdrop-filter: blur(20px) saturate(130%);
-}
-
-.arcade-dashboard-v2 .arcade-brand-mark {
-  width: 36px;
-  height: 36px;
-  border-radius: 11px;
-}
-
-.arcade-dashboard-v2 .arcade-brand-copy {
-  font-size: 0.68rem;
-}
-
-.arcade-dashboard-v2 .arcade-brand em {
-  padding: 4px 6px;
-  border-radius: 6px;
 }
 
 .arcade-dashboard-v2 .arcade-nav {
@@ -88,88 +40,9 @@ html.light .arcade-dashboard-v2 {
   right: 11px;
 }
 
-.arcade-dashboard-v2 .arcade-header-actions {
-  gap: 7px;
-}
-
 .arcade-dashboard-v2 .header-store-link {
   min-height: 38px;
   border-radius: 10px;
-}
-
-/* Hero: clearer hierarchy and a stronger analyzer focal point. */
-.arcade-dashboard-v2 .arcade-hero {
-  grid-template-columns: minmax(0, 1.08fr) minmax(360px, 0.92fr);
-  gap: clamp(32px, 5vw, 72px);
-  align-items: center;
-  padding: clamp(54px, 7vw, 86px) 0 38px;
-}
-
-.arcade-dashboard-v2 .hero-heading {
-  max-width: 690px;
-}
-
-.arcade-dashboard-v2 .pixel-kicker {
-  width: fit-content;
-  padding: 7px 10px;
-  border: 1px solid rgba(34, 211, 238, 0.17);
-  border-radius: 999px;
-  background: rgba(8, 145, 178, 0.06);
-}
-
-html.light .arcade-dashboard-v2 .pixel-kicker {
-  border-color: rgba(2, 132, 199, 0.15);
-  background: rgba(224, 242, 254, 0.7);
-}
-
-.arcade-dashboard-v2 .hero-heading h1 {
-  margin: 22px 0 18px;
-  max-width: 760px;
-  font-size: clamp(2.25rem, 4.4vw, 4.35rem);
-  line-height: 1.13;
-  letter-spacing: -0.055em;
-  text-wrap: balance;
-}
-
-.arcade-dashboard-v2 .hero-description {
-  max-width: 610px;
-  font-size: 1rem;
-  line-height: 1.72;
-}
-
-.arcade-dashboard-v2 .trust-pills {
-  gap: 8px;
-  margin-top: 22px;
-}
-
-.arcade-dashboard-v2 .trust-pills span {
-  min-height: 34px;
-  padding: 7px 11px;
-  border-radius: 999px;
-}
-
-.arcade-dashboard-v2 .profile-analyzer-card {
-  position: relative;
-  padding: 28px;
-  overflow: hidden;
-  border-color: var(--v2-border-strong);
-  border-radius: var(--v2-radius-lg);
-  background: var(--v2-surface-strong);
-  box-shadow: var(--v2-shadow);
-}
-
-.arcade-dashboard-v2 .profile-analyzer-card::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--arcade-purple), var(--arcade-cyan), transparent);
-  opacity: 0.85;
-}
-
-.arcade-dashboard-v2 .analyzer-title {
-  margin-bottom: 18px;
-  font-size: 0.72rem;
 }
 
 .arcade-dashboard-v2 .dashboard-view-switch {
@@ -220,28 +93,6 @@ html.light .arcade-dashboard-v2 .pixel-kicker {
 .arcade-dashboard-v2 .dashboard-view-switch button:focus-visible {
   outline: 2px solid var(--arcade-cyan);
   outline-offset: 2px;
-}
-
-.arcade-dashboard-v2 .profile-analyzer-card form {
-  grid-template-columns: minmax(0, 1fr);
-  gap: 10px;
-}
-
-.arcade-dashboard-v2 .profile-input {
-  min-height: 58px;
-  padding: 0 15px;
-  border-radius: var(--v2-radius-sm);
-  background: var(--v2-surface-soft);
-}
-
-.arcade-dashboard-v2 .analyze-button {
-  min-height: 50px;
-  border-radius: var(--v2-radius-sm);
-  box-shadow: 0 12px 28px rgba(124, 58, 237, 0.22);
-}
-
-.arcade-dashboard-v2 .analyzer-help-row {
-  margin-top: 14px;
 }
 
 /* Countdown uses the same desktop shell and card language as the rest of the workspace. */
@@ -841,11 +692,6 @@ html.light .arcade-dashboard-v2 .guest-dashboard-hero {
     --v2-gutter: 18px;
   }
 
-  .arcade-dashboard-v2 .arcade-hero {
-    grid-template-columns: minmax(0, 0.9fr) minmax(340px, 1.1fr);
-    gap: 28px;
-  }
-
   .arcade-dashboard-v2 .dashboard-summary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -869,14 +715,6 @@ html.light .arcade-dashboard-v2 .guest-dashboard-hero {
     --v2-gutter: 12px;
   }
 
-  .arcade-dashboard-v2 .arcade-header {
-    top: 7px;
-    min-height: 58px;
-    margin-top: 7px;
-    padding-inline: 10px;
-    border-radius: 14px;
-  }
-
   .arcade-dashboard-v2 .arcade-nav {
     top: 64px;
     left: 0;
@@ -888,20 +726,6 @@ html.light .arcade-dashboard-v2 .guest-dashboard-hero {
 
   .arcade-dashboard-v2 .arcade-nav a {
     padding: 12px;
-  }
-
-  .arcade-dashboard-v2 .arcade-hero {
-    grid-template-columns: 1fr;
-    gap: 26px;
-    padding: 42px 0 28px;
-  }
-
-  .arcade-dashboard-v2 .hero-heading {
-    max-width: 650px;
-  }
-
-  .arcade-dashboard-v2 .profile-analyzer-card {
-    padding: 22px;
   }
 
   .arcade-dashboard-v2 .dashboard-content-grid {
@@ -930,53 +754,6 @@ html.light .arcade-dashboard-v2 .guest-dashboard-hero {
 
   .arcade-dashboard-v2:has(.preview-mode-toolbar) {
     padding-bottom: calc(70px + env(safe-area-inset-bottom));
-  }
-
-  .arcade-dashboard-v2 .arcade-header {
-    width: calc(100% - 16px);
-  }
-
-  .arcade-dashboard-v2 .arcade-brand-mark {
-    width: 32px;
-    height: 32px;
-  }
-
-  .arcade-dashboard-v2 .arcade-brand-copy {
-    font-size: 0.58rem;
-  }
-
-  .arcade-dashboard-v2 .arcade-hero {
-    padding-top: 34px;
-  }
-
-  .arcade-dashboard-v2 .pixel-kicker {
-    padding: 6px 8px;
-    font-size: 0.62rem;
-  }
-
-  .arcade-dashboard-v2 .hero-heading h1 {
-    margin-top: 18px;
-    font-size: clamp(1.8rem, 9.2vw, 2.6rem);
-    line-height: 1.25;
-  }
-
-  .arcade-dashboard-v2 .hero-description {
-    font-size: 0.88rem;
-  }
-
-  .arcade-dashboard-v2 .trust-pills {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .arcade-dashboard-v2 .trust-pills span {
-    width: fit-content;
-  }
-
-  .arcade-dashboard-v2 .profile-analyzer-card {
-    padding: 16px;
-    border-radius: 16px;
   }
 
   .arcade-dashboard-v2 .preview-mode-toolbar {
@@ -1098,14 +875,6 @@ html.light .arcade-dashboard-v2 .guest-dashboard-hero {
     font-size: 0.66rem;
   }
 
-  .arcade-dashboard-v2 .profile-input {
-    min-height: 52px;
-  }
-
-  .arcade-dashboard-v2 .analyze-button {
-    min-height: 48px;
-  }
-
   .arcade-dashboard-v2 .extension-strip {
     grid-template-columns: auto 1fr;
     padding: 12px;
@@ -1117,12 +886,12 @@ html.light .arcade-dashboard-v2 .guest-dashboard-hero {
   }
 
   .arcade-dashboard-v2 .dashboard-summary-grid,
-  .arcade-dashboard-v2 .dashboard-bottom-grid {
+.arcade-dashboard-v2 .dashboard-bottom-grid {
     grid-template-columns: 1fr;
   }
 
   .arcade-dashboard-v2 .tier-status-panel,
-  .arcade-dashboard-v2 .next-goal-panel {
+.arcade-dashboard-v2 .next-goal-panel {
     grid-column: auto;
   }
 
@@ -1166,27 +935,6 @@ html.light .arcade-dashboard-v2 .guest-dashboard-hero {
 
   .arcade-dashboard-v2 .earned-badge-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .arcade-dashboard-v2 .mobile-bottom-nav {
-    left: 0;
-    right: 0;
-    bottom: 0;
-    min-height: 54px;
-    padding: 5px 8px calc(5px + env(safe-area-inset-bottom));
-    border: 0;
-    border-top: 1px solid var(--v2-border);
-    border-radius: 0;
-    background: var(--v2-surface-strong);
-    box-shadow: var(--v2-shadow);
-  }
-
-  .arcade-dashboard-v2 .mobile-bottom-nav a {
-    border-radius: 10px;
-  }
-
-  .arcade-dashboard-v2 .mobile-bottom-nav a:active {
-    background: rgba(139, 92, 246, 0.11);
   }
 }
 
