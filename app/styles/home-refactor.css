@@ -172,6 +172,56 @@ html.light .arcade-dashboard-v2 .pixel-kicker {
   font-size: 0.72rem;
 }
 
+.arcade-dashboard-v2 .dashboard-view-switch {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin-bottom: 18px;
+  padding: 5px;
+  border: 1px solid var(--v2-border);
+  border-radius: 14px;
+  background: var(--v2-surface-soft);
+}
+
+.arcade-dashboard-v2 .dashboard-view-switch button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--arcade-muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.74rem;
+  font-weight: 800;
+  transition: background 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.arcade-dashboard-v2 .dashboard-view-switch button svg {
+  width: 16px;
+  height: 16px;
+}
+
+.arcade-dashboard-v2 .dashboard-view-switch button:hover {
+  color: var(--arcade-text);
+}
+
+.arcade-dashboard-v2 .dashboard-view-switch button.is-active {
+  border-color: var(--v2-border-strong);
+  background: var(--v2-surface-strong);
+  color: var(--arcade-text);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+
+.arcade-dashboard-v2 .dashboard-view-switch button:focus-visible {
+  outline: 2px solid var(--arcade-cyan);
+  outline-offset: 2px;
+}
+
 .arcade-dashboard-v2 .profile-analyzer-card form {
   grid-template-columns: minmax(0, 1fr);
   gap: 10px;
@@ -577,6 +627,16 @@ html.light .arcade-dashboard-v2 .program-countdown-card {
   .arcade-dashboard-v2 .profile-analyzer-card {
     padding: 16px;
     border-radius: 16px;
+  }
+
+  .arcade-dashboard-v2 .dashboard-view-switch {
+    margin-bottom: 14px;
+  }
+
+  .arcade-dashboard-v2 .dashboard-view-switch button {
+    min-height: 38px;
+    padding-inline: 8px;
+    font-size: 0.68rem;
   }
 
   .arcade-dashboard-v2 .profile-input {
