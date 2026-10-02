@@ -45,7 +45,16 @@ export default function ShareProfileEnhancer() {
     let resetTimer: number | null = null
 
     function installShareAction(): boolean {
-      if (disposed || document.querySelector("[data-share-profile-action]")) return true
+      if (disposed) return true
+
+      const page = document.querySelector<HTMLElement>(".arcade-dashboard-page")
+      if (page?.dataset.dashboardDebugFake === "true") {
+        document.querySelector("[data-share-profile-action]")?.remove()
+        document.querySelector(".has-profile-share-action")?.classList.remove("has-profile-share-action")
+        return true
+      }
+
+      if (document.querySelector("[data-share-profile-action]")) return true
 
       const dashboard = document.querySelector(".dashboard-shell")
       const profilePanel = dashboard?.querySelector<HTMLElement>(".dashboard-panel")
