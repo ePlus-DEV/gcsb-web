@@ -113,3 +113,41 @@ test("home dashboard v2 stays scoped and its visual overrides load last", () => 
   assert.ok(refactorImport > legacyResponsive)
   assert.ok(refactorImport > facilitatorStyles)
 })
+
+
+test("guest and profile dashboard modes stay profile-safe and fully localized", () => {
+  const monthlyGateSource = readRepoFile("components/arcade/monthly-games-panel-gate.tsx")
+  const facilitatorGateSource = readRepoFile("components/arcade/facilitator-panel-gate.tsx")
+  const facilitatorOptionSource = readRepoFile("components/arcade/facilitator-analyzer-option.tsx")
+  const requiredKeys = [
+    "dashboardView",
+    "guestView",
+    "profileView",
+    "guestDashboardTitle",
+    "guestDashboardHint",
+  ]
+  const locales = [
+    "ar", "de", "en", "es", "fr", "hi", "it",
+    "ja", "ko", "pt_BR", "ru", "vi", "zh_CN",
+  ]
+
+  assert.match(calculator, /data-dashboard-view=\{viewMode\}/)
+  assert.match(calculator, /className="dashboard-view-switch"/)
+  assert.match(calculator, /showProfileDashboard/)
+  assert.match(calculator, /setViewMode\("profile"\)/)
+  assert.match(monthlyGateSource, /dataset\.dashboardView === "profile"/)
+  assert.match(facilitatorGateSource, /dataset\.dashboardView === "guest"/)
+  assert.match(facilitatorOptionSource, /dashboardViewMode === "guest"/)
+  assert.doesNotMatch(
+    calculator,
+    />Guest view<|>Profile view<|>Browsing as guest<|Personal profile data is hidden/,
+  )
+
+  for (const locale of locales) {
+    const catalog = JSON.parse(readRepoFile(`public/i18n/locales/${locale}.json`))
+    for (const key of requiredKeys) {
+      assert.equal(typeof catalog.messages?.[key], "string", `${locale} is missing ${key}`)
+      assert.ok(catalog.messages[key].trim().length > 0, `${locale} has empty ${key}`)
+    }
+  }
+})
