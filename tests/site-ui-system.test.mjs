@@ -39,3 +39,21 @@ test("stacked PR previews always build production from the default branch", () =
   assert.match(production, /github.event.repository.default_branch/)
   assert.doesNotMatch(production, /github.event.pull_request.base.ref/)
 })
+
+test("Arcade fonts are local and pixel headings cannot mix unsupported translated glyphs", () => {
+  const layout = readRepoFile("app/layout.tsx")
+  assert.match(layout, /localFont from "next\/font\/local"/)
+  assert.match(layout, /inter-variable\.woff2/)
+  assert.match(layout, /press-start-2p\.woff2/)
+  assert.match(layout, /weight: "100 900"/)
+  assert.doesNotMatch(layout, /fonts\.googleapis\.com|fonts\.gstatic\.com/)
+  assert.doesNotMatch(readRepoFile("app/styles/redesign-dashboard.css"), /fonts\.googleapis\.com/)
+  assert.match(readRepoFile("app/styles/site-ui.css"), /html\[lang="en"\].*hero-heading h1.*font-arcade-pixel/)
+})
+
+test("Facilitator launcher mounts inside the analyzer rather than floating over its controls", () => {
+  assert.match(readRepoFile("app/redesign-calculator.tsx"), /className="facilitator-launcher-host"/)
+  const source = readRepoFile("components/arcade/facilitator-panel.tsx")
+  assert.match(source, /usePortalTarget\("\.facilitator-launcher-host"\)/)
+  assert.match(source, /createPortal\(launcher, launcherTarget\)/)
+})

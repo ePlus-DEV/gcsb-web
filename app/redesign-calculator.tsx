@@ -690,6 +690,7 @@ export default function RedesignCalculator({
               <button type="button" onClick={resetResult}><RefreshCcw /> Reset result</button>
             )}
           </div>
+          <div className="facilitator-launcher-host" />
         </div>
       </section>
 

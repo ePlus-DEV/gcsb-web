@@ -1,11 +1,11 @@
 /* Shared visual primitives. Route-specific CSS owns layout and data colors;
    this file owns the chrome, neutral surfaces and interaction treatments. */
-body { font-family: Inter, ui-sans-serif, system-ui, sans-serif; color: var(--ui-text); background: var(--ui-bg); }
+body { font-family: var(--font-arcade-body), Inter, ui-sans-serif, system-ui, sans-serif; color: var(--ui-text); background: var(--ui-bg); }
 html:is(.light, .dark) { scroll-padding-top: 90px; }
 html:is(.light, .dark) .arcade-dashboard-page.arcade-dashboard-page {
   background: var(--ui-bg);
   color: var(--ui-text);
-  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-arcade-body), Inter, ui-sans-serif, system-ui, sans-serif;
   line-height: 1.6;
 }
 .arcade-dashboard-page .arcade-stars { opacity: .12; }
@@ -163,7 +163,7 @@ html:is(.light, .dark) .arcade-dashboard-v2 .mobile-bottom-nav a.active { color:
 html:is(.light, .dark) .shared-state { display: flex; flex-direction: column; align-items: stretch; padding: 0; }
 html:is(.light, .dark) .shared-state-card { margin: auto; padding: 32px; width: min(560px, calc(100% - var(--ui-gutter) * 2)); }
 html:is(.light, .dark) .shared-state .site-footer { margin-top: 24px; }
-html:is(.light, .dark) .arcade-dashboard-v2 .hero-heading h1 { font-family: inherit; font-size: clamp(2rem, 4.5vw, 3.25rem); font-weight: 750; letter-spacing: -.035em; line-height: 1.12; text-shadow: none; }
+html:is(.light, .dark) .arcade-dashboard-v2 .hero-heading h1 { font-family: inherit; font-size: clamp(2rem, 4.5vw, 3.25rem); font-weight: 700; letter-spacing: -.035em; line-height: 1.12; text-shadow: none; }
 html:is(.light, .dark) .arcade-dashboard-v2 .hero-heading h1 span { color: var(--ui-accent); background: none; -webkit-text-fill-color: currentColor; }
 html:is(.light, .dark) .arcade-dashboard-v2 :is(.profile-analyzer-card,.guest-dashboard-hero,.program-countdown-card,.extension-strip,.swag-preview-card) { border: 1px solid var(--ui-border); border-radius: var(--ui-radius-lg); background: var(--ui-surface); color: var(--ui-text); box-shadow: var(--ui-shadow); }
 html:is(.light, .dark) .arcade-dashboard-v2 .guest-dashboard-hero::before { display: none; }
@@ -194,3 +194,18 @@ html:is(.light, .dark) .arcade-dashboard-v2 .guest-dashboard-orb { border: 0; bo
 html:is(.light, .dark) .bonus-milestone-confirmation-card { background: var(--ui-soft); border-color: var(--ui-border); border-radius: var(--ui-radius); }
 html:is(.light, .dark) :is(.bonus-gear-toggle,.bonus-milestone-confirmation-button) { border-radius: var(--ui-radius-sm); border-color: var(--ui-accent-border); background: var(--ui-accent-soft); color: var(--ui-accent); }
 html:is(.light, .dark) .bonus-milestone-confirmation-button.is-completed { color: var(--ui-success); }
+/* Keep the Arcade identity while sharing geometry across routes. */
+html:is(.light, .dark) .arcade-dashboard-v2.arcade-dashboard-v2 { background: radial-gradient(circle at 82% 8%, var(--ui-hero-glow), transparent 36rem), var(--ui-bg); }
+html:is(.light, .dark) .site-header .arcade-brand-mark { background: var(--ui-accent-soft); color: var(--ui-brand); }
+html:is(.light, .dark) .site-header .arcade-brand-copy { font-family: var(--font-arcade-pixel), monospace; }
+html:is(.light, .dark) .site-header .arcade-brand-copy strong { color: var(--ui-brand); }
+html:is(.light, .dark) .arcade-dashboard-v2 .arcade-hero { background: transparent; border: 0; box-shadow: none; }
+html[lang="en"] .arcade-dashboard-v2 .hero-heading h1 { font-family: var(--font-arcade-pixel), monospace; font-weight: 400; font-size: clamp(1.65rem, 3.2vw, 2.75rem); line-height: 1.4; letter-spacing: -.045em; }
+html:is(.light, .dark) .arcade-dashboard-v2 .hero-heading h1 span { background: linear-gradient(110deg, #a855f7, #818cf8 55%, #22d3ee); background-clip: text; -webkit-background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
+html.light .arcade-dashboard-v2 .hero-heading h1 span { background-image: linear-gradient(110deg, #7c3aed, #4f46e5 55%, #0e7490); }
+html:is(.light, .dark) .arcade-dashboard-v2 :is(.pixel-kicker,.trust-pills span) { background: var(--ui-info-soft); color: var(--ui-info); border: 1px solid var(--ui-info-border); }
+/* The launcher belongs to the form flow, not a fixed layer over form controls. */
+.facilitator-launcher-host:has(.facilitator-launcher:not([hidden])) { margin-top: 16px; }
+html:is(.light, .dark) .facilitator-launcher { position: static; inset: auto; display: none; transform: none; }
+html:is(.light, .dark) .facilitator-launcher-host .facilitator-launcher:not([hidden]) { display: flex; position: static; width: 100%; min-width: 0; max-width: none; min-height: 54px; padding: 12px 14px; border: 1px solid var(--ui-accent-border); border-radius: var(--ui-radius); background: var(--ui-accent-soft); color: var(--ui-text); box-shadow: none; transform: none; }
+html:is(.light, .dark) .facilitator-launcher-host .facilitator-launcher:hover { transform: none; }

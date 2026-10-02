@@ -5,7 +5,7 @@ html:is(.light, .dark) .arcade-widget-card.arcade-widget-card {
   background: var(--ui-surface);
   color: var(--ui-text);
   box-shadow: var(--ui-shadow);
-  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-arcade-body), Inter, ui-sans-serif, system-ui, sans-serif;
 }
 html:is(.light, .dark) .arcade-widget-card::before { display: none; }
 html:is(.light, .dark) .arcade-widget-head { border-color: var(--ui-border); }

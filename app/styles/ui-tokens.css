@@ -2,20 +2,20 @@
    hsl channels also power the Radix/Tailwind primitives. */
 :root {
   color-scheme: dark;
-  --background: 224 43% 7%;
+  --background: 228 66% 6%;
   --foreground: 216 33% 94%;
-  --card: 222 38% 11%;
+  --card: 222 60% 10%;
   --card-foreground: var(--foreground);
-  --popover: 222 38% 11%;
+  --popover: 222 60% 10%;
   --popover-foreground: var(--foreground);
-  --primary: 258 72% 54%;
+  --primary: 258 77% 53%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 222 28% 16%;
+  --secondary: 220 58% 12%;
   --secondary-foreground: var(--foreground);
-  --muted: 222 28% 16%;
+  --muted: 220 58% 12%;
   --muted-foreground: 215 18% 68%;
-  --accent: 258 30% 20%;
-  --accent-foreground: 258 90% 82%;
+  --accent: 258 40% 17%;
+  --accent-foreground: 258 94% 76%;
   --destructive: 0 74% 58%;
   --destructive-foreground: 0 0% 100%;
   --border: 220 24% 22%;
@@ -31,6 +31,11 @@
   --ui-accent: hsl(var(--accent-foreground));
   --ui-primary: hsl(var(--primary));
   --ui-accent-soft: hsl(var(--accent));
+  --ui-brand: #ffd642;
+  --ui-info: #7dd3fc;
+  --ui-info-soft: rgb(34 211 238 / .06);
+  --ui-info-border: rgb(34 211 238 / .2);
+  --ui-hero-glow: rgb(99 102 241 / .12);
   --ui-accent-border: hsl(var(--primary) / .35);
   --ui-on-accent: hsl(var(--primary-foreground));
   --ui-shadow: 0 4px 16px hsl(224 50% 3% / .12);
@@ -64,6 +69,11 @@ html.light, html[data-widget-theme="light"] {
   --accent-foreground: 258 66% 40%;
   --border: 220 20% 86%;
   --ui-shadow: 0 4px 16px hsl(222 38% 16% / .04);
+  --ui-brand: #a16207;
+  --ui-info: #0e7490;
+  --ui-info-soft: #ecfeff;
+  --ui-info-border: rgb(8 145 178 / .2);
+  --ui-hero-glow: rgb(99 102 241 / .06);
   --ui-success: #047857;
   --ui-warning: #a16207;
   --ui-error: #b91c1c;

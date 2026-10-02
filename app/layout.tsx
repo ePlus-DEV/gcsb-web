@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs"
 import path from "node:path"
+import localFont from "next/font/local"
 import type { Metadata, Viewport } from "next"
 import WebsiteLanguage from "@/components/i18n/website-language"
 import CookieConsent from "@/components/privacy/cookie-consent"
@@ -40,8 +41,20 @@ const siteName = "Arcade Points by ePlus.DEV"
 const title = "Google Cloud Arcade Points Calculator & Badge Tracker 2026"
 const description =
   "Calculate Google Cloud Arcade points from your public Google Skills profile, review completed badges, estimate milestone progress, and track Arcade Facilitator rewards."
-const googleFontsUrl =
-  "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Press+Start+2P&display=swap"
+const arcadeBody = localFont({
+  src: "./fonts/inter-variable.woff2",
+  variable: "--font-arcade-body",
+  weight: "100 900",
+  style: "normal",
+  display: "swap",
+})
+const arcadePixel = localFont({
+  src: "./fonts/press-start-2p.woff2",
+  variable: "--font-arcade-pixel",
+  weight: "400",
+  style: "normal",
+  display: "swap",
+})
 const fontAwesomeUrl =
   "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
 const fontAwesomeIntegrity =
@@ -200,10 +213,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           id="website-catalog-cache-buster"
           dangerouslySetInnerHTML={{ __html: websiteCatalogCacheBootstrap }}
         />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
-        <link rel="stylesheet" href={googleFontsUrl} />
         <link
           rel="stylesheet"
           href={fontAwesomeUrl}
@@ -229,7 +239,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           </>
         ) : null}
       </head>
-      <body>
+      <body className={`${arcadeBody.variable} ${arcadePixel.variable}`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

@@ -47,6 +47,12 @@ async function open(route, theme, locale, width) {
     await page.locator(".website-theme-toggle").waitFor()
   }
   await page.waitForFunction(theme=>document.documentElement.classList.contains(theme),theme)
+  await page.evaluate(async () => {
+    await document.fonts.ready
+    const bodyFamily=getComputedStyle(document.body).getPropertyValue('--font-arcade-body').trim().split(',')[0]
+    await document.fonts.load(`400 16px ${bodyFamily}`, 'Việt')
+    if (!document.fonts.check(`400 16px ${bodyFamily}`, 'Việt')) throw new Error('Local body font is not loaded')
+  })
   if (await page.locator(".cookie-consent-close").count()) await page.locator(".cookie-consent-close").click()
   return page
 }
@@ -57,6 +63,15 @@ try {
       const route = locale === "vi" && original === "/" ? "/vi/" : original
       const page = await open(route, theme, locale, width)
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth <= innerWidth), true, `${route} ${width} overflow`)
+      if (original === '/' && locale === 'en') {
+        const headingFont = await page.locator('.hero-heading h1').evaluate(async el => {
+          const family=getComputedStyle(el).fontFamily.split(',')[0]
+          await document.fonts.load(`400 26px ${family}`, 'ARCADE')
+          return {family,loaded:document.fonts.check(`400 26px ${family}`, 'ARCADE')}
+        })
+        assert.ok(headingFont.family.includes('arcadePixel'),headingFont.family)
+        assert.equal(headingFont.loaded,true)
+      }
       const primary = page.locator(route === '/widget/' ? '.arcade-widget-form button[type="submit"]' : '.analyze-button')
       if (await primary.count()) {
         const contrast = await primary.evaluate(el => {
@@ -106,6 +121,10 @@ try {
   if (await page.locator('.facilitator-launcher').count()) {
     await page.locator('.analyzer-facilitator-option').first().click()
     await page.locator('.facilitator-launcher').waitFor()
+    const launcherBounds = await page.locator('.facilitator-launcher').boundingBox()
+    const submitBounds = await page.locator('.analyze-button').boundingBox()
+    assert.ok(launcherBounds.y >= submitBounds.y + submitBounds.height, 'Facilitator launcher overlaps Analyze')
+    assert.equal(await page.locator('.facilitator-launcher').evaluate(el=>getComputedStyle(el).position),'static')
     await page.locator('.facilitator-launcher').click()
     await page.locator('.facilitator-drawer').waitFor()
     await page.keyboard.press('Escape')
