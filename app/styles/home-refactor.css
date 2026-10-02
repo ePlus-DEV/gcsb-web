@@ -13,8 +13,8 @@
   --v2-surface-soft: rgba(15, 27, 52, 0.62);
   --v2-border: rgba(148, 163, 184, 0.14);
   --v2-border-strong: rgba(139, 92, 246, 0.28);
-  --v2-shadow: 0 22px 60px rgba(0, 0, 0, 0.24);
-  --v2-shadow-soft: 0 12px 34px rgba(0, 0, 0, 0.16);
+  --v2-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
+  --v2-shadow-soft: 0 4px 16px rgba(0, 0, 0, 0.10);
   background:
     radial-gradient(circle at 82% 5%, rgba(99, 102, 241, 0.16), transparent 31rem),
     radial-gradient(circle at 12% 24%, rgba(14, 165, 233, 0.11), transparent 29rem),
@@ -309,7 +309,7 @@ html.light .arcade-dashboard-v2 .program-countdown-card {
 }
 
 .arcade-dashboard-v2 .dashboard-content-grid {
-  grid-template-columns: minmax(0, 1fr) 330px;
+  grid-template-columns: minmax(0, 1fr) 360px;
 }
 
 .arcade-dashboard-v2 .dashboard-panel,
@@ -462,21 +462,21 @@ html.light .arcade-dashboard-v2 .program-countdown-card {
   border-radius: 999px;
 }
 
-/* PR-preview debug control: always reachable without affecting content flow. */
+/* Preview modes sit below the header, leaving the page bottom unobstructed. */
 .arcade-dashboard-v2 .preview-mode-toolbar {
-  position: fixed;
-  right: 18px;
-  bottom: 18px;
-  z-index: 95;
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 6px;
-  border: 1px solid rgba(139, 92, 246, 0.34);
-  border-radius: 16px;
-  background: rgba(7, 14, 31, 0.94);
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.34);
-  backdrop-filter: blur(18px) saturate(135%);
+  gap: 8px;
+  width: min(360px, calc(100% - 32px));
+  margin: 12px auto 0;
+  padding: 4px 8px;
+  border: 1px solid var(--v2-border);
+  border-radius: 12px;
+  background: var(--v2-surface-strong);
+  box-shadow: var(--v2-shadow-soft);
+  backdrop-filter: blur(18px);
 }
 
 html.light .arcade-dashboard-v2 .preview-mode-toolbar {
@@ -487,11 +487,11 @@ html.light .arcade-dashboard-v2 .preview-mode-toolbar {
 .arcade-dashboard-v2 .preview-mode-badge {
   display: grid;
   place-items: center;
-  min-width: 34px;
-  height: 34px;
-  padding: 0 8px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #7c3aed, #4f46e5);
+  min-width: 26px;
+  height: 26px;
+  padding: 0 5px;
+  border-radius: 6px;
+  background: #6d4ae6;
   color: #fff;
   font-size: 0.68rem;
   font-weight: 900;
@@ -499,10 +499,13 @@ html.light .arcade-dashboard-v2 .preview-mode-toolbar {
 }
 
 .arcade-dashboard-v2 .preview-mode-toolbar .dashboard-view-switch {
-  width: 270px;
+  flex: 1;
+  width: auto;
   margin: 0;
-  padding: 3px;
-  border-radius: 11px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
 }
 
 .arcade-dashboard-v2 .preview-mode-toolbar .dashboard-view-switch button {
@@ -517,8 +520,11 @@ html.light .arcade-dashboard-v2 .preview-mode-toolbar {
   display: grid;
   grid-template-columns: 1fr;
   gap: 20px;
-  padding: clamp(20px, 3.2vw, 32px);
-  overflow: hidden;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .arcade-dashboard-v2 .guest-dashboard-hero {
@@ -528,10 +534,10 @@ html.light .arcade-dashboard-v2 .preview-mode-toolbar {
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 24px;
-  min-height: 170px;
+  min-height: 132px;
   padding: 24px 28px;
   overflow: hidden;
-  border: 1px solid rgba(139, 92, 246, 0.44);
+  border: 1px solid var(--v2-border);
   border-radius: 18px;
   background:
     radial-gradient(circle at 18% 50%, rgba(255, 193, 7, 0.12), transparent 25%),
@@ -559,8 +565,8 @@ html.light .arcade-dashboard-v2 .preview-mode-toolbar {
   position: relative;
   display: grid;
   place-items: center;
-  width: 92px;
-  height: 92px;
+  width: 64px;
+  height: 64px;
   border: 1px solid rgba(255, 193, 7, 0.52);
   border-radius: 50%;
   color: #ffd43b;
@@ -686,12 +692,10 @@ html.light .arcade-dashboard-v2 .guest-dashboard-hero {
   min-height: 108px;
   padding: 14px 16px;
   overflow: hidden;
-  border: 1px solid var(--tier-border);
-  border-radius: 16px;
-  background:
-    linear-gradient(110deg, var(--tier-soft), transparent 36%),
-    var(--v2-surface-soft);
-  box-shadow: inset 3px 0 0 var(--tier-accent);
+  border: 1px solid var(--v2-border);
+  border-radius: 12px;
+  background: var(--v2-surface-soft);
+  box-shadow: none;
 }
 
 .arcade-dashboard-v2 .shared-tier-panel .empty-tier-grid {
@@ -700,9 +704,8 @@ html.light .arcade-dashboard-v2 .guest-dashboard-hero {
 
 .arcade-dashboard-v2 .guest-tier-card.is-current {
   border-color: var(--tier-accent);
-  outline: 1px solid var(--tier-accent);
-  outline-offset: 2px;
-  box-shadow: inset 3px 0 0 var(--tier-accent), 0 0 22px var(--tier-soft);
+  background: linear-gradient(90deg, var(--tier-soft), transparent), var(--v2-surface-soft);
+  box-shadow: inset 3px 0 0 var(--tier-accent);
 }
 
 .arcade-dashboard-v2 .guest-tier-card.is-current .guest-tier-icon {
@@ -922,11 +925,11 @@ html.light .arcade-dashboard-v2 .guest-dashboard-hero {
 @media (max-width: 600px) {
   .arcade-dashboard-v2 {
     --v2-gutter: 8px;
-    padding-bottom: 78px;
+    padding-bottom: calc(70px + env(safe-area-inset-bottom));
   }
 
   .arcade-dashboard-v2:has(.preview-mode-toolbar) {
-    padding-bottom: 132px;
+    padding-bottom: calc(70px + env(safe-area-inset-bottom));
   }
 
   .arcade-dashboard-v2 .arcade-header {
@@ -977,39 +980,14 @@ html.light .arcade-dashboard-v2 .guest-dashboard-hero {
   }
 
   .arcade-dashboard-v2 .preview-mode-toolbar {
-    left: 50%;
-    right: auto;
-    bottom: calc(76px + env(safe-area-inset-bottom));
-    width: min(calc(100% - 20px), 360px);
-    transform: translateX(-50%);
-    gap: 5px;
-    padding: 5px;
-    border-radius: 14px;
-  }
-
-  .arcade-dashboard-v2 .preview-mode-badge {
-    min-width: 30px;
-    height: 34px;
-    padding-inline: 6px;
-    border-radius: 9px;
-    font-size: 0.62rem;
-  }
-
-  .arcade-dashboard-v2 .preview-mode-toolbar .dashboard-view-switch {
-    width: auto;
-    flex: 1 1 auto;
-  }
-
-  .arcade-dashboard-v2 .preview-mode-toolbar .dashboard-view-switch button {
-    min-height: 36px;
-    padding-inline: 7px;
-    font-size: 0.66rem;
+    width: calc(100% - 32px);
+    max-width: 360px;
   }
 
   .arcade-dashboard-v2 .dashboard-empty-state.guest-dashboard {
     gap: 16px;
-    padding: 14px;
-    margin-bottom: 92px;
+    padding: 0;
+    margin-bottom: 16px;
     border-radius: 18px;
   }
 
@@ -1094,11 +1072,11 @@ html.light .arcade-dashboard-v2 .guest-dashboard-hero {
   }
 
   .arcade-dashboard-v2 .guest-tier-copy strong {
-    font-size: 0.78rem;
+    font-size: 0.85rem;
   }
 
   .arcade-dashboard-v2 .guest-tier-copy span {
-    font-size: 0.64rem;
+    font-size: 0.70rem;
   }
 
   .arcade-dashboard-v2 .guest-tier-progress {
@@ -1112,12 +1090,12 @@ html.light .arcade-dashboard-v2 .guest-dashboard-hero {
   }
 
   .arcade-dashboard-v2 .guest-tier-availability > strong {
-    font-size: 0.78rem;
+    font-size: 0.85rem;
   }
 
   .arcade-dashboard-v2 .guest-tier-availability small {
     max-width: 88px;
-    font-size: 0.56rem;
+    font-size: 0.66rem;
   }
 
   .arcade-dashboard-v2 .profile-input {
@@ -1191,13 +1169,14 @@ html.light .arcade-dashboard-v2 .guest-dashboard-hero {
   }
 
   .arcade-dashboard-v2 .mobile-bottom-nav {
-    left: 8px;
-    right: 8px;
-    bottom: 8px;
-    min-height: 58px;
-    padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
-    border: 1px solid var(--v2-border);
-    border-radius: 16px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    min-height: 54px;
+    padding: 5px 8px calc(5px + env(safe-area-inset-bottom));
+    border: 0;
+    border-top: 1px solid var(--v2-border);
+    border-radius: 0;
     background: var(--v2-surface-strong);
     box-shadow: var(--v2-shadow);
   }
@@ -1224,6 +1203,11 @@ html.light .arcade-dashboard-v2 .guest-dashboard-hero {
 /* The same cards also fit the narrower desktop profile sidebar. */
 .arcade-dashboard-v2 .shared-tier-panel {
   container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-self: start;
+  scroll-margin-top: 96px;
 }
 
 @container (max-width: 420px) {
@@ -1240,11 +1224,11 @@ html.light .arcade-dashboard-v2 .guest-dashboard-hero {
   }
 
   .arcade-dashboard-v2 .guest-tier-copy strong {
-    font-size: 0.78rem;
+    font-size: 0.85rem;
   }
 
   .arcade-dashboard-v2 .guest-tier-copy span {
-    font-size: 0.64rem;
+    font-size: 0.70rem;
   }
 
   .arcade-dashboard-v2 .guest-tier-availability {
@@ -1253,11 +1237,75 @@ html.light .arcade-dashboard-v2 .guest-dashboard-hero {
   }
 
   .arcade-dashboard-v2 .guest-tier-availability > strong {
-    font-size: 0.78rem;
+    font-size: 0.85rem;
   }
 
   .arcade-dashboard-v2 .guest-tier-availability small {
     max-width: 88px;
-    font-size: 0.56rem;
+    font-size: 0.66rem;
   }
+}
+
+/* Consistent section rhythm, without extra boxes around supporting copy. */
+.arcade-dashboard-v2 .shared-tier-panel .guest-tier-heading {
+  margin: 0;
+}
+
+.arcade-dashboard-v2 .shared-tier-panel .tier-note {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--arcade-muted);
+  font-size: 0.78rem;
+  line-height: 1.65;
+}
+
+.arcade-dashboard-v2 .shared-tier-panel .tier-trends-trigger {
+  margin: 0;
+  box-shadow: none;
+}
+
+.arcade-dashboard-v2 .shared-tier-panel .swag-drops-preview {
+  margin-top: 4px;
+}
+
+.arcade-dashboard-v2 #calculator,
+.arcade-dashboard-v2 #badges,
+.arcade-dashboard-v2 #extension {
+  scroll-margin-top: 96px;
+}
+
+/* New tier surfaces use the Font Awesome adapter, not only SVG icons. */
+.arcade-dashboard-v2 .guest-tier-icon .fa-icon {
+  font-size: 20px;
+}
+
+.arcade-dashboard-v2 .guest-tier-heading-icon .fa-icon {
+  font-size: 17px;
+}
+
+.arcade-dashboard-v2 .guest-dashboard-orb .fa-icon {
+  font-size: 28px;
+}
+
+.arcade-dashboard-v2 .preview-mode-toolbar .fa-icon {
+  font-size: 14px;
+}
+
+/* Tier accents remain readable on the light surfaces. */
+html.light .arcade-dashboard-v2 .guest-tier-card.tier-120 { --tier-accent: #a16207; }
+html.light .arcade-dashboard-v2 .guest-tier-card.tier-95 { --tier-accent: #9333ea; }
+html.light .arcade-dashboard-v2 .guest-tier-card.tier-75 { --tier-accent: #2563eb; }
+html.light .arcade-dashboard-v2 .guest-tier-card.tier-50 { --tier-accent: #059669; }
+
+/* Keep the attained rank readable in the compact profile summary. */
+.arcade-dashboard-v2 .profile-stat-grid > div:last-child strong {
+  overflow: visible;
+  white-space: normal;
+  text-overflow: clip;
+  overflow-wrap: anywhere;
+  font-size: 0.88rem;
+  line-height: 1.35;
 }

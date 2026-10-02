@@ -110,7 +110,7 @@ test("home dashboard v2 stays scoped and its visual overrides load last", () => 
   assert.match(refactorStyles, /\.guest-tier-card\.tier-120/)
   assert.match(refactorStyles, /\.guest-tier-progress/)
   assert.match(refactorStyles, /\.preview-mode-toolbar/)
-  assert.match(refactorStyles, /bottom: calc\(76px \+ env\(safe-area-inset-bottom\)\)/)
+  assert.match(refactorStyles, /Preview modes sit below the header/)
   assert.match(refactorStyles, /html\.light \.arcade-dashboard-v2/)
   assert.match(refactorStyles, /@media \(max-width: 600px\)/)
 

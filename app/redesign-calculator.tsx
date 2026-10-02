@@ -685,6 +685,14 @@ export default function RedesignCalculator({
         </div>
       </header>
 
+      {IS_PR_PREVIEW && (
+        <PreviewModeToolbar
+          viewMode={viewMode}
+          onChange={activatePreviewMode}
+          catalog={activeHistoryLanguage.catalog}
+        />
+      )}
+
       <section id="top" className="arcade-hero" data-home-order="hero">
         <div className="hero-heading">
           <p className="pixel-kicker"><Sparkles /> Google Cloud Skills Boost Arcade 2026</p>
@@ -764,13 +772,7 @@ export default function RedesignCalculator({
         </div>
       </section>
 
-      {IS_PR_PREVIEW && (
-        <PreviewModeToolbar
-          viewMode={viewMode}
-          onChange={activatePreviewMode}
-          catalog={activeHistoryLanguage.catalog}
-        />
-      )}
+
 
       {showProfileDashboard ? (
         <section className="dashboard-shell" aria-label="Arcade profile results" data-home-order="dashboard-results">
