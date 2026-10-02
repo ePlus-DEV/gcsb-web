@@ -102,15 +102,12 @@ export default function ShareProfileEnhancer() {
       })
 
       profilePanel.append(button)
-      observer?.disconnect()
-      observer = null
       return true
     }
 
-    if (!installShareAction()) {
-      observer = new MutationObserver(() => installShareAction())
-      observer.observe(document.body, { childList: true, subtree: true })
-    }
+    installShareAction()
+    observer = new MutationObserver(() => installShareAction())
+    observer.observe(document.body, { childList: true, subtree: true })
 
     return () => {
       disposed = true
