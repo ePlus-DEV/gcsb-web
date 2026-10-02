@@ -24,6 +24,11 @@ function asBadgeArray(value: unknown): ArcadeBadge[] {
   )
 }
 
+function readDashboardViewMode(): "guest" | "profile" {
+  const page = document.querySelector<HTMLElement>(".arcade-dashboard-page")
+  return page?.dataset.dashboardView === "profile" ? "profile" : "guest"
+}
+
 function readStoredRaw(): string {
   try {
     return window.localStorage.getItem(DASHBOARD_STORAGE_KEY) ?? ""
@@ -74,13 +79,15 @@ export default function MonthlyGamesPanelGate() {
       const nextHost = findMonthlyGamesHost()
       setHost((current) => (current === nextHost ? current : nextHost))
 
-      const raw = readStoredRaw()
-      if (raw === lastRawRef.current) return
+      const viewMode = readDashboardViewMode()
+      const raw = viewMode === "profile" ? readStoredRaw() : ""
+      const syncKey = `${viewMode}:${raw}`
+      if (syncKey === lastRawRef.current) return
 
-      lastRawRef.current = raw
+      lastRawRef.current = syncKey
       const result = parseStoredResult(raw)
-      setHasProfile(Boolean(result))
-      setBadges(parseStoredBadges(result))
+      setHasProfile(viewMode === "profile" && Boolean(result))
+      setBadges(viewMode === "profile" ? parseStoredBadges(result) : [])
     }
 
     sync()
