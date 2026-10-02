@@ -15,6 +15,9 @@ import { DASHBOARD_STORAGE_KEY } from "./model"
 const DASHBOARD_SYNC_INTERVAL_MS = 1_000
 
 function readStoredProfileUrl(): string {
+  const page = document.querySelector<HTMLElement>(".arcade-dashboard-page")
+  if (page?.dataset.dashboardView === "guest") return ""
+
   try {
     const raw = window.localStorage.getItem(DASHBOARD_STORAGE_KEY)
     if (!raw) return ""
