@@ -359,7 +359,7 @@ export default function FacilitatorAnalyzerOption() {
   }, [profileUrl])
 
   useEffect(() => {
-    if (!autoFetchLoaded || !autoFetchLatest || !portalTarget || !profileUrl || autoFetchAttempted.current) return
+    if (dashboardViewMode !== "profile" || !autoFetchLoaded || !autoFetchLatest || !portalTarget || !profileUrl || autoFetchAttempted.current) return
     const analyzer = document.querySelector<HTMLElement>(ANALYZER_SELECTOR)
     const input = analyzer?.querySelector<HTMLInputElement>(INPUT_SELECTOR)
     const form = input?.closest("form")
@@ -367,7 +367,7 @@ export default function FacilitatorAnalyzerOption() {
     autoFetchAttempted.current = true
     setInputValue(input, profileUrl)
     window.setTimeout(() => form.requestSubmit(), 0)
-  }, [autoFetchLatest, autoFetchLoaded, portalTarget, profileUrl])
+  }, [autoFetchLatest, autoFetchLoaded, dashboardViewMode, portalTarget, profileUrl])
 
   if (!portalTarget || dashboardViewMode === "guest") return null
 
