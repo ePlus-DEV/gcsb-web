@@ -26,7 +26,6 @@ import {
   Sparkles,
   Star,
   Trophy,
-  UserRound,
   Users,
   X,
 } from "lucide-react"
@@ -696,7 +695,7 @@ export default function RedesignCalculator({
               aria-pressed={viewMode === "profile"}
               onClick={() => setViewMode("profile")}
             >
-              <UserRound />
+              <Users />
               <span>{viewMessages.profileView}</span>
             </button>
           </div>
