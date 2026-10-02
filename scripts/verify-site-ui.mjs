@@ -72,7 +72,7 @@ async function open(route, theme, locale, width) {
 }
 
 try {
-  for (const theme of ["dark", "light"]) for (const locale of ["en", "vi"]) for (const width of [390, 1440]) {
+  for (const theme of ["dark", "light"]) for (const locale of ["en", "vi"]) for (const width of [390, 428, 1440]) {
     for (const original of routes) {
       const route = locale === "vi" && original === "/" ? "/vi/" : original
       const page = await open(route, theme, locale, width)
@@ -85,7 +85,18 @@ try {
         })
         assert.ok(headingFont.family.includes('arcadePixel'),headingFont.family)
         assert.equal(headingFont.loaded,true)
-        if (width === 390) assert.equal(await page.locator(".hero-heading h1").evaluate(el=>getComputedStyle(el).fontSize), "32px")
+        if (width === 390) {
+          const layout = await page.evaluate(() => {
+            const heading=document.querySelector('.hero-heading h1')
+            const pills=[...document.querySelectorAll('.trust-pills span')].map(el=>el.getBoundingClientRect())
+            return {fontSize:parseFloat(getComputedStyle(heading).fontSize),lineHeight:parseFloat(getComputedStyle(heading).lineHeight),pillsSameRow:Math.abs(pills[0].top-pills[1].top)<1,headerRadius:getComputedStyle(document.querySelector('.site-header')).borderRadius,formBefore:getComputedStyle(document.querySelector('.profile-analyzer-card'),'::before').content}
+          })
+          assert.ok(Math.abs(layout.fontSize-35.1)<.1,JSON.stringify(layout))
+          assert.ok(Math.abs(layout.lineHeight/layout.fontSize-1.28)<.01)
+          assert.equal(layout.pillsSameRow,true)
+          assert.equal(layout.headerRadius,'0px')
+          assert.ok(['none','normal'].includes(layout.formBefore))
+        }
       }
       const primary = page.locator(route === '/widget/' ? '.arcade-widget-form button[type="submit"]' : '.analyze-button')
       if (await primary.count()) {
@@ -114,8 +125,8 @@ try {
         const colors = await page.locator(".site-header").evaluate(el => ({ background:getComputedStyle(el).backgroundColor, surface:getComputedStyle(document.documentElement).getPropertyValue("--ui-surface") }))
         assert.ok(colors.surface && colors.background !== "rgba(0, 0, 0, 0)")
       }
-      if (artifacts && locale === "en" && width === 390 && ["/","/about/","/swag-drops/2026/","/widget/",`/profile/?id=${profileId}`].includes(route)) {
-        await page.screenshot({ path: `${artifacts}/${route.split("/").filter(Boolean).join("-").replace(/[?=]/g,"-") || "home"}-${theme}.png`, fullPage:true })
+      if (artifacts && locale === "en" && [390,428].includes(width) && ["/","/about/","/swag-drops/2026/","/widget/",`/profile/?id=${profileId}`].includes(route)) {
+        await page.screenshot({ path: `${artifacts}/${route.split("/").filter(Boolean).join("-").replace(/[?=]/g,"-") || "home"}-${width}-${theme}.png`, fullPage:true })
       }
       checks++
       await page.close()

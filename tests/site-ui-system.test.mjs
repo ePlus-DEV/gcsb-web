@@ -48,7 +48,7 @@ test("Arcade fonts are local and pixel headings cannot mix unsupported translate
   assert.match(layout, /weight: "100 900"/)
   assert.doesNotMatch(layout, /fonts\.googleapis\.com|fonts\.gstatic\.com/)
   assert.doesNotMatch(readRepoFile("app/styles/redesign-dashboard.css"), /fonts\.googleapis\.com/)
-  assert.match(readRepoFile("app/styles/site-ui.css"), /html\[lang="en"\].*hero-heading h1.*font-arcade-pixel/)
+  assert.match(readRepoFile("app/styles/redesign-dashboard.css"), /hero-heading h1.*font-arcade-pixel/)
 })
 
 test("Facilitator launcher mounts inside the analyzer rather than floating over its controls", () => {
