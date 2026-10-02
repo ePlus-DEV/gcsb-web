@@ -200,7 +200,7 @@ html:is(.light, .dark) .site-header .arcade-brand-mark { background: var(--ui-ac
 html:is(.light, .dark) .site-header .arcade-brand-copy { font-family: var(--font-arcade-pixel), monospace; }
 html:is(.light, .dark) .site-header .arcade-brand-copy strong { color: var(--ui-brand); }
 html:is(.light, .dark) .arcade-dashboard-v2 .arcade-hero { background: transparent; border: 0; box-shadow: none; }
-html[lang="en"] .arcade-dashboard-v2 .hero-heading h1 { font-family: var(--font-arcade-pixel), monospace; font-weight: 400; font-size: clamp(1.65rem, 3.2vw, 2.75rem); line-height: 1.4; letter-spacing: -.045em; }
+html[lang="en"] .arcade-dashboard-v2 .hero-heading h1 { font-family: var(--font-arcade-pixel), monospace; font-weight: 400; font-size: clamp(2rem, 4.1vw, 4.15rem); line-height: 1.18; letter-spacing: -.065em; text-shadow: 0 6px 0 rgb(0 0 0 / 25%); }
 html:is(.light, .dark) .arcade-dashboard-v2 .hero-heading h1 span { background: linear-gradient(110deg, #a855f7, #818cf8 55%, #22d3ee); background-clip: text; -webkit-background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
 html.light .arcade-dashboard-v2 .hero-heading h1 span { background-image: linear-gradient(110deg, #7c3aed, #4f46e5 55%, #0e7490); }
 html:is(.light, .dark) .arcade-dashboard-v2 :is(.pixel-kicker,.trust-pills span) { background: var(--ui-info-soft); color: var(--ui-info); border: 1px solid var(--ui-info-border); }
@@ -209,3 +209,11 @@ html:is(.light, .dark) .arcade-dashboard-v2 :is(.pixel-kicker,.trust-pills span)
 html:is(.light, .dark) .facilitator-launcher { position: static; inset: auto; display: none; transform: none; }
 html:is(.light, .dark) .facilitator-launcher-host .facilitator-launcher:not([hidden]) { display: flex; position: static; width: 100%; min-width: 0; max-width: none; min-height: 54px; padding: 12px 14px; border: 1px solid var(--ui-accent-border); border-radius: var(--ui-radius); background: var(--ui-accent-soft); color: var(--ui-text); box-shadow: none; transform: none; }
 html:is(.light, .dark) .facilitator-launcher-host .facilitator-launcher:hover { transform: none; }
+
+/* Match main typography; keep the pixel glyph grid at whole sizes on phones. */
+@media (max-width: 680px) {
+  html[lang="en"] .arcade-dashboard-v2 .hero-heading h1 { font-size: 2rem; }
+}
+@media (max-width: 380px) {
+  html[lang="en"] .arcade-dashboard-v2 .hero-heading h1 { font-size: 1.5rem; }
+}

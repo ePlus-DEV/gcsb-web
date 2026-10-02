@@ -53,6 +53,20 @@ async function open(route, theme, locale, width) {
     await document.fonts.load(`400 16px ${bodyFamily}`, 'Việt')
     if (!document.fonts.check(`400 16px ${bodyFamily}`, 'Việt')) throw new Error('Local body font is not loaded')
   })
+  // External requests are blocked above: icons must still have local glyphs.
+  for (const selector of ['.fa-solid', '.fa-brands']) {
+    const icon = page.locator(selector).first()
+    if (await icon.count()) {
+      const loaded = await icon.evaluate(async el => {
+        const style = getComputedStyle(el, '::before')
+        const font = `${style.fontWeight} 16px ${style.fontFamily}`
+        const glyph = style.content.replace(/^['"]|['"]$/g, '')
+        await document.fonts.load(font, glyph)
+        return glyph !== 'none' && glyph.length > 0 && document.fonts.check(font, glyph)
+      })
+      assert.equal(loaded, true, `${route}: ${selector} glyph font unavailable`)
+    }
+  }
   if (await page.locator(".cookie-consent-close").count()) await page.locator(".cookie-consent-close").click()
   return page
 }
@@ -71,6 +85,7 @@ try {
         })
         assert.ok(headingFont.family.includes('arcadePixel'),headingFont.family)
         assert.equal(headingFont.loaded,true)
+        if (width === 390) assert.equal(await page.locator(".hero-heading h1").evaluate(el=>getComputedStyle(el).fontSize), "32px")
       }
       const primary = page.locator(route === '/widget/' ? '.arcade-widget-form button[type="submit"]' : '.analyze-button')
       if (await primary.count()) {

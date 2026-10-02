@@ -57,3 +57,14 @@ test("Facilitator launcher mounts inside the analyzer rather than floating over 
   assert.match(source, /usePortalTarget\("\.facilitator-launcher-host"\)/)
   assert.match(source, /createPortal\(launcher, launcherTarget\)/)
 })
+
+ test("icon CSS and all font families ship locally without a CDN stylesheet", () => {
+  const layout = readRepoFile("app/layout.tsx")
+  assert.match(layout, /styles\/fontawesome-vendor.css/)
+  assert.doesNotMatch(layout, /cdnjs\.cloudflare\.com|fontAwesomeUrl/)
+  const css = readRepoFile("app/styles/fontawesome-vendor.css")
+  for (const family of ["solid-900", "regular-400", "brands-400"]) {
+    assert.ok(css.includes(`../fonts/fa-${family}.woff2`))
+    assert.ok(readFileSync(new URL(`../app/fonts/fa-${family}.woff2`, import.meta.url)).length > 1000)
+  }
+})

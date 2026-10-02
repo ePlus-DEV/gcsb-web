@@ -18,6 +18,7 @@ import "./styles/monthly-games.css"
 import "./styles/monthly-games-mobile-deadline.css"
 import "./styles/facilitator-panel.css"
 import "./styles/facilitator-syllabus.css"
+import "./styles/fontawesome-vendor.css"
 import "./styles/fontawesome-icons.css"
 import "./styles/website-language.css"
 import "./styles/theme-modes.css"
@@ -50,15 +51,12 @@ const arcadeBody = localFont({
 })
 const arcadePixel = localFont({
   src: "./fonts/press-start-2p.woff2",
+  adjustFontFallback: false,
   variable: "--font-arcade-pixel",
   weight: "400",
   style: "normal",
   display: "swap",
 })
-const fontAwesomeUrl =
-  "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
-const fontAwesomeIntegrity =
-  "sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
 const googleAnalyticsIdPattern = /^G-[A-Z0-9]+$/
 const analyticsRequested =
   process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === "true"
@@ -212,14 +210,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <script
           id="website-catalog-cache-buster"
           dangerouslySetInnerHTML={{ __html: websiteCatalogCacheBootstrap }}
-        />
-        <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
-        <link
-          rel="stylesheet"
-          href={fontAwesomeUrl}
-          integrity={fontAwesomeIntegrity}
-          crossOrigin="anonymous"
-          referrerPolicy="no-referrer"
         />
         {cookieNoticePreviewMode ? (
           <meta name="cookie-notice-preview" content="true" />

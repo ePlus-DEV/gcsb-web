@@ -8,3 +8,5 @@
 The pixel face is used for the fixed Latin brand and English hero. Other locale
 heroes use Inter plus system script fallbacks, avoiding unsupported glyphs being
 mixed into a pixel heading. Regular body copy uses the complete Inter variable font.
+
+Font Awesome Free 7.0.1 solid, regular and brand faces and CSS are bundled from the official `@fortawesome/fontawesome-free` npm package. The accompanying license covers the fonts and CSS. Icons and text fonts no longer require an external font stylesheet or CDN.
