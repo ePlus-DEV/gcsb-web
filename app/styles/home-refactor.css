@@ -176,7 +176,7 @@ html.light .arcade-dashboard-v2 .pixel-kicker {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 6px;
-  margin-bottom: 18px;
+  margin-bottom: 0;
   padding: 5px;
   border: 1px solid var(--v2-border);
   border-radius: 14px;
@@ -462,24 +462,315 @@ html.light .arcade-dashboard-v2 .program-countdown-card {
   border-radius: 999px;
 }
 
-/* Empty state should feel intentional, not like a placeholder wall. */
-.arcade-dashboard-v2 .dashboard-empty-state {
-  padding: clamp(22px, 4vw, 38px);
-  gap: 24px;
+/* Guest/profile mode lives with the dashboard it controls. */
+.arcade-dashboard-v2 .dashboard-mode-bar {
+  width: min(var(--v2-shell), calc(100% - (var(--v2-gutter) * 2)));
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 auto 14px;
 }
 
-.arcade-dashboard-v2 .empty-result-message {
-  max-width: 520px;
+.arcade-dashboard-v2 .dashboard-mode-bar .dashboard-view-switch {
+  width: min(430px, 100%);
+  margin: 0;
+}
+
+/* Guest dashboard: compact, visual and intentionally separate from profile data. */
+.arcade-dashboard-v2 .dashboard-empty-state.guest-dashboard {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  padding: clamp(20px, 3.2vw, 32px);
+  overflow: hidden;
+}
+
+.arcade-dashboard-v2 .guest-dashboard-hero {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 24px;
+  min-height: 170px;
+  padding: 24px 28px;
+  overflow: hidden;
+  border: 1px solid rgba(139, 92, 246, 0.44);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 18% 50%, rgba(255, 193, 7, 0.12), transparent 25%),
+    radial-gradient(circle at 88% 24%, rgba(124, 58, 237, 0.18), transparent 32%),
+    linear-gradient(135deg, rgba(15, 23, 52, 0.94), rgba(10, 17, 38, 0.92));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.035),
+    0 18px 44px rgba(0, 0, 0, 0.16);
+}
+
+.arcade-dashboard-v2 .guest-dashboard-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.24;
+  background-image:
+    linear-gradient(rgba(99, 102, 241, 0.11) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99, 102, 241, 0.11) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: linear-gradient(90deg, transparent, black 18%, black 82%, transparent);
+}
+
+.arcade-dashboard-v2 .guest-dashboard-orb {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 92px;
+  height: 92px;
+  border: 1px solid rgba(255, 193, 7, 0.52);
+  border-radius: 50%;
+  color: #ffd43b;
+  background:
+    radial-gradient(circle, rgba(255, 212, 59, 0.18), rgba(255, 159, 28, 0.05) 56%, transparent 58%),
+    rgba(11, 21, 42, 0.78);
+  box-shadow:
+    0 0 0 12px rgba(255, 193, 7, 0.035),
+    0 0 34px rgba(255, 193, 7, 0.16);
+}
+
+.arcade-dashboard-v2 .guest-dashboard-orb svg {
+  width: 38px;
+  height: 38px;
+}
+
+.arcade-dashboard-v2 .guest-dashboard-copy {
+  min-width: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.arcade-dashboard-v2 .guest-dashboard-copy strong {
+  color: var(--arcade-text);
+  font-size: clamp(1.35rem, 2.3vw, 2rem);
+  line-height: 1.15;
+  letter-spacing: -0.035em;
+}
+
+.arcade-dashboard-v2 .guest-dashboard-copy p {
+  max-width: 620px;
+  margin: 0;
+  color: var(--arcade-muted);
+  font-size: 0.92rem;
+  line-height: 1.65;
+}
+
+.arcade-dashboard-v2 .guest-dashboard-decoration {
+  align-self: stretch;
+  display: grid;
+  place-items: center;
+  width: 120px;
+  color: rgba(99, 102, 241, 0.24);
+  transform: rotate(-12deg) translateX(18px);
+}
+
+.arcade-dashboard-v2 .guest-dashboard-decoration svg {
+  width: 110px;
+  height: 110px;
+  stroke-width: 1.35;
+}
+
+html.light .arcade-dashboard-v2 .guest-dashboard-hero {
+  border-color: rgba(99, 102, 241, 0.24);
+  background:
+    radial-gradient(circle at 18% 50%, rgba(251, 191, 36, 0.13), transparent 25%),
+    radial-gradient(circle at 88% 24%, rgba(124, 58, 237, 0.10), transparent 32%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(246, 248, 255, 0.96));
+}
+
+.arcade-dashboard-v2 .guest-tier-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 2px;
+}
+
+.arcade-dashboard-v2 .guest-tier-heading > div {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.arcade-dashboard-v2 .guest-tier-heading-icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(192, 84, 255, 0.28);
+  border-radius: 11px;
+  background: rgba(124, 58, 237, 0.10);
+  color: #c054ff;
+}
+
+.arcade-dashboard-v2 .guest-tier-heading-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.arcade-dashboard-v2 .guest-tier-heading > div > div {
+  display: grid;
+  gap: 2px;
+}
+
+.arcade-dashboard-v2 .guest-tier-heading strong {
+  color: var(--arcade-text);
+  font-size: 0.88rem;
+  font-weight: 850;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+}
+
+.arcade-dashboard-v2 .guest-tier-heading span {
+  color: var(--arcade-muted);
+  font-size: 0.68rem;
 }
 
 .arcade-dashboard-v2 .empty-tier-grid {
-  gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
 }
 
-.arcade-dashboard-v2 .empty-tier-grid article {
-  border-color: var(--v2-border);
-  border-radius: var(--v2-radius-sm);
-  background: var(--v2-surface-soft);
+.arcade-dashboard-v2 .guest-tier-card {
+  --tier-accent: #8b5cf6;
+  --tier-soft: rgba(139, 92, 246, 0.12);
+  --tier-border: rgba(139, 92, 246, 0.30);
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  min-height: 108px;
+  padding: 14px 16px;
+  overflow: hidden;
+  border: 1px solid var(--tier-border);
+  border-radius: 16px;
+  background:
+    linear-gradient(110deg, var(--tier-soft), transparent 36%),
+    var(--v2-surface-soft);
+  box-shadow: inset 3px 0 0 var(--tier-accent);
+}
+
+.arcade-dashboard-v2 .guest-tier-card.tier-120 {
+  --tier-accent: #ffd43b;
+  --tier-soft: rgba(255, 212, 59, 0.09);
+  --tier-border: rgba(255, 212, 59, 0.28);
+}
+
+.arcade-dashboard-v2 .guest-tier-card.tier-95 {
+  --tier-accent: #c084fc;
+  --tier-soft: rgba(192, 132, 252, 0.10);
+  --tier-border: rgba(192, 132, 252, 0.30);
+}
+
+.arcade-dashboard-v2 .guest-tier-card.tier-75 {
+  --tier-accent: #3b82f6;
+  --tier-soft: rgba(59, 130, 246, 0.10);
+  --tier-border: rgba(59, 130, 246, 0.30);
+}
+
+.arcade-dashboard-v2 .guest-tier-card.tier-50 {
+  --tier-accent: #34d399;
+  --tier-soft: rgba(52, 211, 153, 0.10);
+  --tier-border: rgba(52, 211, 153, 0.28);
+}
+
+.arcade-dashboard-v2 .guest-tier-icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border: 1px solid var(--tier-border);
+  border-radius: 13px;
+  background: var(--tier-soft);
+  color: var(--tier-accent);
+  box-shadow: 0 0 24px var(--tier-soft);
+}
+
+.arcade-dashboard-v2 .guest-tier-icon svg {
+  width: 25px;
+  height: 25px;
+}
+
+.arcade-dashboard-v2 .guest-tier-main {
+  min-width: 0;
+  display: grid;
+  gap: 11px;
+}
+
+.arcade-dashboard-v2 .guest-tier-copy {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.arcade-dashboard-v2 .guest-tier-copy strong {
+  overflow: hidden;
+  color: var(--arcade-text);
+  font-size: 0.86rem;
+  font-weight: 850;
+  letter-spacing: 0.02em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.arcade-dashboard-v2 .guest-tier-copy span {
+  color: var(--arcade-muted);
+  font-size: 0.7rem;
+}
+
+.arcade-dashboard-v2 .guest-tier-progress {
+  height: 7px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(100, 116, 139, 0.17);
+}
+
+.arcade-dashboard-v2 .guest-tier-progress > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--tier-accent);
+  box-shadow: 0 0 14px var(--tier-soft);
+}
+
+.arcade-dashboard-v2 .guest-tier-availability {
+  min-width: 112px;
+  display: grid;
+  justify-items: end;
+  gap: 4px;
+  padding-left: 14px;
+  border-left: 1px solid var(--v2-border);
+  text-align: right;
+}
+
+.arcade-dashboard-v2 .guest-tier-availability > strong {
+  color: var(--arcade-text);
+  font-size: 0.9rem;
+  font-weight: 850;
+  font-variant-numeric: tabular-nums;
+}
+
+.arcade-dashboard-v2 .guest-tier-availability > strong span {
+  color: var(--arcade-muted);
+  font-weight: 600;
+}
+
+.arcade-dashboard-v2 .guest-tier-availability small {
+  color: var(--arcade-muted);
+  font-size: 0.62rem;
+}
+
+.arcade-dashboard-v2 .guest-tier-availability .tier-slot-delta {
+  margin-top: 1px;
+  font-size: 0.58rem;
 }
 
 /* Footer aligns with the workspace surfaces without competing with content. */
@@ -629,14 +920,133 @@ html.light .arcade-dashboard-v2 .program-countdown-card {
     border-radius: 16px;
   }
 
-  .arcade-dashboard-v2 .dashboard-view-switch {
-    margin-bottom: 14px;
+  .arcade-dashboard-v2 .dashboard-mode-bar {
+    width: calc(100% - 16px);
+    margin-bottom: 10px;
+  }
+
+  .arcade-dashboard-v2 .dashboard-mode-bar .dashboard-view-switch {
+    width: 100%;
   }
 
   .arcade-dashboard-v2 .dashboard-view-switch button {
-    min-height: 38px;
+    min-height: 42px;
     padding-inline: 8px;
-    font-size: 0.68rem;
+    font-size: 0.72rem;
+  }
+
+  .arcade-dashboard-v2 .dashboard-empty-state.guest-dashboard {
+    gap: 16px;
+    padding: 14px;
+    margin-bottom: 92px;
+    border-radius: 18px;
+  }
+
+  .arcade-dashboard-v2 .guest-dashboard-hero {
+    grid-template-columns: 64px minmax(0, 1fr);
+    gap: 14px;
+    min-height: 0;
+    padding: 18px 16px;
+    border-radius: 16px;
+  }
+
+  .arcade-dashboard-v2 .guest-dashboard-orb {
+    width: 58px;
+    height: 58px;
+    box-shadow:
+      0 0 0 7px rgba(255, 193, 7, 0.025),
+      0 0 24px rgba(255, 193, 7, 0.12);
+  }
+
+  .arcade-dashboard-v2 .guest-dashboard-orb svg {
+    width: 26px;
+    height: 26px;
+  }
+
+  .arcade-dashboard-v2 .guest-dashboard-copy {
+    gap: 7px;
+  }
+
+  .arcade-dashboard-v2 .guest-dashboard-copy strong {
+    font-size: 1.05rem;
+    line-height: 1.25;
+  }
+
+  .arcade-dashboard-v2 .guest-dashboard-copy p {
+    font-size: 0.76rem;
+    line-height: 1.5;
+  }
+
+  .arcade-dashboard-v2 .guest-dashboard-decoration {
+    display: none;
+  }
+
+  .arcade-dashboard-v2 .guest-tier-heading {
+    margin-top: 0;
+  }
+
+  .arcade-dashboard-v2 .guest-tier-heading-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .arcade-dashboard-v2 .guest-tier-heading strong {
+    font-size: 0.8rem;
+  }
+
+  .arcade-dashboard-v2 .empty-tier-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .arcade-dashboard-v2 .guest-tier-card {
+    grid-template-columns: 46px minmax(0, 1fr) auto;
+    gap: 11px;
+    min-height: 88px;
+    padding: 11px 12px;
+    border-radius: 14px;
+  }
+
+  .arcade-dashboard-v2 .guest-tier-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 11px;
+  }
+
+  .arcade-dashboard-v2 .guest-tier-icon svg {
+    width: 21px;
+    height: 21px;
+  }
+
+  .arcade-dashboard-v2 .guest-tier-main {
+    gap: 8px;
+  }
+
+  .arcade-dashboard-v2 .guest-tier-copy strong {
+    font-size: 0.78rem;
+  }
+
+  .arcade-dashboard-v2 .guest-tier-copy span {
+    font-size: 0.64rem;
+  }
+
+  .arcade-dashboard-v2 .guest-tier-progress {
+    height: 6px;
+  }
+
+  .arcade-dashboard-v2 .guest-tier-availability {
+    min-width: 94px;
+    gap: 2px;
+    padding-left: 10px;
+  }
+
+  .arcade-dashboard-v2 .guest-tier-availability > strong {
+    font-size: 0.78rem;
+  }
+
+  .arcade-dashboard-v2 .guest-tier-availability small {
+    max-width: 88px;
+    font-size: 0.56rem;
   }
 
   .arcade-dashboard-v2 .profile-input {
