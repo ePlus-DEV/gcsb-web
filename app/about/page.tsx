@@ -77,16 +77,16 @@ export default function AboutPage() {
       description="A community-built Google Cloud Arcade calculator and badge tracker focused on clarity, useful progress information, and a mobile-friendly experience."
     >
       <div className="not-prose space-y-10">
-        <section className="overflow-hidden rounded-2xl border border-cyan-200 bg-gradient-to-br from-cyan-50 via-white to-violet-50 p-5 dark:border-cyan-300/15 dark:from-cyan-300/[0.06] dark:via-white/[0.025] dark:to-violet-300/[0.06] sm:p-8">
+        <section className="overflow-hidden rounded-[var(--ui-radius-lg)] border border-cyan-200 bg-gradient-to-br from-cyan-50 via-white to-violet-50 p-5 dark:border-cyan-300/15 dark:from-cyan-300/[0.06] dark:via-white/[0.025] dark:to-violet-300/[0.06] sm:p-8">
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1.45fr)_minmax(230px,.65fr)] lg:items-center">
             <div>
               <span className="text-[11px] font-bold uppercase tracking-[.18em] text-cyan-700 dark:text-cyan-300">
                 Built for learners
               </span>
-              <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-slate-950 dark:text-white sm:text-3xl">
+              <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
                 Turn your public badges into a clearer progress overview
               </h2>
-              <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-600 dark:text-slate-300">
+              <p className="mt-4 max-w-3xl text-sm leading-7 text-muted-foreground">
                 Arcade Points by ePlus.DEV helps you understand badge activity already visible on
                 your public Google Skills profile. It summarizes supported badges, estimates Arcade
                 points, and shows where you stand against reward and Facilitator milestones.
@@ -106,15 +106,15 @@ export default function AboutPage() {
                 </Link>
               </div>
             </div>
-            <aside className="rounded-2xl border border-slate-200 bg-white/80 p-5 shadow-sm dark:border-white/10 dark:bg-slate-950/60">
+            <aside className="site-surface rounded-[var(--ui-radius-lg)] border border-slate-200 bg-white/80 p-5 shadow-sm dark:border-white/10 dark:bg-slate-950/60">
               <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[.12em] text-emerald-700 dark:text-emerald-300">
                 <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
                 Public-profile tool
               </div>
-              <p className="mt-3 text-lg font-bold text-slate-900 dark:text-white">
+              <p className="mt-3 text-lg font-bold text-foreground">
                 No password. No account connection.
               </p>
-              <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
                 Paste a public Google Skills profile URL to inspect supported badge activity and
                 estimate your progress.
               </p>
@@ -133,10 +133,10 @@ export default function AboutPage() {
             <span className="text-[11px] font-bold uppercase tracking-[.18em] text-violet-700 dark:text-violet-300">
               What the tool does
             </span>
-            <h2 id="about-features-title" className="mt-2 text-2xl font-bold text-slate-950 dark:text-white sm:text-3xl">
+            <h2 id="about-features-title" className="mt-2 text-2xl font-bold text-foreground sm:text-3xl">
               All the useful Arcade information in one place
             </h2>
-            <p className="mt-2 max-w-3xl text-sm leading-7 text-slate-600 dark:text-slate-400">
+            <p className="mt-2 max-w-3xl text-sm leading-7 text-muted-foreground">
               Review supported badges, estimated points, reward tiers, and optional Facilitator progress
               without manually comparing separate program dashboards.
             </p>
@@ -145,20 +145,20 @@ export default function AboutPage() {
             {features.map((feature) => (
               <article
                 key={feature.number}
-                className="rounded-2xl border border-slate-200 bg-slate-50/80 p-5 transition hover:border-cyan-300 hover:shadow-md dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-cyan-300/30 sm:p-6"
+                className="rounded-[var(--ui-radius-lg)] border border-slate-200 bg-slate-50/80 p-5 transition hover:border-cyan-300 hover:shadow-md dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-cyan-300/30 sm:p-6"
               >
                 <div className="flex items-center gap-3">
                   <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-200 bg-cyan-100 font-mono text-sm font-black text-cyan-800 dark:border-cyan-300/20 dark:bg-cyan-300/10 dark:text-cyan-200">
                     {feature.number}
                   </span>
-                  <span className="text-[11px] font-bold uppercase tracking-[.14em] text-slate-500 dark:text-slate-400">
+                  <span className="text-[11px] font-bold uppercase tracking-[.14em] text-muted-foreground">
                     {feature.label}
                   </span>
                 </div>
-                <h3 className="mt-5 text-lg font-bold text-slate-950 dark:text-white">
+                <h3 className="mt-5 text-lg font-bold text-foreground">
                   {feature.title}
                 </h3>
-                <p className="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300">
+                <p className="mt-2 text-sm leading-7 text-muted-foreground">
                   {feature.description}
                 </p>
               </article>
@@ -167,14 +167,14 @@ export default function AboutPage() {
         </section>
 
         <section className="grid gap-5 xl:grid-cols-[1.1fr_.9fr]">
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/[0.035] sm:p-7">
+          <div className="site-surface rounded-[var(--ui-radius-lg)] border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/[0.035] sm:p-7">
             <span className="text-[11px] font-bold uppercase tracking-[.18em] text-emerald-700 dark:text-emerald-300">
               Why it exists
             </span>
-            <h2 className="mt-2 text-2xl font-bold text-slate-950 dark:text-white">
+            <h2 className="mt-2 text-2xl font-bold text-foreground">
               Less manual checking. More useful context.
             </h2>
-            <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">
+            <p className="mt-3 text-sm leading-7 text-muted-foreground">
               Arcade badge lists and reward rules can be difficult to review across multiple
               campaigns. This independent tool brings useful information into one dashboard
               without asking for private account access.
@@ -185,10 +185,10 @@ export default function AboutPage() {
                   <span className="font-mono text-xs font-bold text-cyan-700 dark:text-cyan-300">
                     {step.number}
                   </span>
-                  <h3 className="mt-1 text-base font-semibold text-slate-950 dark:text-white">
+                  <h3 className="mt-1 text-base font-semibold text-foreground">
                     {step.title}
                   </h3>
-                  <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-400">
+                  <p className="mt-1 text-sm leading-6 text-muted-foreground">
                     {step.description}
                   </p>
                 </div>
@@ -196,18 +196,18 @@ export default function AboutPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-violet-200 bg-violet-50 p-5 dark:border-violet-300/15 dark:bg-violet-300/[0.045] sm:p-7">
+          <div className="rounded-[var(--ui-radius-lg)] border border-violet-200 bg-violet-50 p-5 dark:border-violet-300/15 dark:bg-violet-300/[0.045] sm:p-7">
             <span className="text-[11px] font-bold uppercase tracking-[.18em] text-violet-700 dark:text-violet-300">
               How calculations should be understood
             </span>
-            <h2 className="mt-2 text-2xl font-bold text-slate-950 dark:text-white">
+            <h2 className="mt-2 text-2xl font-bold text-foreground">
               Transparent estimates, not official results
             </h2>
-            <p className="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-300">
+            <p className="mt-4 text-sm leading-7 text-muted-foreground">
               Calculations use supported badge mappings and public profile information. Google
               may change badge rules, eligibility, tiers, deadlines, or reward availability.
             </p>
-            <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-400">
+            <p className="mt-3 text-sm leading-7 text-muted-foreground">
               Reaching a point threshold does not guarantee a physical reward. Official
               program pages and Google communications remain the final source of truth.
             </p>
@@ -221,14 +221,14 @@ export default function AboutPage() {
         </section>
 
         <section className="grid gap-4 md:grid-cols-2">
-          <article className="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-5 dark:border-emerald-300/15 dark:bg-emerald-300/[0.045] sm:p-7">
+          <article className="rounded-[var(--ui-radius-lg)] border border-emerald-200 bg-emerald-50/70 p-5 dark:border-emerald-300/15 dark:bg-emerald-300/[0.045] sm:p-7">
             <span className="text-[11px] font-bold uppercase tracking-[.18em] text-emerald-700 dark:text-emerald-300">
               Privacy by design
             </span>
-            <h2 className="mt-2 text-xl font-bold text-slate-950 dark:text-white">
+            <h2 className="mt-2 text-xl font-bold text-foreground">
               Public information, not your credentials
             </h2>
-            <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">
+            <p className="mt-3 text-sm leading-7 text-muted-foreground">
               The calculator only asks for a public profile URL and never your Google password.
               Recent results and preferences may be saved locally in your browser.
             </p>
@@ -236,14 +236,14 @@ export default function AboutPage() {
               Privacy policy
             </Link>
           </article>
-          <article className="rounded-2xl border border-slate-200 bg-slate-50/80 p-5 dark:border-white/10 dark:bg-white/[0.035] sm:p-7">
-            <span className="text-[11px] font-bold uppercase tracking-[.18em] text-slate-600 dark:text-slate-400">
+          <article className="site-surface rounded-[var(--ui-radius-lg)] border border-slate-200 bg-slate-50/80 p-5 dark:border-white/10 dark:bg-white/[0.035] sm:p-7">
+            <span className="text-[11px] font-bold uppercase tracking-[.18em] text-muted-foreground">
               Independent community project
             </span>
-            <h2 className="mt-2 text-xl font-bold text-slate-950 dark:text-white">
+            <h2 className="mt-2 text-xl font-bold text-foreground">
               Built by ePlus.DEV, not Google
             </h2>
-            <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">
+            <p className="mt-3 text-sm leading-7 text-muted-foreground">
               Arcade Points is developed by ePlus.DEV. It is not affiliated with, sponsored by,
               or endorsed by Google. Google Cloud, Google Skills, and related names remain the
               property of their respective owners.
@@ -251,16 +251,16 @@ export default function AboutPage() {
           </article>
         </section>
 
-        <section className="rounded-2xl border border-cyan-200 bg-gradient-to-r from-cyan-50 to-slate-50 p-5 dark:border-cyan-300/15 dark:from-cyan-300/[0.06] dark:to-slate-950/40 sm:p-7">
+        <section className="rounded-[var(--ui-radius-lg)] border border-cyan-200 bg-gradient-to-r from-cyan-50 to-slate-50 p-5 dark:border-cyan-300/15 dark:from-cyan-300/[0.06] dark:to-slate-950/40 sm:p-7">
           <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-center">
             <div>
               <span className="text-[11px] font-bold uppercase tracking-[.18em] text-cyan-700 dark:text-cyan-300">
                 Get started
               </span>
-              <h2 className="mt-2 text-2xl font-bold text-slate-950 dark:text-white">
+              <h2 className="mt-2 text-2xl font-bold text-foreground">
                 Ready to check your Arcade points?
               </h2>
-              <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-300">
+              <p className="mt-2 max-w-2xl text-sm leading-7 text-muted-foreground">
                 Follow the step-by-step guide to make your profile public, or go directly to
                 the calculator and paste your public Google Skills URL.
               </p>

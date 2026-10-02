@@ -1,6 +1,7 @@
-import Link from "next/link"
+import SiteHeader from "./site-header"
+import SiteFooter from "./site-footer"
 import type { ReactNode } from "react"
-import { Gamepad2, Sparkles } from "lucide-react"
+import { Sparkles } from "lucide-react"
 import InternalBreadcrumbs from "@/components/site/internal-breadcrumbs"
 
 export default function InternalPageShell({
@@ -17,25 +18,10 @@ export default function InternalPageShell({
   children: ReactNode
 }) {
   return (
-    <div className="arcade-dashboard-page min-h-screen">
+    <div className="arcade-dashboard-page site-content-page min-h-screen">
       <div className="arcade-stars" aria-hidden="true" />
 
-      <header className="arcade-header">
-        <Link className="arcade-brand" href="/" aria-label="Arcade Points home">
-          <span className="arcade-brand-mark"><Gamepad2 /></span>
-          <span className="arcade-brand-copy"><strong>ARCADE</strong><b>POINTS</b></span>
-          <em>PRO</em>
-        </Link>
-
-        <nav className="arcade-nav" aria-label="Main navigation">
-          <Link href="/">Calculator</Link>
-          <Link href="/#tiers">Tiers</Link>
-          <Link href="/#badges">Badges</Link>
-          <Link href="/#extension">Extension</Link>
-        </nav>
-
-        <div className="arcade-header-actions" />
-      </header>
+      <SiteHeader />
 
       <main className="internal-page-main">
         <section className="internal-page-hero relative overflow-hidden border-b border-white/10">
@@ -54,7 +40,7 @@ export default function InternalPageShell({
         </section>
 
         <section className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
-          <div className="internal-content-card rounded-3xl border border-white/10 bg-white/[0.035] p-6 shadow-2xl shadow-black/20 sm:p-10">
+          <div className="internal-content-card site-surface p-6 sm:p-10">
             <div className="internal-prose prose prose-invert max-w-none prose-headings:scroll-mt-24 prose-headings:text-white prose-p:text-slate-300 prose-li:text-slate-300 prose-a:text-cyan-300">
               {children}
             </div>
@@ -62,18 +48,7 @@ export default function InternalPageShell({
         </section>
       </main>
 
-      <footer className="internal-page-footer border-t border-white/10">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-8 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <p>© {new Date().getFullYear()} ePlus.DEV. <span>Independent community project.</span></p>
-          <div className="flex gap-4">
-            <Link href="/" className="hover:text-white">Calculator</Link>
-            <Link href="/about/" className="hover:text-white">About</Link>
-            <Link href="/guide/" className="hover:text-white">Guide</Link>
-            <Link href="/privacy/" className="hover:text-white">Privacy</Link>
-            <Link href="/terms/" className="hover:text-white">Terms</Link>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   )
 }

@@ -147,17 +147,17 @@ function TierRewardRow({ tier }: { tier: ArcadeSwagTier }) {
           >
             Arcade {meta.label}
           </span>
-          <h3 className="mt-2 text-xl font-bold text-slate-950 dark:text-white">
+          <h3 className="mt-2 text-xl font-bold text-foreground">
             {meta.pointsLabel}
           </h3>
-          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+          <p className="mt-1 text-xs text-muted-foreground">
             {`${meta.slots.toLocaleString("en-US")} total prize slots`}
           </p>
         </div>
 
         <div className="min-w-0 lg:border-l lg:border-slate-200 lg:pl-5 dark:lg:border-white/10">
           <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-[.12em] text-slate-500 dark:text-slate-400">
+            <span className="text-[10px] font-bold uppercase tracking-[.12em] text-muted-foreground">
               Current reward lineup
             </span>
             <span className="text-[10px] font-semibold text-slate-400">
@@ -184,7 +184,7 @@ function TierRewardRow({ tier }: { tier: ArcadeSwagTier }) {
                     <span className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-[.1em] text-emerald-700 dark:text-emerald-300">
                       <CheckCircle2 className="h-3 w-3" aria-hidden="true" /> Revealed
                     </span>
-                    <strong className="mt-0.5 block truncate text-sm text-slate-950 dark:text-white">
+                    <strong className="mt-0.5 block truncate text-sm text-foreground">
                       {drop.shortName}
                     </strong>
                     <span className="mt-0.5 block truncate text-[10px] text-slate-500">
@@ -210,7 +210,7 @@ function TierRewardRow({ tier }: { tier: ArcadeSwagTier }) {
                     <span className="block text-[9px] font-bold uppercase tracking-[.1em] text-amber-700 dark:text-amber-300">
                       Officially promised
                     </span>
-                    <strong className="mt-0.5 block truncate text-sm text-slate-950 dark:text-white">
+                    <strong className="mt-0.5 block truncate text-sm text-foreground">
                       {item.title}
                     </strong>
                     <span className="mt-0.5 block truncate text-[10px] text-slate-500">
@@ -247,10 +247,10 @@ function TierRewardRow({ tier }: { tier: ArcadeSwagTier }) {
           />
 
           <div className="min-w-0 lg:border-l lg:border-slate-200 lg:pl-4 dark:lg:border-white/10">
-            <span className="block text-[9px] font-bold uppercase tracking-[.1em] text-slate-500 dark:text-slate-400">
+            <span className="block text-[9px] font-bold uppercase tracking-[.1em] text-muted-foreground">
               Projected package
             </span>
-            <strong className="mt-0.5 block text-base text-slate-950 dark:text-white">
+            <strong className="mt-0.5 block text-base text-foreground">
               {`≈${meta.historicalEstimateItems} items`}
             </strong>
             <span className="block text-[10px] text-slate-500">
@@ -259,10 +259,10 @@ function TierRewardRow({ tier }: { tier: ArcadeSwagTier }) {
           </div>
 
           <div className="min-w-0 lg:border-l lg:border-slate-200 lg:pl-4 dark:lg:border-white/10">
-            <span className="block text-[9px] font-bold uppercase tracking-[.1em] text-slate-500 dark:text-slate-400">
+            <span className="block text-[9px] font-bold uppercase tracking-[.1em] text-muted-foreground">
               Known now
             </span>
-            <strong className="mt-0.5 block text-base text-slate-950 dark:text-white">
+            <strong className="mt-0.5 block text-base text-foreground">
               {knownCount}
             </strong>
             <span className="block text-[10px] text-slate-500">
@@ -273,10 +273,10 @@ function TierRewardRow({ tier }: { tier: ArcadeSwagTier }) {
           <div className="min-w-0 lg:border-l lg:border-slate-200 lg:pl-4 dark:lg:border-white/10">
             <div className="flex items-end justify-between gap-2">
               <div>
-                <span className="block whitespace-nowrap text-[9px] font-bold uppercase tracking-[.1em] text-slate-500 dark:text-slate-400">
+                <span className="block whitespace-nowrap text-[9px] font-bold uppercase tracking-[.1em] text-muted-foreground">
                   Swag still unrevealed
                 </span>
-                <strong className="mt-0.5 block text-base text-slate-950 dark:text-white">
+                <strong className="mt-0.5 block text-base text-foreground">
                   ≈{projectedMystery}
                 </strong>
               </div>
@@ -341,7 +341,7 @@ export default function SwagDrops2026Page() {
 
       <div className="not-prose space-y-8">
         {latest ? (
-          <section className="grid overflow-hidden rounded-3xl border border-cyan-300/20 bg-gradient-to-br from-cyan-50 via-white to-violet-50 shadow-md dark:from-cyan-950/20 dark:via-slate-950/80 dark:to-violet-950/20 lg:grid-cols-[0.8fr_1.2fr]">
+          <section className="grid overflow-hidden rounded-[var(--ui-radius-lg)] border border-cyan-300/20 bg-gradient-to-br from-cyan-50 via-white to-violet-50 shadow-md dark:from-cyan-950/20 dark:via-slate-950/80 dark:to-violet-950/20 lg:grid-cols-[0.8fr_1.2fr]">
             <div className="flex min-h-48 items-center justify-center bg-white/50 p-4 dark:bg-black/10">
               <SwagArtwork
                 src={latest.imageUrl}
@@ -353,10 +353,10 @@ export default function SwagDrops2026Page() {
               <span className="inline-flex w-fit items-center gap-2 rounded-full bg-cyan-100 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[.12em] text-cyan-800 dark:bg-cyan-300/10 dark:text-cyan-200">
                 <Sparkles className="h-3.5 w-3.5" aria-hidden="true" /> {`${season} swag drop #${latest.dropNumber}`}
               </span>
-              <h2 className="mt-3 text-2xl font-bold tracking-tight text-slate-950 dark:text-white">
+              <h2 className="mt-3 text-2xl font-bold tracking-tight text-foreground">
                 {latest.shortName}
               </h2>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-300">
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
                 {latest.summary}
               </p>
               <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -393,11 +393,11 @@ export default function SwagDrops2026Page() {
             <div>
               <h2
                 id="tier-rewards-heading"
-                className="text-2xl font-bold text-slate-950 dark:text-white"
+                className="text-2xl font-bold text-foreground"
               >
                 2026 rewards by tier
               </h2>
-              <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-500 dark:text-slate-400">
+              <p className="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">
                 Reward names stay prominent, while live prize slots and package progress sit in a separate status bar underneath each tier.
               </p>
             </div>
@@ -421,7 +421,7 @@ export default function SwagDrops2026Page() {
           </div>
         </section>
 
-        <details className="group rounded-2xl border border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-white/[0.025]">
+        <details className="site-surface group rounded-[var(--ui-radius-lg)] border border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-white/[0.025]">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-4 text-sm font-semibold text-slate-800 marker:hidden dark:text-slate-100">
             <span>
               Why are package totals marked with ≈?
@@ -441,7 +441,7 @@ export default function SwagDrops2026Page() {
                   <span className="text-[9px] font-bold uppercase tracking-[.12em] text-slate-500">
                     Arcade {SWAG_TIER_META[tier].label}
                   </span>
-                  <strong className="mt-1 block text-lg text-slate-950 dark:text-white">
+                  <strong className="mt-1 block text-lg text-foreground">
                     {`${PREVIOUS_SEASON_COUNTS[tier]} items`}
                   </strong>
                   <span className="mt-0.5 block text-[10px] text-slate-500">
@@ -450,7 +450,7 @@ export default function SwagDrops2026Page() {
                 </div>
               ))}
             </div>
-            <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400">
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
               <span>
                 2026 estimates use this completed season plus Google&apos;s published Snowball relationships.
               </span>
@@ -473,12 +473,12 @@ export default function SwagDrops2026Page() {
                 <Trophy className="h-5 w-5 text-amber-500" aria-hidden="true" />
                 <h2
                   id="hall-heading"
-                  className="text-xl font-bold text-slate-950 dark:text-white"
+                  className="text-xl font-bold text-foreground"
                 >
                   Hall of Swag Winners
                 </h2>
               </div>
-              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              <p className="mt-1 text-xs text-muted-foreground">
                 Verified community delivery photos from public Google Developer forum posts.
               </p>
             </div>
@@ -494,7 +494,7 @@ export default function SwagDrops2026Page() {
                 href={item.sourceUrl}
                 target="_blank"
                 rel="noreferrer noopener"
-                className="group grid overflow-hidden rounded-2xl border border-slate-200 bg-white transition hover:border-cyan-300 hover:shadow-md dark:border-white/10 dark:bg-white/[0.03] sm:grid-cols-[132px_1fr]"
+                className="group grid overflow-hidden rounded-[var(--ui-radius-lg)] border border-slate-200 bg-white transition hover:border-cyan-300 hover:shadow-md dark:border-white/10 dark:bg-white/[0.03] sm:grid-cols-[132px_1fr]"
               >
                 <div className="h-28 overflow-hidden bg-slate-100 dark:bg-black/20 sm:h-full sm:min-h-24">
                   <SwagArtwork
@@ -505,7 +505,7 @@ export default function SwagDrops2026Page() {
                 </div>
                 <div className="flex min-w-0 items-center justify-between gap-3 p-3">
                   <div className="min-w-0">
-                    <strong className="block truncate text-sm text-slate-950 dark:text-white">
+                    <strong className="block truncate text-sm text-foreground">
                       {item.title}
                     </strong>
                     <span className="mt-1 block text-xs text-slate-500">{item.subtitle}</span>

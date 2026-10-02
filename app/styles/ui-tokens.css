@@ -1,0 +1,73 @@
+/* One theme contract for the dashboard, content, shared profiles and embeds.
+   hsl channels also power the Radix/Tailwind primitives. */
+:root {
+  color-scheme: dark;
+  --background: 224 43% 7%;
+  --foreground: 216 33% 94%;
+  --card: 222 38% 11%;
+  --card-foreground: var(--foreground);
+  --popover: 222 38% 11%;
+  --popover-foreground: var(--foreground);
+  --primary: 258 72% 54%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 222 28% 16%;
+  --secondary-foreground: var(--foreground);
+  --muted: 222 28% 16%;
+  --muted-foreground: 215 18% 68%;
+  --accent: 258 30% 20%;
+  --accent-foreground: 258 90% 82%;
+  --destructive: 0 74% 58%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 220 24% 22%;
+  --input: var(--border);
+  --ring: var(--primary);
+  --radius: .75rem;
+  --ui-bg: hsl(var(--background));
+  --ui-surface: hsl(var(--card));
+  --ui-soft: hsl(var(--secondary));
+  --ui-text: hsl(var(--foreground));
+  --ui-muted: hsl(var(--muted-foreground));
+  --ui-border: hsl(var(--border));
+  --ui-accent: hsl(var(--accent-foreground));
+  --ui-primary: hsl(var(--primary));
+  --ui-accent-soft: hsl(var(--accent));
+  --ui-accent-border: hsl(var(--primary) / .35);
+  --ui-on-accent: hsl(var(--primary-foreground));
+  --ui-shadow: 0 4px 16px hsl(224 50% 3% / .12);
+  --ui-overlay: hsl(224 50% 3% / .65);
+  --ui-success: #34d399;
+  --ui-warning: #fbbf24;
+  --ui-error: #f87171;
+  --ui-radius: .75rem;
+  --ui-radius-sm: .5rem;
+  --ui-radius-lg: 1rem;
+  --ui-width: 1200px;
+  --ui-gutter: 24px;
+  --ui-space: 1rem;
+  --ui-control-height: 44px;
+  --ui-z-header: 40;
+  --ui-z-overlay: 120;
+  --ui-z-dialog: 130;
+  --ui-z-toast: 160;
+}
+html.light, html[data-widget-theme="light"] {
+  color-scheme: light;
+  --background: 220 30% 97%;
+  --foreground: 222 38% 16%;
+  --card: 0 0% 100%;
+  --popover: 0 0% 100%;
+  --primary: 258 66% 48%;
+  --secondary: 220 28% 94%;
+  --muted: 220 28% 94%;
+  --muted-foreground: 215 17% 40%;
+  --accent: 258 72% 96%;
+  --accent-foreground: 258 66% 40%;
+  --border: 220 20% 86%;
+  --ui-shadow: 0 4px 16px hsl(222 38% 16% / .04);
+  --ui-success: #047857;
+  --ui-warning: #a16207;
+  --ui-error: #b91c1c;
+}
+@media (max-width: 640px) {
+  :root { --ui-gutter: 16px; }
+}

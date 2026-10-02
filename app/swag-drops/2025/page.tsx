@@ -102,7 +102,7 @@ export default function SwagHistory2025Page() {
               <a
                 key={season.season}
                 href={`#season-${season.season}`}
-                className="group overflow-hidden rounded-2xl border border-slate-200 bg-white transition hover:border-cyan-300 hover:shadow-md dark:border-white/10 dark:bg-white/[0.03]"
+                className="group overflow-hidden rounded-[var(--ui-radius-lg)] border border-slate-200 bg-white transition hover:border-cyan-300 hover:shadow-md dark:border-white/10 dark:bg-white/[0.03]"
               >
                 <div className="grid h-28 grid-cols-3 overflow-hidden border-b border-slate-100 bg-slate-50 dark:border-white/10 dark:bg-black/20">
                   {previews.map((preview) => (
@@ -129,10 +129,10 @@ export default function SwagHistory2025Page() {
                       {season.periodLabel}
                     </span>
                   </div>
-                  <h2 className="mt-4 text-xl font-bold text-slate-950 dark:text-white">
+                  <h2 className="mt-4 text-xl font-bold text-foreground">
                     {`Season ${season.season}`}
                   </h2>
-                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                  <p className="mt-1 text-sm text-muted-foreground">
                     {`${season.packages.length} tiers · ${totalPackageItems} tier-item entries`}
                   </p>
                 </div>
@@ -151,10 +151,10 @@ export default function SwagHistory2025Page() {
               aria-labelledby={`season-${season.season}-heading`}
               className="scroll-mt-24"
             >
-              <div className="mb-5 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-white/[0.025]">
+              <div className="site-surface mb-5 overflow-hidden rounded-[var(--ui-radius-lg)] border border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-white/[0.025]">
                 <div className="border-b border-slate-200 bg-slate-100/80 p-3 dark:border-white/10 dark:bg-black/20">
                   <div className="mb-2 flex items-center justify-between gap-3 px-1">
-                    <span className="text-xs font-bold uppercase tracking-[.12em] text-slate-500 dark:text-slate-400">
+                    <span className="text-xs font-bold uppercase tracking-[.12em] text-muted-foreground">
                       {`${uniqueItems.length} items`}
                     </span>
                     <span
@@ -204,11 +204,11 @@ export default function SwagHistory2025Page() {
                       </div>
                       <h2
                         id={`season-${season.season}-heading`}
-                        className="mt-2 text-2xl font-bold text-slate-950 dark:text-white"
+                        className="mt-2 text-2xl font-bold text-foreground"
                       >
                         {`Google Skills Arcade 2025 · Season ${season.season}`}
                       </h2>
-                      <p className="mt-2 max-w-4xl text-sm leading-6 text-slate-600 dark:text-slate-300">
+                      <p className="mt-2 max-w-4xl text-sm leading-6 text-muted-foreground">
                         {season.distributionRule}
                       </p>
                     </div>
@@ -267,10 +267,10 @@ export default function SwagHistory2025Page() {
                           <Trophy className="h-4 w-4" aria-hidden="true" />
                         </span>
                         <div>
-                          <h3 className="text-lg font-bold capitalize text-slate-950 dark:text-white">
+                          <h3 className="text-lg font-bold capitalize text-foreground">
                             {`Arcade ${tier.tier}`}
                           </h3>
-                          <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                          <p className="text-xs font-medium text-muted-foreground">
                             {tier.pointsLabel}
                           </p>
                         </div>
@@ -306,10 +306,10 @@ export default function SwagHistory2025Page() {
 
                             <span className="flex min-w-0 items-start justify-between gap-3 px-3 py-3">
                               <span className="min-w-0">
-                                <strong className="block text-sm leading-5 text-slate-900 dark:text-white">
+                                <strong className="block text-sm leading-5 text-foreground">
                                   {item.name}
                                 </strong>
-                                <span className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] text-slate-500 dark:text-slate-400">
+                                <span className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] text-muted-foreground">
                                   <span>{sourceLabel(item.sourceKind)}</span>
                                   {item.revealedOnIso ? (
                                     <time dateTime={item.revealedOnIso}>

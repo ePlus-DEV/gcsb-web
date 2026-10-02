@@ -1,0 +1,21 @@
+/* Embeds share the site palette and primitives but keep their own layout/theme. */
+html:is(.light, .dark) .arcade-widget-card.arcade-widget-card {
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-lg);
+  background: var(--ui-surface);
+  color: var(--ui-text);
+  box-shadow: var(--ui-shadow);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+html:is(.light, .dark) .arcade-widget-card::before { display: none; }
+html:is(.light, .dark) .arcade-widget-head { border-color: var(--ui-border); }
+html:is(.light, .dark) :is(.arcade-widget-icon,.arcade-widget-extension-icon) { background: var(--ui-accent-soft); color: var(--ui-accent); box-shadow: none; border-radius: var(--ui-radius-sm); }
+html:is(.light, .dark) :is(.arcade-widget-copy h2,.arcade-widget-result-copy > strong,.arcade-widget-overview strong,.arcade-widget-breakdown strong,.arcade-widget-brand-copy strong,.arcade-widget-promo-heading strong,.arcade-widget-extension-copy strong) { color: var(--ui-text); }
+html:is(.light, .dark) :is(.arcade-widget-copy p,.arcade-widget-brand-copy span,.arcade-widget-result-copy > small,.arcade-widget-result-copy > span,.arcade-widget-overview span,.arcade-widget-breakdown span,.arcade-widget-promo-heading span,.arcade-widget-extension-copy span,.arcade-widget-result-meta span) { color: var(--ui-muted); }
+html:is(.light, .dark) :is(.arcade-widget-input,.arcade-widget-overview article,.arcade-widget-breakdown article,.arcade-widget-extension,.arcade-widget-promo) { border-color: var(--ui-border); border-radius: var(--ui-radius); background: var(--ui-soft); box-shadow: none; }
+html:is(.light, .dark) .arcade-widget-input input { color: var(--ui-text); }
+html:is(.light, .dark) .arcade-widget-input input::placeholder { color: var(--ui-muted); }
+html:is(.light, .dark) :is(.arcade-widget-open-link,.arcade-widget-extension-actions a,.arcade-widget-dashboard-cta,.arcade-widget-result-actions button,.arcade-widget-result-actions a,.arcade-widget-theme-toggle) { border: 1px solid var(--ui-border); border-radius: var(--ui-radius-sm); background: var(--ui-surface); color: var(--ui-text); box-shadow: none; }
+html:is(.light, .dark) .arcade-widget-form button[type="submit"] { border-radius: var(--ui-radius-sm); background: var(--ui-primary); color: var(--ui-on-accent); box-shadow: none; }
+html:is(.light, .dark) .arcade-widget-input:focus-within { border-color: var(--ui-accent); box-shadow: 0 0 0 2px var(--ui-accent-soft); }
+html:is(.light, .dark) :is(.arcade-widget-result-meta b,.arcade-widget-marquee-track) { color: var(--ui-accent); }

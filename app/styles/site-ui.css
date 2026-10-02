@@ -1,0 +1,196 @@
+/* Shared visual primitives. Route-specific CSS owns layout and data colors;
+   this file owns the chrome, neutral surfaces and interaction treatments. */
+body { font-family: Inter, ui-sans-serif, system-ui, sans-serif; color: var(--ui-text); background: var(--ui-bg); }
+html:is(.light, .dark) { scroll-padding-top: 90px; }
+html:is(.light, .dark) .arcade-dashboard-page.arcade-dashboard-page {
+  background: var(--ui-bg);
+  color: var(--ui-text);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  line-height: 1.6;
+}
+.arcade-dashboard-page .arcade-stars { opacity: .12; }
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--ui-accent);
+  outline-offset: 3px;
+}
+:where(button, input, select, textarea) { font: inherit; }
+:where(button, a) { -webkit-tap-highlight-color: transparent; }
+:where(button:disabled, input:disabled, select:disabled) { cursor: not-allowed; }
+:where(.site-surface, .ui-card) {
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-lg);
+  background: var(--ui-surface);
+  color: var(--ui-text);
+  box-shadow: var(--ui-shadow);
+}
+/* Header shared across every full-page route; no fixed controls over content. */
+.arcade-dashboard-page .site-header.site-header {
+  position: sticky;
+  top: 12px;
+  z-index: var(--ui-z-header);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: min(var(--ui-width), calc(100% - var(--ui-gutter) * 2));
+  min-height: 64px;
+  margin: 12px auto 0;
+  padding: 10px 16px;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius);
+  background: var(--ui-surface);
+  box-shadow: var(--ui-shadow);
+  backdrop-filter: none;
+}
+.site-header .arcade-brand { flex-shrink: 0; gap: 9px; text-decoration: none; }
+.site-header .arcade-brand-mark { width: 36px; height: 36px; border-radius: var(--ui-radius-sm); background: var(--ui-accent-soft); color: var(--ui-accent); box-shadow: none; border: 0; }
+.site-header .arcade-brand-mark :is(svg, .fa-icon) { width: 20px; height: 20px; font-size: 20px; }
+.site-header .arcade-brand-copy { font-size: .62rem; line-height: 1.3; }
+.site-header .arcade-brand-copy strong { color: var(--ui-accent); }
+.site-header .arcade-brand-copy b { color: var(--ui-text); }
+.arcade-dashboard-page .site-header .arcade-nav { display: flex; gap: 4px; align-items: center; margin: 0; }
+.arcade-dashboard-page .site-header .arcade-nav a { padding: 8px 9px; border-radius: var(--ui-radius-sm); font-size: .8rem; font-weight: 600; color: var(--ui-muted); white-space: nowrap; }
+.arcade-dashboard-page .site-header .arcade-nav a:is(:hover, .active) { background: var(--ui-accent-soft); color: var(--ui-accent); }
+.arcade-dashboard-page .site-header .arcade-header-actions { display: flex; align-items: center; flex-shrink: 0; gap: 8px; }
+.arcade-dashboard-page .site-header :is(.website-language-trigger, .website-theme-toggle, .mobile-menu-toggle) {
+  position: static;
+  height: 40px;
+  min-height: 40px;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-sm);
+  background: var(--ui-surface);
+  color: var(--ui-muted);
+  box-shadow: none;
+  transform: none;
+}
+.arcade-dashboard-page .site-header :is(.website-theme-toggle, .mobile-menu-toggle) { width: 40px; padding: 0; }
+.arcade-dashboard-page .site-header .mobile-menu-toggle { display: none; }
+.site-header .website-language-trigger { gap: 6px; padding: 0 10px; }
+.site-header .website-language-current-label { display: none; }
+.website-language-menu.website-language-menu { border-color: var(--ui-border); border-radius: var(--ui-radius); background: var(--ui-surface); color: var(--ui-text); box-shadow: var(--ui-shadow); max-height: min(480px, calc(100dvh - 110px)); overflow-y: auto; }
+.website-language-option.website-language-option { color: var(--ui-text); border-radius: var(--ui-radius-sm); }
+.website-language-option:is(:hover,.is-selected) { background: var(--ui-accent-soft); }
+.arcade-dashboard-page .site-footer.site-footer { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; width: min(var(--ui-width), calc(100% - var(--ui-gutter) * 2)); margin: 32px auto 0; padding: 24px 0 32px; border-top: 1px solid var(--ui-border); background: transparent; }
+.site-footer p { max-width: 68ch; margin: 0; font-size: .85rem; color: var(--ui-muted); }
+.site-footer .footer-route-links { display: flex; flex-wrap: wrap; gap: 12px 24px; }
+.site-footer .footer-route-links a { color: var(--ui-muted); font-size: .85rem; }
+.site-footer .footer-route-links a:hover { color: var(--ui-accent); }
+/* Readable content and Swag grids share the same container and hierarchy. */
+.site-content-page .internal-page-hero { border: 0; background: transparent; }
+.site-content-page .internal-page-glow { display: none; }
+.site-content-page .internal-page-hero > .relative { max-width: var(--ui-width); padding: 40px var(--ui-gutter) 32px; }
+.site-content-page .internal-page-main > section:last-child { max-width: var(--ui-width); padding: 0 var(--ui-gutter) 32px; }
+.site-content-page .internal-content-card { background: var(--ui-surface); border-color: var(--ui-border); border-radius: var(--ui-radius-lg); box-shadow: var(--ui-shadow); }
+.site-content-page .internal-page-title { color: var(--ui-text); font-size: clamp(2rem, 4vw, 3rem); line-height: 1.15; letter-spacing: -.035em; }
+.site-content-page :is(.internal-page-description,.internal-page-updated,.internal-back-link) { color: var(--ui-muted); }
+.site-content-page .internal-page-description { font-size: 1rem; line-height: 1.75; max-width: 68ch; }
+.site-content-page .internal-eyebrow { border: 0; border-radius: var(--ui-radius-sm); background: var(--ui-accent-soft); color: var(--ui-accent); letter-spacing: .08em; }
+.internal-prose { color: var(--ui-muted); overflow-wrap: anywhere; }
+.internal-prose :where(h2,h3,h4,strong) { color: var(--ui-text); }
+.internal-prose > :where(h2) { font-size: 1.4rem; font-weight: 700; line-height: 1.3; margin: 2rem 0 1rem; }
+.internal-prose > :where(h3) { font-size: 1.05rem; font-weight: 650; line-height: 1.5; margin: 1.5rem 0 .75rem; }
+.internal-prose > :where(p,ul,ol) { margin-block: 1rem; line-height: 1.75; }
+.internal-prose > :where(ul) { list-style: disc; padding-inline-start: 1.25rem; }
+.internal-prose > :where(ol) { list-style: decimal; padding-inline-start: 1.25rem; }
+.internal-prose > :where(li + li) { margin-top: .5rem; }
+.internal-prose :where(a) { color: var(--ui-accent); text-underline-offset: 3px; }
+.internal-prose :where(a:hover) { text-decoration: underline; }
+.internal-prose :where(table) { width: 100%; border-collapse: collapse; }
+.internal-prose :where(th,td) { text-align: start; padding: .8rem; border-bottom: 1px solid var(--ui-border); }
+.internal-prose :where(code) { background: var(--ui-soft); padding: .2rem .4rem; border-radius: 4px; color: var(--ui-text); }
+.internal-prose :where(pre) { padding: 1rem; overflow: auto; border-radius: var(--ui-radius); background: var(--ui-soft); }
+.internal-prose :where(blockquote) { padding-inline-start: 1rem; border-inline-start: 3px solid var(--ui-accent); }
+.internal-prose :where(hr) { border-color: var(--ui-border); margin-block: 2rem; }
+/* Neutral surfaces in dashboard / overlays retain their existing responsive layouts. */
+html:is(.light, .dark) :is(.arcade-dashboard-page, .facilitator-drawer) :is(.dashboard-panel,.dashboard-guest-banner,.dashboard-empty-state,.guest-profile-card,.monthly-games-panel,.facilitator-section,.facilitator-empty,.compact-section,.badge-card),
+html:is(.light, .dark) :is(.shared-hero,.shared-panel,.shared-cta,.shared-state-card,.cookie-consent-card,.tier-trends-dialog,.tier-trends-chart-card,.tier-trends-summary-card) {
+  background: var(--ui-surface);
+  color: var(--ui-text);
+  border-color: var(--ui-border);
+  border-radius: var(--ui-radius-lg);
+  box-shadow: var(--ui-shadow);
+}
+html:is(.light, .dark) :is(.shared-badge,.shared-stats,.shared-badge-art,.shared-stat-icon,.tier-trends-tooltip,.tier-trends-chart-surface) { background: var(--ui-soft); color: var(--ui-text); border-color: var(--ui-border); }
+html:is(.light, .dark) :is(.shared-meta,.shared-stat span,.cookie-consent-copy p,.cookie-consent-details p,.cookie-consent-details li) { color: var(--ui-muted); }
+html:is(.light, .dark) :is(.shared-kicker,.shared-tier-title,.shared-progress-note,.cookie-consent-eyebrow) { color: var(--ui-accent); }
+html:is(.light, .dark) :is(.shared-action,.cookie-consent-action,.tier-trends-filter,.tier-trends-reset-zoom) { border: 1px solid var(--ui-border); border-radius: var(--ui-radius-sm); background: var(--ui-surface); color: var(--ui-text); box-shadow: none; }
+html:is(.light, .dark) :is(.shared-action.is-primary,.cookie-consent-action.is-primary) { background: var(--ui-primary); color: var(--ui-on-accent); border-color: transparent; }
+html:is(.light, .dark) .shared-shell { width: min(var(--ui-width), calc(100% - var(--ui-gutter) * 2)); padding-top: 24px; }
+html:is(.light, .dark) .shared-avatar { box-shadow: none; border: 2px solid var(--ui-accent-border); }
+html:is(.light, .dark) .shared-tabs a.is-active { color: var(--ui-accent); }
+html:is(.light, .dark) .shared-tabs a.is-active::after, html :is(.shared-progress-fill,.shared-breakdown-track i) { background: var(--ui-accent); }
+html:is(.light, .dark) .shared-toast { z-index: var(--ui-z-toast); background: var(--ui-success); color: var(--ui-bg); }
+/* Primitive defaults apply to Radix portals outside page containers too. */
+.ui-dialog-overlay { z-index: var(--ui-z-overlay); background: var(--ui-overlay); }
+.ui-dialog { z-index: var(--ui-z-dialog); max-height: calc(100dvh - 32px); width: min(100% - 32px, 900px); overflow-y: auto; border-color: var(--ui-border); border-radius: var(--ui-radius-lg); background: var(--ui-surface); color: var(--ui-text); box-shadow: var(--ui-shadow); }
+.ui-button { border-radius: var(--ui-radius-sm); font-weight: 600; }
+.ui-input { border-radius: var(--ui-radius-sm); color: var(--ui-text); }
+.facilitator-overlay { z-index: var(--ui-z-overlay); background: var(--ui-overlay); }
+html:is(.light, .dark) .facilitator-drawer { z-index: var(--ui-z-dialog); background: var(--ui-surface); color: var(--ui-text); border-color: var(--ui-border); }
+html:is(.light, .dark) .facilitator-header { background: var(--ui-surface); border-color: var(--ui-border); }
+html:is(.light, .dark) .facilitator-section-title { color: var(--ui-text); }
+html:is(.light, .dark) .cookie-consent-icon { background: var(--ui-accent-soft); color: var(--ui-accent); border: 0; box-shadow: none; }
+html:is(.light, .dark) .cookie-consent-copy h2 { color: var(--ui-text); }
+html:is(.light, .dark) .cookie-consent-details { background: var(--ui-soft); border-color: var(--ui-border); }
+@media (max-width: 1120px) {
+  .arcade-dashboard-page .site-header .mobile-menu-toggle { display: grid; place-items: center; }
+  .arcade-dashboard-page .site-header .arcade-nav { display: none; position: absolute; inset: calc(100% + 8px) 0 auto; padding: 8px; border: 1px solid var(--ui-border); border-radius: var(--ui-radius); background: var(--ui-surface); box-shadow: var(--ui-shadow); }
+  .arcade-dashboard-page .site-header .arcade-nav.is-open { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .arcade-dashboard-page .site-header .arcade-nav a { white-space: normal; padding: 12px; }
+}
+@media (max-width: 640px) {
+  .arcade-dashboard-page .site-header.site-header { top: 8px; margin-top: 8px; padding: 8px 10px; min-height: 58px; gap: 8px; }
+  .site-content-page .internal-page-hero > .relative { padding-top: 28px; }
+  .arcade-dashboard-v2 .site-footer.site-footer { padding-bottom: 100px; }
+  html .shared-shell { padding-top: 16px; }
+  html .shared-actions { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  html .shared-action { font-size: .8rem; padding: .65rem .7rem; }
+  .ui-dialog { max-height: calc(100dvh - 24px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+.site-content-page .site-surface { background: var(--ui-surface); border-color: var(--ui-border); border-radius: var(--ui-radius-lg); color: var(--ui-text); box-shadow: var(--ui-shadow); }
+.site-content-page .not-prose :is(a) { text-decoration: none; }
+.site-content-page .not-prose a:hover { text-decoration: none; }
+html:is(.light, .dark) .arcade-dashboard-v2 :is(.arcade-hero,.profile-hero) { background: var(--ui-surface); border-color: var(--ui-border); color: var(--ui-text); border-radius: var(--ui-radius-lg); box-shadow: var(--ui-shadow); }
+html:is(.light, .dark) .arcade-dashboard-v2 :is(.profile-form,.profile-input-wrap) { border-color: var(--ui-border); background: var(--ui-soft); border-radius: var(--ui-radius); }
+html:is(.light, .dark) .arcade-dashboard-v2 .profile-form button[type="submit"] { background: var(--ui-primary); color: var(--ui-on-accent); box-shadow: none; border-radius: var(--ui-radius-sm); }
+html:is(.light, .dark) .arcade-dashboard-v2 .mobile-bottom-nav { background: var(--ui-surface); border-color: var(--ui-border); border-radius: var(--ui-radius); box-shadow: var(--ui-shadow); }
+html:is(.light, .dark) .arcade-dashboard-v2 .mobile-bottom-nav a { color: var(--ui-muted); }
+html:is(.light, .dark) .arcade-dashboard-v2 .mobile-bottom-nav a.active { color: var(--ui-accent); }
+html:is(.light, .dark) .shared-state { display: flex; flex-direction: column; align-items: stretch; padding: 0; }
+html:is(.light, .dark) .shared-state-card { margin: auto; padding: 32px; width: min(560px, calc(100% - var(--ui-gutter) * 2)); }
+html:is(.light, .dark) .shared-state .site-footer { margin-top: 24px; }
+html:is(.light, .dark) .arcade-dashboard-v2 .hero-heading h1 { font-family: inherit; font-size: clamp(2rem, 4.5vw, 3.25rem); font-weight: 750; letter-spacing: -.035em; line-height: 1.12; text-shadow: none; }
+html:is(.light, .dark) .arcade-dashboard-v2 .hero-heading h1 span { color: var(--ui-accent); background: none; -webkit-text-fill-color: currentColor; }
+html:is(.light, .dark) .arcade-dashboard-v2 :is(.profile-analyzer-card,.guest-dashboard-hero,.program-countdown-card,.extension-strip,.swag-preview-card) { border: 1px solid var(--ui-border); border-radius: var(--ui-radius-lg); background: var(--ui-surface); color: var(--ui-text); box-shadow: var(--ui-shadow); }
+html:is(.light, .dark) .arcade-dashboard-v2 .guest-dashboard-hero::before { display: none; }
+html:is(.light, .dark) .arcade-dashboard-v2 :is(.analyze-button,.extension-main-action) { background: var(--ui-primary); color: var(--ui-on-accent); border-radius: var(--ui-radius-sm); box-shadow: none; }
+html:is(.light, .dark) .arcade-dashboard-v2 :is(.profile-input,.analyzer-facilitator-option,.countdown-unit) { border-color: var(--ui-border); border-radius: var(--ui-radius-sm); background: var(--ui-soft); box-shadow: none; }
+html:is(.light, .dark) .arcade-dashboard-v2 :is(.hero-description,.analyzer-help-row a,.guest-dashboard-copy p) { color: var(--ui-muted); }
+html:is(.light, .dark) .arcade-dashboard-v2 :is(.trust-pills span,.pixel-kicker) { border: 0; background: var(--ui-accent-soft); color: var(--ui-accent); }
+html:is(.light, .dark) .arcade-dashboard-v2 .guest-dashboard-icon { border: 0; background: var(--ui-accent-soft); color: var(--ui-accent); box-shadow: none; }
+html:is(.light, .dark) :is(.monthly-game-card,.monthly-games-coming-soon) { background: var(--ui-soft); border-color: var(--ui-border); border-radius: var(--ui-radius); box-shadow: none; }
+html:is(.light, .dark) :is(.monthly-game-body h3,.monthly-games-heading h2,.facilitator-header h2) { color: var(--ui-text); }
+html:is(.light, .dark) :is(.monthly-game-description,.monthly-game-meta,.monthly-games-subtitle,.facilitator-disclaimer) { color: var(--ui-muted); }
+html:is(.light, .dark) :is(.monthly-copy-button,.profile-share-fab,.cookie-consent-detail-button,.cookie-consent-close) { border: 1px solid var(--ui-border); border-radius: var(--ui-radius-sm); background: var(--ui-surface); color: var(--ui-text); box-shadow: none; }
+html:is(.light, .dark) .cookie-consent-button { border-radius: var(--ui-radius-sm); background: var(--ui-primary); color: var(--ui-on-accent); border-color: transparent; box-shadow: none; }
+html:is(.light, .dark) .cookie-consent-category { background: var(--ui-surface); border-color: var(--ui-border); border-radius: var(--ui-radius); }
+html:is(.light, .dark) .cookie-category-name, html .cookie-consent-details h3 { color: var(--ui-text); }
+html:is(.light, .dark) .cookie-consent-more { border-color: var(--ui-border); }
+html:is(.light, .dark) .profile-share-fab.is-success { color: var(--ui-success); }
+html:is(.light, .dark) .profile-share-fab.is-error { color: var(--ui-error); }
+html:is(.light, .dark) #arcade-seo-guide .site-surface { background: var(--ui-surface); border-color: var(--ui-border); border-radius: var(--ui-radius-lg); box-shadow: var(--ui-shadow); }
+/* Error redirects and Swag previews use the same neutral surfaces in both themes. */
+html:is(.light, .dark) .site-surface.site-surface { background: var(--ui-surface); border-color: var(--ui-border); border-radius: var(--ui-radius-lg); color: var(--ui-text); box-shadow: var(--ui-shadow); }
+html:is(.light, .dark) .site-surface > :is(h1,h2,h3) { color: var(--ui-text); }
+html:is(.light, .dark) .site-surface > p { color: var(--ui-muted); }
+html:is(.light, .dark) .facilitator-score-grid article, html:is(.light, .dark) .facilitator-activity-grid article { background: var(--ui-soft); border-color: var(--ui-border); border-radius: var(--ui-radius); }
+html:is(.light, .dark) .facilitator-score-grid article:is(.is-bonus,.is-total) { background: var(--ui-accent-soft); border-color: var(--ui-accent-border); }
+html:is(.light, .dark) .facilitator-header > button { background: var(--ui-surface); color: var(--ui-muted); border-color: var(--ui-border); border-radius: var(--ui-radius-sm); }
+html:is(.light, .dark) .arcade-dashboard-v2 .guest-dashboard-orb { border: 0; border-radius: var(--ui-radius); background: var(--ui-accent-soft); color: var(--ui-accent); box-shadow: none; }
+html:is(.light, .dark) .bonus-milestone-confirmation-card { background: var(--ui-soft); border-color: var(--ui-border); border-radius: var(--ui-radius); }
+html:is(.light, .dark) :is(.bonus-gear-toggle,.bonus-milestone-confirmation-button) { border-radius: var(--ui-radius-sm); border-color: var(--ui-accent-border); background: var(--ui-accent-soft); color: var(--ui-accent); }
+html:is(.light, .dark) .bonus-milestone-confirmation-button.is-completed { color: var(--ui-success); }

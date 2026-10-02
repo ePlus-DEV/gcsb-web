@@ -1,13 +1,13 @@
 import { readFileSync } from "node:fs"
 import path from "node:path"
 import type { Metadata, Viewport } from "next"
-import SwagNavLink from "@/components/arcade/swag-nav-link"
 import WebsiteLanguage from "@/components/i18n/website-language"
 import CookieConsent from "@/components/privacy/cookie-consent"
 import { ThemeProvider } from "@/components/theme-provider"
 import ThemeToggle from "@/components/theme-toggle"
 import { WEBSITE_SITE_URL } from "@/lib/website-i18n"
 import "./globals.css"
+import "./styles/ui-tokens.css"
 import "./styles/redesign-dashboard.css"
 import "./styles/redesign-results.css"
 import "./styles/redesign-components.css"
@@ -25,9 +25,12 @@ import "./styles/tier-slot-history.css"
 import "./styles/theme-light-components.css"
 import "./styles/facilitator-participation.css"
 import "./styles/facilitator-launcher-visibility.css"
-import "./styles/internal-page-theme.css"
 import "./styles/cookie-consent.css"
 import "./styles/home-refactor.css"
+import "./styles/shared-profile.css"
+import "./styles/profile-share.css"
+import "./styles/bonus-milestone.css"
+import "./styles/site-ui.css"
 
 const arcadeRequestDedupeBootstrap = readFileSync(
   path.join(process.cwd(), "scripts", "arcade-request-dedupe.js"),
@@ -236,7 +239,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         >
           <WebsiteLanguage />
           <ThemeToggle />
-          <SwagNavLink />
           {children}
           <CookieConsent
             analyticsEnabled={Boolean(googleAnalyticsId)}

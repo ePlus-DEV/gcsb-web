@@ -3,36 +3,18 @@
  */
 
 .arcade-dashboard-v2 {
-  --v2-shell: 1200px;
-  --v2-gutter: 24px;
-  --v2-radius-lg: 20px;
-  --v2-radius-md: 16px;
-  --v2-radius-sm: 12px;
-  --v2-surface: rgba(9, 17, 36, 0.78);
-  --v2-surface-strong: rgba(10, 19, 40, 0.94);
-  --v2-surface-soft: rgba(15, 27, 52, 0.62);
-  --v2-border: rgba(148, 163, 184, 0.14);
-  --v2-border-strong: rgba(139, 92, 246, 0.28);
-  --v2-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
-  --v2-shadow-soft: 0 4px 16px rgba(0, 0, 0, 0.10);
-  background:
-    radial-gradient(circle at 82% 5%, rgba(99, 102, 241, 0.16), transparent 31rem),
-    radial-gradient(circle at 12% 24%, rgba(14, 165, 233, 0.11), transparent 29rem),
-    linear-gradient(180deg, #050918 0%, #071126 48%, #050918 100%);
-}
-
-html.light .arcade-dashboard-v2 {
-  --v2-surface: rgba(255, 255, 255, 0.82);
-  --v2-surface-strong: rgba(255, 255, 255, 0.96);
-  --v2-surface-soft: rgba(248, 250, 252, 0.82);
-  --v2-border: rgba(100, 116, 139, 0.15);
-  --v2-border-strong: rgba(79, 70, 229, 0.20);
-  --v2-shadow: 0 22px 58px rgba(51, 65, 85, 0.11);
-  --v2-shadow-soft: 0 10px 30px rgba(51, 65, 85, 0.08);
-  background:
-    radial-gradient(circle at 82% 5%, rgba(99, 102, 241, 0.11), transparent 31rem),
-    radial-gradient(circle at 12% 24%, rgba(14, 165, 233, 0.08), transparent 29rem),
-    linear-gradient(180deg, #f8faff 0%, #eef3ff 48%, #f8faff 100%);
+  --v2-shell: var(--ui-width);
+  --v2-gutter: var(--ui-gutter);
+  --v2-radius-lg: var(--ui-radius-lg);
+  --v2-radius-md: var(--ui-radius);
+  --v2-radius-sm: var(--ui-radius-sm);
+  --v2-surface: var(--ui-surface);
+  --v2-surface-strong: var(--ui-surface);
+  --v2-surface-soft: var(--ui-soft);
+  --v2-border: var(--ui-border);
+  --v2-border-strong: var(--ui-accent-border);
+  --v2-shadow: var(--ui-shadow);
+  --v2-shadow-soft: var(--ui-shadow);
 }
 
 .arcade-dashboard-v2 .arcade-header,
