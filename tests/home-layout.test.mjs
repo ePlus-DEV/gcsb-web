@@ -118,7 +118,7 @@ test("home dashboard v2 stays scoped and its visual overrides load last", () => 
 })
 
 
-test("guest and profile dashboard modes stay profile-safe and fully localized", () => {
+test("PR-preview guest and profile debug modes stay profile-safe and fully localized", () => {
   const monthlyGateSource = readRepoFile("components/arcade/monthly-games-panel-gate.tsx")
   const facilitatorGateSource = readRepoFile("components/arcade/facilitator-panel-gate.tsx")
   const facilitatorOptionSource = readRepoFile("components/arcade/facilitator-analyzer-option.tsx")
@@ -135,6 +135,10 @@ test("guest and profile dashboard modes stay profile-safe and fully localized", 
   ]
 
   assert.match(calculator, /data-dashboard-view=\{viewMode\}/)
+  assert.match(calculator, /const IS_PR_PREVIEW = .*startsWith\("\/pr-preview\/pr-"\)/)
+  assert.match(calculator, /\{IS_PR_PREVIEW && \(/)
+  assert.match(calculator, /IS_PR_PREVIEW \? "guest" : "profile"/)
+  assert.match(calculator, /if \(!IS_PR_PREVIEW\) return/)
   assert.match(calculator, /className="dashboard-view-switch"/)
   assert.match(calculator, /className="dashboard-mode-bar"/)
   assert.match(calculator, /guest-dashboard-hero/)
