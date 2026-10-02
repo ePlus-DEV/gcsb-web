@@ -100,6 +100,7 @@ test("home dashboard v2 stays scoped and its visual overrides load last", () => 
 
   assert.match(calculator, /arcade-dashboard-page arcade-dashboard-v2/)
   assert.match(refactorStyles, /\.arcade-dashboard-v2/)
+  assert.match(refactorStyles, /\.arcade-dashboard-v2 \.program-countdown-host/)
   assert.match(refactorStyles, /html\.light \.arcade-dashboard-v2/)
   assert.match(refactorStyles, /@media \(max-width: 600px\)/)
 
