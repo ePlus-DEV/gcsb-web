@@ -462,17 +462,54 @@ html.light .arcade-dashboard-v2 .program-countdown-card {
   border-radius: 999px;
 }
 
-/* Guest/profile mode lives with the dashboard it controls. */
-.arcade-dashboard-v2 .dashboard-mode-bar {
-  width: min(var(--v2-shell), calc(100% - (var(--v2-gutter) * 2)));
+/* PR-preview debug control: always reachable without affecting content flow. */
+.arcade-dashboard-v2 .preview-mode-toolbar {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 95;
   display: flex;
-  justify-content: flex-end;
-  margin: 0 auto 14px;
+  align-items: center;
+  gap: 7px;
+  padding: 6px;
+  border: 1px solid rgba(139, 92, 246, 0.34);
+  border-radius: 16px;
+  background: rgba(7, 14, 31, 0.94);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(18px) saturate(135%);
 }
 
-.arcade-dashboard-v2 .dashboard-mode-bar .dashboard-view-switch {
-  width: min(430px, 100%);
+html.light .arcade-dashboard-v2 .preview-mode-toolbar {
+  background: rgba(255, 255, 255, 0.96);
+  border-color: rgba(79, 70, 229, 0.22);
+}
+
+.arcade-dashboard-v2 .preview-mode-badge {
+  display: grid;
+  place-items: center;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 8px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #7c3aed, #4f46e5);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.arcade-dashboard-v2 .preview-mode-toolbar .dashboard-view-switch {
+  width: 270px;
   margin: 0;
+  padding: 3px;
+  border-radius: 11px;
+}
+
+.arcade-dashboard-v2 .preview-mode-toolbar .dashboard-view-switch button {
+  min-height: 34px;
+  padding-inline: 10px;
+  border-radius: 8px;
+  font-size: 0.68rem;
 }
 
 /* Guest dashboard: compact, visual and intentionally separate from profile data. */
@@ -873,6 +910,10 @@ html.light .arcade-dashboard-v2 .guest-dashboard-hero {
     padding-bottom: 78px;
   }
 
+  .arcade-dashboard-v2:has(.preview-mode-toolbar) {
+    padding-bottom: 132px;
+  }
+
   .arcade-dashboard-v2 .arcade-header {
     width: calc(100% - 16px);
   }
@@ -920,19 +961,34 @@ html.light .arcade-dashboard-v2 .guest-dashboard-hero {
     border-radius: 16px;
   }
 
-  .arcade-dashboard-v2 .dashboard-mode-bar {
-    width: calc(100% - 16px);
-    margin-bottom: 10px;
+  .arcade-dashboard-v2 .preview-mode-toolbar {
+    left: 50%;
+    right: auto;
+    bottom: calc(76px + env(safe-area-inset-bottom));
+    width: min(calc(100% - 20px), 360px);
+    transform: translateX(-50%);
+    gap: 5px;
+    padding: 5px;
+    border-radius: 14px;
   }
 
-  .arcade-dashboard-v2 .dashboard-mode-bar .dashboard-view-switch {
-    width: 100%;
+  .arcade-dashboard-v2 .preview-mode-badge {
+    min-width: 30px;
+    height: 34px;
+    padding-inline: 6px;
+    border-radius: 9px;
+    font-size: 0.62rem;
   }
 
-  .arcade-dashboard-v2 .dashboard-view-switch button {
-    min-height: 42px;
-    padding-inline: 8px;
-    font-size: 0.72rem;
+  .arcade-dashboard-v2 .preview-mode-toolbar .dashboard-view-switch {
+    width: auto;
+    flex: 1 1 auto;
+  }
+
+  .arcade-dashboard-v2 .preview-mode-toolbar .dashboard-view-switch button {
+    min-height: 36px;
+    padding-inline: 7px;
+    font-size: 0.66rem;
   }
 
   .arcade-dashboard-v2 .dashboard-empty-state.guest-dashboard {
