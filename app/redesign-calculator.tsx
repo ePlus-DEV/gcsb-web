@@ -579,7 +579,7 @@ export default function RedesignCalculator({
   }
 
   return (
-    <main className="arcade-dashboard-page">
+    <main className="arcade-dashboard-page arcade-dashboard-v2">
       <div className="arcade-stars" aria-hidden="true" />
 
       <header className="arcade-header">
