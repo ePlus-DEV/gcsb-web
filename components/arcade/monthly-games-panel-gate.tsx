@@ -3,6 +3,7 @@
 import { createPortal } from "react-dom"
 import { useEffect, useRef, useState } from "react"
 import MonthlyGamesPanel from "./monthly-games-panel"
+import { PREVIEW_DEBUG_PROFILE_RESULT } from "./preview-debug-profile"
 import {
   DASHBOARD_STORAGE_KEY,
   type ArcadeApiResponse,
@@ -24,9 +25,12 @@ function asBadgeArray(value: unknown): ArcadeBadge[] {
   )
 }
 
-function readDashboardViewMode(): "guest" | "profile" {
+function readDashboardState(): { viewMode: "guest" | "profile"; debugFake: boolean } {
   const page = document.querySelector<HTMLElement>(".arcade-dashboard-page")
-  return page?.dataset.dashboardView === "profile" ? "profile" : "guest"
+  return {
+    viewMode: page?.dataset.dashboardView === "profile" ? "profile" : "guest",
+    debugFake: page?.dataset.dashboardDebugFake === "true",
+  }
 }
 
 function readStoredRaw(): string {
@@ -79,13 +83,13 @@ export default function MonthlyGamesPanelGate() {
       const nextHost = findMonthlyGamesHost()
       setHost((current) => (current === nextHost ? current : nextHost))
 
-      const viewMode = readDashboardViewMode()
-      const raw = viewMode === "profile" ? readStoredRaw() : ""
-      const syncKey = `${viewMode}:${raw}`
+      const { viewMode, debugFake } = readDashboardState()
+      const raw = viewMode === "profile" && !debugFake ? readStoredRaw() : ""
+      const syncKey = `${viewMode}:${debugFake ? "preview-fake" : raw}`
       if (syncKey === lastRawRef.current) return
 
       lastRawRef.current = syncKey
-      const result = parseStoredResult(raw)
+      const result = debugFake ? PREVIEW_DEBUG_PROFILE_RESULT : parseStoredResult(raw)
       setHasProfile(viewMode === "profile" && Boolean(result))
       setBadges(viewMode === "profile" ? parseStoredBadges(result) : [])
     }
