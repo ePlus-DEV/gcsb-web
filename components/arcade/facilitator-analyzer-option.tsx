@@ -22,6 +22,8 @@ const SUPPORTED_LOCALES = new Set([
   "ar", "de", "es", "fr", "hi", "it", "ja", "ko", "pt-br", "ru", "vi", "zh-cn",
 ])
 
+type DashboardViewMode = "guest" | "profile"
+
 type Copy = {
   participating: string
   includeHighest: string
@@ -211,6 +213,7 @@ function localizeBadgeDates(locale: string): void {
 
 export default function FacilitatorAnalyzerOption() {
   const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null)
+  const [dashboardViewMode, setDashboardViewMode] = useState<DashboardViewMode>("guest")
   const [inputProfileUrl, setInputProfileUrl] = useState("")
   const [storedProfileUrl, setStoredProfileUrl] = useState("")
   const [participating, setParticipating] = useState(false)
@@ -234,6 +237,22 @@ export default function FacilitatorAnalyzerOption() {
       observer.disconnect()
       window.removeEventListener("popstate", syncLocale)
     }
+  }, [])
+
+  useEffect(() => {
+    const root = document.querySelector<HTMLElement>(".arcade-dashboard-page")
+    if (!root) return
+
+    const syncMode = () =>
+      setDashboardViewMode(root.dataset.dashboardView === "profile" ? "profile" : "guest")
+
+    syncMode()
+    const observer = new MutationObserver(syncMode)
+    observer.observe(root, {
+      attributes: true,
+      attributeFilter: ["data-dashboard-view"],
+    })
+    return () => observer.disconnect()
   }, [])
 
   useEffect(() => {
@@ -350,7 +369,7 @@ export default function FacilitatorAnalyzerOption() {
     window.setTimeout(() => form.requestSubmit(), 0)
   }, [autoFetchLatest, autoFetchLoaded, portalTarget, profileUrl])
 
-  if (!portalTarget) return null
+  if (!portalTarget || dashboardViewMode === "guest") return null
 
   return createPortal(
     <div style={{ display: "grid", gap: 8 }}>
