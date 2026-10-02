@@ -182,3 +182,25 @@ html[lang="en"] .hero-heading h1 { font-weight: 400; }
   .arcade-dashboard-page .site-header.site-header { min-height: 64px; }
   .site-header .arcade-header-actions { gap: 6px; }
 }
+
+/* Editorial and reward cards share sizing while keeping their semantic elements. */
+.content-card { min-width: 0; overflow-wrap: anywhere; }
+.content-primary-action {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  padding: .625rem 1.25rem;
+  border: 1px solid transparent;
+  border-radius: var(--ui-radius-sm);
+  background: var(--ui-primary);
+  color: var(--ui-on-accent);
+  font-size: .875rem;
+  font-weight: 700;
+  line-height: 1.5;
+  text-align: center;
+  transition: filter .15s;
+}
+.site-content-page .content-primary-action { color: var(--ui-on-accent); }
+.content-primary-action:hover { filter: brightness(.94); }

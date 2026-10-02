@@ -42,3 +42,15 @@ party requests. It verifies route coverage, dark/light, English/Vietnamese,
 mobile/desktop overflow, keyboard menu dismissal, data-bearing calculator tiers,
 and dialogs. Optional `UI_SCREENSHOT_DIR` records screenshots. External fonts,
 remote images and live feed freshness need separate deployed-preview inspection.
+
+Page boundaries:
+
+- `app/about`, `guide`, `privacy` and `terms` keep route metadata. Server-rendered
+  content lives in `components/content`; About/Guide arrays live beside the views.
+- `app/swag-drops` keeps metadata and static slug generation. Archive, history,
+  season, tier and product views live in `components/swag`. The season board uses
+  `TierRewardRow`; thresholds, baseline counts and tier tones use `reward-model`.
+- `ContentCard` preserves article/aside semantics and supplies the shared neutral
+  surface. Pages supply layout/spacing only; keep tier/status colors on badges.
+- These are server components. Shared chrome and existing client controls continue
+  to own locale/theme changes; the extraction does not add client boundaries.

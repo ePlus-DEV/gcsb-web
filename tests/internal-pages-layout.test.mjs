@@ -2,8 +2,8 @@ import assert from "node:assert/strict"
 import test from "node:test"
 import { readRepoFile } from "./helpers/typescript-source.mjs"
 
-const about = readRepoFile("app/about/page.tsx")
-const guide = readRepoFile("app/guide/page.tsx")
+const about = readRepoFile("components/content/about-page.tsx")
+const guide = readRepoFile("components/content/guide-page.tsx")
 
 test("About presents actual sections and useful native navigation", () => {
   for (const heading of [
@@ -23,16 +23,16 @@ test("About presents actual sections and useful native navigation", () => {
 })
 
 test("Guide cards have contrasting light and dark themes", () => {
-  assert.match(guide, /bg-card/)
+  assert.match(guide, /ContentCard/)
   assert.match(guide, /text-foreground/)
   assert.match(guide, /text-muted-foreground/)
-  assert.match(guide, /border-border/)
+  assert.match(readRepoFile("components/site/content-card.tsx"), /site-surface content-card/)
   assert.match(guide, /lg:grid-cols-2/)
   assert.match(guide, /href="\/swag-drops\/2026\/"/)
 })
 
-const privacy = readRepoFile("app/privacy/page.tsx")
-const terms = readRepoFile("app/terms/page.tsx")
+const privacy = readRepoFile("components/content/privacy-page.tsx")
+const terms = readRepoFile("components/content/terms-page.tsx")
 
 test("Privacy remains complete and uses responsive cards", () => {
   for (const heading of ["Information processed", "How information is used",
