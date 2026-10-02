@@ -33,6 +33,11 @@ import type { FormEvent, ReactNode } from "react"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { CURRENT_SWAG_SEASON, swagSeasonPath } from "@/components/arcade/swag-seasons"
 import { getFacilitatorAdjustedPoints } from "@/components/arcade/facilitator-points"
+import {
+  IS_PR_PREVIEW,
+  PREVIEW_DEBUG_PROFILE_RESULT,
+  PREVIEW_DEBUG_PROFILE_URL,
+} from "@/components/arcade/preview-debug-profile"
 import { readFacilitatorParticipation } from "@/components/arcade/facilitator-participation"
 import {
   API_URL,
@@ -58,7 +63,6 @@ const FIREFOX_EXTENSION_URL =
   "https://addons.mozilla.org/addon/cloud-skills-boost-helper"
 const BADGE_PREVIEW_LIMIT = 8
 const DASHBOARD_VIEW_MODE_STORAGE_KEY = "eplus-arcade-dashboard-view-mode-v1"
-const IS_PR_PREVIEW = (process.env.NEXT_PUBLIC_BASE_PATH ?? "").startsWith("/pr-preview/pr-")
 
 type DashboardViewMode = "guest" | "profile"
 
@@ -226,6 +230,7 @@ export default function RedesignCalculator({
   const [committedProfileUrl, setCommittedProfileUrl] = useState("")
   const [result, setResult] = useState<ArcadeApiResponse | null>(null)
   const [viewMode, setViewMode] = useState<DashboardViewMode>(IS_PR_PREVIEW ? "guest" : "profile")
+  const [usingPreviewFakeProfile, setUsingPreviewFakeProfile] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [filter, setFilter] = useState<BadgeFilter>("all")
@@ -289,13 +294,21 @@ export default function RedesignCalculator({
     const storedViewMode = IS_PR_PREVIEW ? readStoredViewMode() : null
 
     if (!stored) {
-      setViewMode(IS_PR_PREVIEW ? (storedViewMode ?? "guest") : "profile")
+      const initialMode = IS_PR_PREVIEW ? (storedViewMode ?? "guest") : "profile"
+      setViewMode(initialMode)
+
+      if (IS_PR_PREVIEW && initialMode === "profile") {
+        setCommittedProfileUrl(PREVIEW_DEBUG_PROFILE_URL)
+        setResult(PREVIEW_DEBUG_PROFILE_RESULT)
+        setUsingPreviewFakeProfile(true)
+      }
       return
     }
 
     setProfileUrl(stored.profileUrl)
     setCommittedProfileUrl(stored.profileUrl)
     setResult(stored.result)
+    setUsingPreviewFakeProfile(false)
     setViewMode(IS_PR_PREVIEW ? (storedViewMode ?? "profile") : "profile")
   }, [])
 
@@ -310,7 +323,7 @@ export default function RedesignCalculator({
   }, [viewMode])
 
   useEffect(() => {
-    if (!result) return
+    if (!result || usingPreviewFakeProfile) return
 
     try {
       window.localStorage.setItem(
@@ -320,7 +333,7 @@ export default function RedesignCalculator({
     } catch {
       // Storage is optional. The calculator still works without persistence.
     }
-  }, [committedProfileUrl, result])
+  }, [committedProfileUrl, result, usingPreviewFakeProfile])
 
   useEffect(() => {
     const syncParticipation = () => {
@@ -567,6 +580,7 @@ export default function RedesignCalculator({
       setProfileUrl(normalized)
       setCommittedProfileUrl(normalized)
       setResult(payload)
+      setUsingPreviewFakeProfile(false)
       setViewMode("profile")
       setFilter("all")
       setShowAllBadges(false)
@@ -598,6 +612,7 @@ export default function RedesignCalculator({
     setProfileUrl("")
     setCommittedProfileUrl("")
     setResult(null)
+    setUsingPreviewFakeProfile(false)
     setViewMode(IS_PR_PREVIEW ? "guest" : "profile")
     setError("")
     setFilter("all")
@@ -610,11 +625,37 @@ export default function RedesignCalculator({
     }
   }
 
+  function activatePreviewMode(nextMode: DashboardViewMode) {
+    if (!IS_PR_PREVIEW) return
+
+    setViewMode(nextMode)
+
+    if (nextMode === "profile" && !result) {
+      const stored = readStoredResult()
+
+      if (stored) {
+        setProfileUrl(stored.profileUrl)
+        setCommittedProfileUrl(stored.profileUrl)
+        setResult(stored.result)
+        setUsingPreviewFakeProfile(false)
+        return
+      }
+
+      setCommittedProfileUrl(PREVIEW_DEBUG_PROFILE_URL)
+      setResult(PREVIEW_DEBUG_PROFILE_RESULT)
+      setUsingPreviewFakeProfile(true)
+    }
+  }
+
   const showProfileDashboard = viewMode === "profile" && Boolean(result)
   const viewMessages = activeHistoryLanguage.catalog.messages
 
   return (
-    <main className="arcade-dashboard-page arcade-dashboard-v2" data-dashboard-view={viewMode}>
+    <main
+      className="arcade-dashboard-page arcade-dashboard-v2"
+      data-dashboard-view={viewMode}
+      data-dashboard-debug-fake={usingPreviewFakeProfile ? "true" : undefined}
+    >
       <div className="arcade-stars" aria-hidden="true" />
 
       <header className="arcade-header">
@@ -748,13 +789,14 @@ export default function RedesignCalculator({
       </section>
 
       {IS_PR_PREVIEW && (
-        <section className="dashboard-mode-bar" aria-label={viewMessages.dashboardView}>
+        <aside className="preview-mode-toolbar" aria-label={viewMessages.dashboardView}>
+          <span className="preview-mode-badge" aria-hidden="true">PR</span>
           <div className="dashboard-view-switch" role="group" aria-label={viewMessages.dashboardView}>
             <button
               type="button"
               className={viewMode === "guest" ? "is-active" : ""}
               aria-pressed={viewMode === "guest"}
-              onClick={() => setViewMode("guest")}
+              onClick={() => activatePreviewMode("guest")}
             >
               <Globe2 />
               <span>{viewMessages.guestView}</span>
@@ -763,13 +805,13 @@ export default function RedesignCalculator({
               type="button"
               className={viewMode === "profile" ? "is-active" : ""}
               aria-pressed={viewMode === "profile"}
-              onClick={() => setViewMode("profile")}
+              onClick={() => activatePreviewMode("profile")}
             >
               <Users />
               <span>{viewMessages.profileView}</span>
             </button>
           </div>
-        </section>
+        </aside>
       )}
 
       {showProfileDashboard ? (
