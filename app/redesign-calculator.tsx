@@ -58,6 +58,7 @@ const FIREFOX_EXTENSION_URL =
   "https://addons.mozilla.org/addon/cloud-skills-boost-helper"
 const BADGE_PREVIEW_LIMIT = 8
 const DASHBOARD_VIEW_MODE_STORAGE_KEY = "eplus-arcade-dashboard-view-mode-v1"
+const IS_PR_PREVIEW = (process.env.NEXT_PUBLIC_BASE_PATH ?? "").startsWith("/pr-preview/pr-")
 
 type DashboardViewMode = "guest" | "profile"
 
@@ -224,7 +225,7 @@ export default function RedesignCalculator({
   const [profileUrl, setProfileUrl] = useState("")
   const [committedProfileUrl, setCommittedProfileUrl] = useState("")
   const [result, setResult] = useState<ArcadeApiResponse | null>(null)
-  const [viewMode, setViewMode] = useState<DashboardViewMode>("guest")
+  const [viewMode, setViewMode] = useState<DashboardViewMode>(IS_PR_PREVIEW ? "guest" : "profile")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [filter, setFilter] = useState<BadgeFilter>("all")
@@ -285,24 +286,26 @@ export default function RedesignCalculator({
 
   useEffect(() => {
     const stored = readStoredResult()
-    const storedViewMode = readStoredViewMode()
+    const storedViewMode = IS_PR_PREVIEW ? readStoredViewMode() : null
 
     if (!stored) {
-      if (storedViewMode) setViewMode(storedViewMode)
+      setViewMode(IS_PR_PREVIEW ? (storedViewMode ?? "guest") : "profile")
       return
     }
 
     setProfileUrl(stored.profileUrl)
     setCommittedProfileUrl(stored.profileUrl)
     setResult(stored.result)
-    setViewMode(storedViewMode ?? "profile")
+    setViewMode(IS_PR_PREVIEW ? (storedViewMode ?? "profile") : "profile")
   }, [])
 
   useEffect(() => {
+    if (!IS_PR_PREVIEW) return
+
     try {
       window.localStorage.setItem(DASHBOARD_VIEW_MODE_STORAGE_KEY, viewMode)
     } catch {
-      // View selection still works for the current session without storage.
+      // Preview-only debug selection still works for the current session.
     }
   }, [viewMode])
 
@@ -595,7 +598,7 @@ export default function RedesignCalculator({
     setProfileUrl("")
     setCommittedProfileUrl("")
     setResult(null)
-    setViewMode("guest")
+    setViewMode(IS_PR_PREVIEW ? "guest" : "profile")
     setError("")
     setFilter("all")
     setShowAllBadges(false)
@@ -744,28 +747,30 @@ export default function RedesignCalculator({
         </div>
       </section>
 
-      <section className="dashboard-mode-bar" aria-label={viewMessages.dashboardView}>
-        <div className="dashboard-view-switch" role="group" aria-label={viewMessages.dashboardView}>
-          <button
-            type="button"
-            className={viewMode === "guest" ? "is-active" : ""}
-            aria-pressed={viewMode === "guest"}
-            onClick={() => setViewMode("guest")}
-          >
-            <Globe2 />
-            <span>{viewMessages.guestView}</span>
-          </button>
-          <button
-            type="button"
-            className={viewMode === "profile" ? "is-active" : ""}
-            aria-pressed={viewMode === "profile"}
-            onClick={() => setViewMode("profile")}
-          >
-            <Users />
-            <span>{viewMessages.profileView}</span>
-          </button>
-        </div>
-      </section>
+      {IS_PR_PREVIEW && (
+        <section className="dashboard-mode-bar" aria-label={viewMessages.dashboardView}>
+          <div className="dashboard-view-switch" role="group" aria-label={viewMessages.dashboardView}>
+            <button
+              type="button"
+              className={viewMode === "guest" ? "is-active" : ""}
+              aria-pressed={viewMode === "guest"}
+              onClick={() => setViewMode("guest")}
+            >
+              <Globe2 />
+              <span>{viewMessages.guestView}</span>
+            </button>
+            <button
+              type="button"
+              className={viewMode === "profile" ? "is-active" : ""}
+              aria-pressed={viewMode === "profile"}
+              onClick={() => setViewMode("profile")}
+            >
+              <Users />
+              <span>{viewMessages.profileView}</span>
+            </button>
+          </div>
+        </section>
+      )}
 
       {showProfileDashboard ? (
         <section className="dashboard-shell" aria-label="Arcade profile results" data-home-order="dashboard-results">
