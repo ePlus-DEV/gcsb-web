@@ -26,6 +26,7 @@ import {
   Sparkles,
   Star,
   Trophy,
+  Users,
   X,
 } from "lucide-react"
 import type { FormEvent, ReactNode } from "react"
@@ -730,9 +731,9 @@ export default function RedesignCalculator({
                 </div>
               </div>
               <div className="profile-stat-grid">
-                <Stat value={String(badges.length)} label="Badges" />
-                <Stat value={formatNumber(points)} label="Arcade points" />
-                <Stat value={qualifiedMilestone?.league.replace("Arcade ", "") ?? "—"} label="Score tier" />
+                <Stat value={String(badges.length)} label="Badges" icon={<BadgeCheck />} />
+                <Stat value={formatNumber(points)} label="Arcade points" icon={<Sparkles />} />
+                <Stat value={qualifiedMilestone?.league.replace("Arcade ", "") ?? "—"} label="Score tier" icon={<Trophy />} />
               </div>
             </article>
 
@@ -801,10 +802,12 @@ export default function RedesignCalculator({
               {qualifiedMilestone && (
                 <div className="tier-availability-grid" aria-label="Tier slot availability">
                   <div>
+                    <span className="tier-availability-icon" aria-hidden="true"><Users /></span>
                     <span>Total tier capacity</span>
                     <strong>{formatInteger(qualifiedMilestone.slots)}</strong>
                   </div>
                   <div>
+                    <span className="tier-availability-icon" aria-hidden="true"><BadgeCheck /></span>
                     <span>Spots currently left</span>
                     <strong>
                       {qualifiedMilestone.spotsLeft === null
@@ -1081,8 +1084,22 @@ function PanelTitle({ children }: { children: ReactNode }) {
   return <h2 className="panel-title">{children}</h2>
 }
 
-function Stat({ value, label }: { value: string; label: string }) {
-  return <div><strong>{value}</strong><span>{label}</span></div>
+function Stat({
+  value,
+  label,
+  icon,
+}: {
+  value: string
+  label: string
+  icon?: ReactNode
+}) {
+  return (
+    <div>
+      {icon ? <span className="profile-stat-icon" aria-hidden="true">{icon}</span> : null}
+      <strong>{value}</strong>
+      <span>{label}</span>
+    </div>
+  )
 }
 
 function PointRow({
