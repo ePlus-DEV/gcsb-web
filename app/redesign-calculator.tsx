@@ -19,9 +19,7 @@ import {
   Globe2,
   GraduationCap,
   LoaderCircle,
-  Medal,
   Menu,
-  Coins,
   RefreshCcw,
   Search,
   ShieldCheck,
@@ -29,7 +27,6 @@ import {
   Star,
   Trophy,
   Users,
-  UserRound,
   X,
 } from "lucide-react"
 import type { FormEvent, ReactNode } from "react"
@@ -734,8 +731,8 @@ export default function RedesignCalculator({
                 </div>
               </div>
               <div className="profile-stat-grid">
-                <Stat value={String(badges.length)} label="Badges" icon={<Medal />} />
-                <Stat value={formatNumber(points)} label="Arcade points" icon={<Coins />} />
+                <Stat value={String(badges.length)} label="Badges" icon={<BadgeCheck />} />
+                <Stat value={formatNumber(points)} label="Arcade points" icon={<Sparkles />} />
                 <Stat value={qualifiedMilestone?.league.replace("Arcade ", "") ?? "—"} label="Score tier" icon={<Trophy />} />
               </div>
             </article>
@@ -810,7 +807,7 @@ export default function RedesignCalculator({
                     <strong>{formatInteger(qualifiedMilestone.slots)}</strong>
                   </div>
                   <div>
-                    <span className="tier-availability-icon" aria-hidden="true"><UserRound /></span>
+                    <span className="tier-availability-icon" aria-hidden="true"><BadgeCheck /></span>
                     <span>Spots currently left</span>
                     <strong>
                       {qualifiedMilestone.spotsLeft === null
