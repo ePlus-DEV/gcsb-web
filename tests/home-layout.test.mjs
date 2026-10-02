@@ -138,6 +138,9 @@ test("guest and profile dashboard modes stay profile-safe and fully localized", 
   assert.match(monthlyGateSource, /dataset\.dashboardView === "profile"/)
   assert.match(facilitatorGateSource, /dataset\.dashboardView === "guest"/)
   assert.match(facilitatorOptionSource, /dashboardViewMode === "guest"/)
+  assert.match(facilitatorOptionSource, /dashboardViewMode !== "profile"/)
+  const shareEnhancerSource = readRepoFile("components/arcade/share-profile-enhancer.tsx")
+  assert.match(shareEnhancerSource, /observer = new MutationObserver\(\(\) => installShareAction\(\)\)/)
   assert.doesNotMatch(
     calculator,
     />Guest view<|>Profile view<|>Browsing as guest<|Personal profile data is hidden/,
