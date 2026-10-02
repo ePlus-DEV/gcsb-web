@@ -37,6 +37,7 @@ html.light .arcade-dashboard-v2 {
 
 .arcade-dashboard-v2 .arcade-header,
 .arcade-dashboard-v2 .arcade-hero,
+.arcade-dashboard-v2 .program-countdown-host,
 .arcade-dashboard-v2 .extension-strip,
 .arcade-dashboard-v2 .dashboard-shell,
 .arcade-dashboard-v2 .dashboard-empty-state,
@@ -191,6 +192,35 @@ html.light .arcade-dashboard-v2 .pixel-kicker {
 
 .arcade-dashboard-v2 .analyzer-help-row {
   margin-top: 14px;
+}
+
+/* Countdown uses the same desktop shell and card language as the rest of the workspace. */
+.arcade-dashboard-v2 .program-countdown-host {
+  margin-bottom: 22px;
+}
+
+.arcade-dashboard-v2 .program-countdown-grid {
+  gap: 16px;
+}
+
+.arcade-dashboard-v2 .program-countdown-card {
+  border-color: var(--v2-border);
+  border-radius: var(--v2-radius-md);
+  background:
+    radial-gradient(circle at 10% 10%, var(--countdown-accent-soft), transparent 52%),
+    var(--v2-surface);
+  box-shadow: var(--v2-shadow-soft);
+}
+
+html.light .arcade-dashboard-v2 .program-countdown-card {
+  background:
+    radial-gradient(circle at 10% 10%, var(--countdown-accent-soft), transparent 52%),
+    var(--v2-surface);
+}
+
+.arcade-dashboard-v2 .program-countdown-part {
+  border-color: var(--v2-border);
+  background: var(--v2-surface-soft);
 }
 
 /* Secondary browser CTA becomes part of the same visual system. */
