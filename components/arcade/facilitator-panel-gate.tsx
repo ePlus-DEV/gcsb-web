@@ -11,12 +11,14 @@ import {
   type FacilitatorParticipationDetail,
 } from "./facilitator-participation"
 import { DASHBOARD_STORAGE_KEY } from "./model"
+import { PREVIEW_DEBUG_PROFILE_URL } from "./preview-debug-profile"
 
 const DASHBOARD_SYNC_INTERVAL_MS = 1_000
 
 function readStoredProfileUrl(): string {
   const page = document.querySelector<HTMLElement>(".arcade-dashboard-page")
   if (page?.dataset.dashboardView === "guest") return ""
+  if (page?.dataset.dashboardDebugFake === "true") return PREVIEW_DEBUG_PROFILE_URL
 
   try {
     const raw = window.localStorage.getItem(DASHBOARD_STORAGE_KEY)
