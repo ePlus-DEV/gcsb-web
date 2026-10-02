@@ -679,26 +679,6 @@ export default function RedesignCalculator({
         </div>
 
         <div id="calculator" className="profile-analyzer-card">
-          <div className="dashboard-view-switch" role="group" aria-label={viewMessages.dashboardView}>
-            <button
-              type="button"
-              className={viewMode === "guest" ? "is-active" : ""}
-              aria-pressed={viewMode === "guest"}
-              onClick={() => setViewMode("guest")}
-            >
-              <Globe2 />
-              <span>{viewMessages.guestView}</span>
-            </button>
-            <button
-              type="button"
-              className={viewMode === "profile" ? "is-active" : ""}
-              aria-pressed={viewMode === "profile"}
-              onClick={() => setViewMode("profile")}
-            >
-              <Users />
-              <span>{viewMessages.profileView}</span>
-            </button>
-          </div>
           <div className="analyzer-title"><span>1</span> Paste your public profile URL</div>
           <form onSubmit={analyzeProfile} noValidate>
             <label className={error ? "profile-input has-error" : "profile-input"}>
@@ -761,6 +741,29 @@ export default function RedesignCalculator({
           >
             <Globe2 /> Firefox <ExternalLink />
           </a>
+        </div>
+      </section>
+
+      <section className="dashboard-mode-bar" aria-label={viewMessages.dashboardView}>
+        <div className="dashboard-view-switch" role="group" aria-label={viewMessages.dashboardView}>
+          <button
+            type="button"
+            className={viewMode === "guest" ? "is-active" : ""}
+            aria-pressed={viewMode === "guest"}
+            onClick={() => setViewMode("guest")}
+          >
+            <Globe2 />
+            <span>{viewMessages.guestView}</span>
+          </button>
+          <button
+            type="button"
+            className={viewMode === "profile" ? "is-active" : ""}
+            aria-pressed={viewMode === "profile"}
+            onClick={() => setViewMode("profile")}
+          >
+            <Users />
+            <span>{viewMessages.profileView}</span>
+          </button>
         </div>
       </section>
 
@@ -1056,34 +1059,65 @@ export default function RedesignCalculator({
           </div>
         </section>
       ) : (
-        <section className="dashboard-empty-state" data-home-order="dashboard-empty">
-          <div className="empty-result-message">
-            <span><Trophy /></span>
-            <strong>{viewMode === "guest" ? viewMessages.guestDashboardTitle : viewMessages.dashboardPlaceholder}</strong>
-            <p>{viewMode === "guest" ? viewMessages.guestDashboardHint : viewMessages.dashboardHint}</p>
+        <section
+          className={`dashboard-empty-state guest-dashboard${viewMode === "guest" ? " is-guest" : " is-profile-empty"}`}
+          data-home-order="dashboard-empty"
+        >
+          <div className="guest-dashboard-hero">
+            <span className="guest-dashboard-orb" aria-hidden="true"><Trophy /></span>
+            <div className="guest-dashboard-copy">
+              <strong>{viewMode === "guest" ? viewMessages.guestDashboardTitle : viewMessages.dashboardPlaceholder}</strong>
+              <p>{viewMode === "guest" ? viewMessages.guestDashboardHint : viewMessages.dashboardHint}</p>
+            </div>
+            <span className="guest-dashboard-decoration" aria-hidden="true"><Gamepad2 /></span>
           </div>
+
+          <div className="guest-tier-heading">
+            <div>
+              <span className="guest-tier-heading-icon" aria-hidden="true"><Trophy /></span>
+              <div>
+                <strong>{viewMessages.arcadeTiers}</strong>
+                <span>{milestonesLive ? viewMessages.liveSlots : viewMessages.totalSlotsOnly}</span>
+              </div>
+            </div>
+          </div>
+
           <div className="empty-tier-grid">
-            {[...milestones].reverse().map((tier) => (
-              <article key={tier.points}>
-                <Trophy />
-                <div><strong>{tier.league.replace("Arcade ", "")}</strong><span>{tierRangeLabel(tier)}</span></div>
-                <b>
-                  {tier.spotsLeft === null
-                    ? formatInteger(tier.slots) + " total slots"
-                    : formatInteger(tier.spotsLeft) +
-                      " / " +
-                      formatInteger(tier.slots) +
-                      " left"}
-                </b>
-                <SlotChangeBadge
-                  feed={slotHistory.feed}
-                  points={tier.points}
-                  currentSpotsLeft={tier.spotsLeft}
-                  catalog={activeHistoryLanguage.catalog}
-                  locale={activeHistoryLanguage.locale}
-                />
-              </article>
-            ))}
+            {[...milestones].reverse().map((tier) => {
+              const remainingPercent =
+                tier.spotsLeft === null || tier.slots <= 0
+                  ? 0
+                  : Math.max(0, Math.min(100, (tier.spotsLeft / tier.slots) * 100))
+
+              return (
+                <article className={`guest-tier-card tier-${tier.points}`} key={tier.points}>
+                  <span className="guest-tier-icon" aria-hidden="true"><Trophy /></span>
+                  <div className="guest-tier-main">
+                    <div className="guest-tier-copy">
+                      <strong>{tier.league.replace("Arcade ", "")}</strong>
+                      <span>{tierRangeLabel(tier)}</span>
+                    </div>
+                    <div className="guest-tier-progress" aria-hidden="true">
+                      <span style={{ width: `${remainingPercent}%` }} />
+                    </div>
+                  </div>
+                  <div className="guest-tier-availability">
+                    <strong>
+                      {tier.spotsLeft === null ? "—" : formatInteger(tier.spotsLeft)}
+                      <span> / {formatInteger(tier.slots)}</span>
+                    </strong>
+                    <small>{tier.spotsLeft === null ? viewMessages.totalSlotsOnly : viewMessages.spotsLeft}</small>
+                    <SlotChangeBadge
+                      feed={slotHistory.feed}
+                      points={tier.points}
+                      currentSpotsLeft={tier.spotsLeft}
+                      catalog={activeHistoryLanguage.catalog}
+                      locale={activeHistoryLanguage.locale}
+                    />
+                  </div>
+                </article>
+              )
+            })}
           </div>
         </section>
       )}
