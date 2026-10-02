@@ -92,3 +92,23 @@ test("an empty published monthly feed is treated as awaiting publication, not a 
   assert.match(monthlyPanel, /if \(loadFailed\) return null/)
   assert.doesNotMatch(monthlyPanel, /loadFailed \|\| games\.length === 0/)
 })
+
+
+test("home dashboard v2 stays scoped and its visual overrides load last", () => {
+  const layout = readRepoFile("app/layout.tsx")
+  const refactorStyles = readRepoFile("app/styles/home-refactor.css")
+
+  assert.match(calculator, /arcade-dashboard-page arcade-dashboard-v2/)
+  assert.match(refactorStyles, /\.arcade-dashboard-v2/)
+  assert.match(refactorStyles, /html\.light \.arcade-dashboard-v2/)
+  assert.match(refactorStyles, /@media \(max-width: 600px\)/)
+
+  const legacyResponsive = layout.indexOf('import "./styles/redesign-responsive.css"')
+  const facilitatorStyles = layout.indexOf('import "./styles/facilitator-participation.css"')
+  const refactorImport = layout.indexOf('import "./styles/home-refactor.css"')
+
+  assert.ok(legacyResponsive >= 0)
+  assert.ok(facilitatorStyles >= 0)
+  assert.ok(refactorImport > legacyResponsive)
+  assert.ok(refactorImport > facilitatorStyles)
+})
