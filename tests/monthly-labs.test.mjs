@@ -82,7 +82,7 @@ test("all monthly page copy has translated catalogs with matching placeholders a
   assert.deepEqual(leaks, [])
   assert.match(source, /useSiteCatalog/)
   assert.match(source, /lab\.deadlineTimeZone \?\? "UTC"/)
-  assert.match(source, /labState\(lab, now\) !== "labArchived"/)
+  assert.match(source, /detailState !== "labArchived"/)
   assert.match(readRepoFile("app/sitemap.ts"), /monthlyLabPath/)
 })
 
