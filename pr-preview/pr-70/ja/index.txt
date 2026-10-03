@@ -1,0 +1,285 @@
+1:"$Sreact.fragment"
+3:I[9304,["874","static/chunks/874-6636e32d520a8252.js","180","static/chunks/180-2e23c92e5d88bb38.js","177","static/chunks/app/layout-16adde6b164367a8.js"],"ThemeProvider"]
+4:I[8180,["874","static/chunks/874-6636e32d520a8252.js","180","static/chunks/180-2e23c92e5d88bb38.js","177","static/chunks/app/layout-16adde6b164367a8.js"],"default"]
+5:I[352,["874","static/chunks/874-6636e32d520a8252.js","180","static/chunks/180-2e23c92e5d88bb38.js","177","static/chunks/app/layout-16adde6b164367a8.js"],"default"]
+6:I[1545,["874","static/chunks/874-6636e32d520a8252.js","180","static/chunks/180-2e23c92e5d88bb38.js","177","static/chunks/app/layout-16adde6b164367a8.js"],"default"]
+7:I[7555,[],""]
+8:I[1295,[],""]
+9:I[6195,["874","static/chunks/874-6636e32d520a8252.js","180","static/chunks/180-2e23c92e5d88bb38.js","345","static/chunks/app/not-found-214586dcd42fcd8f.js"],"default"]
+a:I[7098,["874","static/chunks/874-6636e32d520a8252.js","180","static/chunks/180-2e23c92e5d88bb38.js","177","static/chunks/app/layout-16adde6b164367a8.js"],"default"]
+d:I[9665,[],"OutletBoundary"]
+10:I[9665,[],"ViewportBoundary"]
+12:I[9665,[],"MetadataBoundary"]
+14:I[6614,[],""]
+:HL["/pr-preview/pr-70/_next/static/css/09e375134da345e3.css","style"]
+:HL["/pr-preview/pr-70/_next/static/css/959507dcd46061c8.css","style"]
+:HL["/pr-preview/pr-70/_next/static/css/5d9927b705702b80.css","style"]
+2:T1d69,(() => {
+  const installFlag = "__eplusArcadeRequestDeduperInstalled"
+  if (window[installFlag]) return
+
+  const originalFetch = window.fetch.bind(window)
+  const inFlight = new Map()
+  const recent = new Map()
+  const recentTtlMs = 5_000
+  const apiOrigin = "https://hub.eplus.dev"
+  const apiPaths = new Set(["/api/arcade-public", "/api/arcade-widget"])
+  const bonusMilestonePrefix = "arcade-facilitator-bonus-milestone-v1"
+
+  function isRequest(input) {
+    return typeof Request !== "undefined" && input instanceof Request
+  }
+
+  function getRequestUrl(input) {
+    if (typeof input === "string") return input
+    if (input instanceof URL) return input.toString()
+    if (isRequest(input)) return input.url
+    return ""
+  }
+
+  function getRequestMethod(input, init) {
+    if (init?.method) return String(init.method).toUpperCase()
+    if (isRequest(input)) return input.method.toUpperCase()
+    return "GET"
+  }
+
+  function getConsumerSignal(input, init) {
+    if (init?.signal !== undefined) return init.signal
+    if (isRequest(input)) return input.signal
+    return null
+  }
+
+  function getEffectiveHeaders(input, init) {
+    if (typeof Headers === "undefined") return []
+    const headers =
+      init?.headers !== undefined
+        ? new Headers(init.headers)
+        : isRequest(input)
+          ? new Headers(input.headers)
+          : new Headers()
+
+    return [...headers.entries()].sort(([left], [right]) => left.localeCompare(right))
+  }
+
+  function getEffectiveOption(input, init, name, fallback) {
+    if (init?.[name] !== undefined) return init[name]
+    if (isRequest(input) && input[name] !== undefined) return input[name]
+    return fallback
+  }
+
+  function getRequestKey(url, input, init, body) {
+    return JSON.stringify({
+      url: `${url.origin}${url.pathname}${url.search}`,
+      body,
+      headers: getEffectiveHeaders(input, init),
+      credentials: getEffectiveOption(input, init, "credentials", "same-origin"),
+      mode: getEffectiveOption(input, init, "mode", "cors"),
+      cache: getEffectiveOption(input, init, "cache", "default"),
+      redirect: getEffectiveOption(input, init, "redirect", "follow"),
+      referrerPolicy: getEffectiveOption(input, init, "referrerPolicy", ""),
+    })
+  }
+
+  function normalizeProfileUrl(value) {
+    return typeof value === "string" ? value.trim().replace(/\/$/, "") : ""
+  }
+
+  function isSharedProfilePage() {
+    return /\/(?:profiles\/[^/]+|profile)\/?$/i.test(window.location.pathname)
+  }
+
+  function readBonusMilestoneCompleted(profileUrl) {
+    const searchParams = new URLSearchParams(window.location.search)
+    if (isSharedProfilePage()) return searchParams.get("bonus") === "1"
+
+    try {
+      return (
+        window.localStorage.getItem(`${bonusMilestonePrefix}:${profileUrl}`) ===
+        "true"
+      )
+    } catch {
+      return false
+    }
+  }
+
+  function addBonusMilestoneFlag(body) {
+    try {
+      const payload = JSON.parse(body)
+      if (!payload || typeof payload !== "object") return body
+
+      const facilitator =
+        payload.facilitator && typeof payload.facilitator === "object"
+          ? payload.facilitator
+          : {}
+
+      // Widget requests now send the user's explicit confirmation directly.
+      // Do not overwrite that boolean with localStorage or shared-page fallbacks.
+      if (typeof facilitator.bonusMilestoneCompleted === "boolean") {
+        return body
+      }
+
+      const profileUrl = normalizeProfileUrl(payload.url)
+      if (!profileUrl) return body
+
+      payload.facilitator = {
+        ...facilitator,
+        bonusMilestoneCompleted: readBonusMilestoneCompleted(profileUrl),
+      }
+      return JSON.stringify(payload)
+    } catch {
+      return body
+    }
+  }
+
+  function createAbortError() {
+    try {
+      return new DOMException("The operation was aborted.", "AbortError")
+    } catch {
+      const error = new Error("The operation was aborted.")
+      error.name = "AbortError"
+      return error
+    }
+  }
+
+  function responseForConsumer(sharedRequest, signal) {
+    if (!signal) return sharedRequest.then((response) => response.clone())
+    if (signal.aborted) return Promise.reject(createAbortError())
+
+    return new Promise((resolve, reject) => {
+      let settled = false
+
+      const cleanup = () => signal.removeEventListener("abort", onAbort)
+      const onAbort = () => {
+        if (settled) return
+        settled = true
+        cleanup()
+        reject(createAbortError())
+      }
+
+      signal.addEventListener("abort", onAbort, { once: true })
+      sharedRequest.then(
+        (response) => {
+          if (settled) return
+          settled = true
+          cleanup()
+          resolve(response.clone())
+        },
+        (error) => {
+          if (settled) return
+          settled = true
+          cleanup()
+          reject(error)
+        },
+      )
+    })
+  }
+
+  function dedupeRequest(input, init, url, body, consumerSignal) {
+    if (consumerSignal?.aborted) return Promise.reject(createAbortError())
+
+    const key = getRequestKey(url, input, init, body)
+    const now = Date.now()
+    const cached = recent.get(key)
+
+    if (cached) {
+      if (cached.expiresAt > now) {
+        return Promise.resolve(cached.response.clone())
+      }
+      recent.delete(key)
+    }
+
+    const existing = inFlight.get(key)
+    if (existing) return responseForConsumer(existing, consumerSignal)
+
+    const sharedInit = isRequest(input)
+      ? { ...(init ?? {}), signal: null }
+      : init && "signal" in init
+        ? { ...init, signal: null }
+        : init
+
+    const sharedRequest = originalFetch(input, sharedInit)
+      .then((response) => {
+        if (response.ok) {
+          const entry = {
+            response: response.clone(),
+            expiresAt: Date.now() + recentTtlMs,
+          }
+          recent.set(key, entry)
+          window.setTimeout(() => {
+            if (recent.get(key) === entry) recent.delete(key)
+          }, recentTtlMs)
+        }
+        return response
+      })
+      .finally(() => {
+        if (inFlight.get(key) === sharedRequest) inFlight.delete(key)
+      })
+
+    inFlight.set(key, sharedRequest)
+    return responseForConsumer(sharedRequest, consumerSignal)
+  }
+
+  window.fetch = (input, init) => {
+    const rawUrl = getRequestUrl(input)
+    let url
+
+    try {
+      url = new URL(rawUrl, window.location?.href ?? "https://arcade.eplus.dev/")
+    } catch {
+      return originalFetch(input, init)
+    }
+
+    if (
+      getRequestMethod(input, init) !== "POST" ||
+      url.origin !== apiOrigin ||
+      !apiPaths.has(url.pathname)
+    ) {
+      return originalFetch(input, init)
+    }
+
+    const consumerSignal = getConsumerSignal(input, init)
+
+    if (init?.body !== undefined) {
+      if (typeof init.body !== "string") return originalFetch(input, init)
+      const body = addBonusMilestoneFlag(init.body)
+      const nextInit = body === init.body ? init : { ...init, body }
+      return dedupeRequest(input, nextInit, url, body, consumerSignal)
+    }
+
+    if (!isRequest(input) || input.bodyUsed) return originalFetch(input, init)
+
+    return input
+      .clone()
+      .text()
+      .then(
+        (rawBody) => {
+          const body = addBonusMilestoneFlag(rawBody)
+          if (body === rawBody) {
+            return dedupeRequest(input, init, url, body, consumerSignal)
+          }
+          const request = new Request(input, { body })
+          return dedupeRequest(request, init, url, body, consumerSignal)
+        },
+        () => originalFetch(input, init),
+      )
+  }
+
+  window[installFlag] = true
+})()
+0:{"P":null,"b":"BYAs77lQocYCQ25YO-rX-","p":"/pr-preview/pr-70","c":["","ja",""],"i":false,"f":[[["",{"children":[["locale","ja","d"],{"children":["__PAGE__",{}]}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/pr-preview/pr-70/_next/static/css/09e375134da345e3.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}],["$","link","1",{"rel":"stylesheet","href":"/pr-preview/pr-70/_next/static/css/959507dcd46061c8.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}],["$","link","2",{"rel":"stylesheet","href":"/pr-preview/pr-70/_next/static/css/5d9927b705702b80.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"en","dir":"ltr","data-locale":"en","suppressHydrationWarning":true,"children":[["$","head",null,{"children":[["$","script",null,{"id":"arcade-request-dedupe","dangerouslySetInnerHTML":{"__html":"$2"}}],["$","script",null,{"id":"website-catalog-cache-buster","dangerouslySetInnerHTML":{"__html":"(() => {\n  const version = \"527ec56b956378c017c78318ee0f6c779e8d58ec\";\n  const originalFetch = window.fetch.bind(window);\n\n  window.fetch = (input, init) => {\n    const rawUrl =\n      typeof input === \"string\"\n        ? input\n        : input instanceof URL\n          ? input.toString()\n          : input instanceof Request\n            ? input.url\n            : \"\";\n\n    let url;\n    try {\n      url = new URL(rawUrl, window.location.href);\n    } catch {\n      return originalFetch(input, init);\n    }\n\n    if (!url.pathname.includes(\"/i18n/\") || !url.pathname.endsWith(\".json\")) {\n      return originalFetch(input, init);\n    }\n\n    url.searchParams.set(\"v\", version);\n    return originalFetch(url.toString(), { ...init, cache: \"no-store\" });\n  };\n})();"}}],["$","link",null,{"rel":"preconnect","href":"https://fonts.googleapis.com"}],["$","link",null,{"rel":"preconnect","href":"https://fonts.gstatic.com","crossOrigin":"anonymous"}],["$","link",null,{"rel":"preconnect","href":"https://cdnjs.cloudflare.com"}],["$","link",null,{"rel":"stylesheet","href":"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Press+Start+2P&display=swap"}],["$","link",null,{"rel":"stylesheet","href":"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css","integrity":"sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==","crossOrigin":"anonymous","referrerPolicy":"no-referrer"}],["$","meta",null,{"name":"cookie-notice-preview","content":"true"}],null]}],["$","body",null,{"children":["$","$L3",null,{"attribute":"class","defaultTheme":"dark","enableSystem":false,"disableTransitionOnChange":true,"storageKey":"arcade-theme","children":[["$","$L4",null,{}],["$","$L5",null,{}],["$","$L6",null,{}],["$","$L7",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","$L9",null,{}],[]],"forbidden":"$undefined","unauthorized":"$undefined"}],["$","$La",null,{"analyticsEnabled":false,"previewMode":true}]]}]}]]}]]}],{"children":[["locale","ja","d"],["$","$1","c",{"children":[null,"$Lb"]}],{"children":["__PAGE__",["$","$1","c",{"children":["$Lc","$undefined",null,["$","$Ld",null,{"children":["$Le","$Lf",null]}]]}],{},null,false]},null,false]},null,false],["$","$1","h",{"children":[null,["$","$1","HHdcGTwqEbPJ3VRyS_W70",{"children":[["$","$L10",null,{"children":"$L11"}],null]}],["$","$L12",null,{"children":"$L13"}]]}],false]],"m":"$undefined","G":["$14","$undefined"],"s":false,"S":true}
+b:["$","div",null,{"lang":"ja","dir":"ltr","data-locale":"ja","children":["$","$L7",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]}]
+11:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","2",{"name":"color-scheme","content":"light dark"}]]
+e:null
+15:I[7259,["874","static/chunks/874-6636e32d520a8252.js","180","static/chunks/180-2e23c92e5d88bb38.js","327","static/chunks/327-cf4b24c83dbc9418.js","465","static/chunks/app/%5Blocale%5D/page-b749716a575042cf.js"],"default"]
+16:I[5059,["874","static/chunks/874-6636e32d520a8252.js","180","static/chunks/180-2e23c92e5d88bb38.js","327","static/chunks/327-cf4b24c83dbc9418.js","465","static/chunks/app/%5Blocale%5D/page-b749716a575042cf.js"],"default"]
+17:I[6037,["874","static/chunks/874-6636e32d520a8252.js","180","static/chunks/180-2e23c92e5d88bb38.js","327","static/chunks/327-cf4b24c83dbc9418.js","465","static/chunks/app/%5Blocale%5D/page-b749716a575042cf.js"],"default"]
+18:I[2236,["874","static/chunks/874-6636e32d520a8252.js","180","static/chunks/180-2e23c92e5d88bb38.js","327","static/chunks/327-cf4b24c83dbc9418.js","465","static/chunks/app/%5Blocale%5D/page-b749716a575042cf.js"],"default"]
+19:I[3732,["874","static/chunks/874-6636e32d520a8252.js","180","static/chunks/180-2e23c92e5d88bb38.js","327","static/chunks/327-cf4b24c83dbc9418.js","465","static/chunks/app/%5Blocale%5D/page-b749716a575042cf.js"],"default"]
+1a:I[5368,["874","static/chunks/874-6636e32d520a8252.js","180","static/chunks/180-2e23c92e5d88bb38.js","327","static/chunks/327-cf4b24c83dbc9418.js","465","static/chunks/app/%5Blocale%5D/page-b749716a575042cf.js"],"default"]
+1b:I[9284,["874","static/chunks/874-6636e32d520a8252.js","180","static/chunks/180-2e23c92e5d88bb38.js","327","static/chunks/327-cf4b24c83dbc9418.js","465","static/chunks/app/%5Blocale%5D/page-b749716a575042cf.js"],"default"]
+1c:I[2366,["874","static/chunks/874-6636e32d520a8252.js","180","static/chunks/180-2e23c92e5d88bb38.js","327","static/chunks/327-cf4b24c83dbc9418.js","465","static/chunks/app/%5Blocale%5D/page-b749716a575042cf.js"],"default"]
+1d:I[7723,["874","static/chunks/874-6636e32d520a8252.js","180","static/chunks/180-2e23c92e5d88bb38.js","327","static/chunks/327-cf4b24c83dbc9418.js","465","static/chunks/app/%5Blocale%5D/page-b749716a575042cf.js"],"default"]
+1e:I[1900,["874","static/chunks/874-6636e32d520a8252.js","180","static/chunks/180-2e23c92e5d88bb38.js","327","static/chunks/327-cf4b24c83dbc9418.js","465","static/chunks/app/%5Blocale%5D/page-b749716a575042cf.js"],"default"]
+1f:T8c1,{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://arcade.eplus.dev/ja/#website","url":"https://arcade.eplus.dev/ja/","name":"あなたの ARCADE スコア – Google Cloud Arcade 2026","description":"公開プロフィールを分析し、獲得バッジと2026年の対象報酬ティアを確認します。","publisher":{"@id":"https://eplus.dev/#organization"},"inLanguage":"ja"},{"@type":"WebPage","@id":"https://arcade.eplus.dev/ja/#webpage","url":"https://arcade.eplus.dev/ja/","name":"あなたの ARCADE スコア – Google Cloud Arcade 2026","description":"公開プロフィールを分析し、獲得バッジと2026年の対象報酬ティアを確認します。","isPartOf":{"@id":"https://arcade.eplus.dev/ja/#website"},"mainEntity":{"@id":"https://arcade.eplus.dev/ja/#application"},"about":{"@id":"https://arcade.eplus.dev/ja/#application"},"publisher":{"@id":"https://eplus.dev/#organization"},"inLanguage":"ja"},{"@type":"Organization","@id":"https://eplus.dev/#organization","name":"ePlus.DEV","url":"https://eplus.dev/"},{"@type":"WebApplication","@id":"https://arcade.eplus.dev/ja/#application","name":"あなたの ARCADE スコア – Google Cloud Arcade 2026","url":"https://arcade.eplus.dev/ja/","mainEntityOfPage":{"@id":"https://arcade.eplus.dev/ja/#webpage"},"isPartOf":{"@id":"https://arcade.eplus.dev/ja/#website"},"applicationCategory":"EducationalApplication","applicationSubCategory":"Google Cloud learning progress tracker","operatingSystem":"Any","browserRequirements":"Requires a modern web browser with JavaScript enabled","description":"公開プロフィールを分析し、獲得バッジと2026年の対象報酬ティアを確認します。","isAccessibleForFree":true,"offers":{"@type":"Offer","price":0,"priceCurrency":"USD"},"creator":{"@id":"https://eplus.dev/#organization"},"featureList":["Google Cloud Arcade point calculation with Facilitator milestone bonuses","Google Skills public profile analysis","Earned badge review and completion tracking","Current monthly Arcade games, access codes, deadlines, and completion tracking","Arcade reward tier and live remaining-slot comparison","Arcade Facilitator milestone and syllabus tracking"],"inLanguage":"ja"}]}c:[["$","section",null,{"className":"sr-only","lang":"ja","children":[["$","h1",null,{"children":"あなたの ARCADE スコア – Google Cloud Arcade 2026"}],["$","p",null,{"children":"公開プロフィールを分析し、獲得バッジと2026年の対象報酬ティアを確認します。"}]]}],["$","$L15",null,{}],["$","$L16",null,{}],["$","$L17",null,{}],["$","$L18",null,{}],["$","$L19",null,{}],["$","$L1a",null,{}],["$","$L1b",null,{}],["$","$L1c",null,{}],["$","$L1d",null,{}],["$","$L1e",null,{}],["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"$1f"}}]]
+f:null
+13:[["$","title","0",{"children":"あなたの ARCADE スコア – Google Cloud Arcade 2026 | ePlus.DEV"}],["$","meta","1",{"name":"description","content":"公開プロフィールを分析し、獲得バッジと2026年の対象報酬ティアを確認します。"}],["$","meta","2",{"name":"application-name","content":"Arcade Points by ePlus.DEV"}],["$","link","3",{"rel":"author","href":"https://eplus.dev"}],["$","meta","4",{"name":"author","content":"ePlus.DEV"}],["$","link","5",{"rel":"manifest","href":"/pr-preview/pr-70/manifest.json","crossOrigin":"$undefined"}],["$","meta","6",{"name":"generator","content":"Next.js"}],["$","meta","7",{"name":"keywords","content":"Google Cloud Arcade points calculator,Google Skills Arcade calculator,Google Cloud Skills Boost badges,Google Skills public profile tracker,Arcade Facilitator points,Google Cloud Arcade milestones,Arcade points 2026,Google Cloud Arcade rewards,Google Cloud Skills Boost Helper"}],["$","meta","8",{"name":"referrer","content":"origin-when-cross-origin"}],["$","meta","9",{"name":"creator","content":"ePlus.DEV"}],["$","meta","10",{"name":"publisher","content":"ePlus.DEV"}],["$","meta","11",{"name":"robots","content":"index, follow"}],["$","meta","12",{"name":"googlebot","content":"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"}],["$","meta","13",{"name":"category","content":"technology"}],["$","link","14",{"rel":"canonical","href":"https://arcade.eplus.dev/ja/"}],["$","link","15",{"rel":"alternate","hrefLang":"en","href":"https://arcade.eplus.dev/"}],["$","link","16",{"rel":"alternate","hrefLang":"vi","href":"https://arcade.eplus.dev/vi/"}],["$","link","17",{"rel":"alternate","hrefLang":"ja","href":"https://arcade.eplus.dev/ja/"}],["$","link","18",{"rel":"alternate","hrefLang":"ko","href":"https://arcade.eplus.dev/ko/"}],["$","link","19",{"rel":"alternate","hrefLang":"zh-CN","href":"https://arcade.eplus.dev/zh-cn/"}],["$","link","20",{"rel":"alternate","hrefLang":"fr","href":"https://arcade.eplus.dev/fr/"}],["$","link","21",{"rel":"alternate","hrefLang":"de","href":"https://arcade.eplus.dev/de/"}],["$","link","22",{"rel":"alternate","hrefLang":"es","href":"https://arcade.eplus.dev/es/"}],["$","link","23",{"rel":"alternate","hrefLang":"pt-BR","href":"https://arcade.eplus.dev/pt-br/"}],["$","link","24",{"rel":"alternate","hrefLang":"it","href":"https://arcade.eplus.dev/it/"}],["$","link","25",{"rel":"alternate","hrefLang":"ru","href":"https://arcade.eplus.dev/ru/"}],["$","link","26",{"rel":"alternate","hrefLang":"ar","href":"https://arcade.eplus.dev/ar/"}],["$","link","27",{"rel":"alternate","hrefLang":"hi","href":"https://arcade.eplus.dev/hi/"}],["$","link","28",{"rel":"alternate","hrefLang":"x-default","href":"https://arcade.eplus.dev/"}],["$","meta","29",{"property":"og:title","content":"あなたの ARCADE スコア – Google Cloud Arcade 2026"}],["$","meta","30",{"property":"og:description","content":"公開プロフィールを分析し、獲得バッジと2026年の対象報酬ティアを確認します。"}],["$","meta","31",{"property":"og:url","content":"https://arcade.eplus.dev/ja/"}],["$","meta","32",{"property":"og:locale","content":"ja"}],["$","meta","33",{"property":"og:locale:alternate","content":"en"}],["$","meta","34",{"property":"og:locale:alternate","content":"vi"}],["$","meta","35",{"property":"og:locale:alternate","content":"ko"}],["$","meta","36",{"property":"og:locale:alternate","content":"zh_CN"}],["$","meta","37",{"property":"og:locale:alternate","content":"fr"}],["$","meta","38",{"property":"og:locale:alternate","content":"de"}],["$","meta","39",{"property":"og:locale:alternate","content":"es"}],["$","meta","40",{"property":"og:locale:alternate","content":"pt_BR"}],["$","meta","41",{"property":"og:locale:alternate","content":"it"}],["$","meta","42",{"property":"og:locale:alternate","content":"ru"}],["$","meta","43",{"property":"og:locale:alternate","content":"ar"}],["$","meta","44",{"property":"og:locale:alternate","content":"hi"}],["$","meta","45",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","46",{"name":"twitter:title","content":"あなたの ARCADE スコア – Google Cloud Arcade 2026"}],["$","meta","47",{"name":"twitter:description","content":"公開プロフィールを分析し、獲得バッジと2026年の対象報酬ティアを確認します。"}],["$","link","48",{"rel":"icon","href":"/pr-preview/pr-70/favicon.ico","type":"image/x-icon","sizes":"48x48"}],["$","link","49",{"rel":"icon","href":"/pr-preview/pr-70/icon0.svg?66a7cd687bde5efd","type":"image/svg+xml","sizes":"any"}],["$","link","50",{"rel":"icon","href":"/pr-preview/pr-70/icon1.png?52e5d01a77c5680f","type":"image/png","sizes":"96x96"}],["$","link","51",{"rel":"apple-touch-icon","href":"/pr-preview/pr-70/apple-icon.png?97901d54c640609b","type":"image/png","sizes":"180x180"}]]
