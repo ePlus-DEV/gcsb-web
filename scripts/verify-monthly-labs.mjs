@@ -30,10 +30,10 @@ try {
       assert.equal(await page.locator("h1").count(), 1)
       if (path === "/monthly-labs/") {
         await page.locator("h1").filter({ hasText: catalog.messages.monthlyLabs }).waitFor()
-        assert.equal(await page.locator(".content-card").count(), Object.keys(snapshot.months).length)
+        assert.equal(await page.locator(".monthly-lab-month-card").count(), Object.keys(snapshot.months).length)
       } else if (path.endsWith("/09/")) {
-        assert.equal(await page.locator(".content-card").count(), september.length)
-        await page.locator(".content-primary-action").filter({ hasText: catalog.messages.labDetails }).first().waitFor()
+        assert.equal(await page.locator(".monthly-lab-game-card").count(), september.length)
+        await page.locator(".monthly-lab-game-card").filter({ hasText: catalog.messages.labDetails }).first().waitFor()
       } else {
         assert.equal(await page.locator("h1").innerText(), example.title)
         await page.locator(".monthly-lab-status").filter({ hasText: catalog.messages.labArchived }).waitFor()
