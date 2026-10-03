@@ -85,3 +85,27 @@ test("all monthly page copy has translated catalogs with matching placeholders a
   assert.match(source, /labState\(lab, now\) !== "labArchived"/)
   assert.match(readRepoFile("app/sitemap.ts"), /monthlyLabPath/)
 })
+
+test("monthly labs use one responsive UI hierarchy across archive, month and detail pages", () => {
+  const source = readRepoFile("components/monthly-labs/pages.tsx")
+  const styles = readRepoFile("app/styles/site-ui.css")
+
+  for (const className of [
+    "monthly-lab-archive-grid",
+    "monthly-lab-month-card",
+    "monthly-lab-game-grid",
+    "monthly-lab-game-card",
+    "monthly-lab-detail-card",
+    "monthly-lab-fact-grid",
+    "monthly-lab-history-note",
+  ]) {
+    assert.ok(source.includes(className), `monthly lab JSX missing ${className}`)
+    assert.ok(styles.includes(`.${className}`), `monthly lab CSS missing ${className}`)
+  }
+
+  assert.match(source, /href="\/monthly-labs\/" className="monthly-lab-back-link"/)
+  assert.match(source, /className="monthly-lab-detail-actions"/)
+  assert.match(styles, /@media \(max-width: 640px\)[\s\S]*monthly-lab-game-grid/)
+  assert.doesNotMatch(source, /className="grid gap-4 md:grid-cols-2"/)
+})
+
