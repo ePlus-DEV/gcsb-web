@@ -167,18 +167,12 @@ export default function MonthlyLabsPage({ months, month, labs, lab }: Props) {
                 </div>
 
                 <div className="monthly-lab-detail-body">
-                  <div className="monthly-lab-card-meta">
+                  <div className="monthly-lab-card-meta monthly-lab-detail-meta">
                     <span className={`monthly-lab-status ${detailState}`}>{m[detailState]}</span>
-                    {lab.points !== null && (
-                      <span className="monthly-lab-points-badge">
-                        <Trophy aria-hidden="true" />
-                        {text(lab.points === 1 ? "arcadePoint" : "arcadePoints", { count: formatNumber(lab.points) })}
-                      </span>
-                    )}
                   </div>
 
                   <dl className="monthly-lab-fact-grid">
-                    <div className="monthly-lab-fact">
+                    <div className="monthly-lab-fact monthly-lab-fact-access">
                       <dt><Copy aria-hidden="true" />{text("accessCode")}</dt>
                       <dd>
                         {lab.accessCode ? (
@@ -199,7 +193,7 @@ export default function MonthlyLabsPage({ months, month, labs, lab }: Props) {
                       </dd>
                     </div>
 
-                    <div className="monthly-lab-fact">
+                    <div className="monthly-lab-fact monthly-lab-fact-deadline">
                       <dt><Clock aria-hidden="true" />{text("deadline")}</dt>
                       <dd>
                         {lab.deadline && Number.isFinite(Date.parse(lab.deadline))
@@ -209,14 +203,14 @@ export default function MonthlyLabsPage({ months, month, labs, lab }: Props) {
                     </div>
 
                     {lab.points !== null && (
-                      <div className="monthly-lab-fact">
+                      <div className="monthly-lab-fact monthly-lab-fact-points">
                         <dt><Trophy aria-hidden="true" />{m.arcadePoints}</dt>
                         <dd>{text(lab.points === 1 ? "arcadePoint" : "arcadePoints", { count: formatNumber(lab.points) })}</dd>
                       </div>
                     )}
 
                     {lab.spotsRemaining !== null && (
-                      <div className="monthly-lab-fact">
+                      <div className="monthly-lab-fact monthly-lab-fact-places">
                         <dt><Users aria-hidden="true" />{m.labHistoricalSlots}</dt>
                         <dd>{formatNumber(lab.spotsRemaining)}</dd>
                       </div>
