@@ -4,16 +4,15 @@ import { useEffect, useState } from "react"
 import {
   ArrowLeft,
   ArrowRight,
-  CalendarDays,
+  Calendar,
   Check,
-  Clock3,
+  Clock,
   Copy,
   ExternalLink,
   Gamepad2,
   Info,
-  KeyRound,
   Trophy,
-  UsersRound,
+  Users,
 } from "lucide-react"
 import InternalPageShell from "@/components/site/internal-page-shell"
 import ContentCard from "@/components/site/content-card"
@@ -96,7 +95,7 @@ export default function MonthlyLabsPage({ months, month, labs, lab }: Props) {
               {months.map((item) => (
                 <Link key={item.month} href={monthlyLabMonthPath(item.month)} className="monthly-lab-month-card">
                   <span className="monthly-lab-month-icon">
-                    <CalendarDays aria-hidden="true" />
+                    <Calendar aria-hidden="true" />
                   </span>
                   <span className="monthly-lab-month-copy">
                     <strong>{monthLabel(item.month, intlLocale)}</strong>
@@ -180,7 +179,7 @@ export default function MonthlyLabsPage({ months, month, labs, lab }: Props) {
 
                   <dl className="monthly-lab-fact-grid">
                     <div className="monthly-lab-fact">
-                      <dt><KeyRound aria-hidden="true" />{text("accessCode")}</dt>
+                      <dt><Copy aria-hidden="true" />{text("accessCode")}</dt>
                       <dd>
                         {lab.accessCode ? (
                           <>
@@ -201,7 +200,7 @@ export default function MonthlyLabsPage({ months, month, labs, lab }: Props) {
                     </div>
 
                     <div className="monthly-lab-fact">
-                      <dt><Clock3 aria-hidden="true" />{text("deadline")}</dt>
+                      <dt><Clock aria-hidden="true" />{text("deadline")}</dt>
                       <dd>
                         {lab.deadline && Number.isFinite(Date.parse(lab.deadline))
                           ? <time dateTime={lab.deadline}>{deadline} · {lab.deadlineTimeZone ?? "UTC"}</time>
@@ -218,7 +217,7 @@ export default function MonthlyLabsPage({ months, month, labs, lab }: Props) {
 
                     {lab.spotsRemaining !== null && (
                       <div className="monthly-lab-fact">
-                        <dt><UsersRound aria-hidden="true" />{m.labHistoricalSlots}</dt>
+                        <dt><Users aria-hidden="true" />{m.labHistoricalSlots}</dt>
                         <dd>{formatNumber(lab.spotsRemaining)}</dd>
                       </div>
                     )}
