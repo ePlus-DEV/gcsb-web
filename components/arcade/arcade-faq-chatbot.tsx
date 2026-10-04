@@ -2,8 +2,8 @@
 
 import {
   ExternalLink,
-  MessageCircle,
-  Send,
+  CircleHelp,
+  Search,
   Sparkles,
   X,
 } from "lucide-react"
@@ -475,7 +475,7 @@ export default function ArcadeFaqChatbot() {
               disabled={!input.trim()}
               aria-label={vietnameseUi ? "Gửi câu hỏi" : "Send question"}
             >
-              <Send />
+              <Search />
             </button>
           </form>
         </section>
@@ -490,7 +490,7 @@ export default function ArcadeFaqChatbot() {
         }
         onClick={() => setOpen((value) => !value)}
       >
-        <MessageCircle />
+        <CircleHelp />
         <span>{vietnameseUi ? "Hỏi Arcade" : "Ask Arcade"}</span>
       </button>
     </div>
