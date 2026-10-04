@@ -3,6 +3,7 @@ import path from "node:path"
 import localFont from "next/font/local"
 import type { Metadata, Viewport } from "next"
 import WebsiteLanguage from "@/components/i18n/website-language"
+import ArcadeFaqChatbot from "@/components/arcade/arcade-faq-chatbot"
 import CookieConsent from "@/components/privacy/cookie-consent"
 import { ThemeProvider } from "@/components/theme-provider"
 import ThemeToggle from "@/components/theme-toggle"
@@ -33,6 +34,7 @@ import "./styles/shared-profile.css"
 import "./styles/profile-share.css"
 import "./styles/bonus-milestone.css"
 import "./styles/site-ui.css"
+import "./styles/arcade-chatbot.css"
 
 const arcadeRequestDedupeBootstrap = readFileSync(
   path.join(process.cwd(), "scripts", "arcade-request-dedupe.js"),
@@ -240,6 +242,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <WebsiteLanguage />
           <ThemeToggle />
           {children}
+          <ArcadeFaqChatbot />
           <CookieConsent
             analyticsEnabled={Boolean(googleAnalyticsId)}
             previewMode={cookieNoticePreviewMode}
