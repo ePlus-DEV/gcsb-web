@@ -5,6 +5,10 @@ import {
   CircleHelp,
   Search,
   Sparkles,
+  MoreVertical,
+  RotateCcw,
+  ListRestart,
+  Info,
   X,
 } from "lucide-react"
 import type { FormEvent } from "react"
@@ -270,6 +274,8 @@ function getLocale(): string {
 export default function ArcadeFaqChatbot() {
   const [open, setOpen] = useState(false)
   const [input, setInput] = useState("")
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [showAbout, setShowAbout] = useState(false)
   const [locale, setLocale] = useState("en")
   const [hiddenForWidget, setHiddenForWidget] = useState(false)
   const [messages, setMessages] = useState<ChatMessage[]>([])
@@ -350,6 +356,22 @@ export default function ArcadeFaqChatbot() {
     setInput("")
   }
 
+  function clearChat() {
+    setMessages([])
+    setInput("")
+    setMenuOpen(false)
+    setShowAbout(false)
+    messageId.current = 0
+    window.setTimeout(() => inputRef.current?.focus(), 0)
+  }
+
+  function showSuggestions() {
+    setMessages([])
+    setMenuOpen(false)
+    setShowAbout(false)
+    window.setTimeout(() => inputRef.current?.focus(), 0)
+  }
+
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     ask(input)
@@ -378,16 +400,82 @@ export default function ArcadeFaqChatbot() {
                   : "Quick FAQ · 2026 guidance"}
               </span>
             </div>
-            <button
-              type="button"
-              aria-label={vietnameseUi ? "Đóng chat" : "Close chat"}
-              onClick={() => setOpen(false)}
-            >
-              <X />
-            </button>
+            <div className="arcade-chatbot-header-actions">
+              <button
+                type="button"
+                aria-label={vietnameseUi ? "Menu chat" : "Chat menu"}
+                aria-expanded={menuOpen}
+                onClick={() => setMenuOpen((value) => !value)}
+              >
+                <MoreVertical />
+              </button>
+              <button
+                type="button"
+                aria-label={vietnameseUi ? "Đóng chat" : "Close chat"}
+                onClick={() => setOpen(false)}
+              >
+                <X />
+              </button>
+              {menuOpen ? (
+                <div className="arcade-chatbot-menu" role="menu">
+                  <button type="button" role="menuitem" onClick={clearChat}>
+                    <RotateCcw />
+                    <span>
+                      <strong>{vietnameseUi ? "Chat mới" : "New chat"}</strong>
+                      <small>{vietnameseUi ? "Xóa hội thoại hiện tại" : "Clear current conversation"}</small>
+                    </span>
+                  </button>
+                  <button type="button" role="menuitem" onClick={showSuggestions}>
+                    <ListRestart />
+                    <span>
+                      <strong>{vietnameseUi ? "Câu hỏi gợi ý" : "Suggested questions"}</strong>
+                      <small>{vietnameseUi ? "Quay lại danh sách FAQ nhanh" : "Show quick FAQ prompts"}</small>
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setShowAbout(true)
+                      setMenuOpen(false)
+                    }}
+                  >
+                    <Info />
+                    <span>
+                      <strong>{vietnameseUi ? "Giới thiệu & nguồn" : "About & sources"}</strong>
+                      <small>{vietnameseUi ? "Cách bot hoạt động và dữ liệu" : "How the guide works"}</small>
+                    </span>
+                  </button>
+                </div>
+              ) : null}
+            </div>
           </header>
 
           <div className="arcade-chatbot-log" ref={logRef} aria-live="polite">
+            {showAbout ? (
+              <div className="arcade-chatbot-about">
+                <div>
+                  <Info />
+                  <strong>{vietnameseUi ? "Về Arcade Guide" : "About Arcade Guide"}</strong>
+                </div>
+                <p>
+                  {vietnameseUi
+                    ? "Đây là FAQ assistant chạy trực tiếp trên website, không gửi câu hỏi tới AI API. Hội thoại chỉ tồn tại trong phiên trang hiện tại và có thể xóa bằng New chat."
+                    : "This FAQ assistant runs directly in the website and does not send questions to an AI API. Conversation history only lives in the current page session and can be cleared with New chat."}
+                </p>
+                <a href={TIER_SOURCE} target="_blank" rel="noreferrer noopener">
+                  {vietnameseUi ? "Rule & tier Arcade 2026" : "2026 Arcade rules & tiers"} <ExternalLink />
+                </a>
+                <a href={PRIZE_SOURCE} target="_blank" rel="noreferrer noopener">
+                  {vietnameseUi ? "Thông tin Prize Counter 2026" : "2026 Prize Counter guidance"} <ExternalLink />
+                </a>
+                <button type="button" onClick={() => setShowAbout(false)}>
+                  {vietnameseUi ? "Quay lại chat" : "Back to chat"}
+                </button>
+              </div>
+            ) : null}
+            {!showAbout ? (
+            <>
             <div className="arcade-chatbot-message is-assistant">
               <span className="arcade-chatbot-mini-avatar" aria-hidden="true">
                 <Sparkles />
@@ -440,6 +528,8 @@ export default function ArcadeFaqChatbot() {
                   </button>
                 ))}
               </div>
+            ) : null}
+            </>
             ) : null}
           </div>
 
