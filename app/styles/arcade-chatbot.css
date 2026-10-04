@@ -53,7 +53,7 @@
 
 .arcade-chatbot-header {
   display: grid;
-  grid-template-columns: 40px minmax(0, 1fr) 36px;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
   align-items: center;
   gap: 10px;
   padding: 13px 14px;
@@ -105,7 +105,13 @@
   font-size: .66rem;
 }
 
-.arcade-chatbot-header > button {
+.arcade-chatbot-header-actions {
+  position: relative;
+  display: flex;
+  gap: 2px;
+}
+
+.arcade-chatbot-header-actions > button {
   display: grid;
   place-items: center;
   width: 34px;
@@ -118,13 +124,13 @@
   cursor: pointer;
 }
 
-.arcade-chatbot-header > button:hover {
+.arcade-chatbot-header-actions > button:hover {
   border-color: var(--ui-border);
   background: var(--ui-soft);
   color: var(--ui-text);
 }
 
-.arcade-chatbot-header > button svg {
+.arcade-chatbot-header-actions > button svg {
   width: 16px;
   height: 16px;
 }
@@ -348,4 +354,119 @@
     transition: none;
     scroll-behavior: auto;
   }
+}
+
+
+.arcade-chatbot-menu {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  z-index: 3;
+  width: 238px;
+  overflow: hidden;
+  padding: 5px;
+  border: 1px solid var(--ui-border);
+  border-radius: 12px;
+  background: var(--ui-surface);
+  box-shadow: 0 16px 40px hsl(224 50% 3% / .28);
+}
+
+.arcade-chatbot-menu > button {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 8px;
+  width: 100%;
+  padding: 9px 8px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ui-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.arcade-chatbot-menu > button:hover {
+  background: var(--ui-soft);
+}
+
+.arcade-chatbot-menu svg {
+  width: 15px;
+  height: 15px;
+  margin: 2px auto 0;
+  color: var(--ui-muted);
+}
+
+.arcade-chatbot-menu strong,
+.arcade-chatbot-menu small {
+  display: block;
+}
+
+.arcade-chatbot-menu strong {
+  font-size: .68rem;
+}
+
+.arcade-chatbot-menu small {
+  margin-top: 2px;
+  color: var(--ui-muted);
+  font-size: .58rem;
+  line-height: 1.35;
+}
+
+.arcade-chatbot-about {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--ui-border);
+  border-radius: 12px;
+  background: var(--ui-soft);
+}
+
+.arcade-chatbot-about > div {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.arcade-chatbot-about > div svg {
+  width: 15px;
+  height: 15px;
+  color: var(--ui-accent);
+}
+
+.arcade-chatbot-about strong {
+  font-size: .76rem;
+}
+
+.arcade-chatbot-about p {
+  margin: 0;
+  color: var(--ui-muted);
+  font-size: .68rem;
+  line-height: 1.55;
+}
+
+.arcade-chatbot-about a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--ui-accent);
+  font-size: .63rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.arcade-chatbot-about a svg {
+  width: 10px;
+  height: 10px;
+}
+
+.arcade-chatbot-about > button {
+  justify-self: start;
+  padding: 7px 10px;
+  border: 1px solid var(--ui-border);
+  border-radius: 8px;
+  background: var(--ui-surface);
+  color: var(--ui-text);
+  font-size: .64rem;
+  font-weight: 700;
+  cursor: pointer;
 }
