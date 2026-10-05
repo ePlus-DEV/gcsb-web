@@ -51,7 +51,7 @@ test("Monthly Labs has deterministic React-owned anchors in both dashboard state
   assert.match(guestDashboard, /<DashboardTiers/)
   assert.match(dashboardTiers, /data-home-order="tier-history"/)
   assert.ok(about > emptyMonthly)
-  assert.match(readRepoFile("components/site/site-header.tsx"), /href="\/monthly-labs\/"/)
+  assert.match(readRepoFile("components/site/site-header.tsx"), /href="\\/monthly-labs\\/"/)
   assert.match(guide, /data-home-order="about"/)
 })
 
@@ -105,7 +105,14 @@ test("home dashboard v2 stays scoped and its visual overrides load last", () => 
 
   assert.match(calculator, /arcade-dashboard-page arcade-dashboard-v2/)
   assert.match(refactorStyles, /\.arcade-dashboard-v2/)
-  assert.match(refactorStyles, /\.arcade-dashboard-v2 \.program-countdown-host/)
+  assert.match(
+    refactorStyles,
+    /\.arcade-dashboard-v2\[data-dashboard-view="guest"\] \.program-countdown-host/,
+  )
+  assert.doesNotMatch(
+    refactorStyles,
+    /\.arcade-dashboard-v2 \.program-countdown-host/,
+  )
   assert.match(refactorStyles, /\.guest-dashboard-hero/)
   assert.match(refactorStyles, /\.guest-tier-card\.tier-120/)
   assert.match(refactorStyles, /\.guest-tier-progress/)
@@ -185,12 +192,13 @@ test("PR-preview guest and profile debug modes stay profile-safe and fully local
 })
 
 
-test("guest and profile share one tier renderer; only profile passes the attained tier", () => {
-  assert.equal((calculator.match(/<DashboardTiers\b/g) ?? []).length, 1)
+test("profile keeps legacy tier markup while guest uses the new tier renderer", () => {
+  assert.equal((calculator.match(/<DashboardTiers\b/g) ?? []).length, 0)
   assert.equal((guestDashboard.match(/<DashboardTiers\b/g) ?? []).length, 1)
-  assert.match(calculator, /activeTierPoints=\{qualifiedMilestone\?\.points\}/)
-  assert.doesNotMatch(guestDashboard, /activeTierPoints=/)
-  assert.doesNotMatch(calculator, /tier-list-row|guest-tier-card/)
+  assert.match(calculator, /className="dashboard-panel tier-list-panel"/)
+  assert.match(calculator, /tier-list-row tier-/)
+  assert.match(calculator, /<SlotChangeBadge/)
+  assert.match(calculator, /<TierSlotHistoryPanel/)
   assert.doesNotMatch(guestDashboard, /guest-tier-card/)
   assert.match(dashboardTiers, /activeTierPoints === tier.points/)
   assert.match(dashboardTiers, /aria-current=\{active \? "step" : undefined\}/)
