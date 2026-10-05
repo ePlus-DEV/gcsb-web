@@ -32,11 +32,21 @@ html:is(.light, .dark) .arcade-dashboard-page.arcade-dashboard-page {
 .website-language-menu.website-language-menu { border-color: var(--ui-border); border-radius: var(--ui-radius); background: var(--ui-surface); color: var(--ui-text); box-shadow: var(--ui-shadow); max-height: min(480px, calc(100dvh - 110px)); overflow-y: auto; }
 .website-language-option.website-language-option { color: var(--ui-text); border-radius: var(--ui-radius-sm); }
 .website-language-option:is(:hover,.is-selected) { background: var(--ui-accent-soft); }
-.arcade-dashboard-page .site-footer.site-footer { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; width: min(var(--ui-width), calc(100% - var(--ui-gutter) * 2)); margin: 32px auto 0; padding: 24px 0 32px; border-top: 1px solid var(--ui-border); background: transparent; }
-.site-footer p { max-width: 68ch; margin: 0; font-size: .85rem; color: var(--ui-muted); }
-.site-footer .footer-route-links { display: flex; flex-wrap: wrap; gap: 12px 24px; }
-.site-footer .footer-route-links a { color: var(--ui-muted); font-size: .85rem; }
-.site-footer .footer-route-links a:hover { color: var(--ui-accent); }
+.arcade-dashboard-page .site-footer.site-footer {
+  width: min(1280px, calc(100% - 40px));
+  margin: 32px auto 0;
+  background: transparent;
+}
+.site-footer .footer-brand { flex: 0 0 auto; }
+.site-footer p { margin: 0; color: var(--arcade-muted); }
+.site-footer .footer-route-links { display: flex; flex-wrap: wrap; gap: 12px 18px; }
+.site-footer .footer-route-links a,
+.site-footer .footer-store-links a { color: var(--arcade-muted); text-decoration: none; }
+.site-footer .footer-route-links a:hover,
+.site-footer .footer-store-links a:hover { color: var(--arcade-text); }
+.site-footer .footer-store-links { display: flex; align-items: center; gap: 12px; }
+.site-footer .footer-store-links a { display: inline-flex; align-items: center; gap: 5px; }
+.site-footer .footer-store-links svg { width: 14px; height: 14px; }
 /* Readable content and Swag grids share the same container and hierarchy. */
 .site-content-page .internal-page-hero { border: 0; background: transparent; }
 .site-content-page .internal-page-glow { display: none; }
