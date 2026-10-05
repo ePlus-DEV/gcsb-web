@@ -898,88 +898,11 @@ html.light .arcade-dashboard-v2[data-dashboard-view="guest"] .guest-dashboard-he
 .arcade-dashboard-v2 .shared-tier-panel .guest-tier-heading strong { font-size:.78rem; }
 .arcade-dashboard-v2 .shared-tier-panel .guest-tier-heading span { font-size:.6rem; white-space:nowrap; }
 
-/* Footer is shared by Guest and Profile. Keep one compact information hierarchy
- * instead of letting the guest visual layer diverge from the legacy footer. */
-.arcade-dashboard-v2 .arcade-footer {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  grid-template-areas:
-    "brand disclaimer stores"
-    "brand routes stores";
-  align-items: center;
-  gap: 8px 28px;
-  width: min(var(--v2-shell), calc(100% - (var(--v2-gutter) * 2)));
-  margin: 36px auto 0;
-  padding: 22px 0 8px;
-  border-top: 1px solid var(--v2-border);
-}
-
-.arcade-dashboard-v2 .arcade-footer .footer-brand {
-  grid-area: brand;
-}
-
-.arcade-dashboard-v2 .arcade-footer > p {
-  grid-area: disclaimer;
-  margin: 0;
-  color: var(--v2-muted);
-  font-size: 0.68rem;
-  line-height: 1.45;
-  text-align: center;
-}
-
-.arcade-dashboard-v2 .footer-route-links {
-  grid-area: routes;
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.arcade-dashboard-v2 .footer-route-links a,
-.arcade-dashboard-v2 .footer-store-links a {
-  color: var(--v2-muted);
-  font-size: 0.66rem;
-  font-weight: 600;
-  text-decoration: none;
-  transition: color 150ms ease;
-}
-
-.arcade-dashboard-v2 .footer-route-links a:hover,
-.arcade-dashboard-v2 .footer-store-links a:hover {
-  color: var(--v2-text);
-}
-
-.arcade-dashboard-v2 .footer-store-links {
-  grid-area: stores;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
-}
-
-@media (max-width: 760px) {
-  .arcade-dashboard-v2 .arcade-footer {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      "brand"
-      "disclaimer"
-      "routes"
-      "stores";
-    justify-items: center;
-    gap: 14px;
-    width: min(100% - 24px, 720px);
-    margin-top: 28px;
-    padding-bottom: 12px;
-  }
-
-  .arcade-dashboard-v2 .arcade-footer > p {
-    max-width: 520px;
-    text-align: center;
-  }
-
-  .arcade-dashboard-v2 .footer-store-links {
-    justify-content: center;
-  }
+/* Footer aligns with the workspace surfaces without competing with content. */
+.arcade-dashboard-v2[data-dashboard-view="guest"] .arcade-footer {
+  margin-top: 34px;
+  padding-top: 24px;
+  border-top-color: var(--v2-border);
 }
 
 /* Tablet */
