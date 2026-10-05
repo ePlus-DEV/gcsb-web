@@ -830,6 +830,74 @@ html.light .arcade-dashboard-v2[data-dashboard-view="guest"] .guest-dashboard-he
   font-size: 0.58rem;
 }
 
+
+/* Shared tier renderer is used by both Guest and Profile modes.
+ * Keep these component styles global to v2 without reapplying the full profile redesign. */
+.arcade-dashboard-v2 .shared-tier-panel {
+  container-type: inline-size;
+}
+.arcade-dashboard-v2 .shared-tier-panel .empty-tier-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 7px;
+}
+.arcade-dashboard-v2 .shared-tier-panel .guest-tier-card {
+  --tier-accent: #8b5cf6;
+  --tier-soft: rgba(139, 92, 246, 0.12);
+  --tier-border: rgba(139, 92, 246, 0.30);
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 9px;
+  min-height: 64px;
+  padding: 9px 10px;
+  overflow: hidden;
+  border: 1px solid var(--arcade-border-soft);
+  border-radius: 10px;
+  background: rgba(13, 25, 49, 0.72);
+}
+.arcade-dashboard-v2 .shared-tier-panel .guest-tier-card.tier-120 { --tier-accent:#ffd43b; --tier-soft:rgba(255,212,59,.09); --tier-border:rgba(255,212,59,.28); }
+.arcade-dashboard-v2 .shared-tier-panel .guest-tier-card.tier-95 { --tier-accent:#c084fc; --tier-soft:rgba(192,132,252,.10); --tier-border:rgba(192,132,252,.30); }
+.arcade-dashboard-v2 .shared-tier-panel .guest-tier-card.tier-75 { --tier-accent:#3b82f6; --tier-soft:rgba(59,130,246,.10); --tier-border:rgba(59,130,246,.30); }
+.arcade-dashboard-v2 .shared-tier-panel .guest-tier-card.tier-50 { --tier-accent:#34d399; --tier-soft:rgba(52,211,153,.10); --tier-border:rgba(52,211,153,.28); }
+.arcade-dashboard-v2 .shared-tier-panel .guest-tier-card.is-current {
+  border-color: var(--tier-accent);
+  box-shadow: inset 3px 0 0 var(--tier-accent);
+}
+.arcade-dashboard-v2 .shared-tier-panel .guest-tier-icon {
+  display:grid; place-items:center; width:36px; height:36px;
+  border:1px solid var(--tier-border); border-radius:9px;
+  background:var(--tier-soft); color:var(--tier-accent);
+}
+.arcade-dashboard-v2 .shared-tier-panel .guest-tier-icon svg { width:17px; height:17px; }
+.arcade-dashboard-v2 .shared-tier-panel .guest-tier-main { min-width:0; display:grid; gap:5px; }
+.arcade-dashboard-v2 .shared-tier-panel .guest-tier-copy { min-width:0; display:grid; gap:1px; }
+.arcade-dashboard-v2 .shared-tier-panel .guest-tier-copy strong {
+  overflow:hidden; color:var(--arcade-text); font-size:.72rem; font-weight:850;
+  text-overflow:ellipsis; text-transform:uppercase; white-space:nowrap;
+}
+.arcade-dashboard-v2 .shared-tier-panel .guest-tier-copy span { color:var(--arcade-muted); font-size:.61rem; }
+.arcade-dashboard-v2 .shared-tier-panel .guest-tier-progress {
+  height:5px; overflow:hidden; border-radius:999px; background:rgba(100,116,139,.17);
+}
+.arcade-dashboard-v2 .shared-tier-panel .guest-tier-progress > span {
+  display:block; height:100%; border-radius:inherit; background:var(--tier-accent);
+}
+.arcade-dashboard-v2 .shared-tier-panel .guest-tier-availability {
+  min-width:72px; display:grid; justify-items:end; gap:2px; padding-left:7px;
+  border-left:1px solid var(--arcade-border-soft); text-align:right;
+}
+.arcade-dashboard-v2 .shared-tier-panel .guest-tier-availability > strong {
+  color:var(--arcade-text); font-size:.72rem; font-weight:850; font-variant-numeric:tabular-nums;
+}
+.arcade-dashboard-v2 .shared-tier-panel .guest-tier-availability > strong span { color:var(--arcade-muted); font-weight:600; }
+.arcade-dashboard-v2 .shared-tier-panel .guest-tier-availability small { color:var(--arcade-muted); font-size:.55rem; }
+.arcade-dashboard-v2 .shared-tier-panel .guest-tier-heading { display:flex; align-items:center; justify-content:space-between; gap:8px; margin:0; }
+.arcade-dashboard-v2 .shared-tier-panel .guest-tier-heading > div { display:flex; align-items:center; gap:8px; min-width:0; }
+.arcade-dashboard-v2 .shared-tier-panel .guest-tier-heading-icon { display:grid; place-items:center; width:28px; height:28px; flex:0 0 auto; }
+.arcade-dashboard-v2 .shared-tier-panel .guest-tier-heading strong { font-size:.78rem; }
+.arcade-dashboard-v2 .shared-tier-panel .guest-tier-heading span { font-size:.6rem; white-space:nowrap; }
+
 /* Footer aligns with the workspace surfaces without competing with content. */
 .arcade-dashboard-v2[data-dashboard-view="guest"] .arcade-footer {
   margin-top: 34px;
