@@ -553,11 +553,19 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
                   </button>
                 </div>
 
-                {detailPath && <Link href={detailPath} className="monthly-lab-source">{catalog.messages.labDetails}</Link>}
-                {game.joinUrl && (
-                  <a className="monthly-game-link" href={game.joinUrl} target="_blank" rel="noreferrer noopener">
-                    {text("openGame")} <ExternalLink />
-                  </a>
+                {(detailPath || game.joinUrl) && (
+                  <div className="monthly-game-actions">
+                    {detailPath && (
+                      <Link href={detailPath} className="monthly-lab-source">
+                        {catalog.messages.labDetails}
+                      </Link>
+                    )}
+                    {game.joinUrl && (
+                      <a className="monthly-game-link" href={game.joinUrl} target="_blank" rel="noreferrer noopener">
+                        {text("openGame")} <ExternalLink />
+                      </a>
+                    )}
+                  </div>
                 )}
               </div>
             </article>

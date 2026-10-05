@@ -215,14 +215,464 @@ html[lang="en"] .hero-heading h1 { font-weight: 400; }
 .site-content-page .content-primary-action { color: var(--ui-on-accent); }
 .content-primary-action:hover { filter: brightness(.94); }
 
-.monthly-lab-breadcrumbs { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin-bottom: 2rem; font-size: .875rem; color: var(--ui-muted); overflow-wrap: anywhere; }
+.monthly-lab-breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem;
+  margin-bottom: 2rem;
+  font-size: .875rem;
+  color: var(--ui-muted);
+  overflow-wrap: anywhere;
+}
+.monthly-lab-breadcrumbs a { color: var(--ui-muted); transition: color .15s ease; }
+.monthly-lab-breadcrumbs a:hover { color: var(--ui-accent); }
 .monthly-lab-breadcrumbs [aria-current] { color: var(--ui-text); }
-.monthly-lab-art { display: flex; align-items: center; justify-content: center; border-radius: var(--ui-radius); background: var(--ui-soft); padding: 1rem; }
-.monthly-lab-status { display: inline-flex; align-self: flex-start; margin-top: 1rem; padding: .25rem .65rem; border-radius: var(--ui-radius-sm); font-size: .75rem; font-weight: 600; background: var(--ui-soft); color: var(--ui-muted); }
-.monthly-lab-status.labActive { background: var(--ui-accent-soft); color: var(--ui-accent); }
-.monthly-lab-facts { display: grid; gap: 1rem; margin-top: 1.25rem; }
-.monthly-lab-facts dt { font-size: .75rem; color: var(--ui-muted); margin-bottom: .3rem; }
-.monthly-lab-facts dd { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; font-size: .875rem; overflow-wrap: anywhere; }
-.monthly-lab-facts code { user-select: all; overflow-wrap: anywhere; }
-.monthly-lab-facts [role=status]:empty { display: none; }
-.monthly-lab-source { display: inline-flex; align-items: center; gap: .5rem; min-height: 44px; color: var(--ui-accent); font-size: .875rem; }
+
+.monthly-labs-content {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.monthly-lab-archive-grid,
+.monthly-lab-game-grid {
+  display: grid;
+  gap: 1rem;
+}
+.monthly-lab-archive-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.monthly-lab-game-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+.monthly-lab-month-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  min-height: 104px;
+  padding: 1.15rem;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-lg);
+  background: var(--ui-surface);
+  color: var(--ui-text);
+  box-shadow: var(--ui-shadow);
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.monthly-lab-month-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--ui-accent-border);
+  box-shadow: 0 12px 28px hsl(224 50% 3% / .16);
+}
+.monthly-lab-month-icon {
+  display: grid;
+  width: 46px;
+  height: 46px;
+  place-items: center;
+  border-radius: 14px;
+  background: var(--ui-accent-soft);
+  color: var(--ui-accent);
+}
+.monthly-lab-month-icon svg { width: 22px; height: 22px; }
+.monthly-lab-month-copy {
+  display: grid;
+  min-width: 0;
+  gap: .3rem;
+}
+.monthly-lab-month-copy strong {
+  color: var(--ui-text);
+  font-size: 1rem;
+  line-height: 1.35;
+}
+.monthly-lab-month-copy span {
+  color: var(--ui-muted);
+  font-size: .82rem;
+  line-height: 1.4;
+}
+.monthly-lab-card-arrow {
+  width: 18px;
+  height: 18px;
+  color: var(--ui-muted);
+  transition: transform .18s ease, color .18s ease;
+}
+.monthly-lab-month-card:hover .monthly-lab-card-arrow,
+.monthly-lab-game-card:hover .monthly-lab-card-arrow {
+  transform: translateX(3px);
+  color: var(--ui-accent);
+}
+
+.monthly-lab-list-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 44px;
+}
+.monthly-lab-list-toolbar p {
+  margin: 0;
+  color: var(--ui-muted);
+  font-size: .875rem;
+}
+.monthly-lab-back-link {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  gap: .45rem;
+  padding: .5rem .8rem;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-sm);
+  background: var(--ui-surface);
+  color: var(--ui-text);
+  font-size: .82rem;
+  font-weight: 700;
+  transition: border-color .15s ease, color .15s ease, background .15s ease;
+}
+.monthly-lab-back-link:hover {
+  border-color: var(--ui-accent-border);
+  background: var(--ui-accent-soft);
+  color: var(--ui-accent);
+}
+.monthly-lab-back-link svg { width: 16px; height: 16px; }
+
+.monthly-lab-game-card {
+  display: flex;
+  min-width: 0;
+  min-height: 100%;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-lg);
+  background: var(--ui-surface);
+  color: var(--ui-text);
+  box-shadow: var(--ui-shadow);
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.monthly-lab-game-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--ui-accent-border);
+  box-shadow: 0 14px 32px hsl(224 50% 3% / .16);
+}
+.monthly-lab-game-art {
+  display: flex;
+  aspect-ratio: 16 / 7;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-bottom: 1px solid var(--ui-border);
+  background:
+    radial-gradient(circle at 20% 20%, var(--ui-hero-glow), transparent 44%),
+    var(--ui-soft);
+  padding: 1.25rem;
+}
+.monthly-lab-game-art img {
+  transition: transform .2s ease;
+}
+.monthly-lab-game-card:hover .monthly-lab-game-art img {
+  transform: scale(1.025);
+}
+.monthly-lab-placeholder-icon {
+  width: 64px;
+  height: 64px;
+  color: var(--ui-muted);
+}
+.monthly-lab-game-body {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  padding: 1.15rem 1.2rem 1.2rem;
+}
+.monthly-lab-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem;
+}
+.monthly-lab-status,
+.monthly-lab-points-badge {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  gap: .35rem;
+  padding: .3rem .65rem;
+  border-radius: 999px;
+  font-size: .72rem;
+  font-weight: 800;
+  line-height: 1;
+}
+.monthly-lab-status {
+  background: var(--ui-soft);
+  color: var(--ui-muted);
+}
+.monthly-lab-status.labActive {
+  background: var(--ui-accent-soft);
+  color: var(--ui-accent);
+}
+.monthly-lab-status.labUnknown {
+  color: var(--ui-warning);
+}
+.monthly-lab-points-badge {
+  background: var(--ui-info-soft);
+  color: var(--ui-info);
+}
+.monthly-lab-points-badge svg { width: 13px; height: 13px; }
+.monthly-lab-game-title {
+  margin-top: .9rem;
+  color: var(--ui-text);
+  font-size: 1.05rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.monthly-lab-game-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  margin-top: auto;
+  padding-top: 1.15rem;
+  color: var(--ui-accent);
+  font-size: .82rem;
+  font-weight: 800;
+}
+.monthly-lab-game-footer svg {
+  width: 17px;
+  height: 17px;
+  transition: transform .18s ease;
+}
+.monthly-lab-game-card:hover .monthly-lab-game-footer svg {
+  transform: translateX(3px);
+}
+
+.monthly-lab-detail-card {
+  display: grid;
+  grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+  overflow: hidden;
+  padding: 0 !important;
+}
+.monthly-lab-detail-media {
+  display: flex;
+  min-height: 360px;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid var(--ui-border);
+  background:
+    radial-gradient(circle at 30% 25%, var(--ui-hero-glow), transparent 42%),
+    var(--ui-soft);
+  padding: 2rem;
+}
+.monthly-lab-detail-placeholder {
+  width: 120px;
+  height: 120px;
+  color: var(--ui-muted);
+}
+.monthly-lab-detail-body {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1.75rem;
+}
+.monthly-lab-fact-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .8rem;
+  margin-top: 1.35rem;
+}
+.monthly-lab-fact {
+  min-width: 0;
+  padding: .9rem;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius);
+  background: var(--ui-soft);
+}
+.monthly-lab-fact dt {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  margin-bottom: .45rem;
+  color: var(--ui-muted);
+  font-size: .72rem;
+  font-weight: 700;
+}
+.monthly-lab-fact dt svg {
+  width: 14px;
+  height: 14px;
+  color: var(--ui-accent);
+}
+.monthly-lab-fact dd {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .6rem;
+  margin: 0;
+  color: var(--ui-text);
+  font-size: .86rem;
+  font-weight: 700;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.monthly-lab-fact code {
+  max-width: 100%;
+  user-select: all;
+  overflow-wrap: anywhere;
+}
+.monthly-lab-fact [role=status]:empty { display: none; }
+.monthly-lab-detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .75rem;
+  margin-top: 1.25rem;
+}
+.monthly-lab-source {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  padding: .625rem .95rem;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius-sm);
+  background: var(--ui-surface);
+  color: var(--ui-accent);
+  font-size: .875rem;
+  font-weight: 700;
+  transition: border-color .15s ease, background .15s ease;
+}
+.monthly-lab-source:hover {
+  border-color: var(--ui-accent-border);
+  background: var(--ui-accent-soft);
+}
+.monthly-lab-description-card {
+  padding: 1.4rem;
+}
+.monthly-lab-section-heading {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+}
+.monthly-lab-section-heading svg {
+  width: 20px;
+  height: 20px;
+  color: var(--ui-accent);
+}
+.monthly-lab-section-heading h2 {
+  margin: 0;
+  color: var(--ui-text);
+  font-size: 1.05rem;
+}
+.monthly-lab-description-card > p {
+  margin: .9rem 0 0;
+  color: var(--ui-muted);
+  font-size: .92rem;
+  line-height: 1.75;
+}
+.monthly-lab-history-note {
+  display: flex;
+  align-items: flex-start;
+  gap: .7rem;
+  padding: .9rem 1rem;
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius);
+  background: var(--ui-soft);
+  color: var(--ui-muted);
+  font-size: .82rem;
+  line-height: 1.6;
+}
+.monthly-lab-history-note svg {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 auto;
+  margin-top: .15rem;
+  color: var(--ui-info);
+}
+.monthly-lab-history-note p { margin: 0; }
+
+@media (max-width: 900px) {
+  .monthly-lab-archive-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .monthly-lab-detail-card { grid-template-columns: 1fr; }
+  .monthly-lab-detail-media {
+    min-height: 280px;
+    border-right: 0;
+    border-bottom: 1px solid var(--ui-border);
+  }
+}
+
+@media (max-width: 640px) {
+  .monthly-lab-archive-grid,
+  .monthly-lab-game-grid {
+    grid-template-columns: 1fr;
+  }
+  .monthly-lab-month-card { min-height: 92px; }
+  .monthly-lab-list-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .monthly-lab-game-art { aspect-ratio: 16 / 8; }
+  .monthly-lab-detail-media {
+    height: 176px;
+    min-height: 0;
+    padding: .75rem 1rem;
+  }
+  .monthly-lab-detail-media :is(img,svg) {
+    max-height: 150px;
+  }
+  .monthly-lab-detail-body {
+    justify-content: flex-start;
+    padding: 1rem;
+  }
+  .monthly-lab-detail-meta {
+    margin-bottom: .15rem;
+  }
+  .monthly-lab-fact-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .65rem;
+    margin-top: .9rem;
+  }
+  .monthly-lab-fact {
+    padding: .75rem;
+    border-radius: var(--ui-radius-sm);
+  }
+  .monthly-lab-fact-access,
+  .monthly-lab-fact-deadline {
+    grid-column: 1 / -1;
+  }
+  .monthly-lab-fact-points:last-child,
+  .monthly-lab-fact-places:nth-child(3):last-child {
+    grid-column: 1 / -1;
+  }
+  .monthly-lab-fact dt {
+    margin-bottom: .35rem;
+    font-size: .68rem;
+  }
+  .monthly-lab-fact dd {
+    gap: .45rem;
+    font-size: .79rem;
+    line-height: 1.4;
+  }
+  .monthly-lab-fact-access dd {
+    flex-wrap: nowrap;
+  }
+  .monthly-lab-fact-access code {
+    min-width: 0;
+    flex: 1;
+    font-size: .8rem;
+  }
+  .monthly-lab-fact-access .monthly-copy-button {
+    min-width: 42px;
+    min-height: 38px;
+    padding: 0 .7rem;
+  }
+  .monthly-lab-detail-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .65rem;
+    margin-top: .9rem;
+  }
+  .monthly-lab-detail-actions :is(.content-primary-action,.monthly-lab-source) {
+    width: 100%;
+    min-width: 0;
+    min-height: 42px;
+    padding: .6rem .7rem;
+    font-size: .78rem;
+    line-height: 1.2;
+    text-align: center;
+  }
+}
+
