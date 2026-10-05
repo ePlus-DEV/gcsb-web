@@ -7,7 +7,6 @@ import {
   Sparkles,
   MoreVertical,
   RotateCcw,
-  ListRestart,
   Info,
   X,
 } from "lucide-react"
@@ -426,7 +425,7 @@ export default function ArcadeFaqChatbot() {
                     </span>
                   </button>
                   <button type="button" role="menuitem" onClick={showSuggestions}>
-                    <ListRestart />
+                    <CircleHelp />
                     <span>
                       <strong>{vietnameseUi ? "Câu hỏi gợi ý" : "Suggested questions"}</strong>
                       <small>{vietnameseUi ? "Quay lại danh sách FAQ nhanh" : "Show quick FAQ prompts"}</small>
