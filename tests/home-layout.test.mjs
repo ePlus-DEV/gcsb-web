@@ -193,15 +193,15 @@ test("PR-preview guest and profile debug modes stay profile-safe and fully local
 
 
 test("profile keeps legacy tier markup while guest uses the new tier renderer", () => {
-  assert.equal((calculator.match(/<DashboardTiers\\b/g) ?? []).length, 0)
-  assert.equal((guestDashboard.match(/<DashboardTiers\\b/g) ?? []).length, 1)
+  assert.equal((calculator.match(/<DashboardTiers\b/g) ?? []).length, 0)
+  assert.equal((guestDashboard.match(/<DashboardTiers\b/g) ?? []).length, 1)
   assert.match(calculator, /className="dashboard-panel tier-list-panel"/)
   assert.match(calculator, /tier-list-row tier-/)
   assert.match(calculator, /<SlotChangeBadge/)
   assert.match(calculator, /<TierSlotHistoryPanel/)
   assert.doesNotMatch(guestDashboard, /guest-tier-card/)
   assert.match(dashboardTiers, /activeTierPoints === tier.points/)
-  assert.match(dashboardTiers, /aria-current=\\{active \\? "step" : undefined\\}/)
+  assert.match(dashboardTiers, /aria-current=\{active \? "step" : undefined\}/)
   assert.match(dashboardTiers, /viewMessages.tierNote/)
   assert.match(dashboardTiers, /guest-tier-progress/)
 })
