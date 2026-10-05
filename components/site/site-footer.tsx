@@ -2,8 +2,12 @@
 
 import Link from "next/link"
 import { Chrome, Gamepad2, Globe2 } from "lucide-react"
-import { CHROME_EXTENSION_URL, FIREFOX_EXTENSION_URL } from "@/components/arcade/model"
 import { useSiteMessages } from "./use-site-messages"
+
+const CHROME_EXTENSION_URL =
+  "https://chromewebstore.google.com/detail/google-cloud-skills-boost/lmbhjioadhcoebhgapaidogodllonbgg"
+const FIREFOX_EXTENSION_URL =
+  "https://addons.mozilla.org/addon/cloud-skills-boost-helper"
 
 export default function SiteFooter() {
   const messages = useSiteMessages()
