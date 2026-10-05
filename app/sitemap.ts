@@ -1,3 +1,5 @@
+import { MONTHLY_LAB_MONTHS, getMonthlyLabs } from "@/components/monthly-labs/data"
+import { monthlyLabMonthPath, monthlyLabPath } from "@/components/monthly-labs/model"
 import type { MetadataRoute } from "next"
 import {
   ARCADE_SWAG_SEASONS,
@@ -66,6 +68,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     ...localizedPages,
     ...swagPages,
+    { url: new URL("/monthly-labs/", WEBSITE_SITE_URL).href, changeFrequency: "weekly", priority: 0.8 },
+    ...MONTHLY_LAB_MONTHS.flatMap(month => [
+      { url: new URL(monthlyLabMonthPath(month), WEBSITE_SITE_URL).href, changeFrequency: "weekly" as const, priority: 0.7 },
+      ...getMonthlyLabs(month).map(lab => ({ url: new URL(monthlyLabPath(lab), WEBSITE_SITE_URL).href, changeFrequency: "monthly" as const, priority: 0.6 })),
+    ]),
     {
       url: new URL("/about/", WEBSITE_SITE_URL).toString(),
       changeFrequency: "monthly",

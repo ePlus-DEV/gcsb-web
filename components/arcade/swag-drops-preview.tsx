@@ -27,7 +27,7 @@ export default function SwagDropsPreview() {
       <Link
         href={swagSeasonPath(CURRENT_SWAG_SEASON)}
         aria-label={`Open ${latest.name}`}
-        className="group grid overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-white to-cyan-50/70 shadow-sm transition hover:-translate-y-0.5 hover:border-cyan-300 hover:shadow-lg dark:border-white/10 dark:from-slate-950/80 dark:to-cyan-950/20 dark:hover:border-cyan-400/40 sm:grid-cols-[116px_1fr]"
+        className="site-surface group grid overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-white to-cyan-50/70 shadow-sm transition hover:-translate-y-0.5 hover:border-cyan-300 hover:shadow-lg dark:border-white/10 dark:from-slate-950/80 dark:to-cyan-950/20 dark:hover:border-cyan-400/40 sm:grid-cols-[116px_1fr]"
       >
         <div className="flex min-h-28 items-center justify-center bg-slate-100/80 p-3 dark:bg-black/20">
           <SwagArtwork

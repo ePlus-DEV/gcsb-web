@@ -1,6 +1,8 @@
 "use client"
 
-import Link from "next/link"
+import SiteHeader from "@/components/site/site-header"
+import SiteFooter from "@/components/site/site-footer"
+
 import DashboardTiers from "@/components/arcade/dashboard-tiers"
 import GuestDashboard from "@/components/arcade/guest-dashboard"
 import PreviewModeToolbar from "@/components/arcade/preview-mode-toolbar"
@@ -23,7 +25,6 @@ import {
   Globe2,
   GraduationCap,
   LoaderCircle,
-  Menu,
   RefreshCcw,
   Search,
   ShieldCheck,
@@ -35,7 +36,6 @@ import {
 } from "lucide-react"
 import type { FormEvent, ReactNode } from "react"
 import { useEffect, useMemo, useRef, useState } from "react"
-import { CURRENT_SWAG_SEASON, swagSeasonPath } from "@/components/arcade/swag-seasons"
 import { getFacilitatorAdjustedPoints } from "@/components/arcade/facilitator-points"
 import {
   IS_PR_PREVIEW,
@@ -211,7 +211,6 @@ export default function RedesignCalculator({
   const [error, setError] = useState("")
   const [filter, setFilter] = useState<BadgeFilter>("all")
   const [showAllBadges, setShowAllBadges] = useState(false)
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [facilitatorParticipation, setFacilitatorParticipation] =
     useState<FacilitatorParticipationState>({
       profileUrl: "",
@@ -634,56 +633,7 @@ export default function RedesignCalculator({
     >
       <div className="arcade-stars" aria-hidden="true" />
 
-      <header className="arcade-header">
-        <a className="arcade-brand" href="#top" aria-label="Arcade Points home">
-          <span className="arcade-brand-mark"><Gamepad2 /></span>
-          <span className="arcade-brand-copy"><strong>ARCADE</strong><b>POINTS</b></span>
-          <em>PRO</em>
-        </a>
-
-        <nav className={mobileMenuOpen ? "arcade-nav is-open" : "arcade-nav"}>
-          <a className="active" href="#calculator" onClick={() => setMobileMenuOpen(false)}>Calculator</a>
-          <a href="#tiers" onClick={() => setMobileMenuOpen(false)}>Tiers</a>
-          <a href="#badges" onClick={() => setMobileMenuOpen(false)}>Badges</a>
-          <a href="#extension" onClick={() => setMobileMenuOpen(false)}>Extension</a>
-          <Link
-            data-arcade-swag-nav="true"
-            href={swagSeasonPath(CURRENT_SWAG_SEASON)}
-            onClick={() => setMobileMenuOpen(false)}
-          >Swag Drops</Link>
-          <a href="#monthly-games" onClick={() => setMobileMenuOpen(false)}>Monthly labs</a>
-        </nav>
-
-        <div className="arcade-header-actions">
-          <a
-            className="header-store-link is-chrome"
-            href={CHROME_EXTENSION_URL}
-            target="_blank"
-            rel="noreferrer noopener"
-            aria-label="Install the extension from Chrome Web Store"
-          >
-            <Chrome /> <span>Chrome</span>
-          </a>
-          <a
-            className="header-store-link is-firefox"
-            href={FIREFOX_EXTENSION_URL}
-            target="_blank"
-            rel="noreferrer noopener"
-            aria-label="Install the extension from Firefox Add-ons"
-          >
-            <Globe2 /> <span>Firefox</span>
-          </a>
-          <button
-            className="mobile-menu-toggle"
-            type="button"
-            aria-expanded={mobileMenuOpen}
-            aria-label={mobileMenuOpen ? "Close navigation" : "Open navigation"}
-            onClick={() => setMobileMenuOpen((open) => !open)}
-          >
-            {mobileMenuOpen ? <X /> : <Menu />}
-          </button>
-        </div>
-      </header>
+      <SiteHeader dashboard />
 
       {IS_PR_PREVIEW && (
         <PreviewModeToolbar
@@ -740,6 +690,7 @@ export default function RedesignCalculator({
               <button type="button" onClick={resetResult}><RefreshCcw /> Reset result</button>
             )}
           </div>
+          <div className="facilitator-launcher-host" />
         </div>
       </section>
 
@@ -1084,28 +1035,7 @@ export default function RedesignCalculator({
 
       {footerContent}
 
-      <footer className="arcade-footer" data-home-order="footer">
-        <div className="arcade-brand footer-brand">
-          <span className="arcade-brand-mark"><Gamepad2 /></span>
-          <span className="arcade-brand-copy"><strong>ARCADE</strong><b>POINTS</b></span>
-        </div>
-        <p>Unofficial community calculator by ePlus.DEV. Google remains the authority for final scores and rewards.</p>
-        <nav className="footer-route-links" aria-label="Site information">
-          <Link href="/about/">About</Link>
-          <Link href="/guide/">Guide</Link>
-          <Link href="/swag-drops/">Swag archive</Link>
-          <Link href="/privacy/">Privacy</Link>
-          <Link href="/terms/">Terms</Link>
-        </nav>
-        <div className="footer-store-links">
-          <a href={CHROME_EXTENSION_URL} target="_blank" rel="noreferrer noopener">
-            <Chrome /> Chrome
-          </a>
-          <a href={FIREFOX_EXTENSION_URL} target="_blank" rel="noreferrer noopener">
-            <Globe2 /> Firefox
-          </a>
-        </div>
-      </footer>
+      <SiteFooter />
 
       <nav className="mobile-bottom-nav" aria-label="Mobile navigation">
         <a href="#calculator"><Search /><span>Calculator</span></a>

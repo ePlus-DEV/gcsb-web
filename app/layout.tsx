@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs"
 import path from "node:path"
+import localFont from "next/font/local"
 import type { Metadata, Viewport } from "next"
-import SwagNavLink from "@/components/arcade/swag-nav-link"
 import WebsiteLanguage from "@/components/i18n/website-language"
 import CookieConsent from "@/components/privacy/cookie-consent"
 import BackToTop from "@/components/back-to-top"
@@ -9,6 +9,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import ThemeToggle from "@/components/theme-toggle"
 import { WEBSITE_SITE_URL } from "@/lib/website-i18n"
 import "./globals.css"
+import "./styles/ui-tokens.css"
 import "./styles/redesign-dashboard.css"
 import "./styles/redesign-results.css"
 import "./styles/redesign-components.css"
@@ -18,6 +19,7 @@ import "./styles/monthly-games.css"
 import "./styles/monthly-games-mobile-deadline.css"
 import "./styles/facilitator-panel.css"
 import "./styles/facilitator-syllabus.css"
+import "./styles/fontawesome-vendor.css"
 import "./styles/fontawesome-icons.css"
 import "./styles/website-language.css"
 import "./styles/theme-modes.css"
@@ -26,9 +28,12 @@ import "./styles/tier-slot-history.css"
 import "./styles/theme-light-components.css"
 import "./styles/facilitator-participation.css"
 import "./styles/facilitator-launcher-visibility.css"
-import "./styles/internal-page-theme.css"
 import "./styles/cookie-consent.css"
 import "./styles/home-refactor.css"
+import "./styles/shared-profile.css"
+import "./styles/profile-share.css"
+import "./styles/bonus-milestone.css"
+import "./styles/site-ui.css"
 import "./styles/back-to-top.css"
 
 const arcadeRequestDedupeBootstrap = readFileSync(
@@ -39,12 +44,21 @@ const siteName = "Arcade Points by ePlus.DEV"
 const title = "Google Cloud Arcade Points Calculator & Badge Tracker 2026"
 const description =
   "Calculate Google Cloud Arcade points from your public Google Skills profile, review completed badges, estimate milestone progress, and track Arcade Facilitator rewards."
-const googleFontsUrl =
-  "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Press+Start+2P&display=swap"
-const fontAwesomeUrl =
-  "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
-const fontAwesomeIntegrity =
-  "sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
+const arcadeBody = localFont({
+  src: "./fonts/inter-variable.woff2",
+  variable: "--font-arcade-body",
+  weight: "100 900",
+  style: "normal",
+  display: "swap",
+})
+const arcadePixel = localFont({
+  src: "./fonts/press-start-2p.woff2",
+  adjustFontFallback: false,
+  variable: "--font-arcade-pixel",
+  weight: "400",
+  style: "normal",
+  display: "swap",
+})
 const googleAnalyticsIdPattern = /^G-[A-Z0-9]+$/
 const analyticsRequested =
   process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === "true"
@@ -199,17 +213,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           id="website-catalog-cache-buster"
           dangerouslySetInnerHTML={{ __html: websiteCatalogCacheBootstrap }}
         />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
-        <link rel="stylesheet" href={googleFontsUrl} />
-        <link
-          rel="stylesheet"
-          href={fontAwesomeUrl}
-          integrity={fontAwesomeIntegrity}
-          crossOrigin="anonymous"
-          referrerPolicy="no-referrer"
-        />
         {cookieNoticePreviewMode ? (
           <meta name="cookie-notice-preview" content="true" />
         ) : null}
@@ -228,7 +231,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           </>
         ) : null}
       </head>
-      <body>
+      <body className={`${arcadeBody.variable} ${arcadePixel.variable}`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
@@ -238,7 +241,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         >
           <WebsiteLanguage />
           <ThemeToggle />
-          <SwagNavLink />
           {children}
           <BackToTop />
           <CookieConsent

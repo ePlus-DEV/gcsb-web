@@ -20,6 +20,8 @@ import type {
   ReactNode,
 } from "react"
 import { useEffect, useMemo, useRef, useState } from "react"
+import { createPortal } from "react-dom"
+import { usePortalTarget } from "@/components/use-portal-target"
 import {
   evaluateFacilitatorSyllabus,
   FACILITATOR_SYLLABUS_2026,
@@ -170,6 +172,7 @@ export default function FacilitatorPanel() {
   const [trackFilter, setTrackFilter] = useState<TrackFilter>("all")
   const [search, setSearch] = useState("")
   const launcherRef = useRef<HTMLButtonElement>(null)
+  const launcherTarget = usePortalTarget(".facilitator-launcher-host")
   const drawerRef = useRef<HTMLElement>(null)
   const closeRef = useRef<HTMLButtonElement>(null)
 
@@ -385,8 +388,7 @@ export default function FacilitatorPanel() {
     .filter(Boolean)
     .join(" ")
 
-  return (
-    <>
+  const launcher = (
       <button
         ref={launcherRef}
         className={launcherClassName}
@@ -414,6 +416,11 @@ export default function FacilitatorPanel() {
         </span>
         <ChevronRight />
       </button>
+  )
+
+  return (
+    <>
+      {launcherTarget ? createPortal(launcher, launcherTarget) : null}
 
       {open ? (
         <div

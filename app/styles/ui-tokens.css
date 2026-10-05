@@ -1,0 +1,83 @@
+/* One theme contract for the dashboard, content, shared profiles and embeds.
+   hsl channels also power the Radix/Tailwind primitives. */
+:root {
+  color-scheme: dark;
+  --background: 228 66% 6%;
+  --foreground: 216 33% 94%;
+  --card: 222 60% 10%;
+  --card-foreground: var(--foreground);
+  --popover: 222 60% 10%;
+  --popover-foreground: var(--foreground);
+  --primary: 258 77% 53%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 220 58% 12%;
+  --secondary-foreground: var(--foreground);
+  --muted: 220 58% 12%;
+  --muted-foreground: 215 18% 68%;
+  --accent: 258 40% 17%;
+  --accent-foreground: 258 94% 76%;
+  --destructive: 0 74% 58%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 220 24% 22%;
+  --input: var(--border);
+  --ring: var(--primary);
+  --radius: .75rem;
+  --ui-bg: hsl(var(--background));
+  --ui-surface: hsl(var(--card));
+  --ui-soft: hsl(var(--secondary));
+  --ui-text: hsl(var(--foreground));
+  --ui-muted: hsl(var(--muted-foreground));
+  --ui-border: hsl(var(--border));
+  --ui-accent: hsl(var(--accent-foreground));
+  --ui-primary: hsl(var(--primary));
+  --ui-accent-soft: hsl(var(--accent));
+  --ui-brand: #ffd642;
+  --ui-info: #7dd3fc;
+  --ui-info-soft: rgb(34 211 238 / .06);
+  --ui-info-border: rgb(34 211 238 / .2);
+  --ui-hero-glow: rgb(99 102 241 / .12);
+  --ui-accent-border: hsl(var(--primary) / .35);
+  --ui-on-accent: hsl(var(--primary-foreground));
+  --ui-shadow: 0 4px 16px hsl(224 50% 3% / .12);
+  --ui-overlay: hsl(224 50% 3% / .65);
+  --ui-success: #34d399;
+  --ui-warning: #fbbf24;
+  --ui-error: #f87171;
+  --ui-radius: .75rem;
+  --ui-radius-sm: .5rem;
+  --ui-radius-lg: 1rem;
+  --ui-width: 1200px;
+  --ui-gutter: 24px;
+  --ui-space: 1rem;
+  --ui-control-height: 44px;
+  --ui-z-header: 40;
+  --ui-z-overlay: 120;
+  --ui-z-dialog: 130;
+  --ui-z-toast: 160;
+}
+html.light, html[data-widget-theme="light"] {
+  color-scheme: light;
+  --background: 220 30% 97%;
+  --foreground: 222 38% 16%;
+  --card: 0 0% 100%;
+  --popover: 0 0% 100%;
+  --primary: 258 66% 48%;
+  --secondary: 220 28% 94%;
+  --muted: 220 28% 94%;
+  --muted-foreground: 215 17% 40%;
+  --accent: 258 72% 96%;
+  --accent-foreground: 258 66% 40%;
+  --border: 220 20% 86%;
+  --ui-shadow: 0 4px 16px hsl(222 38% 16% / .04);
+  --ui-brand: #a16207;
+  --ui-info: #0e7490;
+  --ui-info-soft: #ecfeff;
+  --ui-info-border: rgb(8 145 178 / .2);
+  --ui-hero-glow: rgb(99 102 241 / .06);
+  --ui-success: #047857;
+  --ui-warning: #a16207;
+  --ui-error: #b91c1c;
+}
+@media (max-width: 640px) {
+  :root { --ui-gutter: 16px; }
+}

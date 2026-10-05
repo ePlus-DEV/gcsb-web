@@ -6,9 +6,13 @@ import FacilitatorPanel from "./facilitator-panel"
 import {
   FACILITATOR_PANEL_OPEN_EVENT,
   FACILITATOR_PARTICIPATION_EVENT,
+  FACILITATOR_PROGRAM_STATE_EVENT,
   normalizeFacilitatorProfileUrl,
   readFacilitatorParticipation,
+  readFacilitatorProgramState,
   type FacilitatorParticipationDetail,
+  type FacilitatorProgramState,
+  type FacilitatorProgramStateDetail,
 } from "./facilitator-participation"
 import { readActiveDashboard, observeDashboardMode } from "./dashboard-state"
 
@@ -21,6 +25,9 @@ function readStoredProfileUrl(): string {
 export default function FacilitatorPanelGate() {
   const [profileUrl, setProfileUrl] = useState("")
   const [participating, setParticipating] = useState(false)
+  const [programState, setProgramState] = useState<FacilitatorProgramState>(
+    () => readFacilitatorProgramState(),
+  )
   const returnFocusRef = useRef<HTMLElement | null>(null)
   const drawerWasOpenRef = useRef(false)
 
@@ -80,13 +87,36 @@ export default function FacilitatorPanelGate() {
   }, [profileUrl])
 
   useEffect(() => {
+    const syncProgramState = () => setProgramState(readFacilitatorProgramState())
+    const onProgramStateChange = (event: Event) => {
+      const detail = (event as CustomEvent<FacilitatorProgramStateDetail>).detail
+      setProgramState(detail?.state ?? readFacilitatorProgramState())
+    }
+
+    syncProgramState()
+    window.addEventListener(FACILITATOR_PROGRAM_STATE_EVENT, onProgramStateChange)
+    return () =>
+      window.removeEventListener(
+        FACILITATOR_PROGRAM_STATE_EVENT,
+        onProgramStateChange,
+      )
+  }, [])
+
+  useEffect(() => {
     const updateLauncherVisibility = () => {
       const launcher =
         document.querySelector<HTMLButtonElement>(".facilitator-launcher")
       if (!launcher) return
 
+      const programAllowsLauncher =
+        programState === "active" || programState === "unconfigured"
       launcher.hidden =
-        !participating || !launcher.classList.contains("is-participating")
+        !participating ||
+        !programAllowsLauncher ||
+        !launcher.classList.contains("is-participating")
+      document.documentElement.dataset.facilitatorLauncherVisible = launcher.hidden
+        ? "false"
+        : "true"
     }
 
     updateLauncherVisibility()
@@ -98,8 +128,11 @@ export default function FacilitatorPanelGate() {
       attributeFilter: ["class"],
     })
 
-    return () => observer.disconnect()
-  }, [participating])
+    return () => {
+      observer.disconnect()
+      delete document.documentElement.dataset.facilitatorLauncherVisible
+    }
+  }, [participating, programState])
 
   useEffect(() => {
     const restoreFocusWhenDrawerCloses = () => {
