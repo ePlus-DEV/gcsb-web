@@ -105,7 +105,14 @@ test("home dashboard v2 stays scoped and its visual overrides load last", () => 
 
   assert.match(calculator, /arcade-dashboard-page arcade-dashboard-v2/)
   assert.match(refactorStyles, /\.arcade-dashboard-v2/)
-  assert.match(refactorStyles, /\.arcade-dashboard-v2 \.program-countdown-host/)
+  assert.match(
+    refactorStyles,
+    /\.arcade-dashboard-v2\[data-dashboard-view="guest"\] \.program-countdown-host/,
+  )
+  assert.doesNotMatch(
+    refactorStyles,
+    /\.arcade-dashboard-v2 \.program-countdown-host/,
+  )
   assert.match(refactorStyles, /\.guest-dashboard-hero/)
   assert.match(refactorStyles, /\.guest-tier-card\.tier-120/)
   assert.match(refactorStyles, /\.guest-tier-progress/)
