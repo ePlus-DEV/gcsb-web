@@ -2,9 +2,10 @@ import { readFileSync } from "node:fs"
 import path from "node:path"
 import localFont from "next/font/local"
 import type { Metadata, Viewport } from "next"
-import WebsiteLanguage from "@/components/i18n/website-language"
 import ArcadeFaqChatbot from "@/components/arcade/arcade-faq-chatbot"
+import WebsiteLanguage from "@/components/i18n/website-language"
 import CookieConsent from "@/components/privacy/cookie-consent"
+import BackToTop from "@/components/back-to-top"
 import { ThemeProvider } from "@/components/theme-provider"
 import ThemeToggle from "@/components/theme-toggle"
 import { WEBSITE_SITE_URL } from "@/lib/website-i18n"
@@ -30,10 +31,7 @@ import "./styles/facilitator-participation.css"
 import "./styles/facilitator-launcher-visibility.css"
 import "./styles/cookie-consent.css"
 import "./styles/home-refactor.css"
-import "./styles/shared-profile.css"
-import "./styles/profile-share.css"
-import "./styles/bonus-milestone.css"
-import "./styles/site-ui.css"
+import "./styles/back-to-top.css"
 import "./styles/arcade-chatbot.css"
 
 const arcadeRequestDedupeBootstrap = readFileSync(
@@ -242,6 +240,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <WebsiteLanguage />
           <ThemeToggle />
           {children}
+          <BackToTop />
           <ArcadeFaqChatbot />
           <CookieConsent
             analyticsEnabled={Boolean(googleAnalyticsId)}
