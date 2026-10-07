@@ -7,6 +7,7 @@ import CookieConsent from "@/components/privacy/cookie-consent"
 import BackToTop from "@/components/back-to-top"
 import { ThemeProvider } from "@/components/theme-provider"
 import ThemeToggle from "@/components/theme-toggle"
+import HalloweenSeason from "@/components/seasonal/halloween-season"
 import { WEBSITE_SITE_URL } from "@/lib/website-i18n"
 import "./globals.css"
 import "./styles/redesign-dashboard.css"
@@ -30,6 +31,7 @@ import "./styles/internal-page-theme.css"
 import "./styles/cookie-consent.css"
 import "./styles/home-refactor.css"
 import "./styles/back-to-top.css"
+import "./styles/halloween-season.css"
 
 const arcadeRequestDedupeBootstrap = readFileSync(
   path.join(process.cwd(), "scripts", "arcade-request-dedupe.js"),
@@ -239,6 +241,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <WebsiteLanguage />
           <ThemeToggle />
           <SwagNavLink />
+          <HalloweenSeason />
           {children}
           <BackToTop />
           <CookieConsent

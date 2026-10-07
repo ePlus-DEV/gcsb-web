@@ -1,0 +1,504 @@
+/*
+ * Seasonal Halloween skin.
+ *
+ * Enabled automatically from October 1 through November 2. It can also be
+ * forced with localStorage["arcade-seasonal-theme"] = "halloween" or disabled
+ * with "off". Decorations are visual only and never intercept pointer events.
+ */
+
+html[data-season="halloween"] {
+  --halloween-orange: #ff8a1f;
+  --halloween-orange-soft: rgba(255, 138, 31, 0.16);
+  --halloween-purple: #8b5cf6;
+  --halloween-purple-soft: rgba(139, 92, 246, 0.16);
+}
+
+html[data-season="halloween"] body {
+  background-image:
+    radial-gradient(circle at 8% 2%, rgba(255, 138, 31, 0.12), transparent 26rem),
+    radial-gradient(circle at 92% 7%, rgba(139, 92, 246, 0.14), transparent 28rem);
+  background-attachment: fixed;
+}
+
+html.light[data-season="halloween"] body {
+  background-image:
+    radial-gradient(circle at 8% 2%, rgba(255, 138, 31, 0.1), transparent 25rem),
+    radial-gradient(circle at 92% 7%, rgba(124, 58, 237, 0.08), transparent 28rem);
+}
+
+html[data-season="halloween"] .arcade-hero h1 span,
+html[data-season="halloween"] .internal-page-hero h1 span {
+  color: var(--halloween-orange);
+  text-shadow: 0 0 28px rgba(255, 138, 31, 0.22);
+}
+
+html[data-season="halloween"] .pixel-kicker {
+  border-color: rgba(255, 138, 31, 0.32);
+  background: linear-gradient(90deg, rgba(255, 138, 31, 0.1), rgba(139, 92, 246, 0.1));
+  box-shadow: inset 0 0 0 1px rgba(255, 138, 31, 0.04), 0 0 26px rgba(255, 138, 31, 0.08);
+}
+
+html[data-season="halloween"] .pixel-kicker::after {
+  content: "🎃 Halloween Edition";
+  display: inline-flex;
+  margin-left: 0.55rem;
+  padding-left: 0.55rem;
+  border-left: 1px solid rgba(255, 138, 31, 0.35);
+  color: #ffad55;
+  font-family: Inter, sans-serif;
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+html[data-season="halloween"] .arcade-brand-mark {
+  border-color: rgba(255, 138, 31, 0.38);
+  box-shadow: 0 0 22px rgba(255, 138, 31, 0.12);
+}
+
+html[data-season="halloween"] .dashboard-panel,
+html[data-season="halloween"] .monthly-game-card,
+html[data-season="halloween"] .internal-page-card {
+  border-color: color-mix(in srgb, var(--halloween-orange) 18%, transparent);
+}
+
+html[data-season="halloween"] .dashboard-panel:hover,
+html[data-season="halloween"] .monthly-game-card:hover {
+  border-color: rgba(255, 138, 31, 0.28);
+}
+
+html[data-season="halloween"] .arcade-header {
+  box-shadow: 0 1px 0 rgba(255, 138, 31, 0.08);
+}
+
+html[data-season="halloween"] .arcade-footer {
+  border-top-color: rgba(255, 138, 31, 0.14);
+}
+
+.halloween-season-decor {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+}
+
+.halloween-moon,
+.halloween-bat,
+.halloween-pumpkin,
+.halloween-ghost {
+  position: absolute;
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.26));
+}
+
+.halloween-moon {
+  top: 82px;
+  right: clamp(24px, 4.5vw, 72px);
+  width: clamp(44px, 5.2vw, 72px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #ffc766;
+  box-shadow:
+    0 0 18px rgba(255, 199, 102, 0.34),
+    0 0 50px rgba(255, 138, 31, 0.18);
+  opacity: 0.78;
+  transform: rotate(-18deg);
+  mask: radial-gradient(circle at 68% 42%, transparent 0 44%, #000 45%);
+  -webkit-mask: radial-gradient(circle at 68% 42%, transparent 0 44%, #000 45%);
+}
+
+.halloween-moon span {
+  display: none;
+}
+
+.halloween-bat {
+  font-size: clamp(1rem, 2vw, 1.65rem);
+  opacity: 0.42;
+  animation: halloween-float 7s ease-in-out infinite;
+}
+
+.halloween-bat-one {
+  top: 112px;
+  right: clamp(86px, 11vw, 170px);
+}
+
+.halloween-bat-two {
+  top: 170px;
+  right: clamp(24px, 7vw, 118px);
+  font-size: 0.95rem;
+  animation-delay: -2.4s;
+}
+
+.halloween-bat-three {
+  top: 126px;
+  left: clamp(22px, 5vw, 82px);
+  font-size: 0.85rem;
+  animation-delay: -4.6s;
+}
+
+.halloween-pumpkin {
+  bottom: 18px;
+  font-size: clamp(1.4rem, 2.5vw, 2.2rem);
+  opacity: 0.52;
+}
+
+.halloween-pumpkin-left {
+  left: max(14px, env(safe-area-inset-left));
+  transform: rotate(-8deg);
+}
+
+.halloween-pumpkin-right {
+  right: max(18px, env(safe-area-inset-right));
+  bottom: 94px;
+  transform: rotate(8deg);
+}
+
+.halloween-web {
+  position: absolute;
+  top: 0;
+  width: clamp(110px, 16vw, 210px);
+  aspect-ratio: 1;
+  opacity: 0.2;
+  background:
+    repeating-radial-gradient(circle at top left, transparent 0 17px, rgba(255, 255, 255, 0.38) 18px 19px, transparent 20px 34px),
+    conic-gradient(from 0deg at top left, transparent 0 10deg, rgba(255, 255, 255, 0.35) 11deg 12deg, transparent 13deg 33deg, rgba(255, 255, 255, 0.35) 34deg 35deg, transparent 36deg 56deg, rgba(255, 255, 255, 0.35) 57deg 58deg, transparent 59deg 79deg, rgba(255, 255, 255, 0.35) 80deg 81deg, transparent 82deg 90deg);
+  mask-image: linear-gradient(135deg, #000 0 56%, transparent 76%);
+}
+
+.halloween-web-left {
+  left: 0;
+}
+
+.halloween-web-right {
+  right: 0;
+  transform: scaleX(-1);
+}
+
+.halloween-ghost {
+  font-size: clamp(1.25rem, 2.8vw, 2.2rem);
+  opacity: 0.22;
+  animation: halloween-ghost-drift 9s ease-in-out infinite;
+}
+
+.halloween-ghost-left {
+  top: 34%;
+  left: clamp(8px, 2vw, 30px);
+}
+
+.halloween-ghost-right {
+  top: 58%;
+  right: clamp(10px, 2.5vw, 36px);
+  animation-delay: -4.5s;
+}
+
+.halloween-fog {
+  position: absolute;
+  left: -20vw;
+  width: 140vw;
+  height: 90px;
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse at center, rgba(160, 132, 210, 0.08), transparent 58%),
+    linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.045), transparent);
+  filter: blur(20px);
+  opacity: 0.65;
+  animation: halloween-fog-drift 18s linear infinite alternate;
+}
+
+.halloween-fog-one {
+  top: 29%;
+}
+
+.halloween-fog-two {
+  top: 66%;
+  animation-delay: -8s;
+  animation-direction: alternate-reverse;
+}
+
+.halloween-candy-line {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  display: flex;
+  gap: clamp(24px, 5vw, 64px);
+  align-items: center;
+  transform: translateX(-50%);
+  color: rgba(255, 138, 31, 0.28);
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+}
+
+.halloween-candy-line span:nth-child(even) {
+  color: rgba(139, 92, 246, 0.34);
+}
+
+html[data-season="halloween"] .analyze-button,
+html[data-season="halloween"] .store-button:hover,
+html[data-season="halloween"] .show-all-badges:hover {
+  box-shadow: 0 10px 30px rgba(255, 138, 31, 0.12), 0 0 0 1px rgba(139, 92, 246, 0.08);
+}
+
+html[data-season="halloween"] .earned-badge:hover {
+  transform: translateY(-2px) rotate(-0.2deg);
+  box-shadow: 0 16px 34px rgba(255, 138, 31, 0.07);
+}
+
+html[data-season="halloween"] .tier-list-row.is-current {
+  box-shadow: inset 3px 0 0 var(--halloween-orange), 0 0 24px rgba(255, 138, 31, 0.05);
+}
+
+html[data-season="halloween"] .arcade-footer::before {
+  content: "";
+  display: block;
+  height: 2px;
+  margin-bottom: 1.25rem;
+  background: linear-gradient(90deg, transparent, rgba(255, 138, 31, 0.55), rgba(139, 92, 246, 0.45), transparent);
+  opacity: 0.45;
+}
+
+@keyframes halloween-ghost-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(-4deg);
+  }
+  50% {
+    transform: translate3d(10px, -16px, 0) rotate(5deg);
+  }
+}
+
+@keyframes halloween-fog-drift {
+  from {
+    transform: translate3d(-4vw, 0, 0);
+  }
+  to {
+    transform: translate3d(4vw, 0, 0);
+  }
+}
+
+@keyframes halloween-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(-5deg);
+  }
+  50% {
+    transform: translate3d(7px, -10px, 0) rotate(8deg);
+  }
+}
+
+
+/* Arcade-inspired Halloween atmosphere: pixel typography, orange glow, dark purple panels. */
+html[data-season="halloween"] .panel-title,
+html[data-season="halloween"] .tier-status-main strong,
+html[data-season="halloween"] .guest-tier-copy strong {
+  letter-spacing: 0.035em;
+}
+
+html[data-season="halloween"] .panel-title::before {
+  content: "✦";
+  margin-right: 0.45rem;
+  color: var(--halloween-orange);
+  text-shadow: 0 0 12px rgba(255, 138, 31, 0.75);
+}
+
+html[data-season="halloween"] .tier-list-panel,
+html[data-season="halloween"] .tier-status-panel,
+html[data-season="halloween"] .guest-tier-card {
+  background:
+    radial-gradient(circle at 12% 8%, rgba(255, 138, 31, 0.075), transparent 34%),
+    radial-gradient(circle at 92% 12%, rgba(139, 92, 246, 0.1), transparent 38%),
+    linear-gradient(145deg, rgba(25, 14, 39, 0.94), rgba(8, 15, 31, 0.97));
+}
+
+html.light[data-season="halloween"] .tier-list-panel,
+html.light[data-season="halloween"] .tier-status-panel,
+html.light[data-season="halloween"] .guest-tier-card {
+  background:
+    radial-gradient(circle at 12% 8%, rgba(255, 138, 31, 0.08), transparent 34%),
+    radial-gradient(circle at 92% 12%, rgba(139, 92, 246, 0.08), transparent 38%),
+    rgba(255, 255, 255, 0.95);
+}
+
+html[data-season="halloween"] .tier-list-panel::before,
+html[data-season="halloween"] .tier-status-panel::before {
+  content: "🎃";
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  font-size: 0.85rem;
+  opacity: 0.58;
+  filter: drop-shadow(0 0 9px rgba(255, 138, 31, 0.5));
+}
+
+html[data-season="halloween"] .tier-list-panel,
+html[data-season="halloween"] .tier-status-panel {
+  position: relative;
+  overflow: hidden;
+}
+
+html[data-season="halloween"] .tier-list-panel::after,
+html[data-season="halloween"] .tier-status-panel::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #ff7a00 22%, #ffad33 48%, #9f3cff 78%, transparent);
+  box-shadow: 0 0 16px rgba(255, 122, 0, 0.28);
+  opacity: 0.7;
+}
+
+html[data-season="halloween"] .tier-list-row {
+  border-color: rgba(255, 138, 31, 0.13);
+  background:
+    linear-gradient(90deg, rgba(255, 138, 31, 0.025), transparent 30%),
+    rgba(9, 20, 40, 0.76);
+}
+
+html[data-season="halloween"] .tier-list-row:hover {
+  border-color: rgba(255, 138, 31, 0.28);
+  background:
+    linear-gradient(90deg, rgba(255, 138, 31, 0.07), rgba(139, 92, 246, 0.035)),
+    rgba(9, 20, 40, 0.8);
+}
+
+html[data-season="halloween"] .tier-list-row.is-current {
+  border-color: rgba(255, 138, 31, 0.52);
+  box-shadow:
+    inset 3px 0 0 var(--halloween-orange),
+    0 0 24px rgba(255, 138, 31, 0.08);
+}
+
+html[data-season="halloween"] .tier-list-icon,
+html[data-season="halloween"] .tier-trophy {
+  filter: drop-shadow(0 0 10px rgba(255, 138, 31, 0.25));
+}
+
+html[data-season="halloween"] .extension-strip {
+  border-color: rgba(255, 138, 31, 0.24);
+  background:
+    linear-gradient(90deg, rgba(255, 103, 0, 0.055), rgba(139, 92, 246, 0.05)),
+    linear-gradient(145deg, rgba(12, 23, 48, 0.94), rgba(7, 14, 31, 0.96));
+}
+
+html[data-season="halloween"] .extension-strip::after {
+  content: "👻";
+  position: absolute;
+  right: 172px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.15rem;
+  opacity: 0.24;
+  filter: grayscale(1) brightness(1.7) drop-shadow(0 0 10px rgba(255, 255, 255, 0.22));
+}
+
+html[data-season="halloween"] .profile-panel,
+html[data-season="halloween"] .breakdown-panel,
+html[data-season="halloween"] .badges-panel {
+  background-image:
+    radial-gradient(circle at 100% 0%, rgba(255, 138, 31, 0.045), transparent 30%),
+    linear-gradient(145deg, rgba(12, 23, 48, 0.92), rgba(7, 14, 31, 0.94));
+}
+
+html[data-season="halloween"] .point-composition-bar,
+html[data-season="halloween"] .goal-progress,
+html[data-season="halloween"] .guest-tier-progress {
+  box-shadow: 0 0 18px rgba(255, 138, 31, 0.08);
+}
+
+html[data-season="halloween"] .arcade-footer {
+  background-image:
+    radial-gradient(circle at 50% 0%, rgba(255, 138, 31, 0.04), transparent 36%);
+}
+
+html[data-season="halloween"] .arcade-footer .arcade-brand-copy strong {
+  color: #ffad33;
+  text-shadow: 0 0 12px rgba(255, 138, 31, 0.24);
+}
+
+html[data-season="halloween"] .profile-analyzer-card::after {
+  content: "👻";
+  position: absolute;
+  right: 18px;
+  top: 14px;
+  font-size: 1rem;
+  opacity: 0.2;
+  filter: grayscale(1) brightness(1.8);
+}
+
+html[data-season="halloween"] .profile-analyzer-card {
+  position: relative;
+  overflow: hidden;
+}
+
+html[data-season="halloween"] .profile-analyzer-card::before {
+  background: linear-gradient(90deg, transparent, #ff7a00, #ffb13b, #9f3cff, transparent) !important;
+  box-shadow: 0 0 18px rgba(255, 122, 0, 0.2);
+}
+
+html[data-season="halloween"] .analyze-button {
+  border-color: rgba(255, 138, 31, 0.46);
+  background: linear-gradient(135deg, #9a3412, #c2410c 42%, #7e22ce);
+}
+
+html[data-season="halloween"] .analyze-button:hover:not(:disabled) {
+  box-shadow: 0 12px 32px rgba(255, 103, 0, 0.2);
+}
+
+html[data-season="halloween"] .score-state.is-qualified,
+html[data-season="halloween"] .tier-help.is-live {
+  color: #86efac;
+  text-shadow: 0 0 10px rgba(74, 222, 128, 0.14);
+}
+
+@media (max-width: 640px) {
+  .halloween-moon {
+    top: 70px;
+    right: 18px;
+    width: 38px;
+    opacity: 0.52;
+  }
+
+  .halloween-bat-one {
+    top: 94px;
+    right: 62px;
+  }
+
+  .halloween-bat-two,
+  .halloween-bat-three,
+  .halloween-pumpkin-right,
+  .halloween-ghost-right,
+  .halloween-fog-two,
+  .halloween-web-right {
+    display: none;
+  }
+
+  .halloween-pumpkin-left {
+    bottom: 82px;
+    font-size: 1.45rem;
+    opacity: 0.4;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .halloween-bat,
+  .halloween-ghost,
+  .halloween-fog {
+    animation: none;
+  }
+
+  html[data-season="halloween"] .earned-badge:hover {
+    transform: none;
+  }
+}
+
+@media (max-width: 820px) {
+  html[data-season="halloween"] .extension-strip::after {
+    display: none;
+  }
+
+  html[data-season="halloween"] .tier-list-panel::before,
+  html[data-season="halloween"] .tier-status-panel::before {
+    opacity: 0.38;
+  }
+}
