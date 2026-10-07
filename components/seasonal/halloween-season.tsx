@@ -15,10 +15,12 @@ function isWidgetPath(pathname: string) {
   return /^\/(?:[a-z]{2}(?:-[a-z]{2})?\/)?widget\/?$/i.test(pathname)
 }
 
-const DOTLOTTIE_PLAYER_SCRIPT =
-  "https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs"
+const LOTTIE_PLAYER_SCRIPT =
+  "https://unpkg.com/@lottiefiles/lottie-player@2.0.12/dist/lottie-player.js"
 
-type DotLottieElement = HTMLElement & {
+const LOTTIE_ASSET_PATH = `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/lottie/halloween-ghost.json`
+
+type LottiePlayerElement = HTMLElement & {
   play?: () => void
   pause?: () => void
 }
@@ -29,7 +31,7 @@ function HalloweenGhostLottie() {
 
   useEffect(() => {
     let active = true
-    let player: DotLottieElement | null = null
+    let player: LottiePlayerElement | null = null
     const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)")
 
     const syncPlayback = () => {
@@ -43,21 +45,21 @@ function HalloweenGhostLottie() {
 
     const mountPlayer = async () => {
       try {
-        if (!window.customElements.get("dotlottie-player")) {
+        if (!window.customElements.get("lottie-player")) {
           let script = document.querySelector<HTMLScriptElement>(
-            'script[data-arcade-dotlottie="true"]',
+            'script[data-arcade-lottie="true"]',
           )
 
           if (!script) {
             script = document.createElement("script")
             script.type = "module"
-            script.src = DOTLOTTIE_PLAYER_SCRIPT
-            script.dataset.arcadeDotlottie = "true"
+            script.src = LOTTIE_PLAYER_SCRIPT
+            script.dataset.arcadeLottie = "true"
             document.head.appendChild(script)
           }
 
           await Promise.race([
-            window.customElements.whenDefined("dotlottie-player"),
+            window.customElements.whenDefined("lottie-player"),
             new Promise((_, reject) =>
               window.setTimeout(() => reject(new Error("dotLottie player timeout")), 6000),
             ),
@@ -66,8 +68,8 @@ function HalloweenGhostLottie() {
 
         if (!active || !hostRef.current) return
 
-        player = document.createElement("dotlottie-player") as DotLottieElement
-        player.setAttribute("src", "/lottie/halloween-ghost.json")
+        player = document.createElement("lottie-player") as LottiePlayerElement
+        player.setAttribute("src", LOTTIE_ASSET_PATH)
         player.setAttribute("background", "transparent")
         player.setAttribute("speed", "0.8")
         player.setAttribute("loop", "")
