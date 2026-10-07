@@ -1097,14 +1097,6 @@ export default function RedesignCalculator({
           <Link href="/privacy/">Privacy</Link>
           <Link href="/terms/">Terms</Link>
         </nav>
-        <div className="footer-store-links">
-          <a href={CHROME_EXTENSION_URL} target="_blank" rel="noreferrer noopener">
-            <Chrome /> Chrome
-          </a>
-          <a href={FIREFOX_EXTENSION_URL} target="_blank" rel="noreferrer noopener">
-            <Globe2 /> Firefox
-          </a>
-        </div>
       </footer>
 
       <nav className="mobile-bottom-nav" aria-label="Mobile navigation">
