@@ -251,9 +251,12 @@ html[data-season="halloween"] .tier-list-row.is-current {
 
 html[data-season="halloween"] .arcade-footer::before {
   content: "";
-  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 2px;
-  margin-bottom: 1.25rem;
+  pointer-events: none;
   background: linear-gradient(90deg, transparent, rgba(255, 138, 31, 0.55), rgba(139, 92, 246, 0.45), transparent);
   opacity: 0.45;
 }
