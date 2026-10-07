@@ -533,3 +533,9 @@ html[data-season="halloween"] .tier-help.is-live {
     opacity: 0.38;
   }
 }
+
+
+/* Keep the crescent moon as a dark-mode Halloween accent only. */
+html.light[data-season="halloween"] .halloween-moon {
+  display: none;
+}
