@@ -201,8 +201,8 @@ html[data-season="halloween"] .arcade-footer {
   aspect-ratio: 1;
   display: grid;
   place-items: center;
-  opacity: 0.38;
-  filter: drop-shadow(0 10px 26px rgba(139, 92, 246, 0.22));
+  opacity: 0.26;
+  filter: drop-shadow(0 10px 26px rgba(139, 92, 246, 0.18));
 }
 
 .halloween-lottie-player {
@@ -519,7 +519,7 @@ html[data-season="halloween"] .tier-help.is-live {
     top: 132px;
     left: 4px;
     width: 58px;
-    opacity: 0.28;
+    opacity: 0.22;
   }
 }
 
