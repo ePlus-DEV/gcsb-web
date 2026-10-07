@@ -52,12 +52,21 @@ export default function HalloweenSeason() {
 
   return (
     <div className="halloween-season-decor" aria-hidden="true">
-      <span className="halloween-moon">☾</span>
+      <div className="halloween-web halloween-web-left" />
+      <div className="halloween-web halloween-web-right" />
+      <div className="halloween-fog halloween-fog-one" />
+      <div className="halloween-fog halloween-fog-two" />
+      <span className="halloween-moon"><span>☾</span></span>
+      <span className="halloween-ghost halloween-ghost-left">👻</span>
+      <span className="halloween-ghost halloween-ghost-right">👻</span>
       <span className="halloween-bat halloween-bat-one">🦇</span>
       <span className="halloween-bat halloween-bat-two">🦇</span>
       <span className="halloween-bat halloween-bat-three">🦇</span>
       <span className="halloween-pumpkin halloween-pumpkin-left">🎃</span>
       <span className="halloween-pumpkin halloween-pumpkin-right">🎃</span>
+      <div className="halloween-candy-line">
+        <span>✦</span><span>◆</span><span>✦</span><span>◆</span><span>✦</span>
+      </div>
     </div>
   )
 }
