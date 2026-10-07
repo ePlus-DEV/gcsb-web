@@ -507,7 +507,7 @@ html[data-season="halloween"] .tier-help.is-live {
 }
 
 
-/* Keep the dark seasonal canvas cleaner: the large decorative moon is a light-mode accent only. */
-html.dark[data-season="halloween"] .halloween-moon {
+/* The crescent moon belongs to the dark Halloween scene; hide it on light surfaces. */
+html.light[data-season="halloween"] .halloween-moon {
   display: none;
 }
