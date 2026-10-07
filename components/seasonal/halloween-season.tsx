@@ -151,7 +151,6 @@ export default function HalloweenSeason() {
       <div className="halloween-fog halloween-fog-two" />
       <span className="halloween-moon"><span>☾</span></span>
       <HalloweenGhostLottie />
-      <span className="halloween-ghost halloween-ghost-right">👻</span>
       <span className="halloween-bat halloween-bat-one">🦇</span>
       <span className="halloween-bat halloween-bat-two">🦇</span>
       <span className="halloween-bat halloween-bat-three">🦇</span>
