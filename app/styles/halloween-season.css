@@ -193,6 +193,39 @@ html[data-season="halloween"] .arcade-footer {
   animation-delay: -4.5s;
 }
 
+.halloween-lottie-ghost {
+  position: absolute;
+  top: clamp(170px, 23vh, 250px);
+  left: clamp(10px, 2.2vw, 34px);
+  width: clamp(72px, 8vw, 118px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  opacity: 0.38;
+  filter: drop-shadow(0 10px 26px rgba(139, 92, 246, 0.22));
+}
+
+.halloween-lottie-player {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.halloween-lottie-fallback {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  font-size: clamp(1.5rem, 3vw, 2.4rem);
+  opacity: 0.8;
+  animation: halloween-ghost-drift 9s ease-in-out infinite;
+}
+
+.halloween-lottie-ghost.is-ready .halloween-lottie-fallback {
+  display: none;
+}
+
+
 .halloween-fog {
   position: absolute;
   left: -20vw;
@@ -481,12 +514,20 @@ html[data-season="halloween"] .tier-help.is-live {
     font-size: 1.45rem;
     opacity: 0.4;
   }
+
+  .halloween-lottie-ghost {
+    top: 132px;
+    left: 4px;
+    width: 58px;
+    opacity: 0.28;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .halloween-bat,
   .halloween-ghost,
-  .halloween-fog {
+  .halloween-fog,
+  .halloween-lottie-fallback {
     animation: none;
   }
 
