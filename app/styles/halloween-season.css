@@ -505,3 +505,9 @@ html[data-season="halloween"] .tier-help.is-live {
     opacity: 0.38;
   }
 }
+
+
+/* The crescent moon belongs to the dark Halloween scene; hide it on light surfaces. */
+html.light[data-season="halloween"] .halloween-moon {
+  display: none;
+}
