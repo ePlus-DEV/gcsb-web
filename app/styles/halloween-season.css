@@ -505,3 +505,9 @@ html[data-season="halloween"] .tier-help.is-live {
     opacity: 0.38;
   }
 }
+
+
+/* Keep the dark seasonal canvas cleaner: the large decorative moon is a light-mode accent only. */
+html.dark[data-season="halloween"] .halloween-moon {
+  display: none;
+}
