@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 const SEASON_STORAGE_KEY = "arcade-seasonal-theme"
 
@@ -13,6 +13,97 @@ function isHalloweenSeason(date: Date) {
 
 function isWidgetPath(pathname: string) {
   return /^\/(?:[a-z]{2}(?:-[a-z]{2})?\/)?widget\/?$/i.test(pathname)
+}
+
+const DOTLOTTIE_PLAYER_SCRIPT =
+  "https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs"
+
+type DotLottieElement = HTMLElement & {
+  play?: () => void
+  pause?: () => void
+}
+
+function HalloweenGhostLottie() {
+  const hostRef = useRef<HTMLDivElement>(null)
+  const [ready, setReady] = useState(false)
+
+  useEffect(() => {
+    let active = true
+    let player: DotLottieElement | null = null
+    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)")
+
+    const syncPlayback = () => {
+      if (!player) return
+      if (document.hidden || motionQuery.matches) {
+        player.pause?.()
+      } else {
+        player.play?.()
+      }
+    }
+
+    const mountPlayer = async () => {
+      try {
+        if (!window.customElements.get("dotlottie-player")) {
+          let script = document.querySelector<HTMLScriptElement>(
+            'script[data-arcade-dotlottie="true"]',
+          )
+
+          if (!script) {
+            script = document.createElement("script")
+            script.type = "module"
+            script.src = DOTLOTTIE_PLAYER_SCRIPT
+            script.dataset.arcadeDotlottie = "true"
+            document.head.appendChild(script)
+          }
+
+          await Promise.race([
+            window.customElements.whenDefined("dotlottie-player"),
+            new Promise((_, reject) =>
+              window.setTimeout(() => reject(new Error("dotLottie player timeout")), 6000),
+            ),
+          ])
+        }
+
+        if (!active || !hostRef.current) return
+
+        player = document.createElement("dotlottie-player") as DotLottieElement
+        player.setAttribute("src", "/lottie/halloween-ghost.json")
+        player.setAttribute("background", "transparent")
+        player.setAttribute("speed", "0.8")
+        player.setAttribute("loop", "")
+        player.setAttribute("autoplay", "")
+        player.setAttribute("aria-hidden", "true")
+        player.className = "halloween-lottie-player"
+        hostRef.current.replaceChildren(player)
+        setReady(true)
+        syncPlayback()
+      } catch {
+        // Keep the lightweight CSS/emoji fallback when the runtime is blocked.
+      }
+    }
+
+    void mountPlayer()
+    document.addEventListener("visibilitychange", syncPlayback)
+    motionQuery.addEventListener("change", syncPlayback)
+
+    return () => {
+      active = false
+      document.removeEventListener("visibilitychange", syncPlayback)
+      motionQuery.removeEventListener("change", syncPlayback)
+      player?.pause?.()
+      player?.remove()
+    }
+  }, [])
+
+  return (
+    <div
+      ref={hostRef}
+      className={ready ? "halloween-lottie-ghost is-ready" : "halloween-lottie-ghost"}
+      aria-hidden="true"
+    >
+      <span className="halloween-lottie-fallback">👻</span>
+    </div>
+  )
 }
 
 export default function HalloweenSeason() {
@@ -57,7 +148,7 @@ export default function HalloweenSeason() {
       <div className="halloween-fog halloween-fog-one" />
       <div className="halloween-fog halloween-fog-two" />
       <span className="halloween-moon"><span>☾</span></span>
-      <span className="halloween-ghost halloween-ghost-left">👻</span>
+      <HalloweenGhostLottie />
       <span className="halloween-ghost halloween-ghost-right">👻</span>
       <span className="halloween-bat halloween-bat-one">🦇</span>
       <span className="halloween-bat halloween-bat-two">🦇</span>
