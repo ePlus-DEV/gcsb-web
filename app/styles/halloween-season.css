@@ -1,0 +1,170 @@
+/*
+ * Seasonal Halloween skin.
+ *
+ * Enabled automatically from October 1 through November 2. It can also be
+ * forced with localStorage["arcade-seasonal-theme"] = "halloween" or disabled
+ * with "off". Decorations are visual only and never intercept pointer events.
+ */
+
+html[data-season="halloween"] {
+  --halloween-orange: #ff8a1f;
+  --halloween-orange-soft: rgba(255, 138, 31, 0.16);
+  --halloween-purple: #8b5cf6;
+  --halloween-purple-soft: rgba(139, 92, 246, 0.16);
+}
+
+html[data-season="halloween"] body {
+  background-image:
+    radial-gradient(circle at 8% 2%, rgba(255, 138, 31, 0.12), transparent 26rem),
+    radial-gradient(circle at 92% 7%, rgba(139, 92, 246, 0.14), transparent 28rem);
+  background-attachment: fixed;
+}
+
+html.light[data-season="halloween"] body {
+  background-image:
+    radial-gradient(circle at 8% 2%, rgba(255, 138, 31, 0.1), transparent 25rem),
+    radial-gradient(circle at 92% 7%, rgba(124, 58, 237, 0.08), transparent 28rem);
+}
+
+html[data-season="halloween"] .arcade-hero h1 span,
+html[data-season="halloween"] .internal-page-hero h1 span {
+  color: var(--halloween-orange);
+  text-shadow: 0 0 28px rgba(255, 138, 31, 0.22);
+}
+
+html[data-season="halloween"] .pixel-kicker {
+  border-color: rgba(255, 138, 31, 0.32);
+  background: linear-gradient(90deg, rgba(255, 138, 31, 0.1), rgba(139, 92, 246, 0.1));
+}
+
+html[data-season="halloween"] .arcade-brand-mark {
+  border-color: rgba(255, 138, 31, 0.38);
+  box-shadow: 0 0 22px rgba(255, 138, 31, 0.12);
+}
+
+html[data-season="halloween"] .dashboard-panel,
+html[data-season="halloween"] .monthly-game-card,
+html[data-season="halloween"] .internal-page-card {
+  border-color: color-mix(in srgb, var(--halloween-orange) 18%, transparent);
+}
+
+html[data-season="halloween"] .dashboard-panel:hover,
+html[data-season="halloween"] .monthly-game-card:hover {
+  border-color: rgba(255, 138, 31, 0.28);
+}
+
+html[data-season="halloween"] .arcade-header {
+  box-shadow: 0 1px 0 rgba(255, 138, 31, 0.08);
+}
+
+html[data-season="halloween"] .arcade-footer {
+  border-top-color: rgba(255, 138, 31, 0.14);
+}
+
+.halloween-season-decor {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+}
+
+.halloween-moon,
+.halloween-bat,
+.halloween-pumpkin {
+  position: absolute;
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.26));
+}
+
+.halloween-moon {
+  top: 76px;
+  right: clamp(18px, 4vw, 64px);
+  font-size: clamp(2rem, 4vw, 3.75rem);
+  color: #ffc766;
+  opacity: 0.7;
+  transform: rotate(-14deg);
+}
+
+.halloween-bat {
+  font-size: clamp(1rem, 2vw, 1.65rem);
+  opacity: 0.42;
+  animation: halloween-float 7s ease-in-out infinite;
+}
+
+.halloween-bat-one {
+  top: 112px;
+  right: clamp(86px, 11vw, 170px);
+}
+
+.halloween-bat-two {
+  top: 170px;
+  right: clamp(24px, 7vw, 118px);
+  font-size: 0.95rem;
+  animation-delay: -2.4s;
+}
+
+.halloween-bat-three {
+  top: 126px;
+  left: clamp(22px, 5vw, 82px);
+  font-size: 0.85rem;
+  animation-delay: -4.6s;
+}
+
+.halloween-pumpkin {
+  bottom: 18px;
+  font-size: clamp(1.4rem, 2.5vw, 2.2rem);
+  opacity: 0.52;
+}
+
+.halloween-pumpkin-left {
+  left: max(14px, env(safe-area-inset-left));
+  transform: rotate(-8deg);
+}
+
+.halloween-pumpkin-right {
+  right: max(14px, env(safe-area-inset-right));
+  transform: rotate(8deg);
+}
+
+@keyframes halloween-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(-5deg);
+  }
+  50% {
+    transform: translate3d(7px, -10px, 0) rotate(8deg);
+  }
+}
+
+@media (max-width: 640px) {
+  .halloween-moon {
+    top: 68px;
+    right: 14px;
+    font-size: 2.15rem;
+    opacity: 0.48;
+  }
+
+  .halloween-bat-one {
+    top: 94px;
+    right: 62px;
+  }
+
+  .halloween-bat-two,
+  .halloween-bat-three,
+  .halloween-pumpkin-right {
+    display: none;
+  }
+
+  .halloween-pumpkin-left {
+    bottom: 76px;
+    font-size: 1.45rem;
+    opacity: 0.4;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .halloween-bat {
+    animation: none;
+  }
+}
