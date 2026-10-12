@@ -21,6 +21,7 @@ function swagSegmentLabel(segment: string): string {
   }
   if (tierLabels[segment]) return tierLabels[segment]
   if (segment === "weather-shield-jacket") return "Weather-Shield Jacket"
+  if (segment === "arcade-popup-pro") return "Arcade PopUp Pro"
 
   return segment
     .split("-")

@@ -95,10 +95,10 @@ export const SWAG_TIER_META: Record<
     allocationNote:
       "Champion has 3,000 prize slots. If a higher-tier pool fills, Waterfall determines how eligible participants roll into the next prize pool.",
     packageRule: "High-tier Champion collection · historical estimate ≈6 items",
-    knownMinimumItems: "1+",
+    knownMinimumItems: "2+",
     knownMinimumNote:
-      "Official minimum: 1+ item because the Weather-Shield Jacket is confirmed. Historical estimate: about 6 items, matching the official final Champion package in 2025 Season 2.",
-    waitingNote: "Champion collection — only the Weather-Shield Jacket has been named so far.",
+      "Official minimum: 2 confirmed rewards — the Weather-Shield Jacket and Arcade PopUp Pro. Historical estimate: about 6 items, based on the final 2025 Champion package.",
+    waitingNote: "Champion collection — the Weather-Shield Jacket and Arcade PopUp Pro are confirmed; further items are unrevealed.",
     historicalEstimateItems: 6,
     historicalEstimateLabel: "≈6 items",
     historicalEstimateBasis:
@@ -125,9 +125,9 @@ export const SWAG_TIER_META: Record<
     allocationNote:
       "Legend is the highest 2026 prize tier with 2,500 slots. Waterfall applies to prize-slot allocation, not to which swag belongs to a tier.",
     packageRule: "Champion pack + 1 Legend exclusive · historical estimate ≈7 items",
-    knownMinimumItems: "2+",
+    knownMinimumItems: "3+",
     knownMinimumNote:
-      "Official minimum: 2+ items, including the Champion Jacket plus the promised Legend-exclusive reward. Historical estimate: about 7 items, matching 2025 Season 2 and the 2026 Champion + 1 rule if Champion stays near 6.",
+      "Official minimum: 3 items — the two confirmed Champion rewards plus one promised Legend-exclusive reward. Historical estimate: about 7 items, based on the final 2025 Legend package.",
     waitingNote: "Legend-only reward — item name and details have not been revealed yet.",
     historicalEstimateItems: 7,
     historicalEstimateLabel: "≈7 items",
