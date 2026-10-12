@@ -91,7 +91,7 @@ export const SWAG_TIER_META: Record<
     pointsLabel: "95–119 points",
     slots: 3000,
     rewardRule:
-      "Champion starts the upper-tier reward family. Google describes a high-tier collection of premium Arcade gear, with the Weather-Shield Jacket currently the first named 2026 item.",
+      "Champion collection — the Weather-Shield Jacket and Arcade PopUp Pro are confirmed; further items are unrevealed.",
     allocationNote:
       "Champion has 3,000 prize slots. If a higher-tier pool fills, Waterfall determines how eligible participants roll into the next prize pool.",
     packageRule: "High-tier Champion collection · historical estimate ≈6 items",
