@@ -138,6 +138,33 @@ test("dynamic swag translation patterns are wired through website i18n", () => {
 })
 
 
+const arcadePopupProSources = [
+  "The Arcade PopUp Pro",
+  "Arcade PopUp Pro",
+  "A compact multi-connector travel toolkit confirmed for the Arcade Champion and Legend tiers.",
+  "Braided USB-C to USB-C fast-charging cable",
+  "Swappable Lightning, Micro-USB, and USB-A adapters",
+  "Built-in phone stand for portrait and landscape use",
+  "Nano SIM and MicroSD slots with a SIM ejector pin",
+  "Spring-loaded pocket case with a braided carry loop",
+  "October 12, 2026",
+  "Official minimum: 2 confirmed rewards — the Weather-Shield Jacket and Arcade PopUp Pro. Historical estimate: about 6 items, based on the final 2025 Champion package.",
+  "Champion collection — the Weather-Shield Jacket and Arcade PopUp Pro are confirmed; further items are unrevealed.",
+  "Official minimum: 3 items — the two confirmed Champion rewards plus one promised Legend-exclusive reward. Historical estimate: about 7 items, based on the final 2025 Legend package."
+]
+
+test("Arcade PopUp Pro copy is available in every website locale", () => {
+  for (const locale of locales) {
+    const catalog = readCatalog(locale)
+    for (const source of arcadePopupProSources) {
+      assert.equal(typeof catalog.additional?.[source], "string",
+        `${locale} missing Arcade PopUp Pro translation: ${source}`)
+      assert.ok(catalog.additional[source].trim().length > 0,
+        `${locale} has empty Arcade PopUp Pro translation: ${source}`)
+    }
+  }
+})
+
 const arcadeBackpackSources = [
   "The Arcade Backpack",
   "Arcade Backpack",

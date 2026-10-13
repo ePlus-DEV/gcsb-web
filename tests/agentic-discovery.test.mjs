@@ -11,6 +11,7 @@ const REQUIRED_SWAG_URLS = [
   "https://arcade.eplus.dev/swag-drops/2026/champion/",
   "https://arcade.eplus.dev/swag-drops/2026/legend/",
   "https://arcade.eplus.dev/swag-drops/2026/weather-shield-jacket/",
+  "https://arcade.eplus.dev/swag-drops/2026/arcade-popup-pro/",
 ]
 
 test("agentic discovery files expose every current and historical swag route", () => {
