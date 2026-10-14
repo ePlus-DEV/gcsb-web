@@ -3,6 +3,8 @@ import type { WebsiteCatalog } from "@/lib/website-i18n"
 export const MONTHLY_GAMES_TEXT_KEYS = [
   "loadingAria",
   "loading",
+  "loadFailed",
+  "retry",
   "deadlineUnavailable",
   "thisMonth",
   "previousEndedWaiting",
