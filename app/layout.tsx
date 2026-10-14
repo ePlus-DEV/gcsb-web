@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs"
 import path from "node:path"
 import localFont from "next/font/local"
 import type { Metadata, Viewport } from "next"
+import ArcadeFaqChatbot from "@/components/arcade/arcade-faq-chatbot"
 import WebsiteLanguage from "@/components/i18n/website-language"
 import CookieConsent from "@/components/privacy/cookie-consent"
 import BackToTop from "@/components/back-to-top"
@@ -36,6 +37,7 @@ import "./styles/profile-share.css"
 import "./styles/bonus-milestone.css"
 import "./styles/site-ui.css"
 import "./styles/back-to-top.css"
+import "./styles/arcade-chatbot.css"
 import "./styles/halloween-season.css"
 import "./styles/guest-discovery.css"
 
@@ -247,6 +249,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <HalloweenSeason />
           {children}
           <BackToTop />
+          <ArcadeFaqChatbot />
           <CookieConsent
             analyticsEnabled={Boolean(googleAnalyticsId)}
             previewMode={cookieNoticePreviewMode}
