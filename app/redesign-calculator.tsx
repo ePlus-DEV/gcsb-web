@@ -696,6 +696,10 @@ export default function RedesignCalculator({
       <section id="top" className="arcade-hero" data-home-order="hero">
         <div className="hero-heading">
           <p className="pixel-kicker"><Sparkles /> Google Cloud Skills Boost Arcade 2026</p>
+          <span className="halloween-edition">
+            <span aria-hidden="true">🎃</span>
+            {activeHistoryLanguage.catalog.messages.halloweenEdition}
+          </span>
           <h1>{heroCopy?.top ?? "CHECK YOUR"}<br /><span>{heroCopy?.bottom ?? "ARCADE SCORE"}</span></h1>
           <p className="hero-description">
             {heroCopy?.description ?? "Analyze your public profile, inspect earned badges and check which 2026 reward tier your score qualifies for."}

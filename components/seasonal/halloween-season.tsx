@@ -1,72 +1,67 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { createPortal } from "react-dom"
+import { usePathname } from "next/navigation"
+import { usePortalTarget } from "@/components/use-portal-target"
+import { shouldEnableHalloween } from "./halloween-model"
 
 const SEASON_STORAGE_KEY = "arcade-seasonal-theme"
 
-function isHalloweenSeason(date: Date) {
-  const month = date.getMonth()
-  const day = date.getDate()
-
-  return month === 9 || (month === 10 && day <= 2)
-}
-
-function isWidgetPath(pathname: string) {
-  return /^\/(?:[a-z]{2}(?:-[a-z]{2})?\/)?widget\/?$/i.test(pathname)
-}
-
 export default function HalloweenSeason() {
+  const pathname = usePathname()
+  const target = usePortalTarget(".arcade-dashboard-page")
   const [enabled, setEnabled] = useState(false)
 
   useEffect(() => {
-    if (isWidgetPath(window.location.pathname)) return
-
-    let preference: string | null = null
-    try {
-      preference = window.localStorage.getItem(SEASON_STORAGE_KEY)
-    } catch {
-      // Storage is optional; the seasonal date window still works.
-    }
-
-    const shouldEnable =
-      preference === "halloween" ||
-      (preference !== "off" && isHalloweenSeason(new Date()))
-
-    if (!shouldEnable) return
-
     const root = document.documentElement
     const previousSeason = root.dataset.season
-    root.dataset.season = "halloween"
-    setEnabled(true)
+    const restoreSeason = () => {
+      if (previousSeason) root.dataset.season = previousSeason
+      else delete root.dataset.season
+    }
+    const syncSeason = () => {
+      let preference: string | null = null
+      try {
+        preference = window.localStorage.getItem(SEASON_STORAGE_KEY)
+      } catch {
+        // Storage is optional; the seasonal date window still works.
+      }
+      const active = shouldEnableHalloween(pathname ?? "/", preference, new Date())
+      if (active) root.dataset.season = "halloween"
+      else restoreSeason()
+      setEnabled(active)
+    }
+    const onStorage = (event: StorageEvent) => {
+      if (event.key === SEASON_STORAGE_KEY || event.key === null) syncSeason()
+    }
+    syncSeason()
+    window.addEventListener("storage", onStorage)
+    window.addEventListener("focus", syncSeason)
+    // Also expire the skin if a tab stays open beyond November 2.
+    const timer = window.setInterval(syncSeason, 60_000)
 
     return () => {
-      if (previousSeason) {
-        root.dataset.season = previousSeason
-      } else {
-        delete root.dataset.season
-      }
+      window.removeEventListener("storage", onStorage)
+      window.removeEventListener("focus", syncSeason)
+      window.clearInterval(timer)
+      restoreSeason()
     }
-  }, [])
+  }, [pathname])
 
-  if (!enabled) return null
+  if (!enabled || !target) return null
 
-  return (
+  return createPortal(
     <div className="halloween-season-decor" aria-hidden="true">
       <div className="halloween-web halloween-web-left" />
       <div className="halloween-web halloween-web-right" />
-      <div className="halloween-fog halloween-fog-one" />
-      <div className="halloween-fog halloween-fog-two" />
-      <span className="halloween-moon"><span>☾</span></span>
-      <span className="halloween-ghost halloween-ghost-left">👻</span>
-      <span className="halloween-ghost halloween-ghost-right">👻</span>
+      <span className="halloween-moon" />
       <span className="halloween-bat halloween-bat-one">🦇</span>
       <span className="halloween-bat halloween-bat-two">🦇</span>
       <span className="halloween-bat halloween-bat-three">🦇</span>
       <span className="halloween-pumpkin halloween-pumpkin-left">🎃</span>
       <span className="halloween-pumpkin halloween-pumpkin-right">🎃</span>
-      <div className="halloween-candy-line">
-        <span>✦</span><span>◆</span><span>✦</span><span>◆</span><span>✦</span>
-      </div>
-    </div>
+    </div>,
+    target,
   )
 }
