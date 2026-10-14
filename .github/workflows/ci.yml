@@ -50,6 +50,7 @@ jobs:
         run: |
           yarn playwright install --with-deps chromium
           node scripts/verify-halloween-ui.mjs
+          node scripts/verify-guest-discovery.mjs
 
       - name: Verify default Google Analytics and cookie notice
         run: |
