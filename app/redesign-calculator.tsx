@@ -1,10 +1,11 @@
 "use client"
 
 import Link from "next/link"
+import DashboardTiers from "@/components/arcade/dashboard-tiers"
 import GuestDashboard from "@/components/arcade/guest-dashboard"
 import PreviewModeToolbar from "@/components/arcade/preview-mode-toolbar"
 import { readStoredDashboard, type DashboardViewMode } from "@/components/arcade/dashboard-state"
-import { SlotChangeBadge, TierSlotHistoryPanel, useTierSlotHistory } from "@/components/arcade/tier-slot-history"
+import { useTierSlotHistory } from "@/components/arcade/tier-slot-history"
 import {
   getWebsiteLocale,
   getWebsiteLocaleFromPathname,
@@ -731,9 +732,9 @@ export default function RedesignCalculator({
             <span aria-hidden="true">🎃</span>
             {activeHistoryLanguage.catalog.messages.halloweenEdition}
           </span>
-          <h1>{viewMode === "guest" ? activeHistoryLanguage.catalog.messages.guestHeroTop : heroCopy?.top ?? "CHECK YOUR"}<br /><span>{viewMode === "guest" ? activeHistoryLanguage.catalog.messages.guestHeroBottom : heroCopy?.bottom ?? "ARCADE SCORE"}</span></h1>
+          <h1>{heroCopy?.top ?? activeHistoryLanguage.catalog.messages.heroTitleTop}<br /><span>{heroCopy?.bottom ?? activeHistoryLanguage.catalog.messages.heroTitleBottom}</span></h1>
           <p className="hero-description">
-            {viewMode === "guest" ? activeHistoryLanguage.catalog.messages.guestHeroDescription : heroCopy?.description ?? "Analyze your public profile, inspect earned badges and check which 2026 reward tier your score qualifies for."}
+            {heroCopy?.description ?? activeHistoryLanguage.catalog.messages.heroDescription}
           </p>
           <div className="trust-pills">
             <span><ShieldCheck /> Public profile data only</span>
@@ -781,7 +782,7 @@ export default function RedesignCalculator({
       {/* Stable portal anchor: keeps countdown placement identical for every locale. */}
       <div className="program-countdown-host" data-home-order="program-countdown" />
 
-      {showProfileDashboard && extensionStrip}
+      {extensionStrip}
 
 
 
@@ -968,49 +969,14 @@ export default function RedesignCalculator({
               )}
             </article>
 
-            <aside id="tiers" className="dashboard-panel tier-list-panel">
-              <div className="panel-title-row">
-                <PanelTitle>Arcade 2026 tiers</PanelTitle>
-                <span className={milestonesLive ? "tier-help is-live" : "tier-help"}>
-                  {milestonesLive ? "Live slot data" : "Total slots only"}
-                </span>
-              </div>
-              <div className="tier-list">
-                {[...milestones].reverse().map((tier) => {
-                  const active = qualifiedMilestone?.points === tier.points
-                  return (
-                    <div className={`tier-list-row tier-${tier.points}${active ? " is-current" : ""}`} key={tier.points}>
-                      <span className="tier-list-icon"><Trophy /></span>
-                      <div><strong>{tier.league.replace("Arcade ", "")}</strong><span>{tierRangeLabel(tier)}</span></div>
-                      <div className="tier-slot-count">
-                        <b>{tier.spotsLeft === null ? "—" : formatInteger(tier.spotsLeft)}</b>
-                        <small>
-                          {tier.spotsLeft === null
-                            ? formatInteger(tier.slots) + " total slots"
-                            : "left of " + formatInteger(tier.slots)}
-                        </small>
-                        <SlotChangeBadge
-                          feed={slotHistory.feed}
-                          points={tier.points}
-                          currentSpotsLeft={tier.spotsLeft}
-                          catalog={activeHistoryLanguage.catalog}
-                          locale={activeHistoryLanguage.locale}
-                        />
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-              <p className="tier-note">
-                Total and remaining spots are refreshed automatically every 6 hours. Your personal queue position is not included in the public data.
-              </p>
-              <TierSlotHistoryPanel
-                {...slotHistory}
-                milestones={milestones}
-                catalog={activeHistoryLanguage.catalog}
-                locale={activeHistoryLanguage.locale}
-              />
-            </aside>
+            <DashboardTiers
+              milestones={milestones}
+              milestonesLive={milestonesLive}
+              slotHistory={slotHistory}
+              catalog={activeHistoryLanguage.catalog}
+              locale={activeHistoryLanguage.locale}
+              activeTierPoints={qualifiedMilestone?.points}
+            />
           </div>
 
           <div id="monthly-games" className="monthly-games-host" data-home-order="monthly-labs" />
@@ -1089,7 +1055,6 @@ export default function RedesignCalculator({
       )}
 
 
-      {!showProfileDashboard && extensionStrip}
 
       {footerContent}
 

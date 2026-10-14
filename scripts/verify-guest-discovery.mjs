@@ -17,7 +17,7 @@ try {
   for (const locale of ["en", "vi", "de"]) {
     const catalog = JSON.parse(readRepoFile(`public/i18n/locales/${locale}.json`))
     for (const theme of ["dark", "light"]) {
-      for (const width of [320, 390, 1440]) {
+      for (const width of [320, 390, 768, 1024, 1440]) {
         const context = await browser.newContext({ viewport: { width, height: 900 }, locale, permissions: ["clipboard-read", "clipboard-write"] })
         await context.addInitScript(({ theme, locale }) => {
           localStorage.setItem("arcade-theme", theme)
@@ -34,24 +34,39 @@ try {
           return route.abort()
         })
         await page.goto(`${server.url}${locale === "en" ? "" : `${locale}/`}`)
-        await page.locator(".guest-discovery-grid .monthly-game-card").first().waitFor({ state: "visible" })
-        await page.waitForFunction((label) => document.querySelector(".hero-heading h1")?.textContent.includes(label), catalog.messages.guestHeroTop)
+        await page.locator(".guest-dashboard .monthly-game-card").first().waitFor({ state: "visible" })
+        await page.waitForFunction((label) => document.querySelector(".hero-heading h1")?.textContent.includes(label), catalog.messages.heroTitleTop)
         assert.equal(await page.locator(".monthly-game-card").count(), 6)
         assert.equal(await page.locator(".monthly-game-status").count(), 0)
         assert.equal(await page.locator(".profile-input input").inputValue(), "")
         assert.equal(await page.locator(".analyzer-help-row button").count(), 0)
+        for (const label of await page.locator(".tier-list-row > div:nth-child(2) strong").all()) {
+          assert.ok(await label.evaluate((el) => el.scrollWidth <= el.clientWidth + 1), "Tier name is clipped")
+          assert.ok(await label.evaluate((el) => el.closest(".tier-list-row").querySelector(".tier-list-icon").getBoundingClientRect().right <= el.getBoundingClientRect().left), "Tier icon overlaps name")
+        }
         const geometry = await page.evaluate(() => {
-          const labs = document.querySelector(".guest-labs-host").getBoundingClientRect()
-          const tiers = document.querySelector(".guest-discovery-grid .tier-list-panel").getBoundingClientRect()
+          const labs = document.querySelector(".guest-dashboard .monthly-games-host").getBoundingClientRect()
+          const tiers = document.querySelector(".guest-dashboard .tier-list-panel").getBoundingClientRect()
           const extension = document.querySelector(".extension-strip").getBoundingClientRect()
           const hero = document.querySelector(".arcade-hero").getBoundingClientRect()
           return { overflow: document.documentElement.scrollWidth > innerWidth + 1, labs: { top: labs.top, bottom: labs.bottom, right: labs.right }, tiers: { top: tiers.top, bottom: tiers.bottom, left: tiers.left }, extension: extension.top, heroHeight: hero.height }
         })
         assert.equal(geometry.overflow, false, `${locale}/${theme}/${width}: horizontal overflow`)
-        if (width > 1000) assert.ok(geometry.labs.right <= geometry.tiers.left && Math.abs(geometry.labs.top - geometry.tiers.top) <= 2)
-        else assert.ok(geometry.labs.bottom <= geometry.tiers.top)
-        assert.ok(geometry.extension >= Math.max(geometry.labs.bottom, geometry.tiers.bottom))
-        assert.ok(geometry.heroHeight < (width > 1000 ? 400 : 650), `${locale}: oversized guest hero`)
+        assert.ok(geometry.tiers.bottom <= geometry.labs.top)
+        if (width > 1100) {
+          assert.ok(geometry.heroHeight < 440, `${locale}/${theme}: entry hero height ${geometry.heroHeight}`)
+          const rows = await page.locator(".guest-dashboard .tier-list-row").evaluateAll(elements => elements.map(el => el.getBoundingClientRect().top))
+          assert.ok(rows.every(top => Math.abs(top - rows[0]) < 2), "Desktop tier overview must fit on one row")
+        }
+        assert.ok(geometry.extension < geometry.tiers.top)
+        const sharedAppearance = () => page.evaluate(() => {
+          const selectors = [".arcade-hero", ".hero-heading h1", ".profile-analyzer-card", ".monthly-games-grid", ".monthly-game-card"]
+          return selectors.map(selector => {
+            const style = getComputedStyle(document.querySelector(selector))
+            return [style.width, style.fontSize, style.padding, style.borderRadius, style.gridTemplateColumns]
+          })
+        })
+        const guestAppearance = await sharedAppearance()
         await page.locator(".monthly-copy-button").first().click()
         assert.equal(await page.evaluate(() => navigator.clipboard.readText()), games[0].accessCode)
         if (screenshots && locale !== "de") {
@@ -62,6 +77,8 @@ try {
         await page.locator(".profile-input input").fill(profileUrl)
         await page.locator(".analyze-button").click()
         await page.locator(".profile-panel").waitFor({ state: "visible" })
+        await page.locator(".monthly-game-card").first().waitFor({ state: "visible" })
+        assert.deepEqual(await sharedAppearance(), guestAppearance, "Guest must share Profile hero, form and Labs styling")
         const stored = await page.evaluate(() => JSON.parse(localStorage.getItem("eplus-arcade-dashboard-v1")))
         assert.equal(stored.profileUrl, profileUrl)
         if (locale === "en" && theme === "dark" && width === 1440) {
@@ -71,7 +88,7 @@ try {
         }
         if (await page.locator(".preview-mode-toolbar").count()) {
           await page.locator(".dashboard-view-switch button").first().click()
-          await page.locator(".guest-discovery-grid").waitFor({ state: "visible" })
+          await page.locator(".guest-dashboard").waitFor({ state: "visible" })
           assert.equal(await page.locator(".profile-input input").inputValue(), "")
           assert.equal(await page.locator(".analyzer-help-row button").count(), 0)
           assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem("eplus-arcade-dashboard-v1")).profileUrl), profileUrl)

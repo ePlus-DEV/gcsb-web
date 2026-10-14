@@ -31,7 +31,7 @@ test("program countdown keeps a deterministic home position for every locale", (
   assert.match(calculator, /className="program-countdown-host" data-home-order="program-countdown"/)
   assert.ok(
     calculator.indexOf('className="program-countdown-host"') <
-      calculator.indexOf("{showProfileDashboard && extensionStrip}"),
+      calculator.indexOf("{extensionStrip}"),
   )
 })
 

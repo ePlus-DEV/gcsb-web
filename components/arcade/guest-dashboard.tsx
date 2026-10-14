@@ -10,10 +10,9 @@ export default function GuestDashboard({
 }) {
   return (
     <section
-      className={`guest-discovery-grid${viewMode === "guest" ? " is-guest" : " is-profile-empty"}`}
+      className={`dashboard-shell guest-dashboard${viewMode === "guest" ? " is-guest" : " is-profile-empty"}`}
       data-home-order="dashboard-empty"
     >
-      <div id="monthly-games" className="monthly-games-host guest-labs-host" data-home-order="monthly-labs" />
 
       <DashboardTiers
         milestones={milestones}
@@ -22,6 +21,8 @@ export default function GuestDashboard({
         catalog={catalog}
         locale={locale}
       />
+      <div id="monthly-games" className="monthly-games-host" data-home-order="monthly-labs" />
+
     </section>
   )
 }

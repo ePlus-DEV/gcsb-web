@@ -49,7 +49,7 @@ test("Monthly Labs has deterministic React-owned anchors in both dashboard state
   const emptyMonthly = guestDashboard.indexOf('data-home-order="monthly-labs"')
   const about = calculator.indexOf("{footerContent}")
   assert.ok(empty > bottom)
-  assert.ok(emptyMonthly >= 0 && emptyMonthly < guestDashboard.indexOf("<DashboardTiers\n"))
+  assert.ok(emptyMonthly >= 0 && emptyMonthly > guestDashboard.indexOf("<DashboardTiers\n"))
   assert.match(guestDashboard, /<DashboardTiers/)
   assert.match(dashboardTiers, /data-home-order="tier-history"/)
   assert.ok(about > empty)
@@ -65,7 +65,7 @@ test("portal targets cannot depend on translated labels or mutation timing", () 
   )
   assert.ok(
     calculator.indexOf('data-home-order="program-countdown"') <
-    calculator.indexOf("{showProfileDashboard && extensionStrip}"),
+    calculator.indexOf("{extensionStrip}"),
   )
   assert.ok(monthlyGate.includes('page?.querySelector<HTMLElement>(`#${HOST_ID}.${HOST_CLASS_NAME}`)'))
   assert.doesNotMatch(monthlyGate, /\[aria-label=/)
@@ -101,38 +101,12 @@ test("an empty published monthly feed is treated as awaiting publication, not a 
 })
 
 
-test("home dashboard v2 stays scoped and its visual overrides load last", () => {
-  const layout = readRepoFile("app/layout.tsx")
-  const refactorStyles = readRepoFile("app/styles/home-refactor.css")
-
-  assert.match(calculator, /arcade-dashboard-page arcade-dashboard-v2/)
-  assert.match(refactorStyles, /\.arcade-dashboard-v2/)
-  assert.match(
-    refactorStyles,
-    /\.arcade-dashboard-v2\[data-dashboard-view="guest"\] \.program-countdown-host/,
-  )
-  assert.doesNotMatch(
-    refactorStyles,
-    /\.arcade-dashboard-v2 \.program-countdown-host/,
-  )
-  assert.match(guestStyles, /\.guest-discovery-grid/)
-  assert.match(refactorStyles, /\.guest-tier-card\.tier-120/)
-  assert.match(refactorStyles, /\.guest-tier-progress/)
-  assert.match(refactorStyles, /\.preview-mode-toolbar/)
-  assert.match(refactorStyles, /Preview modes sit below the header/)
-  assert.match(refactorStyles, /html\.light \.arcade-dashboard-v2/)
-  assert.match(refactorStyles, /@media \(max-width: 600px\)/)
-
-  const legacyResponsive = layout.indexOf('import "./styles/redesign-responsive.css"')
-  const facilitatorStyles = layout.indexOf('import "./styles/facilitator-participation.css"')
-  const refactorImport = layout.indexOf('import "./styles/home-refactor.css"')
-
-  assert.ok(legacyResponsive >= 0)
-  assert.ok(facilitatorStyles >= 0)
-  assert.ok(refactorImport > legacyResponsive)
-  assert.ok(refactorImport > facilitatorStyles)
+test("Guest and Profile share dashboard styling", () => {
+  const styles = readRepoFile("app/styles/home-refactor.css")
+  assert.doesNotMatch(styles, /data-dashboard-view="guest"|guest-tier/)
+  assert.match(styles, /preview-mode-toolbar/)
+  assert.match(guestDashboard, /dashboard-shell/)
 })
-
 
 test("PR-preview guest and profile debug modes stay profile-safe and fully localized", () => {
   const monthlyGateSource = readRepoFile("components/arcade/monthly-games-panel-gate.tsx")
@@ -170,9 +144,8 @@ test("PR-preview guest and profile debug modes stay profile-safe and fully local
   assert.match(previewToolbar, /className="dashboard-view-switch"/)
   assert.match(previewToolbar, /className="preview-mode-toolbar"/)
   assert.match(previewToolbar, /className="preview-mode-badge"/)
-  assert.match(guestDashboard, /guest-discovery-grid/)
-  assert.match(dashboardTiers, /guest-tier-card tier-/)
-  assert.match(dashboardTiers, /guest-tier-progress/)
+  assert.match(guestDashboard, /dashboard-shell/)
+  assert.match(dashboardTiers, /tier-list-row tier-/)
   assert.match(calculator, /showProfileDashboard/)
   assert.match(calculator, /setViewMode\("profile"\)/)
   assert.match(monthlyGateSource, /readActiveDashboard\(\)/)
@@ -198,27 +171,12 @@ test("PR-preview guest and profile debug modes stay profile-safe and fully local
 })
 
 
-test("profile keeps legacy tier markup while guest uses the new tier renderer", () => {
-  assert.equal((calculator.match(/<DashboardTiers\b/g) ?? []).length, 0)
+test("both views use the Profile tier renderer and hero", () => {
+  assert.equal((calculator.match(/<DashboardTiers\b/g) ?? []).length, 1)
   assert.equal((guestDashboard.match(/<DashboardTiers\b/g) ?? []).length, 1)
-  assert.match(calculator, /className="dashboard-panel tier-list-panel"/)
-  assert.match(calculator, /tier-list-row tier-/)
-  assert.match(calculator, /<SlotChangeBadge/)
-  assert.match(calculator, /<TierSlotHistoryPanel/)
-  assert.doesNotMatch(guestDashboard, /guest-tier-card/)
-  assert.match(dashboardTiers, /activeTierPoints === tier.points/)
-  assert.match(dashboardTiers, /aria-current=\{active \? "step" : undefined\}/)
-  assert.match(dashboardTiers, /viewMessages.tierNote/)
-  assert.match(dashboardTiers, /guest-tier-progress/)
-})
-
-test("guest discovery owns localized entry copy and puts labs before public tiers", () => {
-  for (const key of ["guestHeroTop", "guestHeroBottom", "guestHeroDescription", "guestLabsLabel"]) {
-    assert.ok(calculator.includes(`catalog.messages.${key}`), key)
-  }
-  assert.doesNotMatch(calculator, /["']EXPLORE["']|Browse this month's games and rewards/)
-  assert.doesNotMatch(guestDashboard, /guest-dashboard-hero/)
-  assert.match(calculator, /useState<DashboardViewMode>\("guest"\)/)
+  assert.match(dashboardTiers, /tier-list-row tier-/)
+  assert.match(dashboardTiers, /<SlotChangeBadge/)
+  assert.match(dashboardTiers, /<TierSlotHistoryPanel/)
+  assert.doesNotMatch(calculator, /catalog.messages.guestHero/)
   assert.match(calculator, /setGuestProfileUrl\(""\)/)
-  assert.match(guestStyles, /@media \(max-width: 560px\)/)
 })

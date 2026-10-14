@@ -21,55 +21,25 @@ export default function DashboardTiers({
   const viewMessages = catalog.messages
   return (
     <aside id="tiers" className="dashboard-panel tier-list-panel shared-tier-panel">
-      <div className="guest-tier-heading">
-        <div>
-          <span className="guest-tier-heading-icon" aria-hidden="true"><Trophy /></span>
-          <div>
-            <strong>{viewMessages.arcadeTiers}</strong>
-            <span>{milestonesLive ? viewMessages.liveSlots : viewMessages.totalSlotsOnly}</span>
-          </div>
-        </div>
+      <div className="panel-title-row">
+        <h2 className="panel-title">{viewMessages.arcadeTiers}</h2>
+        <span className={milestonesLive ? "tier-help is-live" : "tier-help"}>
+          {milestonesLive ? viewMessages.liveSlots : viewMessages.totalSlotsOnly}
+        </span>
       </div>
-
-      <div className="empty-tier-grid">
+      <div className="tier-list">
         {[...milestones].reverse().map((tier) => {
-          const remainingPercent =
-            tier.spotsLeft === null || tier.slots <= 0
-              ? 0
-              : Math.max(0, Math.min(100, (tier.spotsLeft / tier.slots) * 100))
-
           const active = activeTierPoints === tier.points
           return (
-            <article
-              className={`guest-tier-card tier-${tier.points}${active ? " is-current" : ""}`}
-              aria-current={active ? "step" : undefined}
-              key={tier.points}
-            >
-              <span className="guest-tier-icon" aria-hidden="true"><Trophy /></span>
-              <div className="guest-tier-main">
-                <div className="guest-tier-copy">
-                  <strong>{tier.league.replace("Arcade ", "")}</strong>
-                  <span>{tierRangeLabel(tier)}</span>
-                </div>
-                <div className="guest-tier-progress" aria-hidden="true">
-                  <span style={{ width: `${remainingPercent}%` }} />
-                </div>
+            <div className={`tier-list-row tier-${tier.points}${active ? " is-current" : ""}`} aria-current={active ? "step" : undefined} key={tier.points}>
+              <span className="tier-list-icon" aria-hidden="true"><Trophy /></span>
+              <div><strong>{tier.league.replace("Arcade ", "")}</strong><span>{tierRangeLabel(tier)}</span></div>
+              <div className="tier-slot-count">
+                <b>{tier.spotsLeft === null ? "—" : formatInteger(tier.spotsLeft)}</b>
+                <small>{(tier.spotsLeft === null ? catalog.dynamic.totalSlots : catalog.dynamic.leftOf).replace("{count}", formatInteger(tier.slots))}</small>
+                <SlotChangeBadge feed={slotHistory.feed} points={tier.points} currentSpotsLeft={tier.spotsLeft} catalog={catalog} locale={locale} />
               </div>
-              <div className="guest-tier-availability">
-                <strong>
-                  {tier.spotsLeft === null ? "—" : formatInteger(tier.spotsLeft)}
-                  <span> / {formatInteger(tier.slots)}</span>
-                </strong>
-                <small>{tier.spotsLeft === null ? viewMessages.totalSlotsOnly : viewMessages.spotsLeft}</small>
-                <SlotChangeBadge
-                  feed={slotHistory.feed}
-                  points={tier.points}
-                  currentSpotsLeft={tier.spotsLeft}
-                  catalog={catalog}
-                  locale={locale}
-                />
-              </div>
-            </article>
+            </div>
           )
         })}
       </div>
