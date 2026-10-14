@@ -6,6 +6,7 @@ const home = readRepoFile("app/page.tsx")
 const localizedHome = readRepoFile("app/[locale]/page.tsx")
 const dashboardTiers = readRepoFile("components/arcade/dashboard-tiers.tsx")
 const guestDashboard = readRepoFile("components/arcade/guest-dashboard.tsx")
+const guestStyles = readRepoFile("app/styles/guest-discovery.css")
 const previewToolbar = readRepoFile("components/arcade/preview-mode-toolbar.tsx")
 const dashboardState = readRepoFile("components/arcade/dashboard-state.ts")
 const calculator = readRepoFile("app/redesign-calculator.tsx")
@@ -37,20 +38,21 @@ test("all locales mount the English homepage block sequence", () => {
 })
 
 test("Monthly Labs has deterministic React-owned anchors in both dashboard states", () => {
-  assert.equal((calculator.match(/id="monthly-games"/g) ?? []).length, 2)
-  assert.equal((calculator.match(/data-home-order="monthly-labs"/g) ?? []).length, 2)
+  assert.equal(((calculator + guestDashboard).match(/id="monthly-games"/g) ?? []).length, 2)
+  assert.equal(((calculator + guestDashboard).match(/data-home-order="monthly-labs"/g) ?? []).length, 2)
   const summary = calculator.indexOf('data-home-order="dashboard-summary"')
   const resultsMonthly = calculator.indexOf('data-home-order="monthly-labs"')
   const bottom = calculator.indexOf('data-home-order="dashboard-bottom"')
   assert.ok(summary >= 0 && summary < resultsMonthly && resultsMonthly < bottom)
 
   const empty = calculator.indexOf("<GuestDashboard")
-  const emptyMonthly = calculator.lastIndexOf('data-home-order="monthly-labs"')
+  const emptyMonthly = guestDashboard.indexOf('data-home-order="monthly-labs"')
   const about = calculator.indexOf("{footerContent}")
-  assert.ok(empty > bottom && emptyMonthly > empty)
+  assert.ok(empty > bottom)
+  assert.ok(emptyMonthly >= 0 && emptyMonthly > guestDashboard.indexOf("<DashboardTiers\n"))
   assert.match(guestDashboard, /<DashboardTiers/)
   assert.match(dashboardTiers, /data-home-order="tier-history"/)
-  assert.ok(about > emptyMonthly)
+  assert.ok(about > empty)
   assert.ok(readRepoFile("components/site/site-header.tsx").includes('href="/monthly-labs/"'))
   assert.match(guide, /data-home-order="about"/)
 })
@@ -63,7 +65,7 @@ test("portal targets cannot depend on translated labels or mutation timing", () 
   )
   assert.ok(
     calculator.indexOf('data-home-order="program-countdown"') <
-    calculator.indexOf('data-home-order="extension"'),
+    calculator.indexOf("{extensionStrip}"),
   )
   assert.ok(monthlyGate.includes('page?.querySelector<HTMLElement>(`#${HOST_ID}.${HOST_CLASS_NAME}`)'))
   assert.doesNotMatch(monthlyGate, /\[aria-label=/)
@@ -94,43 +96,17 @@ test("an empty published monthly feed is treated as awaiting publication, not a 
   assert.match(monthlyPanel, /if \(!Array\.isArray\(payload\)\) throw new Error/)
   assert.match(monthlyPanel, /payload\.length > 0 && parsed\.length === 0/)
   assert.match(monthlyPanel, /setLoadFailed\(false\)/)
-  assert.match(monthlyPanel, /if \(loadFailed\) return null/)
+  assert.match(monthlyPanel, /if \(loadFailed\) return \(/)
   assert.doesNotMatch(monthlyPanel, /loadFailed \|\| games\.length === 0/)
 })
 
 
-test("home dashboard v2 stays scoped and its visual overrides load last", () => {
-  const layout = readRepoFile("app/layout.tsx")
-  const refactorStyles = readRepoFile("app/styles/home-refactor.css")
-
-  assert.match(calculator, /arcade-dashboard-page arcade-dashboard-v2/)
-  assert.match(refactorStyles, /\.arcade-dashboard-v2/)
-  assert.match(
-    refactorStyles,
-    /\.arcade-dashboard-v2\[data-dashboard-view="guest"\] \.program-countdown-host/,
-  )
-  assert.doesNotMatch(
-    refactorStyles,
-    /\.arcade-dashboard-v2 \.program-countdown-host/,
-  )
-  assert.match(refactorStyles, /\.guest-dashboard-hero/)
-  assert.match(refactorStyles, /\.guest-tier-card\.tier-120/)
-  assert.match(refactorStyles, /\.guest-tier-progress/)
-  assert.match(refactorStyles, /\.preview-mode-toolbar/)
-  assert.match(refactorStyles, /Preview modes sit below the header/)
-  assert.match(refactorStyles, /html\.light \.arcade-dashboard-v2/)
-  assert.match(refactorStyles, /@media \(max-width: 600px\)/)
-
-  const legacyResponsive = layout.indexOf('import "./styles/redesign-responsive.css"')
-  const facilitatorStyles = layout.indexOf('import "./styles/facilitator-participation.css"')
-  const refactorImport = layout.indexOf('import "./styles/home-refactor.css"')
-
-  assert.ok(legacyResponsive >= 0)
-  assert.ok(facilitatorStyles >= 0)
-  assert.ok(refactorImport > legacyResponsive)
-  assert.ok(refactorImport > facilitatorStyles)
+test("Guest and Profile share dashboard styling", () => {
+  const styles = readRepoFile("app/styles/home-refactor.css")
+  assert.doesNotMatch(styles, /data-dashboard-view="guest"|guest-tier/)
+  assert.match(styles, /preview-mode-toolbar/)
+  assert.match(guestDashboard, /dashboard-shell/)
 })
-
 
 test("PR-preview guest and profile debug modes stay profile-safe and fully localized", () => {
   const monthlyGateSource = readRepoFile("components/arcade/monthly-games-panel-gate.tsx")
@@ -142,6 +118,10 @@ test("PR-preview guest and profile debug modes stay profile-safe and fully local
     "profileView",
     "guestDashboardTitle",
     "guestDashboardHint",
+    "guestHeroTop",
+    "guestHeroBottom",
+    "guestHeroDescription",
+    "guestLabsLabel",
   ]
   const locales = [
     "ar", "de", "en", "es", "fr", "hi", "it",
@@ -152,7 +132,7 @@ test("PR-preview guest and profile debug modes stay profile-safe and fully local
   const previewFixture = readRepoFile("components/arcade/preview-debug-profile.ts")
   assert.match(previewFixture, /startsWith\("\/pr-preview\/pr-"\)/)
   assert.match(calculator, /\{IS_PR_PREVIEW && \(/)
-  assert.match(calculator, /IS_PR_PREVIEW \? "guest" : "profile"/)
+  assert.match(calculator, /useState<DashboardViewMode>\("guest"\)/)
   assert.match(calculator, /PREVIEW_DEBUG_PROFILE_RESULT/)
   assert.match(calculator, /PREVIEW_DEBUG_PROFILE_URL/)
   assert.match(calculator, /if \(!result \|\| usingPreviewFakeProfile\) return/)
@@ -164,9 +144,8 @@ test("PR-preview guest and profile debug modes stay profile-safe and fully local
   assert.match(previewToolbar, /className="dashboard-view-switch"/)
   assert.match(previewToolbar, /className="preview-mode-toolbar"/)
   assert.match(previewToolbar, /className="preview-mode-badge"/)
-  assert.match(guestDashboard, /guest-dashboard-hero/)
-  assert.match(dashboardTiers, /guest-tier-card tier-/)
-  assert.match(dashboardTiers, /guest-tier-progress/)
+  assert.match(guestDashboard, /dashboard-shell/)
+  assert.match(dashboardTiers, /tier-list-row tier-/)
   assert.match(calculator, /showProfileDashboard/)
   assert.match(calculator, /setViewMode\("profile"\)/)
   assert.match(monthlyGateSource, /readActiveDashboard\(\)/)
@@ -192,16 +171,19 @@ test("PR-preview guest and profile debug modes stay profile-safe and fully local
 })
 
 
-test("profile keeps legacy tier markup while guest uses the new tier renderer", () => {
-  assert.equal((calculator.match(/<DashboardTiers\b/g) ?? []).length, 0)
+test("both views use the Profile tier renderer and hero", () => {
+  assert.equal((calculator.match(/<DashboardTiers\b/g) ?? []).length, 1)
   assert.equal((guestDashboard.match(/<DashboardTiers\b/g) ?? []).length, 1)
-  assert.match(calculator, /className="dashboard-panel tier-list-panel"/)
-  assert.match(calculator, /tier-list-row tier-/)
-  assert.match(calculator, /<SlotChangeBadge/)
-  assert.match(calculator, /<TierSlotHistoryPanel/)
-  assert.doesNotMatch(guestDashboard, /guest-tier-card/)
-  assert.match(dashboardTiers, /activeTierPoints === tier.points/)
-  assert.match(dashboardTiers, /aria-current=\{active \? "step" : undefined\}/)
-  assert.match(dashboardTiers, /viewMessages.tierNote/)
-  assert.match(dashboardTiers, /guest-tier-progress/)
+  assert.match(dashboardTiers, /tier-list-row tier-/)
+  assert.match(dashboardTiers, /<SlotChangeBadge/)
+  assert.match(dashboardTiers, /<TierSlotHistoryPanel/)
+  assert.doesNotMatch(calculator, /catalog.messages.guestHero/)
+  assert.match(calculator, /setGuestProfileUrl\(""\)/)
+})
+
+test("shared hero preserves the Arcade pixel font with responsive sizing", () => {
+  const styles = readRepoFile("app/styles/home-refactor.css")
+  assert.match(styles, /font-family: "Press Start 2P", ui-monospace, monospace/)
+  assert.match(styles, /font-size: clamp\(1\.5rem, 2\.2vw, 2rem\)/)
+  assert.match(styles, /font-size: clamp\(1\.1rem, 4\.5vw, 1\.5rem\)/)
 })

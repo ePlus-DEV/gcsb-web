@@ -30,6 +30,29 @@ export type ArcadeSwagDrop = {
  */
 export const ARCADE_SWAG_DROPS: readonly ArcadeSwagDrop[] = [
   {
+    id: "arcade-popup-pro",
+    season: 2026,
+    dropNumber: 3,
+    name: "The Arcade PopUp Pro",
+    shortName: "Arcade PopUp Pro",
+    revealedOn: "October 12, 2026",
+    revealedOnIso: "2026-10-12",
+    tiers: ["champion", "legend"],
+    imageUrl:
+      "https://d2yds90mtvelsl.cloudfront.net/original/4X/b/9/a/b9a415d139fc73264ef112d2daeedb1fddd718ce.gif",
+    sourceUrl:
+      "https://discuss.google.dev/t/swag-drop-the-arcade-popup-pro/403522",
+    summary:
+      "A compact multi-connector travel toolkit confirmed for the Arcade Champion and Legend tiers.",
+    features: [
+      "Braided USB-C to USB-C fast-charging cable",
+      "Swappable Lightning, Micro-USB, and USB-A adapters",
+      "Built-in phone stand for portrait and landscape use",
+      "Nano SIM and MicroSD slots with a SIM ejector pin",
+      "Spring-loaded pocket case with a braided carry loop",
+    ],
+  },
+  {
     id: "arcade-backpack",
     season: 2026,
     dropNumber: 2,

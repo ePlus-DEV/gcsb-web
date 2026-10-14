@@ -62,7 +62,7 @@ export default function SwagDrops2026Page() {
       eyebrow="Arcade 2026 rewards"
       title="Google Skills Arcade 2026 swag drops"
       description="See each tier's current reward lineup at a glance: revealed swag, officially promised rewards, live prize-slot availability, estimated remaining items, and historical context."
-      updated="September 24, 2026"
+      updated={latest?.revealedOn ?? "2026"}
     >
       <script
         type="application/ld+json"

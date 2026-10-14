@@ -247,6 +247,7 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
   const [games, setGames] = useState<MonthlyArcadeGame[]>([])
   const [loading, setLoading] = useState(true)
   const [loadFailed, setLoadFailed] = useState(false)
+  const [reloadCount, setReloadCount] = useState(0)
   const [copiedCode, setCopiedCode] = useState<string | null>(null)
   const [expandedDeadline, setExpandedDeadline] = useState<string | null>(null)
   const [locale, setLocale] = useState<WebsiteLocale>(DEFAULT_WEBSITE_LOCALE)
@@ -295,6 +296,7 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
   useEffect(() => {
     let active = true
     const controller = new AbortController()
+    setLoading(true)
     const timeout = window.setTimeout(() => controller.abort(), 12_000)
 
     async function loadMonthlyGames() {
@@ -331,7 +333,7 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
       window.clearTimeout(timeout)
       controller.abort()
     }
-  }, [])
+  }, [reloadCount])
 
   const earnedTitleSet = useMemo(
     () => new Set(
@@ -396,7 +398,12 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
     )
   }
 
-  if (loadFailed) return null
+  if (loadFailed) return (
+    <section className="monthly-games-panel monthly-games-load-error" role="status">
+      <p>{text("loadFailed")}</p>
+      <button type="button" onClick={() => setReloadCount((count) => count + 1)}>{text("retry")}</button>
+    </section>
+  )
 
   return (
     <section className="monthly-games-panel" aria-labelledby="monthly-games-title">
@@ -408,7 +415,7 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
           <p>
             {awaitingNewGames
               ? text("previousEndedWaiting")
-              : text("activeDescription")}
+              : hasProfile ? text("activeDescription") : text("analyzeProfileTracking")}
           </p>
         </div>
         <div className={
@@ -431,9 +438,8 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
             </>
           ) : (
             <>
-              <strong>—/{activeGames.length}</strong>
-              <span>{text("analyzeProfileTracking")}</span>
-              <i aria-hidden="true"><b style={{ width: "0%" }} /></i>
+              <strong>{activeGames.length}</strong>
+              <span>{text("thisMonth")}</span>
             </>
           )}
         </div>
@@ -480,18 +486,14 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
                 ) : (
                   <Gamepad2 />
                 )}
-                <span className={completed ? "monthly-game-status is-complete" : hasProfile ? "monthly-game-status" : "monthly-game-status is-pending"}>
+                {hasProfile && <span className={completed ? "monthly-game-status is-complete" : "monthly-game-status"}>
                   {completed ? <BadgeCheck /> : <Circle />}
-                  {completed
-                    ? text("completed")
-                    : hasProfile
-                      ? text("notCompleted")
-                      : text("analyzeProfileCheck")}
-                </span>
+                  {completed ? text("completed") : text("notCompleted")}
+                </span>}
               </div>
 
               <div className="monthly-game-body">
-                <h3>{game.title}</h3>
+                <h3 title={game.title}>{game.title}</h3>
                 {game.description && <p className="monthly-game-description">{game.description}</p>}
 
                 <div className="monthly-game-meta">
@@ -499,7 +501,7 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
                     <div className="monthly-access-row">
                       <div className="monthly-access-value">
                         <span>{text("accessCode")}</span>
-                        <code>{game.accessCode}</code>
+                        <code title={game.accessCode}>{game.accessCode}</code>
                       </div>
                       <button
                         className={copiedCode === game.accessCode ? "monthly-copy-button is-copied" : "monthly-copy-button"}
