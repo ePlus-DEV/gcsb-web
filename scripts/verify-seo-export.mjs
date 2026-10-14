@@ -4,7 +4,7 @@ import path from "node:path"
 
 const html = (part) => readFileSync(path.join(process.cwd(), "out", part, "index.html"), "utf8")
 const home = html("")
-const guestHeading = (locale) => JSON.parse(readFileSync(path.join(process.cwd(), "public/i18n/locales", `${locale}.json`), "utf8")).messages.guestHeroTop
+const guestHeading = (locale) => JSON.parse(readFileSync(path.join(process.cwd(), "public/i18n/locales", `${locale}.json`), "utf8")).messages.heroTitleTop
 const routes = [
   ["vi", "vi"], ["ja", "ja"], ["ko", "ko"], ["zh-cn", "zh-CN"],
   ["fr", "fr"], ["de", "de"], ["es", "es"], ["pt-br", "pt-BR"],
