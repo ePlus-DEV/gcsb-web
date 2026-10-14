@@ -100,3 +100,45 @@
 .arcade-dashboard-v2[data-dashboard-view="guest"] [data-fresh-score-note] { display: none; }
 .monthly-games-load-error { display: grid; gap: 12px; min-height: 180px; align-content: center; color: var(--arcade-muted); }
 .monthly-games-load-error button { justify-self: start; padding: 9px 14px; border: 1px solid var(--arcade-border); border-radius: 8px; background: var(--arcade-panel-soft); color: var(--arcade-text); cursor: pointer; }
+
+/* A sidebar tier has two rows: identity, then availability. Never squeeze names
+ * between the icon and a fixed-width statistics column. */
+.arcade-dashboard-v2[data-dashboard-view="guest"] .guest-discovery-grid .guest-tier-card {
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: 6px 10px;
+  padding: 12px;
+}
+.arcade-dashboard-v2[data-dashboard-view="guest"] .guest-discovery-grid .guest-tier-main { min-width: 0; }
+.arcade-dashboard-v2[data-dashboard-view="guest"] .guest-discovery-grid .guest-tier-copy strong {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  font-size: 0.8rem;
+}
+.arcade-dashboard-v2[data-dashboard-view="guest"] .guest-discovery-grid .guest-tier-copy span { white-space: normal; }
+.arcade-dashboard-v2[data-dashboard-view="guest"] .guest-discovery-grid .guest-tier-availability {
+  grid-column: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px 8px;
+  min-width: 0;
+  text-align: left;
+  border: 0;
+  padding: 0;
+}
+.arcade-dashboard-v2[data-dashboard-view="guest"] .guest-discovery-grid .guest-tier-availability > strong { white-space: nowrap; font-size: 0.75rem; }
+.arcade-dashboard-v2[data-dashboard-view="guest"] .guest-discovery-grid .guest-tier-availability small { font-size: 0.62rem; }
+.arcade-dashboard-v2[data-dashboard-view="guest"] #arcade-seo-guide {
+  width: min(var(--v2-shell, 1200px), calc(100% - 48px)) !important;
+  margin-inline: auto;
+}
+@media (max-width: 720px) {
+  .arcade-dashboard-v2[data-dashboard-view="guest"] #arcade-seo-guide { width: calc(100% - 32px) !important; }
+}
+.arcade-dashboard-v2[data-dashboard-view="guest"] .guest-discovery-grid .guest-tier-icon {
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+}

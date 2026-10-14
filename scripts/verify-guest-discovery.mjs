@@ -40,6 +40,10 @@ try {
         assert.equal(await page.locator(".monthly-game-status").count(), 0)
         assert.equal(await page.locator(".profile-input input").inputValue(), "")
         assert.equal(await page.locator(".analyzer-help-row button").count(), 0)
+        for (const label of await page.locator(".guest-tier-copy strong").all()) {
+          assert.ok(await label.evaluate((el) => el.scrollWidth <= el.clientWidth + 1), "Tier name is clipped")
+          assert.ok(await label.evaluate((el) => el.closest(".guest-tier-card").querySelector(".guest-tier-icon").getBoundingClientRect().right <= el.getBoundingClientRect().left), "Tier icon overlaps name")
+        }
         const geometry = await page.evaluate(() => {
           const labs = document.querySelector(".guest-labs-host").getBoundingClientRect()
           const tiers = document.querySelector(".guest-discovery-grid .tier-list-panel").getBoundingClientRect()
