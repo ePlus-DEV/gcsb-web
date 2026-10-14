@@ -6,6 +6,7 @@ const home = readRepoFile("app/page.tsx")
 const localizedHome = readRepoFile("app/[locale]/page.tsx")
 const dashboardTiers = readRepoFile("components/arcade/dashboard-tiers.tsx")
 const guestDashboard = readRepoFile("components/arcade/guest-dashboard.tsx")
+const guestStyles = readRepoFile("app/styles/guest-discovery.css")
 const previewToolbar = readRepoFile("components/arcade/preview-mode-toolbar.tsx")
 const dashboardState = readRepoFile("components/arcade/dashboard-state.ts")
 const calculator = readRepoFile("app/redesign-calculator.tsx")
@@ -37,20 +38,21 @@ test("all locales mount the English homepage block sequence", () => {
 })
 
 test("Monthly Labs has deterministic React-owned anchors in both dashboard states", () => {
-  assert.equal((calculator.match(/id="monthly-games"/g) ?? []).length, 2)
-  assert.equal((calculator.match(/data-home-order="monthly-labs"/g) ?? []).length, 2)
+  assert.equal(((calculator + guestDashboard).match(/id="monthly-games"/g) ?? []).length, 2)
+  assert.equal(((calculator + guestDashboard).match(/data-home-order="monthly-labs"/g) ?? []).length, 2)
   const summary = calculator.indexOf('data-home-order="dashboard-summary"')
   const resultsMonthly = calculator.indexOf('data-home-order="monthly-labs"')
   const bottom = calculator.indexOf('data-home-order="dashboard-bottom"')
   assert.ok(summary >= 0 && summary < resultsMonthly && resultsMonthly < bottom)
 
   const empty = calculator.indexOf("<GuestDashboard")
-  const emptyMonthly = calculator.lastIndexOf('data-home-order="monthly-labs"')
+  const emptyMonthly = guestDashboard.indexOf('data-home-order="monthly-labs"')
   const about = calculator.indexOf("{footerContent}")
-  assert.ok(empty > bottom && emptyMonthly > empty)
+  assert.ok(empty > bottom)
+  assert.ok(emptyMonthly >= 0 && emptyMonthly < guestDashboard.indexOf("<DashboardTiers\n"))
   assert.match(guestDashboard, /<DashboardTiers/)
   assert.match(dashboardTiers, /data-home-order="tier-history"/)
-  assert.ok(about > emptyMonthly)
+  assert.ok(about > empty)
   assert.match(calculator, /href="#monthly-games"/)
   assert.match(guide, /data-home-order="about"/)
 })
@@ -63,7 +65,7 @@ test("portal targets cannot depend on translated labels or mutation timing", () 
   )
   assert.ok(
     calculator.indexOf('data-home-order="program-countdown"') <
-    calculator.indexOf('data-home-order="extension"'),
+    calculator.indexOf("{showProfileDashboard && extensionStrip}"),
   )
   assert.ok(monthlyGate.includes('page?.querySelector<HTMLElement>(`#${HOST_ID}.${HOST_CLASS_NAME}`)'))
   assert.doesNotMatch(monthlyGate, /\[aria-label=/)
@@ -94,7 +96,7 @@ test("an empty published monthly feed is treated as awaiting publication, not a 
   assert.match(monthlyPanel, /if \(!Array\.isArray\(payload\)\) throw new Error/)
   assert.match(monthlyPanel, /payload\.length > 0 && parsed\.length === 0/)
   assert.match(monthlyPanel, /setLoadFailed\(false\)/)
-  assert.match(monthlyPanel, /if \(loadFailed\) return null/)
+  assert.match(monthlyPanel, /if \(loadFailed\) return \(/)
   assert.doesNotMatch(monthlyPanel, /loadFailed \|\| games\.length === 0/)
 })
 
@@ -113,7 +115,7 @@ test("home dashboard v2 stays scoped and its visual overrides load last", () => 
     refactorStyles,
     /\.arcade-dashboard-v2 \.program-countdown-host/,
   )
-  assert.match(refactorStyles, /\.guest-dashboard-hero/)
+  assert.match(guestStyles, /\.guest-discovery-grid/)
   assert.match(refactorStyles, /\.guest-tier-card\.tier-120/)
   assert.match(refactorStyles, /\.guest-tier-progress/)
   assert.match(refactorStyles, /\.preview-mode-toolbar/)
@@ -142,6 +144,10 @@ test("PR-preview guest and profile debug modes stay profile-safe and fully local
     "profileView",
     "guestDashboardTitle",
     "guestDashboardHint",
+    "guestHeroTop",
+    "guestHeroBottom",
+    "guestHeroDescription",
+    "guestLabsLabel",
   ]
   const locales = [
     "ar", "de", "en", "es", "fr", "hi", "it",
@@ -152,7 +158,7 @@ test("PR-preview guest and profile debug modes stay profile-safe and fully local
   const previewFixture = readRepoFile("components/arcade/preview-debug-profile.ts")
   assert.match(previewFixture, /startsWith\("\/pr-preview\/pr-"\)/)
   assert.match(calculator, /\{IS_PR_PREVIEW && \(/)
-  assert.match(calculator, /IS_PR_PREVIEW \? "guest" : "profile"/)
+  assert.match(calculator, /useState<DashboardViewMode>\("guest"\)/)
   assert.match(calculator, /PREVIEW_DEBUG_PROFILE_RESULT/)
   assert.match(calculator, /PREVIEW_DEBUG_PROFILE_URL/)
   assert.match(calculator, /if \(!result \|\| usingPreviewFakeProfile\) return/)
@@ -164,7 +170,7 @@ test("PR-preview guest and profile debug modes stay profile-safe and fully local
   assert.match(previewToolbar, /className="dashboard-view-switch"/)
   assert.match(previewToolbar, /className="preview-mode-toolbar"/)
   assert.match(previewToolbar, /className="preview-mode-badge"/)
-  assert.match(guestDashboard, /guest-dashboard-hero/)
+  assert.match(guestDashboard, /guest-discovery-grid/)
   assert.match(dashboardTiers, /guest-tier-card tier-/)
   assert.match(dashboardTiers, /guest-tier-progress/)
   assert.match(calculator, /showProfileDashboard/)
@@ -204,4 +210,15 @@ test("profile keeps legacy tier markup while guest uses the new tier renderer", 
   assert.match(dashboardTiers, /aria-current=\{active \? "step" : undefined\}/)
   assert.match(dashboardTiers, /viewMessages.tierNote/)
   assert.match(dashboardTiers, /guest-tier-progress/)
+})
+
+test("guest discovery owns localized entry copy and puts labs before public tiers", () => {
+  for (const key of ["guestHeroTop", "guestHeroBottom", "guestHeroDescription", "guestLabsLabel"]) {
+    assert.ok(calculator.includes(`catalog.messages.${key}`), key)
+  }
+  assert.doesNotMatch(calculator, /["']EXPLORE["']|Browse this month's games and rewards/)
+  assert.doesNotMatch(guestDashboard, /guest-dashboard-hero/)
+  assert.match(calculator, /useState<DashboardViewMode>\("guest"\)/)
+  assert.match(calculator, /setGuestProfileUrl\(""\)/)
+  assert.match(guestStyles, /@media \(max-width: 560px\)/)
 })

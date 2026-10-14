@@ -46,8 +46,14 @@ jobs:
       - name: Verify prerendered SEO HTML
         run: node scripts/verify-seo-export.mjs
 
+      - name: Verify seasonal UI in a browser
+        run: |
+          yarn playwright install --with-deps chromium
+          node scripts/verify-halloween-ui.mjs
+          node scripts/verify-guest-discovery.mjs
+
       - name: Verify default Google Analytics and cookie notice
         run: |
-          python3 scripts/verify-google-analytics-html.py \
+          node scripts/verify-google-analytics-html.mjs \
             out/index.html \
             G-SJNYKL2864

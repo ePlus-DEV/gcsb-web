@@ -22,6 +22,8 @@ const LOCALES = [
 const EXPECTED_ENGLISH = {
   loadingAria: "Loading current Arcade games",
   loading: "Loading current Arcade games…",
+  loadFailed: "Unable to load the current games. Please try again.",
+  retry: "Try again",
   deadlineUnavailable: "Deadline unavailable",
   thisMonth: "This month",
   previousEndedWaiting: "The previous Arcade labs have ended. Waiting for this month's games to be published.",
