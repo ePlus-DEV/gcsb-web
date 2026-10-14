@@ -74,6 +74,7 @@ export type ArcadeMilestone = {
 }
 
 export type MonthlyArcadeGame = {
+  month?: string
   title: string
   imageUrl: string | null
   accessCode: string | null

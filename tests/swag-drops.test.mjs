@@ -72,8 +72,8 @@ test("homepage and sitemap expose the season-aware swag experience", () => {
 
 test("swag pages expose live remaining prize-slot data", () => {
   const liveSlots = readRepoFile("components/arcade/live-tier-slots.tsx")
-  const seasonPage = readRepoFile("app/swag-drops/2026/page.tsx")
-  const detailPage = readRepoFile("app/swag-drops/2026/[slug]/page.tsx")
+  const seasonPage = [readRepoFile("components/swag/season-page.tsx"), readRepoFile("components/swag/tier-reward-row.tsx"), readRepoFile("components/swag/reward-model.ts")].join("\n")
+  const detailPage = [readRepoFile("app/swag-drops/2026/[slug]/page.tsx"), readRepoFile("components/swag/tier-page.tsx"), readRepoFile("components/swag/product-page.tsx"), readRepoFile("components/swag/breadcrumb-json-ld.tsx")].join("\n")
 
   assert.match(liveSlots, /ARCADE_MILESTONES_URL/)
   assert.match(liveSlots, /cache: "no-store"/)
@@ -90,9 +90,9 @@ test("swag pages expose live remaining prize-slot data", () => {
 })
 
 test("season hub exposes a balanced reward board without hiding tier rewards", () => {
-  const archivePage = readRepoFile("app/swag-drops/page.tsx")
-  const seasonPage = readRepoFile("app/swag-drops/2026/page.tsx")
-  const detailPage = readRepoFile("app/swag-drops/2026/[slug]/page.tsx")
+  const archivePage = readRepoFile("components/swag/archive-page.tsx")
+  const seasonPage = [readRepoFile("components/swag/season-page.tsx"), readRepoFile("components/swag/tier-reward-row.tsx"), readRepoFile("components/swag/reward-model.ts")].join("\n")
+  const detailPage = [readRepoFile("app/swag-drops/2026/[slug]/page.tsx"), readRepoFile("components/swag/tier-page.tsx"), readRepoFile("components/swag/product-page.tsx"), readRepoFile("components/swag/breadcrumb-json-ld.tsx")].join("\n")
   const seasonMeta = readRepoFile("components/arcade/swag-seasons.ts")
 
   assert.match(archivePage, /Swag drops by season/)
@@ -161,8 +161,8 @@ test("season hub exposes a balanced reward board without hiding tier rewards", (
 
 test("2026 PopUp Pro is the latest official drop and Ranger backpack remains in its tier", () => {
   const preview = readRepoFile("components/arcade/swag-drops-preview.tsx")
-  const seasonPage = readRepoFile("app/swag-drops/2026/page.tsx")
-  const detailPage = readRepoFile("app/swag-drops/2026/[slug]/page.tsx")
+  const seasonPage = [readRepoFile("components/swag/season-page.tsx"), readRepoFile("components/swag/tier-reward-row.tsx"), readRepoFile("components/swag/reward-model.ts")].join("\n")
+  const detailPage = [readRepoFile("app/swag-drops/2026/[slug]/page.tsx"), readRepoFile("components/swag/tier-page.tsx"), readRepoFile("components/swag/product-page.tsx"), readRepoFile("components/swag/breadcrumb-json-ld.tsx")].join("\n")
   const seasonMeta = readRepoFile("components/arcade/swag-seasons.ts")
   assert.equal(getSwagDropsForSeason(2026)[0]?.id, "arcade-popup-pro")
   assert.equal(getSwagDropsForTier("ranger", 2026).length, 1)

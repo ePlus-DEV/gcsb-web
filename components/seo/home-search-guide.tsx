@@ -19,7 +19,7 @@ export default function HomeSearchGuide({ catalog }: Props) {
       data-home-order="about"
       aria-labelledby="arcade-seo-guide-title"
       className="relative z-[1] mx-auto mt-6 pb-4 sm:mt-8 sm:pb-2"
-      style={{ width: "min(1280px, calc(100% - 40px))" }}
+      style={{ width: "min(var(--ui-width), calc(100% - var(--ui-gutter) * 2))" }}
     >
       <h2
         id="arcade-seo-guide-title"
@@ -30,7 +30,7 @@ export default function HomeSearchGuide({ catalog }: Props) {
       <div className="grid gap-3 md:grid-cols-3">
         <article
           data-home-discovery-card="guide"
-          className="flex min-w-0 flex-col rounded-xl border border-slate-200 bg-white/95 p-4 transition-colors hover:border-cyan-300 dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-cyan-300/40 sm:p-5"
+          className="site-surface flex min-w-0 flex-col rounded-xl border border-slate-200 bg-white/95 p-4 transition-colors hover:border-cyan-300 dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-cyan-300/40 sm:p-5"
         >
           <div className="flex items-center gap-3">
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-700 dark:border-cyan-300/20 dark:bg-cyan-300/10 dark:text-cyan-300">
@@ -54,7 +54,7 @@ export default function HomeSearchGuide({ catalog }: Props) {
         </article>
         <article
           data-home-discovery-card="rewards"
-          className="flex min-w-0 flex-col rounded-xl border border-slate-200 bg-white/95 p-4 transition-colors hover:border-violet-300 dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-violet-300/40 sm:p-5"
+          className="site-surface flex min-w-0 flex-col rounded-xl border border-slate-200 bg-white/95 p-4 transition-colors hover:border-violet-300 dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-violet-300/40 sm:p-5"
         >
           <div className="flex items-center gap-3">
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-violet-200 bg-violet-50 text-violet-700 dark:border-violet-300/20 dark:bg-violet-300/10 dark:text-violet-300">
@@ -76,7 +76,7 @@ export default function HomeSearchGuide({ catalog }: Props) {
         </article>
         <article
           data-home-discovery-card="accuracy"
-          className="flex min-w-0 flex-col rounded-xl border border-slate-200 bg-white/95 p-4 transition-colors hover:border-emerald-300 dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-emerald-300/40 sm:p-5"
+          className="site-surface flex min-w-0 flex-col rounded-xl border border-slate-200 bg-white/95 p-4 transition-colors hover:border-emerald-300 dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-emerald-300/40 sm:p-5"
         >
           <div className="flex items-center gap-3">
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-300/20 dark:bg-emerald-300/10 dark:text-emerald-300">

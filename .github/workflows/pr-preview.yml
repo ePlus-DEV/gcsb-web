@@ -63,7 +63,8 @@ jobs:
       - name: Checkout production source
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.base.ref }}
+          # Stacked PRs may target another feature branch; production always follows the default branch.
+          ref: ${{ github.event.repository.default_branch }}
           path: production-source
           persist-credentials: false
 

@@ -53,7 +53,7 @@ test("Monthly Labs has deterministic React-owned anchors in both dashboard state
   assert.match(guestDashboard, /<DashboardTiers/)
   assert.match(dashboardTiers, /data-home-order="tier-history"/)
   assert.ok(about > empty)
-  assert.match(calculator, /href="#monthly-games"/)
+  assert.ok(readRepoFile("components/site/site-header.tsx").includes('href="/monthly-labs/"'))
   assert.match(guide, /data-home-order="about"/)
 })
 

@@ -5,6 +5,11 @@ on:
     paths:
       - "app/layout.tsx"
       - "components/arcade/**"
+      - "components/monthly-labs/**"
+      - "components/site/**"
+      - "app/monthly-labs/**"
+      - "data/monthly-labs.json"
+      - "scripts/verify-monthly-labs.mjs"
       - "components/i18n/**"
       - "lib/website-i18n.ts"
       - "public/i18n/locales/**"
@@ -247,6 +252,9 @@ jobs:
             process.exit(1)
           })
           NODE
+
+      - name: Verify Monthly Labs pages in English and Vietnamese
+        run: node scripts/verify-monthly-labs.mjs
 
       - name: Upload screenshot
         if: always()

@@ -1,9 +1,11 @@
 "use client"
 
+import SiteHeader from "./site-header"
+import SiteFooter from "./site-footer"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
-import { ArrowLeft, Clock, Gamepad2, Home, LoaderCircle } from "lucide-react"
+import { ArrowLeft, Clock, Home, LoaderCircle } from "lucide-react"
 import { WEBSITE_LOCALES } from "@/lib/website-i18n"
 
 const REDIRECT_DELAY_SECONDS = 5
@@ -147,26 +149,7 @@ export default function NotFoundRedirect() {
     <div className="arcade-dashboard-page min-h-screen">
       <div className="arcade-stars" aria-hidden="true" />
 
-      <header className="arcade-header">
-        <Link
-          className="arcade-brand"
-          href={homeHref}
-          aria-label="Arcade Points home"
-        >
-          <span className="arcade-brand-mark"><Gamepad2 /></span>
-          <span className="arcade-brand-copy"><strong>ARCADE</strong><b>POINTS</b></span>
-          <em>PRO</em>
-        </Link>
-
-        <nav className="arcade-nav" aria-label="Main navigation">
-          <Link href={homeHref}>Calculator</Link>
-          <Link href={`${homeHref}#tiers`}>Tiers</Link>
-          <Link href={`${homeHref}#badges`}>Badges</Link>
-          <Link href={`${homeHref}#extension`}>Extension</Link>
-        </nav>
-
-        <div className="arcade-header-actions" />
-      </header>
+      <SiteHeader homeHref={homeHref} />
 
       <main className="relative flex min-h-[calc(100vh-8rem)] items-center justify-center overflow-hidden px-4 py-16 sm:px-6">
         <div
@@ -174,7 +157,7 @@ export default function NotFoundRedirect() {
           aria-hidden="true"
         />
 
-        <section className="relative w-full max-w-3xl overflow-hidden rounded-3xl border border-white/10 bg-slate-950/70 p-6 text-center shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-10">
+        <section className="site-surface relative w-full max-w-3xl overflow-hidden p-6 text-center shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-10">
           <div className="pointer-events-none absolute -right-8 -top-16 select-none font-mono text-[10rem] font-black leading-none text-white/[0.025] sm:text-[14rem]" aria-hidden="true">
             404
           </div>
@@ -230,12 +213,7 @@ export default function NotFoundRedirect() {
         </section>
       </main>
 
-      <footer className="internal-page-footer border-t border-white/10">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-8 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <p>© {new Date().getFullYear()} ePlus.DEV. Independent community project.</p>
-          <Link href={homeHref} className="hover:text-white">Arcade Points homepage</Link>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   )
 }

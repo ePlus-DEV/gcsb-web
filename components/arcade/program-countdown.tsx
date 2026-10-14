@@ -9,10 +9,14 @@ import {
   type DeadlineSource,
   type ResolvedDeadline,
 } from "./countdown-deadline"
+import {
+  FACILITATOR_PANEL_OPEN_EVENT,
+  writeFacilitatorProgramState,
+  type FacilitatorProgramState,
+} from "./facilitator-participation"
 
 const HOST_SELECTOR = ".program-countdown-host"
 const HERO_SELECTOR = ".arcade-hero"
-const FACILITATOR_LAUNCHER_SELECTOR = ".facilitator-launcher"
 const DEFAULT_TIME_ZONE_OFFSET = "+05:30"
 const FIREBASE_CDN_VERSION = "12.18.0"
 const DEFAULT_FETCH_INTERVAL_MS = 900_000
@@ -339,10 +343,18 @@ function formatPart(value: number): string {
   return String(value).padStart(2, "0")
 }
 
+function facilitatorProgramState(
+  config: ProgramCountdownConfig | undefined,
+  nowMs: number,
+): FacilitatorProgramState {
+  if (!config) return "unknown"
+  if (!config.enabled) return "disabled"
+  if (!config.deadline) return "unconfigured"
+  return countdownParts(config.deadline, nowMs).ended ? "ended" : "active"
+}
+
 function openFacilitatorDetails() {
-  document
-    .querySelector<HTMLButtonElement>(FACILITATOR_LAUNCHER_SELECTOR)
-    ?.click()
+  window.dispatchEvent(new Event(FACILITATOR_PANEL_OPEN_EVENT))
 }
 
 function ProgramCard({
@@ -389,8 +401,12 @@ function ProgramCard({
       ) : remaining.ended ? (
         <div className="program-countdown-ended" role="status">
           <div className="program-countdown-ended-copy">
-            <strong>Unavailable</strong>
-            <span>Program tracker</span>
+            <strong>{config.id === "facilitator" ? "Season ended" : "Unavailable"}</strong>
+            <span>
+              {config.id === "facilitator"
+                ? "Facilitator Program 2026 has ended"
+                : "Program tracker"}
+            </span>
           </div>
           {config.id === "facilitator" ? (
             <button
@@ -486,6 +502,13 @@ export default function ProgramCountdown() {
     () => programs.filter((program) => program.enabled),
     [programs],
   )
+  const facilitatorProgram = programs.find((program) => program.id === "facilitator")
+
+  useEffect(() => {
+    writeFacilitatorProgramState(
+      facilitatorProgramState(facilitatorProgram, nowMs),
+    )
+  }, [facilitatorProgram, nowMs])
 
   if (!host || enabledPrograms.length === 0) return null
 

@@ -5,7 +5,7 @@ import { readRepoFile } from "./helpers/typescript-source.mjs"
 test("2025 swag history uses sourced reveal imagery with graceful fallbacks", () => {
   const images = readRepoFile("components/arcade/swag-history-images.ts")
   const imageComponent = readRepoFile("components/arcade/historical-swag-image.tsx")
-  const page = readRepoFile("app/swag-drops/2025/page.tsx")
+  const page = readRepoFile("components/swag/history-page.tsx")
 
   const sourcedImages = images.match(/https:\/\/[^\"\s]+\.(?:gif|png|jpg|jpeg)/g) ?? []
   assert.ok(sourcedImages.length >= 30)

@@ -46,6 +46,10 @@ html.light .back-to-top {
     width: 40px;
     height: 40px;
   }
+
+  html[data-facilitator-launcher-visible="true"] .back-to-top {
+    bottom: calc(148px + env(safe-area-inset-bottom));
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

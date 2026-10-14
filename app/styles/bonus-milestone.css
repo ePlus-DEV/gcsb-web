@@ -1,0 +1,161 @@
+.bonus-milestone-optimized:has(
+  .bonus-milestone-confirmation-card.is-completed.is-collapsed
+) > :not(.bonus-milestone-confirmation) {
+  display: none !important;
+}
+.bonus-milestone-optimized:has(
+  .bonus-milestone-confirmation-card.is-completed.is-collapsed
+) > .bonus-milestone-confirmation {
+  margin: 0 !important;
+}
+.bonus-milestone-optimized .facilitator-milestones {
+  gap: 6px;
+}
+.bonus-milestone-optimized .facilitator-milestones > article {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+.bonus-gear-toggle {
+  width: 100%;
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 8px;
+  border: 1px solid rgba(124, 92, 246, .22);
+  border-radius: 9px;
+  background: rgba(124, 92, 246, .07);
+  color: #b9a8ff;
+  font: inherit;
+  font-size: .66rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+.bonus-gear-toggle:hover {
+  border-color: rgba(124, 92, 246, .42);
+  background: rgba(124, 92, 246, .12);
+}
+.bonus-gear-toggle.is-complete {
+  border-color: rgba(52, 211, 153, .3);
+  background: rgba(16, 185, 129, .08);
+  color: #6ee7b7;
+}
+.bonus-gear-details-list {
+  margin-top: 7px !important;
+}
+.bonus-gear-details-list[hidden] {
+  display: none !important;
+}
+.bonus-milestone-actions-compact {
+  gap: 6px !important;
+  margin-top: 8px;
+}
+.bonus-milestone-actions-compact > a {
+  min-height: 36px !important;
+  padding: 0 10px !important;
+}
+.bonus-milestone-optimized > .facilitator-syllabus-note {
+  margin-top: 7px;
+  margin-bottom: 0;
+}
+.bonus-milestone-confirmation {
+  margin-top: 9px;
+}
+.bonus-milestone-confirmation-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  border: 1px solid rgba(124, 92, 246, .28);
+  border-radius: 11px;
+  padding: 10px 12px;
+  background: rgba(124, 92, 246, .08);
+}
+.bonus-milestone-confirmation-card.is-completed {
+  border-color: rgba(52, 211, 153, .34);
+  background: rgba(6, 78, 59, .14);
+}
+.bonus-milestone-confirmation-card.is-collapsed {
+  padding-top: 9px;
+  padding-bottom: 9px;
+}
+.bonus-milestone-confirmation-icon {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: rgba(124, 92, 246, .14);
+  color: #a78bfa;
+}
+.bonus-milestone-confirmation-card.is-completed
+  .bonus-milestone-confirmation-icon {
+  background: rgba(16, 185, 129, .13);
+  color: #34d399;
+}
+.bonus-milestone-confirmation-icon svg {
+  width: 17px;
+  height: 17px;
+}
+.bonus-milestone-confirmation-copy strong,
+.bonus-milestone-confirmation-copy small {
+  display: block;
+}
+.bonus-milestone-confirmation-copy strong {
+  color: var(--facilitator-text, #f8fafc);
+  font-size: .74rem;
+}
+.bonus-milestone-confirmation-copy small {
+  margin-top: 2px;
+  color: var(--facilitator-muted, #94a3b8);
+  font-size: .65rem;
+  line-height: 1.4;
+}
+.bonus-milestone-confirmation-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+.bonus-milestone-confirmation-button {
+  min-height: 34px;
+  border: 1px solid rgba(124, 92, 246, .45);
+  border-radius: 999px;
+  padding: 0 12px;
+  background: rgba(124, 92, 246, .12);
+  color: #c4b5fd;
+  font: inherit;
+  font-size: .66rem;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.bonus-milestone-confirmation-button.is-completed {
+  border-color: rgba(52, 211, 153, .4);
+  background: rgba(16, 185, 129, .13);
+  color: #6ee7b7;
+}
+.bonus-milestone-confirmation-button.is-secondary {
+  border-color: rgba(148, 163, 184, .28);
+  background: rgba(148, 163, 184, .08);
+  color: #cbd5e1;
+}
+.bonus-milestone-confirmation-button:disabled {
+  cursor: not-allowed;
+  opacity: .48;
+}
+@media (max-width: 560px) {
+  .bonus-milestone-actions-compact {
+    grid-template-columns: 1fr !important;
+  }
+  .bonus-milestone-confirmation-card {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .bonus-milestone-confirmation-actions {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+  .bonus-milestone-confirmation-button {
+    flex: 1;
+  }
+}
