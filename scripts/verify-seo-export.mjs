@@ -4,6 +4,7 @@ import path from "node:path"
 
 const html = (part) => readFileSync(path.join(process.cwd(), "out", part, "index.html"), "utf8")
 const home = html("")
+const guestHeading = (locale) => JSON.parse(readFileSync(path.join(process.cwd(), "public/i18n/locales", `${locale}.json`), "utf8")).messages.heroTitleTop
 const routes = [
   ["vi", "vi"], ["ja", "ja"], ["ko", "ko"], ["zh-cn", "zh-CN"],
   ["fr", "fr"], ["de", "de"], ["es", "es"], ["pt-br", "pt-BR"],
@@ -21,12 +22,14 @@ for (const id of ["guide", "rewards", "accuracy"]) {
   )
 }
 assert.match(home, /data-arcade-swag-nav="true"/)
-assert.match(home, /<h1[^>]*>CHECK YOUR/)
+assert.ok(home.match(/<h1[^>]*>([\s\S]*?)<\/h1>/)?.[1].includes(guestHeading("en")), "Guest heading is not prerendered")
 assert.match(home, /rel="canonical" href="https:\/\/arcade\.eplus\.dev\/"/)
 assert.doesNotMatch(home, /name="robots" content="noindex/i)
 for (const [route, lang] of routes) {
   const page = html(route)
   assert.ok(page.includes('lang="' + lang + '"'), route + ": wrong language")
+  const locale = route === "zh-cn" ? "zh_CN" : route === "pt-br" ? "pt_BR" : route
+  assert.ok(page.match(/<h1[^>]*>([\s\S]*?)<\/h1>/)?.[1].includes(guestHeading(locale)), route + ": guest heading is not prerendered")
   assert.ok(page.includes('rel="canonical" href="https://arcade.eplus.dev/' + route + '/"'), route + ": canonical")
   assert.ok(page.includes('id="arcade-seo-guide"'), route + ": missing guide")
   for (const id of ["guide", "rewards", "accuracy"]) {
@@ -61,6 +64,6 @@ const termsHtml = html("terms")
 assert.ok(termsHtml.includes("Acceptable use"), "Terms acceptable use missing")
 assert.ok(termsHtml.includes("support@eplus.dev"), "Terms contact missing")
 const vietnamese = html("vi")
-assert.ok(vietnamese.includes("KIỂM TRA"), "Vietnamese heading is not prerendered")
+assert.ok(vietnamese.includes(guestHeading("vi")), "Vietnamese heading is not prerendered")
 assert.ok(vietnamese.includes("Hướng dẫn từng bước"), "Vietnamese guide is not prerendered")
 console.log("SEO export verified: home + " + routes.length + " localized pages; static links, headings and canonicals.")

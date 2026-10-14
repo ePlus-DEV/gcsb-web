@@ -31,7 +31,7 @@ test("program countdown keeps a deterministic home position for every locale", (
   assert.match(calculator, /className="program-countdown-host" data-home-order="program-countdown"/)
   assert.ok(
     calculator.indexOf('className="program-countdown-host"') <
-      calculator.indexOf('id="extension" className="extension-strip"'),
+      calculator.indexOf("{extensionStrip}"),
   )
 })
 
@@ -98,7 +98,8 @@ test("ended programs switch from zero countdown boxes to an archive-style state"
   assert.match(countdown, /Season ended/)
   assert.match(countdown, /Facilitator Program 2026 has ended/)
   assert.match(countdown, /View program details/)
-  assert.match(countdown, /FACILITATOR_LAUNCHER_SELECTOR/)
+  assert.match(countdown, /window\.dispatchEvent\(new Event\(FACILITATOR_PANEL_OPEN_EVENT\)\)/)
+  assert.match(countdown, /onClick=\{openFacilitatorDetails\}/)
   assert.match(styles, /\.program-countdown-card\.is-ended/)
   assert.match(styles, /\.program-countdown-ended-action/)
 })
