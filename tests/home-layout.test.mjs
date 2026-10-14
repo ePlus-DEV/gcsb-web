@@ -180,3 +180,10 @@ test("both views use the Profile tier renderer and hero", () => {
   assert.doesNotMatch(calculator, /catalog.messages.guestHero/)
   assert.match(calculator, /setGuestProfileUrl\(""\)/)
 })
+
+test("shared hero preserves the Arcade pixel font with responsive sizing", () => {
+  const styles = readRepoFile("app/styles/home-refactor.css")
+  assert.match(styles, /font-family: "Press Start 2P", ui-monospace, monospace/)
+  assert.match(styles, /font-size: clamp\(1\.5rem, 2\.2vw, 2rem\)/)
+  assert.match(styles, /font-size: clamp\(1\.1rem, 4\.5vw, 1\.5rem\)/)
+})
