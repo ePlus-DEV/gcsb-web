@@ -137,10 +137,10 @@ html.light .arcade-dashboard-v2 .preview-mode-toolbar {
 }
 .arcade-dashboard-v2 .hero-heading h1 {
   margin-block: 14px;
-  font-family: Inter, system-ui, sans-serif;
-  font-size: clamp(2rem, 3.5vw, 3.25rem);
-  font-weight: 800;
-  line-height: 1.12;
+  font-family: "Press Start 2P", ui-monospace, monospace;
+  font-size: clamp(1.5rem, 2.2vw, 2rem);
+  font-weight: 400;
+  line-height: 1.4;
   letter-spacing: -0.04em;
   text-shadow: none;
   overflow-wrap: anywhere;
@@ -151,5 +151,5 @@ html.light .arcade-dashboard-v2 .preview-mode-toolbar {
   .arcade-dashboard-v2 .arcade-hero { grid-template-columns: 1fr; gap: 20px; padding-top: 24px; }
 }
 @media (max-width: 600px) {
-  .arcade-dashboard-v2 .hero-heading h1 { font-size: clamp(1.8rem, 7vw, 2.5rem); }
+  .arcade-dashboard-v2 .hero-heading h1 { font-size: clamp(1.1rem, 4.5vw, 1.5rem); }
 }
