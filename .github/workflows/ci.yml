@@ -49,13 +49,10 @@ jobs:
       - name: Verify seasonal UI in a browser
         run: |
           yarn playwright install --with-deps chromium
-          python3 -m http.server 4173 --directory out > /tmp/halloween-http.log 2>&1 &
-          halloween_server_pid=$!
-          trap 'kill "$halloween_server_pid"' EXIT
           node scripts/verify-halloween-ui.mjs
 
       - name: Verify default Google Analytics and cookie notice
         run: |
-          python3 scripts/verify-google-analytics-html.py \
+          node scripts/verify-google-analytics-html.mjs \
             out/index.html \
             G-SJNYKL2864

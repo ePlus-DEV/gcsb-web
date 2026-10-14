@@ -2,16 +2,19 @@ import assert from "node:assert/strict"
 import fs from "node:fs/promises"
 import { chromium } from "playwright"
 import { evaluateTypeScript, readRepoFile } from "../tests/helpers/typescript-source.mjs"
+import { startStaticServer } from "./serve-static.mjs"
 
-const base = (process.env.HALLOWEEN_TEST_URL ?? "http://127.0.0.1:4173/").replace(/\/?$/, "/")
+const server = process.env.HALLOWEEN_TEST_URL ? null : await startStaticServer({ directory: process.env.HALLOWEEN_STATIC_DIR ?? "out", basePath: process.env.HALLOWEEN_BASE_PATH ?? "" })
+const base = (process.env.HALLOWEEN_TEST_URL ?? server.url).replace(/\/?$/, "/")
 const screenshots = process.env.HALLOWEEN_SCREENSHOTS
 const { PREVIEW_DEBUG_PROFILE_RESULT: result, PREVIEW_DEBUG_PROFILE_URL: profileUrl } = evaluateTypeScript(readRepoFile("components/arcade/preview-debug-profile.ts"))
-const browser = await chromium.launch({
-  ...(process.env.CHROMIUM_EXECUTABLE_PATH ? { executablePath: process.env.CHROMIUM_EXECUTABLE_PATH } : {}),
-})
+let browser
 if (screenshots) await fs.mkdir(screenshots, { recursive: true })
 let cases = 0
 try {
+  browser = await chromium.launch({
+    ...(process.env.CHROMIUM_EXECUTABLE_PATH ? { executablePath: process.env.CHROMIUM_EXECUTABLE_PATH } : {}),
+  })
   for (const locale of ["en", "vi"]) {
     const catalog = JSON.parse(readRepoFile(`public/i18n/locales/${locale}.json`))
     for (const theme of ["dark", "light"]) {
@@ -64,6 +67,26 @@ try {
           for (const color of geometry.tierBackgrounds) assert.ok(tierColors.includes(color), `${theme}: unexpected tier surface ${color}`)
           assert.equal(geometry.buttonColor, "rgb(255, 255, 255)")
           assert.ok(geometry.labelLeft >= 0 && geometry.labelRight <= width)
+          if (await page.locator(".preview-mode-toolbar").count()) {
+            const toolbar = await page.locator(".preview-mode-toolbar").evaluate((el) => {
+              const css = getComputedStyle(el)
+              return { background: css.backgroundColor, border: parseFloat(css.borderTopWidth), display: getComputedStyle(el.querySelector(".dashboard-view-switch")).display }
+            })
+            assert.notEqual(toolbar.background, "rgba(0, 0, 0, 0)")
+            assert.ok(toolbar.border > 0)
+            assert.equal(toolbar.display, "grid")
+            for (const button of await page.locator(".dashboard-view-switch button").all()) {
+              const spacing = await button.evaluate((el) => {
+                const icon = el.querySelector(".fa-icon, svg").getBoundingClientRect()
+                const text = el.querySelector("span").getBoundingClientRect()
+                return { gap: text.left - icon.right, display: getComputedStyle(el).display }
+              })
+              // Grid items blockify inline-flex to flex in computed styles.
+              assert.ok(["flex", "inline-flex"].includes(spacing.display))
+              assert.ok(spacing.gap >= 4, `${state}: preview icon overlaps label`)
+            }
+          }
+          if (screenshots && await page.locator(".preview-mode-toolbar").count()) await page.locator(".preview-mode-toolbar").screenshot({ path: `${screenshots}/toolbar-${locale}-${theme}-${width}-${state}.png` })
           await page.locator(".profile-input input").click()
           assert.ok(await page.locator(".profile-input input").evaluate((el) => el === document.activeElement))
           if (screenshots && state === "empty") await page.screenshot({ path: `${screenshots}/${locale}-${theme}-${width}.png`, fullPage: true })
@@ -109,5 +132,6 @@ try {
   await context.close()
   console.log(`Halloween UI passed: ${cases} locale/theme/viewport/dashboard combinations; reduced motion, navigation, opt-out and widgets.`)
 } finally {
-  await browser.close()
+  await browser?.close()
+  await server?.close()
 }

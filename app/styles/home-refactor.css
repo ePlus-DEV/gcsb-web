@@ -174,18 +174,18 @@ html.light .arcade-dashboard-v2[data-dashboard-view="guest"] .pixel-kicker {
   font-size: 0.72rem;
 }
 
-.arcade-dashboard-v2[data-dashboard-view="guest"] .dashboard-view-switch {
+.arcade-dashboard-v2 .dashboard-view-switch {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 6px;
   margin-bottom: 0;
   padding: 5px;
-  border: 1px solid var(--v2-border);
+  border: 1px solid var(--v2-border, var(--arcade-border-soft));
   border-radius: 14px;
-  background: var(--v2-surface-soft);
+  background: var(--v2-surface-soft, var(--arcade-panel-soft));
 }
 
-.arcade-dashboard-v2[data-dashboard-view="guest"] .dashboard-view-switch button {
+.arcade-dashboard-v2 .dashboard-view-switch button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -203,23 +203,31 @@ html.light .arcade-dashboard-v2[data-dashboard-view="guest"] .pixel-kicker {
   transition: background 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease;
 }
 
-.arcade-dashboard-v2[data-dashboard-view="guest"] .dashboard-view-switch button svg {
-  width: 16px;
-  height: 16px;
+.arcade-dashboard-v2 .dashboard-view-switch button :is(svg, .fa-icon) {
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  font-size: 14px;
 }
 
-.arcade-dashboard-v2[data-dashboard-view="guest"] .dashboard-view-switch button:hover {
+.arcade-dashboard-v2 .dashboard-view-switch button > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.arcade-dashboard-v2 .dashboard-view-switch button:hover {
   color: var(--arcade-text);
 }
 
-.arcade-dashboard-v2[data-dashboard-view="guest"] .dashboard-view-switch button.is-active {
-  border-color: var(--v2-border-strong);
-  background: var(--v2-surface-strong);
+.arcade-dashboard-v2 .dashboard-view-switch button.is-active {
+  border-color: var(--v2-border-strong, var(--arcade-border));
+  background: var(--v2-surface-strong, var(--arcade-panel-strong));
   color: var(--arcade-text);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
 }
 
-.arcade-dashboard-v2[data-dashboard-view="guest"] .dashboard-view-switch button:focus-visible {
+.arcade-dashboard-v2 .dashboard-view-switch button:focus-visible {
   outline: 2px solid var(--arcade-cyan);
   outline-offset: 2px;
 }
@@ -474,10 +482,10 @@ html.light .arcade-dashboard-v2[data-dashboard-view="guest"] .program-countdown-
   width: min(360px, calc(100% - 32px));
   margin: 12px auto 0;
   padding: 4px 8px;
-  border: 1px solid var(--v2-border);
+  border: 1px solid var(--v2-border, var(--arcade-border-soft));
   border-radius: 12px;
-  background: var(--v2-surface-strong);
-  box-shadow: var(--v2-shadow-soft);
+  background: var(--v2-surface-strong, var(--arcade-panel-strong));
+  box-shadow: var(--v2-shadow-soft, 0 4px 16px rgba(0, 0, 0, 0.10));
   backdrop-filter: blur(18px);
 }
 
