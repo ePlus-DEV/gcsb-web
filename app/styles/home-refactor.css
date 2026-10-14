@@ -128,3 +128,28 @@ html.light .arcade-dashboard-v2 .preview-mode-toolbar {
 .arcade-dashboard-v2 .preview-mode-toolbar .fa-icon {
   font-size: 14px;
 }
+
+/* One balanced entry layout for both public and personal dashboards. */
+.arcade-dashboard-v2 .arcade-hero {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: 40px;
+  padding-block: 32px 24px;
+}
+.arcade-dashboard-v2 .hero-heading h1 {
+  margin-block: 14px;
+  font-family: Inter, system-ui, sans-serif;
+  font-size: clamp(2rem, 3.5vw, 3.25rem);
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.04em;
+  text-shadow: none;
+  overflow-wrap: anywhere;
+}
+.arcade-dashboard-v2 .hero-description { max-width: 52ch; line-height: 1.6; }
+.arcade-dashboard-v2 .profile-analyzer-card { min-width: 0; }
+@media (max-width: 900px) {
+  .arcade-dashboard-v2 .arcade-hero { grid-template-columns: 1fr; gap: 20px; padding-top: 24px; }
+}
+@media (max-width: 600px) {
+  .arcade-dashboard-v2 .hero-heading h1 { font-size: clamp(1.8rem, 7vw, 2.5rem); }
+}

@@ -17,7 +17,7 @@ try {
   for (const locale of ["en", "vi", "de"]) {
     const catalog = JSON.parse(readRepoFile(`public/i18n/locales/${locale}.json`))
     for (const theme of ["dark", "light"]) {
-      for (const width of [320, 390, 1440]) {
+      for (const width of [320, 390, 768, 1024, 1440]) {
         const context = await browser.newContext({ viewport: { width, height: 900 }, locale, permissions: ["clipboard-read", "clipboard-write"] })
         await context.addInitScript(({ theme, locale }) => {
           localStorage.setItem("arcade-theme", theme)
@@ -53,6 +53,11 @@ try {
         })
         assert.equal(geometry.overflow, false, `${locale}/${theme}/${width}: horizontal overflow`)
         assert.ok(geometry.tiers.bottom <= geometry.labs.top)
+        if (width > 1100) {
+          assert.ok(geometry.heroHeight < 440, `${locale}/${theme}: entry hero height ${geometry.heroHeight}`)
+          const rows = await page.locator(".guest-dashboard .tier-list-row").evaluateAll(elements => elements.map(el => el.getBoundingClientRect().top))
+          assert.ok(rows.every(top => Math.abs(top - rows[0]) < 2), "Desktop tier overview must fit on one row")
+        }
         assert.ok(geometry.extension < geometry.tiers.top)
         const sharedAppearance = () => page.evaluate(() => {
           const selectors = [".arcade-hero", ".hero-heading h1", ".profile-analyzer-card", ".monthly-games-grid", ".monthly-game-card"]
