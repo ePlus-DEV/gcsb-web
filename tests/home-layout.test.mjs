@@ -6,16 +6,16 @@ const home = readRepoFile("app/page.tsx")
 const localizedHome = readRepoFile("app/[locale]/page.tsx")
 const dashboardTiers = readRepoFile("components/arcade/dashboard-tiers.tsx")
 const guestDashboard = readRepoFile("components/arcade/guest-dashboard.tsx")
-const guestStyles = readRepoFile("app/styles/guest-discovery.css")
+const guestStyles = readRepoFile("app/styles/home-refactor.css")
 const previewToolbar = readRepoFile("components/arcade/preview-mode-toolbar.tsx")
 const dashboardState = readRepoFile("components/arcade/dashboard-state.ts")
 const calculator = readRepoFile("app/redesign-calculator.tsx")
-const monthlyGate = readRepoFile("components/arcade/monthly-games-panel-gate.tsx")
+const monthlySection = readRepoFile("components/arcade/monthly-games-section.tsx")
 const monthlyPanel = readRepoFile("components/arcade/monthly-games-panel.tsx")
 const monthlyStyles = readRepoFile("app/styles/monthly-games.css")
 const guide = readRepoFile("components/seo/home-search-guide.tsx")
 
-const sharedBlocks = /<(RedesignCalculator|ProgramCountdown|FreshScoreCheckEnhancer|TierStatusIconEnhancer|SwagDropsPreview|MonthlyGamesPanelGate|ShareProfileEnhancer|FacilitatorAnalyzerOption|FacilitatorPanelGate|SeoContent)\b/g
+const sharedBlocks = /<(RedesignCalculator|ProgramCountdown|FreshScoreCheckEnhancer|TierStatusIconEnhancer|SwagDropsPreview|ShareProfileEnhancer|FacilitatorAnalyzerOption|FacilitatorPanelGate|SeoContent)\b/g
 
 function homepageBlocks(source) {
   return [...source.matchAll(sharedBlocks)].map((match) => match[1])
@@ -29,7 +29,6 @@ test("all locales mount the English homepage block sequence", () => {
     "FreshScoreCheckEnhancer",
     "TierStatusIconEnhancer",
     "SwagDropsPreview",
-    "MonthlyGamesPanelGate",
     "ShareProfileEnhancer",
     "FacilitatorAnalyzerOption",
     "FacilitatorPanelGate",
@@ -38,15 +37,15 @@ test("all locales mount the English homepage block sequence", () => {
 })
 
 test("Monthly Labs has deterministic React-owned anchors in both dashboard states", () => {
-  assert.equal(((calculator + guestDashboard).match(/id="monthly-games"/g) ?? []).length, 2)
-  assert.equal(((calculator + guestDashboard).match(/data-home-order="monthly-labs"/g) ?? []).length, 2)
+  assert.equal((monthlySection.match(/id="monthly-games"/g) ?? []).length, 1)
+  assert.equal((monthlySection.match(/data-home-order="monthly-labs"/g) ?? []).length, 1)
   const summary = calculator.indexOf('data-home-order="dashboard-summary"')
-  const resultsMonthly = calculator.indexOf('data-home-order="monthly-labs"')
+  const resultsMonthly = calculator.indexOf("<MonthlyGamesSection")
   const bottom = calculator.indexOf('data-home-order="dashboard-bottom"')
   assert.ok(summary >= 0 && summary < resultsMonthly && resultsMonthly < bottom)
 
   const empty = calculator.indexOf("<GuestDashboard")
-  const emptyMonthly = guestDashboard.indexOf('data-home-order="monthly-labs"')
+  const emptyMonthly = guestDashboard.indexOf("<MonthlyGamesSection")
   const about = calculator.indexOf("{footerContent}")
   assert.ok(empty > bottom)
   assert.ok(emptyMonthly >= 0 && emptyMonthly > guestDashboard.indexOf("<DashboardTiers\n"))
@@ -60,16 +59,16 @@ test("Monthly Labs has deterministic React-owned anchors in both dashboard state
 test("portal targets cannot depend on translated labels or mutation timing", () => {
   assert.match(calculator, /data-home-order="program-countdown"/)
   assert.ok(
-    calculator.indexOf('data-home-order="hero"') <
+    calculator.indexOf("<ProfileAnalyzer") <
     calculator.indexOf('data-home-order="program-countdown"'),
   )
   assert.ok(
     calculator.indexOf('data-home-order="program-countdown"') <
-    calculator.indexOf("{extensionStrip}"),
+    calculator.indexOf("<ExtensionStrip"),
   )
-  assert.ok(monthlyGate.includes('page?.querySelector<HTMLElement>(`#${HOST_ID}.${HOST_CLASS_NAME}`)'))
-  assert.doesNotMatch(monthlyGate, /\[aria-label=/)
-  assert.doesNotMatch(monthlyGate, /insertAdjacentElement|document\.createElement/)
+  assert.match(calculator, /<MonthlyGamesSection badges=\{badges\} hasProfile=\{showProfileDashboard\}/)
+  assert.match(monthlySection, /badges=\{hasProfile \? badges : \[\]\}/)
+  assert.doesNotMatch(monthlySection, /MutationObserver|setInterval|createPortal|localStorage|querySelector/)
 })
 
 
@@ -109,7 +108,6 @@ test("Guest and Profile share dashboard styling", () => {
 })
 
 test("PR-preview guest and profile debug modes stay profile-safe and fully localized", () => {
-  const monthlyGateSource = readRepoFile("components/arcade/monthly-games-panel-gate.tsx")
   const facilitatorGateSource = readRepoFile("components/arcade/facilitator-panel-gate.tsx")
   const facilitatorOptionSource = readRepoFile("components/arcade/facilitator-analyzer-option.tsx")
   const requiredKeys = [
@@ -148,7 +146,6 @@ test("PR-preview guest and profile debug modes stay profile-safe and fully local
   assert.match(dashboardTiers, /tier-list-row tier-/)
   assert.match(calculator, /showProfileDashboard/)
   assert.match(calculator, /setViewMode\("profile"\)/)
-  assert.match(monthlyGateSource, /readActiveDashboard\(\)/)
   assert.match(dashboardState, /IS_PR_PREVIEW && page\?\.dataset\.dashboardDebugFake/)
   assert.match(facilitatorGateSource, /readActiveDashboard\(\)/)
   assert.match(dashboardState, /dataset\.dashboardView === "guest"/)
@@ -181,9 +178,9 @@ test("both views use the Profile tier renderer and hero", () => {
   assert.match(calculator, /setGuestProfileUrl\(""\)/)
 })
 
-test("shared hero preserves the Arcade pixel font with responsive sizing", () => {
+test("shared hero uses readable typography with responsive sizing", () => {
   const styles = readRepoFile("app/styles/home-refactor.css")
-  assert.match(styles, /font-family: "Press Start 2P", ui-monospace, monospace/)
-  assert.match(styles, /font-size: clamp\(1\.5rem, 2\.2vw, 2rem\)/)
-  assert.match(styles, /font-size: clamp\(1\.1rem, 4\.5vw, 1\.5rem\)/)
+  assert.match(styles, /font-family: Inter, system-ui, sans-serif/)
+  assert.match(styles, /font-size: clamp\(1\.75rem, 3vw, 2\.75rem\)/)
+  assert.match(styles, /font-size: clamp\(1\.6rem, 7vw, 2rem\)/)
 })

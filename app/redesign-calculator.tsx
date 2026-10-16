@@ -2,6 +2,10 @@
 
 import Link from "next/link"
 import DashboardTiers from "@/components/arcade/dashboard-tiers"
+import ProfileAnalyzer, { type HeroCopy } from "@/components/arcade/profile-analyzer"
+import MonthlyGamesSection from "@/components/arcade/monthly-games-section"
+import NextScoreGoal from "@/components/arcade/next-score-goal"
+import ExtensionStrip from "@/components/arcade/extension-strip"
 import GuestDashboard from "@/components/arcade/guest-dashboard"
 import PreviewModeToolbar from "@/components/arcade/preview-mode-toolbar"
 import { readStoredDashboard, type DashboardViewMode } from "@/components/arcade/dashboard-state"
@@ -17,14 +21,11 @@ import {
   BadgeCheck,
   Chrome,
   CircleHelp,
-  Download,
   ExternalLink,
   Gamepad2,
   Globe2,
   GraduationCap,
-  LoaderCircle,
   Menu,
-  RefreshCcw,
   Search,
   ShieldCheck,
   Sparkles,
@@ -42,7 +43,12 @@ import {
   PREVIEW_DEBUG_PROFILE_RESULT,
   PREVIEW_DEBUG_PROFILE_URL,
 } from "@/components/arcade/preview-debug-profile"
-import { readFacilitatorParticipation } from "@/components/arcade/facilitator-participation"
+import {
+  FACILITATOR_PARTICIPATION_EVENT,
+  normalizeFacilitatorProfileUrl,
+  readFacilitatorParticipation,
+  type FacilitatorParticipationDetail,
+} from "@/components/arcade/facilitator-participation"
 import {
   API_URL,
   ARCADE_MILESTONES_URL,
@@ -188,8 +194,6 @@ function readStoredViewMode(): DashboardViewMode | null {
   }
 }
 
-type HeroCopy = { top: string; bottom: string; description: string }
-
 export default function RedesignCalculator({
   footerContent,
   heroCopy,
@@ -322,13 +326,22 @@ export default function RedesignCalculator({
       })
     }
 
+    const onParticipationChange = (event: Event) => {
+      const detail = (event as CustomEvent<FacilitatorParticipationDetail>).detail
+      if (
+        !detail ||
+        normalizeFacilitatorProfileUrl(detail.profileUrl) !== normalizeFacilitatorProfileUrl(committedProfileUrl)
+      ) return
+      setFacilitatorParticipation({ profileUrl: committedProfileUrl, participating: detail.participating })
+    }
+
     syncParticipation()
-    const timer = window.setInterval(syncParticipation, 750)
+    window.addEventListener(FACILITATOR_PARTICIPATION_EVENT, onParticipationChange)
     window.addEventListener("focus", syncParticipation)
     window.addEventListener("storage", syncParticipation)
 
     return () => {
-      window.clearInterval(timer)
+      window.removeEventListener(FACILITATOR_PARTICIPATION_EVENT, onParticipationChange)
       window.removeEventListener("focus", syncParticipation)
       window.removeEventListener("storage", syncParticipation)
     }
@@ -630,34 +643,6 @@ export default function RedesignCalculator({
 
   const showProfileDashboard = viewMode === "profile" && Boolean(result)
 
-  const extensionStrip = (
-    <section id="extension" className="extension-strip" data-home-order="extension">
-      <span className="extension-store-mark"><Download /></span>
-      <div className="extension-copy-block">
-        <strong>{activeHistoryLanguage.catalog.messages.installExtension}</strong>
-        <span>{activeHistoryLanguage.catalog.messages.automaticTracking}</span>
-      </div>
-      <div className="extension-store-actions">
-        <a
-          className="store-button is-chrome"
-          href={CHROME_EXTENSION_URL}
-          target="_blank"
-          rel="noreferrer noopener"
-        >
-          <Chrome /> Chrome <ExternalLink />
-        </a>
-        <a
-          className="store-button is-firefox"
-          href={FIREFOX_EXTENSION_URL}
-          target="_blank"
-          rel="noreferrer noopener"
-        >
-          <Globe2 /> Firefox <ExternalLink />
-        </a>
-      </div>
-    </section>
-  )
-
   return (
     <main
       className="arcade-dashboard-page arcade-dashboard-v2"
@@ -725,66 +710,22 @@ export default function RedesignCalculator({
         />
       )}
 
-      <section id="top" className="arcade-hero" data-home-order="hero">
-        <div className="hero-heading">
-          <p className="pixel-kicker"><Sparkles /> Google Cloud Skills Boost Arcade 2026</p>
-          <span className="halloween-edition">
-            <span aria-hidden="true">🎃</span>
-            {activeHistoryLanguage.catalog.messages.halloweenEdition}
-          </span>
-          <h1>{heroCopy?.top ?? activeHistoryLanguage.catalog.messages.heroTitleTop}<br /><span>{heroCopy?.bottom ?? activeHistoryLanguage.catalog.messages.heroTitleBottom}</span></h1>
-          <p className="hero-description">
-            {heroCopy?.description ?? activeHistoryLanguage.catalog.messages.heroDescription}
-          </p>
-          <div className="trust-pills">
-            <span><ShieldCheck /> Public profile data only</span>
-            <span><BadgeCheck /> No Google sign-in required</span>
-          </div>
-        </div>
-
-        <div id="calculator" className="profile-analyzer-card">
-          <div className="analyzer-title"><span>1</span> Paste your public profile URL</div>
-          <form onSubmit={analyzeProfile} noValidate>
-            <label className={error ? "profile-input has-error" : "profile-input"}>
-              <Search />
-              <input
-                type="url"
-                inputMode="url"
-                autoComplete="url"
-                value={viewMode === "guest" ? guestProfileUrl : profileUrl}
-                onChange={(event) => viewMode === "guest" ? setGuestProfileUrl(event.target.value) : setProfileUrl(event.target.value)}
-                placeholder="https://www.skills.google/my_account/profile/..."
-                aria-label="Google Skills public profile URL"
-              />
-              {(viewMode === "guest" ? guestProfileUrl : profileUrl) && (
-                <button type="button" aria-label="Clear profile URL" onClick={() => viewMode === "guest" ? setGuestProfileUrl("") : setProfileUrl("")}>
-                  <X />
-                </button>
-              )}
-            </label>
-            <button className="analyze-button" type="submit" disabled={loading}>
-              {loading ? <LoaderCircle className="spin" /> : <Trophy />}
-              {loading ? "Analyzing..." : "Analyze profile"}
-            </button>
-          </form>
-          {error && <p className="analyzer-error" role="alert">{error}</p>}
-          <div className="analyzer-help-row">
-            <a href="https://www.skills.google/my_account/profile" target="_blank" rel="noreferrer">
-              <CircleHelp /> How to find your public profile <ExternalLink />
-            </a>
-            {result && viewMode === "profile" && (
-              <button type="button" onClick={resetResult}><RefreshCcw /> Reset result</button>
-            )}
-          </div>
-        </div>
-      </section>
+      <ProfileAnalyzer
+        catalog={activeHistoryLanguage.catalog}
+        copy={heroCopy}
+        profileUrl={viewMode === "guest" ? guestProfileUrl : profileUrl}
+        onProfileUrlChange={viewMode === "guest" ? setGuestProfileUrl : setProfileUrl}
+        onAnalyze={analyzeProfile}
+        onReset={resetResult}
+        hasResult={Boolean(result) && viewMode === "profile"}
+        loading={loading}
+        error={error}
+      />
 
       {/* Stable portal anchor: keeps countdown placement identical for every locale. */}
       <div className="program-countdown-host" data-home-order="program-countdown" />
 
-      {extensionStrip}
-
-
+      <ExtensionStrip catalog={activeHistoryLanguage.catalog} />
 
       {showProfileDashboard ? (
         <section className="dashboard-shell" aria-label="Arcade profile results" data-home-order="dashboard-results">
@@ -810,6 +751,17 @@ export default function RedesignCalculator({
                 <Stat value={qualifiedMilestone?.league.replace("Arcade ", "") ?? "—"} label="Score tier" icon={<Trophy />} />
               </div>
             </article>
+
+            <NextScoreGoal
+              catalog={activeHistoryLanguage.catalog}
+              nextMilestone={nextMilestone}
+              points={points}
+              pointsToNextTier={pointsToNextTier}
+              maxTierPoints={maxTierPoints}
+              hasReachedMaxTier={hasReachedMaxTier}
+              goalStartPoints={goalStartPoints}
+              goalProgress={goalProgress}
+            />
 
             <article className="dashboard-panel breakdown-panel">
               <PanelTitle>Point breakdown</PanelTitle>
@@ -901,6 +853,8 @@ export default function RedesignCalculator({
             </article>
           </div>
 
+          <MonthlyGamesSection badges={badges} hasProfile={showProfileDashboard} />
+
           <div className="dashboard-content-grid">
             <article id="badges" className="dashboard-panel badges-panel">
               <div className="badge-heading-row">
@@ -979,8 +933,6 @@ export default function RedesignCalculator({
             />
           </div>
 
-          <div id="monthly-games" className="monthly-games-host" data-home-order="monthly-labs" />
-
           <div className="dashboard-bottom-grid" data-home-order="dashboard-bottom">
             <article className="dashboard-panel compact-panel">
               <div className="compact-heading"><PanelTitle>Recently earned</PanelTitle><span>{recentBadges.length || "—"}</span></div>
@@ -1024,23 +976,6 @@ export default function RedesignCalculator({
               )}
             </article>
 
-            <article className="dashboard-panel compact-panel next-goal-panel">
-              <div className="compact-heading"><PanelTitle>Next score goal</PanelTitle><span>{nextMilestone.league.replace("Arcade ", "")}</span></div>
-              <div className="next-goal-value">
-                <strong>{hasReachedMaxTier ? "MAX" : formatNumber(pointsToNextTier)}</strong>
-                <span>{hasReachedMaxTier ? "Top score tier reached" : "more points needed"}</span>
-              </div>
-              <div
-                className="goal-progress"
-                role="progressbar"
-                aria-label={hasReachedMaxTier ? "Maximum score tier reached" : `Progress toward ${nextMilestone.league}`}
-                aria-valuemin={goalStartPoints}
-                aria-valuemax={hasReachedMaxTier ? maxTierPoints : nextMilestone.points}
-                aria-valuenow={hasReachedMaxTier ? maxTierPoints : Math.min(Math.max(points, goalStartPoints), nextMilestone.points)}
-              >
-                <span style={{ width: `${goalProgress}%` }} />
-              </div>
-            </article>
           </div>
         </section>
       ) : (
@@ -1053,8 +988,6 @@ export default function RedesignCalculator({
           locale={activeHistoryLanguage.locale}
         />
       )}
-
-
 
       {footerContent}
 

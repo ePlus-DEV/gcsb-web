@@ -29,9 +29,9 @@ test("Halloween preferences work outside the season, but never affect localized 
 })
 
 test("seasonal UI copy is catalog-owned and complete in every supported locale", () => {
-  const calculator = readRepoFile("app/redesign-calculator.tsx")
+  const calculator = readRepoFile("components/arcade/profile-analyzer.tsx")
   const styles = readRepoFile("app/styles/halloween-season.css")
-  assert.match(calculator, /catalog\.messages\.halloweenEdition/)
+  assert.match(calculator, /messages\.halloweenEdition/)
   assert.doesNotMatch(calculator, /Halloween [Ee]dition/)
   assert.doesNotMatch(styles, /content:\s*["'][^"']*(Halloween|Edition)/)
   for (const { code } of WEBSITE_LOCALES) {
