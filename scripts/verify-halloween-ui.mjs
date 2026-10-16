@@ -53,8 +53,18 @@ try {
               tierBackgrounds: [...document.querySelectorAll(".tier-list-row, .guest-tier-card")].map((el) => getComputedStyle(el).backgroundColor),
               labelLeft: label.left, labelRight: label.right,
               buttonColor: css(".analyze-button").color,
+              headingFamily: css(".hero-heading h1").fontFamily,
+              headingWeight: css(".hero-heading h1").fontWeight,
+              brandFamily: css(".arcade-brand-copy").fontFamily,
+              bodyFamily: getComputedStyle(document.body).fontFamily,
             }
           })
+          // Checks the CSS cascade; external font requests are intentionally blocked here.
+          const expectedHeadingFont = locale === "en" ? '"Press Start 2P"' : "Inter"
+          assert.ok(geometry.headingFamily.startsWith(expectedHeadingFont), `${locale}: expected ${expectedHeadingFont}, got ${geometry.headingFamily}`)
+          assert.equal(geometry.headingWeight, locale === "en" ? "400" : "800")
+          assert.ok(geometry.brandFamily.startsWith('"Press Start 2P"'))
+          assert.ok(geometry.bodyFamily.startsWith("Inter"))
           assert.equal(geometry.overflow, false, `${locale}/${theme}/${width}/${state}: overflow`)
           assert.equal(geometry.decorInPage, true)
           assert.equal(geometry.decorPosition, "absolute")

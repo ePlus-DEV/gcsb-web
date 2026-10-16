@@ -5,7 +5,7 @@ import { startStaticServer } from "./serve-static.mjs"
 import { evaluateTypeScript, readRepoFile } from "../tests/helpers/typescript-source.mjs"
 
 const { PREVIEW_DEBUG_PROFILE_RESULT: result, PREVIEW_DEBUG_PROFILE_URL: profileUrl } = evaluateTypeScript(readRepoFile("components/arcade/preview-debug-profile.ts"))
-const titles = ["Arcade Voyage: Language, Voice, and Multimodal Processing", "Arcade Trail: Containers & Load Balancing", "Arcade Base Camp October 2026", "Arcade Adventure: Google Cloud ML APIs", "Arcade Simulator: Site Reliability Engineer", "Trick-or-Metric"]
+const titles = [result.game[0].title, "Arcade Trail: Containers & Load Balancing", "Arcade Base Camp October 2026", "Arcade Adventure: Google Cloud ML APIs", "Arcade Simulator: Site Reliability Engineer", "Trick-or-Metric"]
 const games = titles.map((title, i) => ({ title, accessCode: `1q-browser-regression-${i}`, points: 1, spotsRemaining: 2500, description: "Explore Google Cloud with hands-on labs covering infrastructure, observability, containers and application development.", joinUrl: "https://www.skills.google/games/7441", deadline: new Date(Date.now() + 7 * 86400_000).toISOString(), deadlineTimeZone: "Asia/Kolkata" }))
 const server = await startStaticServer({ basePath: process.env.HALLOWEEN_BASE_PATH ?? "" })
 const screenshots = process.env.GUEST_SCREENSHOTS
@@ -39,6 +39,7 @@ try {
         assert.equal(await page.locator(".monthly-game-card").count(), 6)
         assert.equal(await page.locator(".monthly-game-status").count(), 0)
         assert.equal(await page.locator(".profile-input input").inputValue(), "")
+        assert.equal(await page.locator(".analyzer-facilitator-option").count(), 0)
         assert.equal(await page.locator(".analyzer-help-row button").count(), 0)
         for (const label of await page.locator(".tier-list-row > div:nth-child(2) strong").all()) {
           assert.ok(await label.evaluate((el) => el.scrollWidth <= el.clientWidth + 1), "Tier name is clipped")
@@ -67,6 +68,8 @@ try {
           })
         })
         const guestAppearance = await sharedAppearance()
+        assert.equal(await page.locator(".analyze-button").innerText(), catalog.messages.analyzeProfile)
+        assert.equal(await page.locator(".profile-input input").getAttribute("aria-label"), catalog.messages.profileUrl)
         await page.locator(".monthly-copy-button").first().click()
         assert.equal(await page.evaluate(() => navigator.clipboard.readText()), games[0].accessCode)
         if (screenshots && locale !== "de") {
@@ -77,8 +80,36 @@ try {
         await page.locator(".profile-input input").fill(profileUrl)
         await page.locator(".analyze-button").click()
         await page.locator(".profile-panel").waitFor({ state: "visible" })
+        await page.waitForFunction(() => document.querySelectorAll(".analyzer-facilitator-option").length === 2)
         await page.locator(".monthly-game-card").first().waitFor({ state: "visible" })
+        await page.locator(".monthly-game-status.is-complete").first().waitFor({ state: "visible" })
+        assert.equal(await page.locator(".monthly-game-status.is-complete").count(), 1)
         assert.deepEqual(await sharedAppearance(), guestAppearance, "Guest must share Profile hero, form and Labs styling")
+        assert.equal(await page.locator(".monthly-games-host").count(), 1)
+        const goalOrder = await page.evaluate(() => {
+          const goal = document.querySelector(".next-goal-panel").getBoundingClientRect()
+          const labs = document.querySelector(".monthly-games-host").getBoundingClientRect()
+          return goal.bottom <= labs.top
+        })
+        assert.ok(goalOrder, "Next score goal must precede Monthly Labs")
+        const statContrast = await page.locator(".profile-stat-grid > div").evaluateAll(cards => {
+          const luminance = color => {
+            const channels = color.match(/[\d.]+/g).slice(0, 3).map(Number).map(value => {
+              const s = value / 255
+              return s <= .04045 ? s / 12.92 : ((s + .055) / 1.055) ** 2.4
+            })
+            return channels[0] * .2126 + channels[1] * .7152 + channels[2] * .0722
+          }
+          return cards.flatMap(card => [...card.querySelectorAll("strong, span:not(.profile-stat-icon)")].map(label => {
+            let surface = card
+            while (surface.parentElement && getComputedStyle(surface).backgroundColor === "rgba(0, 0, 0, 0)") surface = surface.parentElement
+            const bg = luminance(getComputedStyle(surface).backgroundColor)
+            const fg = luminance(getComputedStyle(label).color)
+            return (Math.max(bg, fg) + .05) / (Math.min(bg, fg) + .05)
+          }))
+        })
+        assert.ok(statContrast.every(ratio => ratio >= 4.5), `${locale}/${theme}/${width}: profile statistic contrast ${statContrast.join(", ")}`)
+        if (screenshots && locale !== "de") await page.screenshot({ path: screenshots + "/" + locale + "-" + theme + "-" + width + "-profile.png", fullPage: true })
         const stored = await page.evaluate(() => JSON.parse(localStorage.getItem("eplus-arcade-dashboard-v1")))
         assert.equal(stored.profileUrl, profileUrl)
         if (locale === "en" && theme === "dark" && width === 1440) {
@@ -96,6 +127,18 @@ try {
           await page.locator(".profile-panel").waitFor({ state: "visible" })
           assert.equal(await page.locator(".profile-input input").inputValue(), profileUrl)
         }
+        if (locale === "en" && theme === "dark" && width === 1440) {
+          await page.evaluate(profileUrl => {
+            localStorage.setItem("arcade-facilitator-participation-v1:" + profileUrl, "true")
+            window.dispatchEvent(new CustomEvent("arcade-facilitator-participation-change", { detail: { profileUrl, participating: true } }))
+          }, profileUrl)
+          await page.waitForFunction(label => document.querySelector(".next-goal-value strong")?.textContent === label, catalog.messages.max)
+        }
+        await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }))
+        await page.locator(".analyzer-help-row button").click()
+        await page.locator(".guest-dashboard .monthly-game-card").first().waitFor({ state: "visible" })
+        assert.equal(await page.locator(".monthly-game-status").count(), 0, "Reset must remove personal completion data")
+        assert.equal(await page.locator(".profile-input input").inputValue(), "")
         await context.close()
         cases++
       }

@@ -6,7 +6,6 @@ import { cache } from "react"
 import FacilitatorAnalyzerOption from "@/components/arcade/facilitator-analyzer-option"
 import FacilitatorPanelGate from "@/components/arcade/facilitator-panel-gate"
 import FreshScoreCheckEnhancer from "@/components/arcade/fresh-score-check-enhancer"
-import MonthlyGamesPanelGate from "@/components/arcade/monthly-games-panel-gate"
 import ProgramCountdown from "@/components/arcade/program-countdown"
 import ShareProfileEnhancer from "@/components/arcade/share-profile-enhancer"
 import SwagDropsPreview from "@/components/arcade/swag-drops-preview"
@@ -96,7 +95,6 @@ export default async function LocalizedPage({ params }: LocalizedPageProps) {
       <FreshScoreCheckEnhancer />
       <TierStatusIconEnhancer />
       <SwagDropsPreview />
-      <MonthlyGamesPanelGate />
       <ShareProfileEnhancer />
       <FacilitatorAnalyzerOption />
       <FacilitatorPanelGate />
