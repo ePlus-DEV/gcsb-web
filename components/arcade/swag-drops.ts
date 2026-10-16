@@ -30,6 +30,29 @@ export type ArcadeSwagDrop = {
  */
 export const ARCADE_SWAG_DROPS: readonly ArcadeSwagDrop[] = [
   {
+    id: "arcade-travel-bottle",
+    season: 2026,
+    dropNumber: 4,
+    name: "The Arcade Travel Bottle",
+    shortName: "Arcade Travel Bottle",
+    revealedOn: "October 16, 2026",
+    revealedOnIso: "2026-10-16",
+    tiers: ["trooper", "ranger"],
+    imageUrl:
+      "https://d2yds90mtvelsl.cloudfront.net/original/4X/8/b/1/8b1605e269e35c0d327d7fdcb73b1ac6ff5f7a78.gif",
+    sourceUrl:
+      "https://discuss.google.dev/t/swag-drop-the-arcade-travel-bottle/405316",
+    summary:
+      "A slim, leak-resistant insulated stainless-steel travel bottle announced for the Arcade Trooper and Ranger tiers.",
+    features: [
+      "Slim 5.5 cm profile for easy packing and everyday carry",
+      "Lightweight, durable stainless-steel construction",
+      "Sealing rings designed to prevent leaks",
+      "Insulation to keep drinks hot or cold for hours",
+      "Wide mouth for quick and easy cleaning",
+    ],
+  },
+  {
     id: "arcade-popup-pro",
     season: 2026,
     dropNumber: 3,
