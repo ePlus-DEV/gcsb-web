@@ -39,7 +39,7 @@ try {
         assert.equal(await page.locator(".monthly-game-card").count(), 6)
         assert.equal(await page.locator(".monthly-game-status").count(), 0)
         assert.equal(await page.locator(".profile-input input").inputValue(), "")
-        await page.waitForFunction(() => document.querySelectorAll(".analyzer-facilitator-option").length === 2)
+        assert.equal(await page.locator(".analyzer-facilitator-option").count(), 0)
         assert.equal(await page.locator(".analyzer-help-row button").count(), 0)
         for (const label of await page.locator(".tier-list-row > div:nth-child(2) strong").all()) {
           assert.ok(await label.evaluate((el) => el.scrollWidth <= el.clientWidth + 1), "Tier name is clipped")
@@ -80,6 +80,7 @@ try {
         await page.locator(".profile-input input").fill(profileUrl)
         await page.locator(".analyze-button").click()
         await page.locator(".profile-panel").waitFor({ state: "visible" })
+        await page.waitForFunction(() => document.querySelectorAll(".analyzer-facilitator-option").length === 2)
         await page.locator(".monthly-game-card").first().waitFor({ state: "visible" })
         await page.locator(".monthly-game-status.is-complete").first().waitFor({ state: "visible" })
         assert.equal(await page.locator(".monthly-game-status.is-complete").count(), 1)
