@@ -178,9 +178,13 @@ test("both views use the Profile tier renderer and hero", () => {
   assert.match(calculator, /setGuestProfileUrl\(""\)/)
 })
 
-test("shared hero uses readable typography with responsive sizing", () => {
+test("shared hero preserves the established Arcade pixel font and responsive sizing", () => {
   const styles = readRepoFile("app/styles/home-refactor.css")
-  assert.match(styles, /font-family: Inter, system-ui, sans-serif/)
-  assert.match(styles, /font-size: clamp\(1\.75rem, 3vw, 2\.75rem\)/)
-  assert.match(styles, /font-size: clamp\(1\.6rem, 7vw, 2rem\)/)
+  assert.match(styles, /font-family: "Press Start 2P", ui-monospace, monospace/)
+  assert.match(styles, /font-weight: 400/)
+  const layout = readRepoFile("app/layout.tsx")
+  assert.match(layout, /family=Inter:/)
+  assert.match(layout, /family=Press\+Start\+2P/)
+  assert.match(styles, /font-size: clamp\(1\.5rem, 2\.2vw, 2rem\)/)
+  assert.match(styles, /font-size: clamp\(1\.1rem, 4\.5vw, 1\.5rem\)/)
 })

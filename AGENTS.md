@@ -22,3 +22,12 @@ This website is **always multilingual**. Internationalization is not optional an
 - Files generated at `public/i18n/<locale>.json` are build/runtime output. Do not edit or commit them; edit `public/i18n/locales/<locale>.json` instead.
 - Before completing a UI PR, run the i18n generator/tests and verify at least English plus one non-English locale in the affected UI.
 - Tests must fail when a locale source file is missing, required shared UI copy is missing, placeholders are dropped, or compressed/multi-locale translation sources are introduced.
+
+## Typography preservation — mandatory for UI changes
+
+- Refactoring, responsive fixes, seasonal themes and component extraction must preserve the existing font families and their roles. Do not replace fonts as an incidental readability or design improvement.
+- Current calculator typography: **Press Start 2P** for the Arcade brand and hero title; **Inter** for body text, controls and data. Keep the hero's regular pixel weight (400), established responsive sizing and line height unless the user explicitly requests a typography change.
+- A font change requires an explicit user request covering that change. General permission to refactor or redesign is not permission to change typography.
+- Preserve font-loading declarations, weights, glyph/subset coverage (including Vietnamese), fallback stacks and any existing local font assets. Do not replace a bundled font with a CDN dependency.
+- Before completing a UI PR, check the rendered font-family cascade, heading weight, wrapping and overflow in English and Vietnamese on desktop/mobile, light/dark and seasonal modes. Keep regression coverage for the established font roles.
+- A passing build, a computed font-family string or a screenshot using fallback fonts does not prove that the intended font loaded. If test fixtures block font requests, state that limitation and do not claim actual font-loading or glyph coverage was verified.
