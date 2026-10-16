@@ -60,8 +60,9 @@ try {
             }
           })
           // Checks the CSS cascade; external font requests are intentionally blocked here.
-          assert.ok(geometry.headingFamily.startsWith('"Press Start 2P"'), "Hero must retain the Arcade pixel font")
-          assert.equal(geometry.headingWeight, "400")
+          const expectedHeadingFont = locale === "en" ? '"Press Start 2P"' : "Inter"
+          assert.ok(geometry.headingFamily.startsWith(expectedHeadingFont), `${locale}: expected ${expectedHeadingFont}, got ${geometry.headingFamily}`)
+          assert.equal(geometry.headingWeight, locale === "en" ? "400" : "800")
           assert.ok(geometry.brandFamily.startsWith('"Press Start 2P"'))
           assert.ok(geometry.bodyFamily.startsWith("Inter"))
           assert.equal(geometry.overflow, false, `${locale}/${theme}/${width}/${state}: overflow`)

@@ -26,7 +26,7 @@ This website is **always multilingual**. Internationalization is not optional an
 ## Typography preservation — mandatory for UI changes
 
 - Refactoring, responsive fixes, seasonal themes and component extraction must preserve the existing font families and their roles. Do not replace fonts as an incidental readability or design improvement.
-- Current calculator typography: **Press Start 2P** for the Arcade brand and hero title; **Inter** for body text, controls and data. Keep the hero's regular pixel weight (400), established responsive sizing and line height unless the user explicitly requests a typography change.
+- Current calculator typography: **Press Start 2P** for the Arcade brand and English hero title; **Inter** for body text, controls and data. Localized hero headings retain the existing Inter/Unicode fallback and weight (800) defined in `app/styles/website-language.css`, because the pixel font lacks complete localized glyph coverage. Keep the English hero's regular pixel weight (400), established responsive sizing and line height unless the user explicitly requests a typography change.
 - A font change requires an explicit user request covering that change. General permission to refactor or redesign is not permission to change typography.
 - Preserve font-loading declarations, weights, glyph/subset coverage (including Vietnamese), fallback stacks and any existing local font assets. Do not replace a bundled font with a CDN dependency.
 - Before completing a UI PR, check the rendered font-family cascade, heading weight, wrapping and overflow in English and Vietnamese on desktop/mobile, light/dark and seasonal modes. Keep regression coverage for the established font roles.
