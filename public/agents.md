@@ -21,6 +21,7 @@ Arcade Points is an independent community project for Google Skills Arcade parti
 - 2026 Legend: https://arcade.eplus.dev/swag-drops/2026/legend/
 - 2026 Weather-Shield Jacket: https://arcade.eplus.dev/swag-drops/2026/weather-shield-jacket/
 - 2026 Arcade PopUp Pro: https://arcade.eplus.dev/swag-drops/2026/arcade-popup-pro/
+- 2026 Arcade Travel Bottle (Trooper and Ranger): https://arcade.eplus.dev/swag-drops/2026/arcade-travel-bottle/
 
 ## Historical-source rules
 
