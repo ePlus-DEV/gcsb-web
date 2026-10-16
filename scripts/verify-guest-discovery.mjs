@@ -99,12 +99,14 @@ try {
             return channels[0] * .2126 + channels[1] * .7152 + channels[2] * .0722
           }
           return cards.flatMap(card => [...card.querySelectorAll("strong, span:not(.profile-stat-icon)")].map(label => {
-            const bg = luminance(getComputedStyle(card).backgroundColor)
+            let surface = card
+            while (surface.parentElement && getComputedStyle(surface).backgroundColor === "rgba(0, 0, 0, 0)") surface = surface.parentElement
+            const bg = luminance(getComputedStyle(surface).backgroundColor)
             const fg = luminance(getComputedStyle(label).color)
             return (Math.max(bg, fg) + .05) / (Math.min(bg, fg) + .05)
           }))
         })
-        assert.ok(statContrast.every(ratio => ratio >= 4.5), "Profile statistic text must remain readable in either theme")
+        assert.ok(statContrast.every(ratio => ratio >= 4.5), `${locale}/${theme}/${width}: profile statistic contrast ${statContrast.join(", ")}`)
         if (screenshots && locale !== "de") await page.screenshot({ path: screenshots + "/" + locale + "-" + theme + "-" + width + "-profile.png", fullPage: true })
         const stored = await page.evaluate(() => JSON.parse(localStorage.getItem("eplus-arcade-dashboard-v1")))
         assert.equal(stored.profileUrl, profileUrl)
