@@ -33,14 +33,14 @@ export const SWAG_TIER_META: Record<
     pointsLabel: "50–74 points",
     slots: 6000,
     rewardRule:
-      "Trooper is the foundational reward tier. Google describes it as a core swag pack, but the individual 2026 item names and final item count have not been published yet.",
+      "Trooper is the foundational reward tier. The Arcade Travel Bottle is its first confirmed 2026 item; the remaining core-pack contents and final item count are unrevealed.",
     allocationNote:
       "Trooper is the broadest 2026 prize pool. Waterfall can move eligible participants into this pool when higher-tier capacity is exhausted.",
     packageRule: "Core Trooper swag pack · historical estimate ≈5 items",
     knownMinimumItems: "1+",
     knownMinimumNote:
-      "Official minimum: 1+ item from Google's core-pack wording. Historical estimate: about 5 items, because the official 2025 Season 2 Trooper package finished with 5 items.",
-    waitingNote: "Core Trooper pack — individual 2026 item names have not been revealed yet.",
+      "Official minimum: 1 confirmed Trooper item — the Arcade Travel Bottle. Historical estimate: about 5 items, based on the final 2025 Season 2 Trooper package.",
+    waitingNote: "The Arcade Travel Bottle is confirmed for Trooper; the remaining core-pack items have not been revealed yet.",
     historicalEstimateItems: 5,
     historicalEstimateLabel: "≈5 items",
     historicalEstimateBasis:
@@ -62,14 +62,14 @@ export const SWAG_TIER_META: Record<
     pointsLabel: "75–94 points",
     slots: 4000,
     rewardRule:
-      "Ranger receives everything from the Trooper reward family plus The Arcade Backpack as its revealed 2026 Ranger bonus reward.",
+      "Ranger receives the Trooper core pack, including the Arcade Travel Bottle, plus the exclusive Ranger bonus reward, the Arcade Backpack.",
     allocationNote:
       "Ranger has its own prize-slot pool. Waterfall allocation is separate from the reward bundle inheritance between Ranger and Trooper.",
     packageRule: "Trooper pack + 1 Ranger bonus · historical estimate ≈6 items",
     knownMinimumItems: "2+",
     knownMinimumNote:
-      "Official minimum: 2+ items from the Snowball rule. The Arcade Backpack is now the named Ranger bonus reward; the Trooper core pack remains partially unrevealed.",
-    waitingNote: "The Arcade Backpack is confirmed for Ranger; remaining Trooper-family items are still being revealed.",
+      "Official minimum: 2 confirmed Ranger items — the Arcade Travel Bottle from Trooper and the Ranger-exclusive Arcade Backpack. Historical estimate: about 6 items.",
+    waitingNote: "The Arcade Travel Bottle and Arcade Backpack are confirmed for Ranger; other Trooper-family items have not yet been revealed.",
     historicalEstimateItems: 6,
     historicalEstimateLabel: "≈6 items",
     historicalEstimateBasis:

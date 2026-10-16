@@ -191,3 +191,33 @@ test("Arcade Backpack copy is available in every website locale", () => {
     }
   }
 })
+
+const arcadeTravelBottleSources = [
+  "The Arcade Travel Bottle",
+  "Arcade Travel Bottle",
+  "October 16, 2026",
+  "A slim, leak-resistant insulated stainless-steel travel bottle announced for the Arcade Trooper and Ranger tiers.",
+  "Slim 5.5 cm profile for easy packing and everyday carry",
+  "Lightweight, durable stainless-steel construction",
+  "Sealing rings designed to prevent leaks",
+  "Insulation to keep drinks hot or cold for hours",
+  "Wide mouth for quick and easy cleaning",
+  "Trooper is the foundational reward tier. The Arcade Travel Bottle is its first confirmed 2026 item; the remaining core-pack contents and final item count are unrevealed.",
+  "Official minimum: 1 confirmed Trooper item — the Arcade Travel Bottle. Historical estimate: about 5 items, based on the final 2025 Season 2 Trooper package.",
+  "The Arcade Travel Bottle is confirmed for Trooper; the remaining core-pack items have not been revealed yet.",
+  "Ranger receives the Trooper core pack, including the Arcade Travel Bottle, plus the exclusive Ranger bonus reward, the Arcade Backpack.",
+  "Official minimum: 2 confirmed Ranger items — the Arcade Travel Bottle from Trooper and the Ranger-exclusive Arcade Backpack. Historical estimate: about 6 items.",
+  "The Arcade Travel Bottle and Arcade Backpack are confirmed for Ranger; other Trooper-family items have not yet been revealed.",
+]
+
+test("Arcade Travel Bottle announcement and tier details are translated in every locale", () => {
+  for (const locale of locales) {
+    const catalog = readCatalog(locale)
+    for (const source of arcadeTravelBottleSources) {
+      assert.equal(typeof catalog.additional?.[source], "string",
+        `${locale} missing Arcade Travel Bottle translation: ${source}`)
+      assert.ok(catalog.additional[source].trim().length > 0,
+        `${locale} has empty Arcade Travel Bottle translation: ${source}`)
+    }
+  }
+})

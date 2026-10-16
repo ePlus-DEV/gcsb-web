@@ -22,6 +22,7 @@
 - https://arcade.eplus.dev/swag-drops/2026/legend/ — Arcade Legend rewards and prize slots
 - https://arcade.eplus.dev/swag-drops/2026/weather-shield-jacket/ — Weather-Shield Jacket reward detail
 - https://arcade.eplus.dev/swag-drops/2026/arcade-popup-pro/ — Arcade PopUp Pro reward detail
+- https://arcade.eplus.dev/swag-drops/2026/arcade-travel-bottle/ — Arcade Travel Bottle (Trooper & Ranger) reward detail
 
 ## Discovery
 
