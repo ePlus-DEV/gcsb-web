@@ -45,6 +45,7 @@ export default function ProfileAnalyzer({ catalog, copy, profileUrl, onProfileUr
             <label className={error ? "profile-input has-error" : "profile-input"}>
               <Search />
               <input
+                data-profile-url-input="true"
                 type="url"
                 inputMode="url"
                 autoComplete="url"

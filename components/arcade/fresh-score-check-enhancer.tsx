@@ -6,7 +6,7 @@ import { getWebsiteLocale, loadWebsiteCatalog } from "@/lib/website-i18n"
 
 const ANALYZER_SELECTOR = ".profile-analyzer-card"
 const BUTTON_SELECTOR = ".analyze-button"
-const INPUT_SELECTOR = 'input[aria-label="Google Skills public profile URL"]'
+const INPUT_SELECTOR = 'input[data-profile-url-input]'
 const FACILITATOR_SLOT_SELECTOR = ".analyzer-facilitator-slot"
 const HELP_ROW_SELECTOR = ".analyzer-help-row"
 const MANUAL_INTENT_TTL_MS = 5_000

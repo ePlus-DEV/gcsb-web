@@ -35,3 +35,15 @@ test("shared form, extension and next-goal copy cannot regress to English JSX li
     visit(source)
   }
 })
+
+// Localized accessible names must never be used as integration identifiers.
+test("profile integrations find the input independently of its translated name", () => {
+  const analyzer = readRepoFile("components/arcade/profile-analyzer.tsx")
+  assert.match(analyzer, /data-profile-url-input="true"/)
+  assert.match(analyzer, /aria-label=\{messages.profileUrl\}/)
+  for (const name of ["facilitator-analyzer-option", "fresh-score-check-enhancer"]) {
+    const source = readRepoFile(`components/arcade/${name}.tsx`)
+    assert.ok(source.includes("input[data-profile-url-input]"))
+    assert.doesNotMatch(source, /input\[aria-label=/)
+  }
+})
