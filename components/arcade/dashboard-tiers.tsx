@@ -44,6 +44,7 @@ export default function DashboardTiers({
         })}
       </div>
       <p className="tier-note">{viewMessages.tierNote}</p>
+      <details className="tier-explanation"><summary>{viewMessages.accuracyOfficial}</summary><p>{viewMessages.allocationMessage}</p></details>
       <div data-home-order="tier-history">
         <TierSlotHistoryPanel {...slotHistory} milestones={milestones} catalog={catalog} locale={locale} />
       </div>

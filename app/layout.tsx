@@ -32,7 +32,6 @@ import "./styles/cookie-consent.css"
 import "./styles/home-refactor.css"
 import "./styles/back-to-top.css"
 import "./styles/halloween-season.css"
-import "./styles/guest-discovery.css"
 
 const arcadeRequestDedupeBootstrap = readFileSync(
   path.join(process.cwd(), "scripts", "arcade-request-dedupe.js"),

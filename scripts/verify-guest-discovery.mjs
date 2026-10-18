@@ -5,7 +5,7 @@ import { startStaticServer } from "./serve-static.mjs"
 import { evaluateTypeScript, readRepoFile } from "../tests/helpers/typescript-source.mjs"
 
 const { PREVIEW_DEBUG_PROFILE_RESULT: result, PREVIEW_DEBUG_PROFILE_URL: profileUrl } = evaluateTypeScript(readRepoFile("components/arcade/preview-debug-profile.ts"))
-const titles = ["Arcade Voyage: Language, Voice, and Multimodal Processing", "Arcade Trail: Containers & Load Balancing", "Arcade Base Camp October 2026", "Arcade Adventure: Google Cloud ML APIs", "Arcade Simulator: Site Reliability Engineer", "Trick-or-Metric"]
+const titles = [result.game[0].title, "Arcade Trail: Containers & Load Balancing", "Arcade Base Camp October 2026", "Arcade Adventure: Google Cloud ML APIs", "Arcade Simulator: Site Reliability Engineer", "Trick-or-Metric"]
 const games = titles.map((title, i) => ({ title, accessCode: `1q-browser-regression-${i}`, points: 1, spotsRemaining: 2500, description: "Explore Google Cloud with hands-on labs covering infrastructure, observability, containers and application development.", joinUrl: "https://www.skills.google/games/7441", deadline: new Date(Date.now() + 7 * 86400_000).toISOString(), deadlineTimeZone: "Asia/Kolkata" }))
 const server = await startStaticServer({ basePath: process.env.HALLOWEEN_BASE_PATH ?? "" })
 const screenshots = process.env.GUEST_SCREENSHOTS
@@ -20,6 +20,7 @@ try {
       for (const width of [320, 390, 768, 1024, 1440]) {
         const context = await browser.newContext({ viewport: { width, height: 900 }, locale, permissions: ["clipboard-read", "clipboard-write"] })
         await context.addInitScript(({ theme, locale }) => {
+          localStorage.setItem("arcade-cookie-notice-v1", "acknowledged")
           localStorage.setItem("arcade-theme", theme)
           localStorage.setItem("arcade-points-locale", locale)
           localStorage.setItem("arcade-seasonal-theme", "halloween")
@@ -39,6 +40,7 @@ try {
         assert.equal(await page.locator(".monthly-game-card").count(), 6)
         assert.equal(await page.locator(".monthly-game-status").count(), 0)
         assert.equal(await page.locator(".profile-input input").inputValue(), "")
+        assert.equal(await page.locator(".analyzer-facilitator-option").count(), 0)
         assert.equal(await page.locator(".analyzer-help-row button").count(), 0)
         for (const label of await page.locator(".tier-list-row > div:nth-child(2) strong").all()) {
           assert.ok(await label.evaluate((el) => el.scrollWidth <= el.clientWidth + 1), "Tier name is clipped")
@@ -52,13 +54,14 @@ try {
           return { overflow: document.documentElement.scrollWidth > innerWidth + 1, labs: { top: labs.top, bottom: labs.bottom, right: labs.right }, tiers: { top: tiers.top, bottom: tiers.bottom, left: tiers.left }, extension: extension.top, heroHeight: hero.height }
         })
         assert.equal(geometry.overflow, false, `${locale}/${theme}/${width}: horizontal overflow`)
-        assert.ok(geometry.tiers.bottom <= geometry.labs.top)
+        if (width <= 900) assert.ok(geometry.tiers.bottom <= geometry.labs.top)
+        else assert.ok(geometry.labs.right <= geometry.tiers.left, "Desktop labs and tiers must occupy separate columns")
         if (width > 1100) {
           assert.ok(geometry.heroHeight < 440, `${locale}/${theme}: entry hero height ${geometry.heroHeight}`)
-          const rows = await page.locator(".guest-dashboard .tier-list-row").evaluateAll(elements => elements.map(el => el.getBoundingClientRect().top))
-          assert.ok(rows.every(top => Math.abs(top - rows[0]) < 2), "Desktop tier overview must fit on one row")
+          assert.equal(await page.locator(".guest-dashboard .tier-list-row").count(), 4)
         }
-        assert.ok(geometry.extension < geometry.tiers.top)
+        assert.ok(geometry.extension >= Math.max(geometry.tiers.bottom, geometry.labs.bottom), "Install promotion belongs after dashboard content")
+        assert.equal(await page.locator("[data-share-profile-action]").count(), 0, "Guest view must not offer sharing a saved profile")
         const sharedAppearance = () => page.evaluate(() => {
           const selectors = [".arcade-hero", ".hero-heading h1", ".profile-analyzer-card", ".monthly-games-grid", ".monthly-game-card"]
           return selectors.map(selector => {
@@ -67,9 +70,11 @@ try {
           })
         })
         const guestAppearance = await sharedAppearance()
+        assert.equal(await page.locator(".analyze-button").innerText(), catalog.messages.analyzeProfile)
+        assert.equal(await page.locator(".profile-input input").getAttribute("aria-label"), catalog.messages.profileUrl)
         await page.locator(".monthly-copy-button").first().click()
         assert.equal(await page.evaluate(() => navigator.clipboard.readText()), games[0].accessCode)
-        if (screenshots && locale !== "de") {
+        if (screenshots && locale !== "de" && [390, 1440].includes(width)) {
           await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }))
           await page.screenshot({ path: `${screenshots}/${locale}-${theme}-${width}.png`, fullPage: true })
         }
@@ -77,8 +82,50 @@ try {
         await page.locator(".profile-input input").fill(profileUrl)
         await page.locator(".analyze-button").click()
         await page.locator(".profile-panel").waitFor({ state: "visible" })
+        await page.waitForFunction(() => document.querySelectorAll(".analyzer-facilitator-option").length === 2)
         await page.locator(".monthly-game-card").first().waitFor({ state: "visible" })
+        await page.locator(".monthly-game-status.is-complete").first().waitFor({ state: "visible" })
+        assert.equal(await page.locator(".monthly-game-status.is-complete").count(), 1)
         assert.deepEqual(await sharedAppearance(), guestAppearance, "Guest must share Profile hero, form and Labs styling")
+        assert.equal(await page.locator(".monthly-games-host").count(), 1)
+        assert.equal(await page.locator(".tier-status-panel, .dashboard-bottom-grid, .points-total, .header-store-link").count(), 0)
+        assert.equal(await page.locator(".score-primary").count(), 1)
+        assert.equal(await page.locator("#tiers").count(), 1)
+        const disclosure = page.locator(".score-breakdown-disclosure")
+        assert.equal(await disclosure.getAttribute("open"), null)
+        await disclosure.locator("summary").click()
+        await disclosure.locator(".point-breakdown-row").first().waitFor({ state: "visible" })
+        assert.ok(await disclosure.locator(".point-breakdown-row").count() >= 3)
+        await disclosure.locator("summary").click()
+        const overflow = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)
+        assert.equal(overflow, false, "Profile workspace must not overflow")
+        const goalOrder = await page.evaluate(() => {
+          const goal = document.querySelector(".next-goal-panel").getBoundingClientRect()
+          const labs = document.querySelector(".monthly-games-host").getBoundingClientRect()
+          return goal.bottom <= labs.top
+        })
+        assert.ok(goalOrder, "Next score goal must precede Monthly Labs")
+        const statContrast = await page.locator(".profile-stat-grid > div").evaluateAll(cards => {
+          const luminance = color => {
+            const channels = color.match(/[\d.]+/g).slice(0, 3).map(Number).map(value => {
+              const s = value / 255
+              return s <= .04045 ? s / 12.92 : ((s + .055) / 1.055) ** 2.4
+            })
+            return channels[0] * .2126 + channels[1] * .7152 + channels[2] * .0722
+          }
+          return cards.flatMap(card => [...card.querySelectorAll("strong, span:not(.profile-stat-icon)")].map(label => {
+            let surface = card
+            while (surface.parentElement && getComputedStyle(surface).backgroundColor === "rgba(0, 0, 0, 0)") surface = surface.parentElement
+            const bg = luminance(getComputedStyle(surface).backgroundColor)
+            const fg = luminance(getComputedStyle(label).color)
+            return (Math.max(bg, fg) + .05) / (Math.min(bg, fg) + .05)
+          }))
+        })
+        assert.ok(statContrast.every(ratio => ratio >= 4.5), `${locale}/${theme}/${width}: profile statistic contrast ${statContrast.join(", ")}`)
+        if (screenshots && locale !== "de" && [390, 1440].includes(width)) {
+          await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }))
+          await page.screenshot({ path: screenshots + "/" + locale + "-" + theme + "-" + width + "-profile.png", fullPage: true })
+        }
         const stored = await page.evaluate(() => JSON.parse(localStorage.getItem("eplus-arcade-dashboard-v1")))
         assert.equal(stored.profileUrl, profileUrl)
         if (locale === "en" && theme === "dark" && width === 1440) {
@@ -96,6 +143,18 @@ try {
           await page.locator(".profile-panel").waitFor({ state: "visible" })
           assert.equal(await page.locator(".profile-input input").inputValue(), profileUrl)
         }
+        if (locale === "en" && theme === "dark" && width === 1440) {
+          await page.evaluate(profileUrl => {
+            localStorage.setItem("arcade-facilitator-participation-v1:" + profileUrl, "true")
+            window.dispatchEvent(new CustomEvent("arcade-facilitator-participation-change", { detail: { profileUrl, participating: true } }))
+          }, profileUrl)
+          await page.waitForFunction(label => document.querySelector(".next-goal-value strong")?.textContent === label, catalog.messages.max)
+        }
+        await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }))
+        await page.locator(".analyzer-help-row button").click()
+        await page.locator(".guest-dashboard .monthly-game-card").first().waitFor({ state: "visible" })
+        assert.equal(await page.locator(".monthly-game-status").count(), 0, "Reset must remove personal completion data")
+        assert.equal(await page.locator(".profile-input input").inputValue(), "")
         await context.close()
         cases++
       }

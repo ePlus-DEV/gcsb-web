@@ -48,7 +48,7 @@ export default function ShareProfileEnhancer() {
       if (disposed) return true
 
       const page = document.querySelector<HTMLElement>(".arcade-dashboard-page")
-      if (page?.dataset.dashboardDebugFake === "true") {
+      if (page?.dataset.dashboardView !== "profile" || page?.dataset.dashboardDebugFake === "true") {
         document.querySelector("[data-share-profile-action]")?.remove()
         document.querySelector(".has-profile-share-action")?.classList.remove("has-profile-share-action")
         return true
@@ -57,7 +57,7 @@ export default function ShareProfileEnhancer() {
       if (document.querySelector("[data-share-profile-action]")) return true
 
       const dashboard = document.querySelector(".dashboard-shell")
-      const profilePanel = dashboard?.querySelector<HTMLElement>(".dashboard-panel")
+      const profilePanel = dashboard?.querySelector<HTMLElement>(".profile-panel")
       if (!dashboard || !profilePanel) return false
 
       profilePanel.classList.add("has-profile-share-action")

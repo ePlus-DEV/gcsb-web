@@ -1,5 +1,6 @@
 "use client"
 
+import MonthlyGamesSection from "./monthly-games-section"
 import DashboardTiers, { type DashboardTiersProps } from "./dashboard-tiers"
 import type { DashboardViewMode } from "./dashboard-state"
 
@@ -10,10 +11,11 @@ export default function GuestDashboard({
 }) {
   return (
     <section
-      className={`dashboard-shell guest-dashboard${viewMode === "guest" ? " is-guest" : " is-profile-empty"}`}
+      className={`dashboard-shell discovery-grid guest-dashboard${viewMode === "guest" ? " is-guest" : " is-profile-empty"}`}
       data-home-order="dashboard-empty"
     >
 
+      <MonthlyGamesSection />
       <DashboardTiers
         milestones={milestones}
         milestonesLive={milestonesLive}
@@ -21,8 +23,6 @@ export default function GuestDashboard({
         catalog={catalog}
         locale={locale}
       />
-      <div id="monthly-games" className="monthly-games-host" data-home-order="monthly-labs" />
-
     </section>
   )
 }

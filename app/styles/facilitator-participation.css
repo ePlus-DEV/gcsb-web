@@ -256,13 +256,13 @@
 
 @media (min-width: 601px) {
   .facilitator-launcher {
-    top: 50%;
+    top: auto;
     right: 20px;
-    bottom: auto;
+    bottom: 22px;
     min-width: 248px;
     padding: 14px 15px;
     border-left-width: 4px;
-    transform: translateY(-50%);
+    transform: none;
     box-shadow: 0 22px 65px rgba(0, 0, 0, 0.48), 0 0 34px rgba(34, 211, 238, 0.17);
   }
 
@@ -282,7 +282,7 @@
   }
 
   .facilitator-launcher:hover {
-    transform: translateY(calc(-50% - 3px));
+    transform: translateY(-3px);
     box-shadow: 0 28px 72px rgba(0, 0, 0, 0.54), 0 0 40px rgba(34, 211, 238, 0.24);
   }
 

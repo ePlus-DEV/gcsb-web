@@ -469,25 +469,30 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
 
           return (
             <article className={completed ? "monthly-game-card is-complete" : "monthly-game-card"} key={deadlineKey}>
-              <div className="monthly-game-art">
-                {game.imageUrl ? (
-                  <img
-                    className="monthly-game-art-image"
-                    src={game.imageUrl}
-                    alt=""
-                    loading="lazy"
-                  />
-                ) : (
-                  <Gamepad2 />
-                )}
-                {hasProfile && <span className={completed ? "monthly-game-status is-complete" : "monthly-game-status"}>
-                  {completed ? <BadgeCheck /> : <Circle />}
-                  {completed ? text("completed") : text("notCompleted")}
-                </span>}
+              <div className="monthly-game-heading">
+                <div className="monthly-game-art">
+                  {game.imageUrl ? (
+                    <img
+                      className="monthly-game-art-image"
+                      src={game.imageUrl}
+                      alt=""
+                      loading="lazy"
+                    />
+                  ) : (
+                    <Gamepad2 />
+                  )}
+                </div>
+                <div className="monthly-game-heading-copy">
+                  <h3 title={game.title}>{game.title}</h3>
+                  {hasProfile && (
+                    <span className={completed ? "monthly-game-status is-complete" : "monthly-game-status"}>
+                      {completed ? <BadgeCheck /> : <Circle />}
+                      {completed ? text("completed") : text("notCompleted")}
+                    </span>
+                  )}
+                </div>
               </div>
-
               <div className="monthly-game-body">
-                <h3 title={game.title}>{game.title}</h3>
                 {game.description && <p className="monthly-game-description">{game.description}</p>}
 
                 <div className="monthly-game-meta">
