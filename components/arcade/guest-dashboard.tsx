@@ -11,10 +11,11 @@ export default function GuestDashboard({
 }) {
   return (
     <section
-      className={`dashboard-shell guest-dashboard${viewMode === "guest" ? " is-guest" : " is-profile-empty"}`}
+      className={`dashboard-shell discovery-grid guest-dashboard${viewMode === "guest" ? " is-guest" : " is-profile-empty"}`}
       data-home-order="dashboard-empty"
     >
 
+      <MonthlyGamesSection />
       <DashboardTiers
         milestones={milestones}
         milestonesLive={milestonesLive}
@@ -22,8 +23,6 @@ export default function GuestDashboard({
         catalog={catalog}
         locale={locale}
       />
-      <MonthlyGamesSection />
-
     </section>
   )
 }

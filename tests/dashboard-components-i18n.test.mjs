@@ -8,6 +8,7 @@ const required = [
   "publicDataOnly", "noSignIn", "pasteProfile", "profileUrl", "clearProfileUrl",
   "analyzing", "analyzeProfile", "findProfile", "resetResult", "installExtension",
   "automaticTracking", "nextGoal", "max", "topTierReached", "morePointsNeeded",
+  "profileSummary", "publicProfile", "arcadePoints", "badges", "scoreTier", "pointBreakdown", "allBadgesClassified", "unknownShown",
 ]
 
 test("shared dashboard components have complete catalog copy in every locale", () => {
@@ -20,7 +21,7 @@ test("shared dashboard components have complete catalog copy in every locale", (
 })
 
 test("shared form, extension and next-goal copy cannot regress to English JSX literals", () => {
-  for (const file of ["profile-analyzer", "extension-strip", "next-score-goal"]) {
+  for (const file of ["profile-analyzer", "extension-strip", "next-score-goal", "score-summary", "score-breakdown"]) {
     const source = ts.createSourceFile(file + ".tsx", readRepoFile(`components/arcade/${file}.tsx`), ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
     function visit(node) {
       if (ts.isJsxText(node)) {

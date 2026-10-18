@@ -20,6 +20,7 @@ try {
       for (const width of [320, 390, 768, 1024, 1440]) {
         const context = await browser.newContext({ viewport: { width, height: 900 }, locale, permissions: ["clipboard-read", "clipboard-write"] })
         await context.addInitScript(({ theme, locale }) => {
+          localStorage.setItem("arcade-cookie-notice-v1", "acknowledged")
           localStorage.setItem("arcade-theme", theme)
           localStorage.setItem("arcade-points-locale", locale)
           localStorage.setItem("arcade-seasonal-theme", "halloween")
@@ -53,13 +54,14 @@ try {
           return { overflow: document.documentElement.scrollWidth > innerWidth + 1, labs: { top: labs.top, bottom: labs.bottom, right: labs.right }, tiers: { top: tiers.top, bottom: tiers.bottom, left: tiers.left }, extension: extension.top, heroHeight: hero.height }
         })
         assert.equal(geometry.overflow, false, `${locale}/${theme}/${width}: horizontal overflow`)
-        assert.ok(geometry.tiers.bottom <= geometry.labs.top)
+        if (width <= 900) assert.ok(geometry.tiers.bottom <= geometry.labs.top)
+        else assert.ok(geometry.labs.right <= geometry.tiers.left, "Desktop labs and tiers must occupy separate columns")
         if (width > 1100) {
           assert.ok(geometry.heroHeight < 440, `${locale}/${theme}: entry hero height ${geometry.heroHeight}`)
-          const rows = await page.locator(".guest-dashboard .tier-list-row").evaluateAll(elements => elements.map(el => el.getBoundingClientRect().top))
-          assert.ok(rows.every(top => Math.abs(top - rows[0]) < 2), "Desktop tier overview must fit on one row")
+          assert.equal(await page.locator(".guest-dashboard .tier-list-row").count(), 4)
         }
-        assert.ok(geometry.extension < geometry.tiers.top)
+        assert.ok(geometry.extension >= Math.max(geometry.tiers.bottom, geometry.labs.bottom), "Install promotion belongs after dashboard content")
+        assert.equal(await page.locator("[data-share-profile-action]").count(), 0, "Guest view must not offer sharing a saved profile")
         const sharedAppearance = () => page.evaluate(() => {
           const selectors = [".arcade-hero", ".hero-heading h1", ".profile-analyzer-card", ".monthly-games-grid", ".monthly-game-card"]
           return selectors.map(selector => {
@@ -72,7 +74,7 @@ try {
         assert.equal(await page.locator(".profile-input input").getAttribute("aria-label"), catalog.messages.profileUrl)
         await page.locator(".monthly-copy-button").first().click()
         assert.equal(await page.evaluate(() => navigator.clipboard.readText()), games[0].accessCode)
-        if (screenshots && locale !== "de") {
+        if (screenshots && locale !== "de" && [390, 1440].includes(width)) {
           await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }))
           await page.screenshot({ path: `${screenshots}/${locale}-${theme}-${width}.png`, fullPage: true })
         }
@@ -86,6 +88,17 @@ try {
         assert.equal(await page.locator(".monthly-game-status.is-complete").count(), 1)
         assert.deepEqual(await sharedAppearance(), guestAppearance, "Guest must share Profile hero, form and Labs styling")
         assert.equal(await page.locator(".monthly-games-host").count(), 1)
+        assert.equal(await page.locator(".tier-status-panel, .dashboard-bottom-grid, .points-total, .header-store-link").count(), 0)
+        assert.equal(await page.locator(".score-primary").count(), 1)
+        assert.equal(await page.locator("#tiers").count(), 1)
+        const disclosure = page.locator(".score-breakdown-disclosure")
+        assert.equal(await disclosure.getAttribute("open"), null)
+        await disclosure.locator("summary").click()
+        await disclosure.locator(".point-breakdown-row").first().waitFor({ state: "visible" })
+        assert.ok(await disclosure.locator(".point-breakdown-row").count() >= 3)
+        await disclosure.locator("summary").click()
+        const overflow = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)
+        assert.equal(overflow, false, "Profile workspace must not overflow")
         const goalOrder = await page.evaluate(() => {
           const goal = document.querySelector(".next-goal-panel").getBoundingClientRect()
           const labs = document.querySelector(".monthly-games-host").getBoundingClientRect()
@@ -109,7 +122,10 @@ try {
           }))
         })
         assert.ok(statContrast.every(ratio => ratio >= 4.5), `${locale}/${theme}/${width}: profile statistic contrast ${statContrast.join(", ")}`)
-        if (screenshots && locale !== "de") await page.screenshot({ path: screenshots + "/" + locale + "-" + theme + "-" + width + "-profile.png", fullPage: true })
+        if (screenshots && locale !== "de" && [390, 1440].includes(width)) {
+          await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }))
+          await page.screenshot({ path: screenshots + "/" + locale + "-" + theme + "-" + width + "-profile.png", fullPage: true })
+        }
         const stored = await page.evaluate(() => JSON.parse(localStorage.getItem("eplus-arcade-dashboard-v1")))
         assert.equal(stored.profileUrl, profileUrl)
         if (locale === "en" && theme === "dark" && width === 1440) {

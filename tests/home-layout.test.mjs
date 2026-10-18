@@ -15,7 +15,7 @@ const monthlyPanel = readRepoFile("components/arcade/monthly-games-panel.tsx")
 const monthlyStyles = readRepoFile("app/styles/monthly-games.css")
 const guide = readRepoFile("components/seo/home-search-guide.tsx")
 
-const sharedBlocks = /<(RedesignCalculator|ProgramCountdown|FreshScoreCheckEnhancer|TierStatusIconEnhancer|SwagDropsPreview|ShareProfileEnhancer|FacilitatorAnalyzerOption|FacilitatorPanelGate|SeoContent)\b/g
+const sharedBlocks = /<(RedesignCalculator|ProgramCountdown|FreshScoreCheckEnhancer|SwagDropsPreview|ShareProfileEnhancer|FacilitatorAnalyzerOption|FacilitatorPanelGate|SeoContent)\b/g
 
 function homepageBlocks(source) {
   return [...source.matchAll(sharedBlocks)].map((match) => match[1])
@@ -27,7 +27,6 @@ test("all locales mount the English homepage block sequence", () => {
     "RedesignCalculator",
     "ProgramCountdown",
     "FreshScoreCheckEnhancer",
-    "TierStatusIconEnhancer",
     "SwagDropsPreview",
     "ShareProfileEnhancer",
     "FacilitatorAnalyzerOption",
@@ -41,14 +40,14 @@ test("Monthly Labs has deterministic React-owned anchors in both dashboard state
   assert.equal((monthlySection.match(/data-home-order="monthly-labs"/g) ?? []).length, 1)
   const summary = calculator.indexOf('data-home-order="dashboard-summary"')
   const resultsMonthly = calculator.indexOf("<MonthlyGamesSection")
-  const bottom = calculator.indexOf('data-home-order="dashboard-bottom"')
+  const bottom = calculator.indexOf('className="dashboard-content-grid"')
   assert.ok(summary >= 0 && summary < resultsMonthly && resultsMonthly < bottom)
 
   const empty = calculator.indexOf("<GuestDashboard")
   const emptyMonthly = guestDashboard.indexOf("<MonthlyGamesSection")
   const about = calculator.indexOf("{footerContent}")
   assert.ok(empty > bottom)
-  assert.ok(emptyMonthly >= 0 && emptyMonthly > guestDashboard.indexOf("<DashboardTiers\n"))
+  assert.ok(emptyMonthly >= 0 && emptyMonthly < guestDashboard.indexOf("<DashboardTiers\n"))
   assert.match(guestDashboard, /<DashboardTiers/)
   assert.match(dashboardTiers, /data-home-order="tier-history"/)
   assert.ok(about > empty)
@@ -63,7 +62,7 @@ test("portal targets cannot depend on translated labels or mutation timing", () 
     calculator.indexOf('data-home-order="program-countdown"'),
   )
   assert.ok(
-    calculator.indexOf('data-home-order="program-countdown"') <
+    calculator.indexOf("<GuestDashboard") <
     calculator.indexOf("<ExtensionStrip"),
   )
   assert.match(calculator, /<MonthlyGamesSection badges=\{badges\} hasProfile=\{showProfileDashboard\}/)

@@ -22,7 +22,7 @@ type ProfileAnalyzerProps = {
 export default function ProfileAnalyzer({ catalog, copy, profileUrl, onProfileUrlChange, onAnalyze, onReset, hasResult, loading, error }: ProfileAnalyzerProps) {
   const messages = catalog.messages
   return (
-    <section id="top" className="arcade-hero" data-home-order="hero">
+    <section id="top" className={`arcade-hero${hasResult ? " has-profile" : ""}`} data-home-order="hero">
         <div className="hero-heading">
           <p className="pixel-kicker"><Sparkles /> {catalog.additional["__dashboard:programName"]}</p>
           <span className="halloween-edition">
