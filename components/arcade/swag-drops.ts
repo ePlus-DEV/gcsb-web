@@ -30,6 +30,28 @@ export type ArcadeSwagDrop = {
  */
 export const ARCADE_SWAG_DROPS: readonly ArcadeSwagDrop[] = [
   {
+    id: "arcade-magic-mug",
+    season: 2026,
+    dropNumber: 5,
+    name: "The Arcade Magic Mug",
+    shortName: "Arcade Magic Mug",
+    revealedOn: "October 23, 2026",
+    revealedOnIso: "2026-10-23",
+    tiers: ["trooper", "ranger"],
+    imageUrl:
+      "https://d2yds90mtvelsl.cloudfront.net/original/4X/2/2/b/22b7a2ac687639f64d04814af4c83e172cfb2559.gif",
+    sourceUrl:
+      "https://discuss.google.dev/t/swag-drop-the-arcade-magic-mug/407455",
+    summary:
+      "A heat-reactive white mug that reveals a hidden Arcade design when filled with a hot drink, confirmed for Trooper and Ranger tiers.",
+    features: [
+      "Minimal white appearance when cool",
+      "Hidden Arcade artwork appears when heated by coffee or tea",
+      "Solid, comfortable feel for everyday use",
+      "Described as eco-friendly in the official announcement",
+    ],
+  },
+  {
     id: "arcade-travel-bottle",
     season: 2026,
     dropNumber: 4,
