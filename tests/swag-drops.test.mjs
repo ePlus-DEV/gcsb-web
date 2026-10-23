@@ -17,9 +17,16 @@ const {
 test("2026 swag registry contains only currently confirmed drops", () => {
   assert.deepEqual(ARCADE_SWAG_SEASONS, [2026])
   assert.deepEqual(ARCADE_SWAG_TIERS, ["trooper", "ranger", "champion", "legend"])
-  assert.equal(ARCADE_SWAG_DROPS.length, 4)
+  assert.equal(ARCADE_SWAG_DROPS.length, 5)
 
-  const bottle = ARCADE_SWAG_DROPS[0]
+  const mug = ARCADE_SWAG_DROPS[0]
+  assert.equal(mug.id, "arcade-magic-mug")
+  assert.equal(mug.dropNumber, 5)
+  assert.equal(mug.revealedOnIso, "2026-10-23")
+  assert.deepEqual(mug.tiers, ["trooper", "ranger"])
+  assert.match(mug.sourceUrl, /swag-drop-the-arcade-magic-mug\/407455$/)
+
+  const bottle = ARCADE_SWAG_DROPS[1]
   assert.equal(bottle.id, "arcade-travel-bottle")
   assert.equal(bottle.dropNumber, 4)
   assert.equal(bottle.revealedOnIso, "2026-10-16")
@@ -28,7 +35,7 @@ test("2026 swag registry contains only currently confirmed drops", () => {
   assert.match(bottle.imageUrl, /8b1605e269e35c0d327d7fdcb73b1ac6ff5f7a78\.gif$/)
   assert.equal(bottle.features.length, 5)
 
-  const popup = ARCADE_SWAG_DROPS[1]
+  const popup = ARCADE_SWAG_DROPS[2]
   assert.equal(popup.id, "arcade-popup-pro")
   assert.equal(popup.dropNumber, 3)
   assert.equal(popup.revealedOnIso, "2026-10-12")
@@ -37,7 +44,7 @@ test("2026 swag registry contains only currently confirmed drops", () => {
   assert.match(popup.imageUrl, /b9a415d139fc73264ef112d2daeedb1fddd718ce\.gif$/)
   assert.equal(popup.features.length, 5)
 
-  const backpack = ARCADE_SWAG_DROPS[2]
+  const backpack = ARCADE_SWAG_DROPS[3]
   assert.equal(backpack.id, "arcade-backpack")
   assert.equal(backpack.season, 2026)
   assert.equal(backpack.dropNumber, 2)
@@ -47,7 +54,7 @@ test("2026 swag registry contains only currently confirmed drops", () => {
   assert.match(backpack.imageUrl, /c48e27878cf37a9368b63e7f8ba5e28eae209f30\.gif$/)
   assert.equal(backpack.features.length, 5)
 
-  const jacket = ARCADE_SWAG_DROPS[3]
+  const jacket = ARCADE_SWAG_DROPS[4]
   assert.equal(jacket.id, "weather-shield-jacket")
   assert.equal(jacket.dropNumber, 1)
   assert.deepEqual(jacket.tiers, ["champion", "legend"])
@@ -58,10 +65,10 @@ test("2026 swag registry contains only currently confirmed drops", () => {
 })
 
 test("swag registry groups confirmed rewards by season and tier", () => {
-  assert.equal(getSwagDropsForSeason(2026).length, 4)
+  assert.equal(getSwagDropsForSeason(2026).length, 5)
   assert.equal(getSwagDropsForSeason(2025).length, 0)
-  assert.deepEqual(getSwagDropsForTier("trooper", 2026).map((item) => item.id), ["arcade-travel-bottle"])
-  assert.deepEqual(getSwagDropsForTier("ranger", 2026).map((item) => item.id), ["arcade-travel-bottle", "arcade-backpack"])
+  assert.deepEqual(getSwagDropsForTier("trooper", 2026).map((item) => item.id), ["arcade-magic-mug", "arcade-travel-bottle"])
+  assert.deepEqual(getSwagDropsForTier("ranger", 2026).map((item) => item.id), ["arcade-magic-mug", "arcade-travel-bottle", "arcade-backpack"])
   assert.deepEqual(getSwagDropsForTier("champion", 2026).map((item) => item.id), ["arcade-popup-pro", "weather-shield-jacket"])
   assert.deepEqual(getSwagDropsForTier("legend", 2026).map((item) => item.id), ["arcade-popup-pro", "weather-shield-jacket"])
 })
@@ -168,13 +175,13 @@ test("season hub exposes a balanced reward board without hiding tier rewards", (
 })
 
 
-test("2026 Travel Bottle is the latest official drop, inherited by Ranger", () => {
+test("2026 Magic Mug is the latest official drop, inherited by Ranger", () => {
   const preview = readRepoFile("components/arcade/swag-drops-preview.tsx")
   const seasonPage = readRepoFile("app/swag-drops/2026/page.tsx")
   const detailPage = readRepoFile("app/swag-drops/2026/[slug]/page.tsx")
   const seasonMeta = readRepoFile("components/arcade/swag-seasons.ts")
-  assert.equal(getSwagDropsForSeason(2026)[0]?.id, "arcade-travel-bottle")
-  assert.equal(getSwagDropsForTier("ranger", 2026).length, 2)
+  assert.equal(getSwagDropsForSeason(2026)[0]?.id, "arcade-magic-mug")
+  assert.equal(getSwagDropsForTier("ranger", 2026).length, 3)
   assert.match(preview, /latest\.tiers/)
   assert.doesNotMatch(preview, /Arcade Champion · Arcade Legend/)
   assert.match(seasonPage, /updated=\{latest\?\.revealedOn/)
