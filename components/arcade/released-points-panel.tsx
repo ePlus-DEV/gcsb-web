@@ -58,8 +58,10 @@ export default function ReleasedPointsPanel({ badges, hasProfile, catalog, local
           <td data-label={text("released")}>{row.published}</td>
         </tr>)}</tbody>
       </table>
-      {failed ? <div role="status"><p>{text("error")}</p><button type="button" onClick={() => setAttempt((value) => value + 1)}>{text("retry")}</button></div> : !summary ? <p role="status">{text("loading")}</p> : <p className="point-comparison-scope">* {text("title", { year: String(year) })} · {text("coverage", { count: number(summary.months), total: number(month), unknown: number(summary.unknown) })}</p>}
-      {summary && <details className="point-comparison-details"><summary>{text("earned")}: {number(summary.achieved)}</summary>
+      {failed ? <div role="status"><p>{text("error")}</p><button type="button" onClick={() => setAttempt((value) => value + 1)}>{text("retry")}</button></div> : !summary ? <p role="status">{text("loading")}</p> : null}
+      {summary && <details className="point-comparison-details"><summary>{text("title", { year: String(year) })}*</summary>
+        <p>{text("earned")}: {number(summary.achieved)}</p>
+        <p>{text("coverage", { count: number(summary.months), total: number(month), unknown: number(summary.unknown) })}</p>
         <dl><div><dt>{text("available")}</dt><dd>{number(summary.available)}</dd></div><div><dt>{text("expired")}</dt><dd>{number(summary.expired)}</dd></div></dl>
         <p>{text("scope")}</p><p>{text("skillCoverage")}</p>
       </details>}

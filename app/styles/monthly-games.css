@@ -78,28 +78,22 @@
 .breakdown-history-disclosure .released-detail-stats { display: grid; gap: 6px; }
 .light .breakdown-history-disclosure>summary { color: #6d28d9; }
 
-/* Comparison lives in the existing score card; narrow cards stack each category. */
-.point-comparison { container-type: inline-size; margin-top: 14px; color: var(--arcade-muted); font-size: .75rem; }
-.point-comparison table { color: inherit; width: 100%; border-collapse: collapse; table-layout: fixed; }
-.point-comparison th, .point-comparison td { padding: 10px 6px; border-bottom: 1px solid rgba(148,163,184,.16); text-align: end; overflow-wrap: anywhere; }
-.point-comparison th:first-child { width: 46%; text-align: start; }
-.point-comparison thead th { font-size: .65rem; font-weight: 500; }
+/* Keep the comparison compact even inside the desktop three-card grid. */
+.point-comparison { margin-top: 12px; color: var(--arcade-muted); font-size: .72rem; }
+.point-comparison table { font: inherit; color: inherit; width: 100%; border-collapse: collapse; table-layout: fixed; }
+.point-comparison th, .point-comparison td { padding: 8px 4px; border-bottom: 1px solid rgba(148,163,184,.14); text-align: end; overflow-wrap: anywhere; line-height: 1.45; }
+.point-comparison th:first-child { width: 44%; padding-inline-start: 0; text-align: start; }
+.point-comparison th:nth-child(2) { width: 20%; }
+.point-comparison thead th { font-size: .62rem; font-weight: 500; vertical-align: bottom; }
 .point-comparison tbody th { font-weight: 500; }
 .point-comparison tbody td:first-of-type { color: #c4b5fd; font-weight: 750; font-variant-numeric: tabular-nums; }
-.point-comparison p { font-size: .65rem; line-height: 1.55; margin: 10px 0 0; }
-.point-comparison-details { margin-top: 8px; font-size: .68rem; }
-.point-comparison-details summary { cursor: pointer; padding-block: 8px; }
-.point-comparison-details dl { display: flex; flex-wrap: wrap; gap: 10px 20px; }
+.point-comparison tbody td:last-child { font-size: .67rem; }
+.point-comparison p { font-size: .65rem; line-height: 1.55; margin: 8px 0 0; }
+.point-comparison-details { margin-top: 4px; font-size: .65rem; }
+.point-comparison-details summary { cursor: pointer; padding-block: 10px; }
+.point-comparison-details dl { display: flex; flex-wrap: wrap; gap: 8px 16px; }
 .point-comparison-details dl div { display: flex; gap: 8px; }
 .point-comparison-details dd { margin: 0; font-weight: 700; }
 .point-comparison button { min-height: 44px; padding: 6px 12px; background: transparent; color: inherit; border: 1px solid currentColor; border-radius: 6px; }
 .point-comparison summary:focus-visible, .point-comparison button:focus-visible { outline: 2px solid #a78bfa; outline-offset: 3px; }
 .light .point-comparison tbody td:first-of-type { color: #6d28d9; }
-@container (max-width: 370px) {
-  .point-comparison thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-  .point-comparison tbody, .point-comparison tr { display: block; }
-  .point-comparison tr { padding: 9px 0; border-bottom: 1px solid rgba(148,163,184,.16); }
-  .point-comparison tbody th { display: block; width: auto; padding: 0 0 5px; border: 0; }
-  .point-comparison td { display: flex; justify-content: space-between; gap: 12px; padding: 3px 0; border: 0; }
-  .point-comparison td::before { content: attr(data-label); color: var(--arcade-muted); font-weight: 400; text-align: start; }
-}
