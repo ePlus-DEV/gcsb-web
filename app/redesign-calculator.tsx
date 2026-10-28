@@ -3,6 +3,8 @@
 import Link from "next/link"
 import { profilePointSummary } from "@/components/arcade/profile-point-summary"
 import ReleasedPointsPanel from "@/components/arcade/released-points-panel"
+import TierPredictionPanel from "@/components/arcade/tier-prediction-panel"
+import type { ScoreCheck } from "@/components/arcade/tier-prediction"
 import DashboardTiers from "@/components/arcade/dashboard-tiers"
 import GuestDashboard from "@/components/arcade/guest-dashboard"
 import PreviewModeToolbar from "@/components/arcade/preview-mode-toolbar"
@@ -210,6 +212,7 @@ export default function RedesignCalculator({
   const [viewMode, setViewMode] = useState<DashboardViewMode>("guest")
   const [usingPreviewFakeProfile, setUsingPreviewFakeProfile] = useState(false)
   const [viewModeRestored, setViewModeRestored] = useState(false)
+  const [predictionCheck, setPredictionCheck] = useState<ScoreCheck | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [filter, setFilter] = useState<BadgeFilter>("all")
@@ -570,6 +573,7 @@ export default function RedesignCalculator({
       setProfileUrl(normalized)
       setCommittedProfileUrl(normalized)
       setResult(payload)
+      setPredictionCheck({ at: new Date().toISOString(), points: Number(payload.arcadePoints?.totalPoints), complete: payload.beta?.scoreComplete === true })
       setUsingPreviewFakeProfile(false)
       setViewMode("profile")
       setFilter("all")
@@ -602,6 +606,7 @@ export default function RedesignCalculator({
     setProfileUrl("")
     setCommittedProfileUrl("")
     setResult(null)
+    setPredictionCheck(null)
     setUsingPreviewFakeProfile(false)
     setViewMode("guest")
     setGuestProfileUrl("")
@@ -995,6 +1000,7 @@ export default function RedesignCalculator({
               catalog={activeHistoryLanguage.catalog}
               locale={activeHistoryLanguage.locale}
               activeTierPoints={qualifiedMilestone?.points}
+              prediction={<TierPredictionPanel profileUrl={committedProfileUrl} check={usingPreviewFakeProfile ? null : predictionCheck} feed={slotHistory.feed} catalog={activeHistoryLanguage.catalog} locale={activeHistoryLanguage.locale} estimatedBonus={points !== basePoints} />}
             />
           </div>
 
