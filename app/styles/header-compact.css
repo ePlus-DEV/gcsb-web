@@ -101,3 +101,21 @@ html.light .footer-route-links a:hover {
     --arcade-anchor-offset: 68px;
   }
 }
+
+/* Mobile navigation spans the viewport; only its contents retain gutters. */
+@media (max-width: 820px) {
+  .arcade-header {
+    width: 100%;
+    max-width: none;
+    padding-inline: max(12px, env(safe-area-inset-left)) max(12px, env(safe-area-inset-right));
+  }
+
+  .arcade-header .arcade-nav {
+    top: 100%;
+    inset-inline: 0;
+    width: auto;
+    border-inline: 0;
+    border-radius: 0;
+    padding-inline: max(12px, env(safe-area-inset-left)) max(12px, env(safe-area-inset-right));
+  }
+}
