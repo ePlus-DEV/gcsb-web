@@ -3,12 +3,8 @@
 import { createPortal } from "react-dom"
 import { useEffect, useState } from "react"
 import MonthlyGamesPanel from "./monthly-games-panel"
-import { profilePointSummary, type ProfilePointSummary } from "./profile-point-summary"
-import { getFacilitatorAdjustedPoints } from "./facilitator-points"
-import { readFacilitatorParticipation, FACILITATOR_PARTICIPATION_EVENT } from "./facilitator-participation"
 import { readActiveDashboard, observeDashboardMode } from "./dashboard-state"
 import {
-  numeric,
   type ArcadeApiResponse,
   type ArcadeBadge,
 } from "./model"
@@ -51,7 +47,6 @@ export default function MonthlyGamesPanelGate() {
   const [host, setHost] = useState<HTMLElement | null>(null)
   const [badges, setBadges] = useState<ArcadeBadge[]>([])
   const [hasProfile, setHasProfile] = useState(false)
-  const [profilePoints, setProfilePoints] = useState<ProfilePointSummary | null>(null)
 
   useEffect(() => {
     const sync = () => {
@@ -61,12 +56,6 @@ export default function MonthlyGamesPanelGate() {
       const dashboard = readActiveDashboard()
       const result = dashboard?.result ?? null
       setHasProfile(Boolean(dashboard))
-      const adjusted = getFacilitatorAdjustedPoints(numeric(result?.arcadePoints?.totalPoints), {
-        games: numeric(result?.faciCounts?.faciGame),
-        skills: numeric(result?.faciCounts?.faciSkill),
-      }, Boolean(dashboard && readFacilitatorParticipation(dashboard.profileUrl)))
-      const nextPoints = profilePointSummary(result, adjusted.bonus)
-      setProfilePoints((current) => JSON.stringify(current) === JSON.stringify(nextPoints) ? current : nextPoints)
       const nextBadges = parseStoredBadges(result)
       setBadges((current) => JSON.stringify(current) === JSON.stringify(nextBadges) ? current : nextBadges)
     }
@@ -83,7 +72,6 @@ export default function MonthlyGamesPanelGate() {
       if (hasExternalMutation) sync()
     })
     observer.observe(document.body, { childList: true, subtree: true })
-    window.addEventListener(FACILITATOR_PARTICIPATION_EVENT, sync)
     window.addEventListener("focus", sync)
     window.addEventListener("storage", sync)
 
@@ -91,12 +79,11 @@ export default function MonthlyGamesPanelGate() {
       stopObserving()
       window.clearInterval(timer)
       observer.disconnect()
-      window.removeEventListener(FACILITATOR_PARTICIPATION_EVENT, sync)
       window.removeEventListener("focus", sync)
       window.removeEventListener("storage", sync)
     }
   }, [])
 
   if (!host) return null
-  return createPortal(<MonthlyGamesPanel badges={badges} hasProfile={hasProfile} profilePoints={profilePoints} />, host)
+  return createPortal(<MonthlyGamesPanel badges={badges} hasProfile={hasProfile} />, host)
 }

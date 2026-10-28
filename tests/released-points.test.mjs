@@ -80,6 +80,12 @@ test("English and Vietnamese panels render matching localized point summaries", 
     assert.ok(html.includes(catalog.additional["__releasedPoints:skillCoverage"]))
     assert.ok(html.includes('<dd>2</dd>'))
     assert.ok(html.includes('value="1"'))
+    stateIndex = 0
+    const embeddedHtml = renderToStaticMarkup(React.createElement(module.exports.default, { embedded: true, badges: [], hasProfile: true, catalog, locale, nowMs: now, profilePoints: profilePointSummary(scoredProfile, 35) }))
+    assert.ok(embeddedHtml.includes('is-embedded'))
+    assert.ok(!embeddedHtml.includes('<strong>128</strong>'))
+    assert.ok(!embeddedHtml.includes('released-profile-stats'))
+    assert.ok(!embeddedHtml.includes('aria-labelledby="released-points-title"'))
     failedState = true
     stateIndex = 0
     const errorHtml = renderToStaticMarkup(React.createElement(module.exports.default, { badges: [], hasProfile: true, catalog, locale, nowMs: now, profilePoints: profilePointSummary(scoredProfile, 35) }))
@@ -140,4 +146,13 @@ test("profile analysis includes API skill points and adds only the applied bonus
   assert.equal(profilePointSummary({ arcadePoints: { skillPoints: 0 } }, 0).skills, 0)
   assert.equal(profilePointSummary({}, 35).total, null)
   assert.equal(profilePointSummary(null, 35), null)
+})
+
+test("history belongs inside the existing point card and is absent from monthly labs", () => {
+  const calculator = readRepoFile("app/redesign-calculator.tsx")
+  const card = calculator.slice(calculator.indexOf('<article className="dashboard-panel breakdown-panel">'), calculator.indexOf('<article className="dashboard-panel tier-status-panel">'))
+  assert.match(card, /<details className="breakdown-history-disclosure">/)
+  assert.match(card, /<ReleasedPointsPanel\s+embedded/)
+  assert.doesNotMatch(readRepoFile("components/arcade/monthly-games-panel.tsx"), /ReleasedPointsPanel/)
+  assert.doesNotMatch(card, /<details[^>]*\bopen(?:[\s=>])/)
 })

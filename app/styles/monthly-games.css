@@ -66,3 +66,14 @@
   .released-history-values dt { font-size: .58rem; }
   .released-detail-stats { display: grid; gap: 6px; }
 }
+
+.breakdown-history-disclosure { margin-top: 12px; border-top: 1px solid rgba(148,163,184,.14); padding-top: 10px; }
+.breakdown-history-disclosure>summary { width: fit-content; color: #c4b5fd; font-size: .68rem; font-weight: 650; cursor: pointer; }
+.breakdown-history-disclosure>summary:focus-visible { outline: 2px solid #a78bfa; outline-offset: 4px; }
+.breakdown-history-disclosure .released-points-panel.is-embedded { margin: 10px 0 0; padding: 0; border: 0; border-radius: 0; background: transparent; }
+.breakdown-history-disclosure .released-history-line { flex-wrap: wrap; gap: 6px 10px; }
+.breakdown-history-disclosure .released-history-line h4 { display: none; }
+.breakdown-history-disclosure .released-history-values { width: 100%; justify-content: space-between; flex-wrap: wrap; gap: 6px; }
+.breakdown-history-disclosure .released-points-percent { margin-inline-start: auto; }
+.breakdown-history-disclosure .released-detail-stats { display: grid; gap: 6px; }
+.light .breakdown-history-disclosure>summary { color: #6d28d9; }

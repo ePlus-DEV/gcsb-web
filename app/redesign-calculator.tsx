@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import ReleasedPointsPanel from "@/components/arcade/released-points-panel"
 import DashboardTiers from "@/components/arcade/dashboard-tiers"
 import GuestDashboard from "@/components/arcade/guest-dashboard"
 import PreviewModeToolbar from "@/components/arcade/preview-mode-toolbar"
@@ -226,6 +227,11 @@ export default function RedesignCalculator({
   // homepage can also be translated in place from the user's stored/browser
   // language, however. Keep this React-controlled modal synchronized with
   // the global language selector rather than freezing it to English SSR props.
+  const [analysisNowMs, setAnalysisNowMs] = useState(() => Date.now())
+  useEffect(() => {
+    const timer = window.setInterval(() => setAnalysisNowMs(Date.now()), 60_000)
+    return () => window.clearInterval(timer)
+  }, [])
   const [activeHistoryLanguage, setActiveHistoryLanguage] = useState({
     locale: historyLocale,
     catalog: historyCatalog,
@@ -857,6 +863,17 @@ export default function RedesignCalculator({
                     ? "All eligible returned badges were classified."
                     : `${unknownBadgeCount} badge(s) still need scoring review.`}
               </p>
+              <details className="breakdown-history-disclosure">
+                <summary>{activeHistoryLanguage.catalog.additional["__releasedPoints:title"]?.replace("{year}", new Intl.DateTimeFormat(activeHistoryLanguage.locale.replace("_", "-"), { year: "numeric", timeZone: "Asia/Kolkata" }).format(analysisNowMs))}</summary>
+                <ReleasedPointsPanel
+                  embedded
+                  badges={badges}
+                  hasProfile={Boolean(result)}
+                  catalog={activeHistoryLanguage.catalog}
+                  locale={activeHistoryLanguage.locale.replace("_", "-")}
+                  nowMs={analysisNowMs}
+                />
+              </details>
             </article>
 
             <article className="dashboard-panel tier-status-panel">

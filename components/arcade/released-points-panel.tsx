@@ -7,7 +7,8 @@ import type { ArcadeBadge } from "./model"
 import type { ProfilePointSummary } from "./profile-point-summary"
 import { parseReleasedGames, summarizeReleasedPoints, type ReleasedGame } from "./released-points"
 
-export default function ReleasedPointsPanel({ badges, hasProfile, catalog, locale, nowMs, profilePoints }: {
+export default function ReleasedPointsPanel({ badges, hasProfile, catalog, locale, nowMs, profilePoints, embedded = false }: {
+  embedded?: boolean
   profilePoints?: ProfilePointSummary | null
   badges: ArcadeBadge[]; hasProfile: boolean; catalog: WebsiteCatalog; locale: string; nowMs: number
 }) {
@@ -42,12 +43,12 @@ export default function ReleasedPointsPanel({ badges, hasProfile, catalog, local
 
   const summary = games ? summarizeReleasedPoints(games, badges, nowMs) : null
   const number = (value: number | null) => value === null ? "—" : new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(value)
-  return <section className="released-points-panel" aria-labelledby="released-points-title" aria-busy={!summary && !failed}>
-    <div className="released-points-heading">
+  return <section className={embedded ? "released-points-panel is-embedded" : "released-points-panel"} aria-labelledby={embedded ? undefined : "released-points-title"} aria-label={embedded ? text("title", { year: String(year) }) : undefined} aria-busy={!summary && !failed}>
+    {!embedded && <div className="released-points-heading">
       <div className="released-points-heading-title"><span className="released-points-emblem" aria-hidden="true"><Trophy /></span><h3 id="released-points-title">{text("overviewTitle", { year: String(year) })}</h3></div>
       {hasProfile && profilePoints && <div className="released-profile-total"><span>{catalog.messages.totalArcadePoints}</span><strong>{number(profilePoints.total)}</strong></div>}
-    </div>
-    {hasProfile && profilePoints && <dl className="released-profile-stats">
+    </div>}
+    {!embedded && hasProfile && profilePoints && <dl className="released-profile-stats">
       <div><dt>{catalog.messages.gameBadges}</dt><dd>{number(profilePoints.games)}</dd></div>
       <div className="is-skill"><dt>{catalog.messages.skillBadges}</dt><dd>{number(profilePoints.skills)}</dd></div>
       <div><dt>{catalog.messages.triviaSpecial}</dt><dd>{number(profilePoints.triviaSpecial)}</dd></div>
