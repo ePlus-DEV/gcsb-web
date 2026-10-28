@@ -37,3 +37,36 @@ test("countdown and profile options use locale catalogs rather than embedded lan
   const calculator = readRepoFile("app/redesign-calculator.tsx")
   assert.doesNotMatch(calculator, /badge\{filteredBadges|<b>\+\{formatNumber/)
 })
+
+test("profile dashboard headings, filters and goal states use all locale catalogs", () => {
+  const dashboard = readRepoFile("app/redesign-calculator.tsx")
+  const required = [
+    "profileSummary", "publicProfile", "arcadePoints", "scoreTier", "eligibility",
+    "eligibleByPoints", "notYetEligible", "noTierYet", "earnedBadges",
+    "filterBadges", "all", "game", "skill", "trivia", "special", "specialScoring",
+    "recentlyEarned", "scoreConfidence", "nextGoal", "allocationMessage",
+    "unofficial", "calculator", "tiers", "extension"
+  ]
+  for (const [locale, catalog] of Object.entries(catalogs)) {
+    for (const key of required) assert.ok(catalog.messages[key], `${locale} missing ${key}`)
+    for (const key of ["memberSince", "badgesInView", "viewAllBadges", "pointsToTrooper", "unknownBadges"]) {
+      assert.ok(catalog.dynamic[key], `${locale} missing dynamic.${key}`)
+    }
+  }
+  for (const literal of [
+    "<PanelTitle>Profile summary</PanelTitle>",
+    "<PanelTitle>Point eligibility · Arcade 2026</PanelTitle>",
+    "<PanelTitle>Earned badges</PanelTitle>",
+    "<PanelTitle>Recently earned</PanelTitle>",
+    "<PanelTitle>Score confidence</PanelTitle>",
+    "<PanelTitle>Next score goal</PanelTitle>",
+    'aria-label="Filter badges"',
+    '{item.label}\n                    </button>',
+    'No badges returned in this category',
+    '<span>Calculator</span>',
+    '<span>Extension</span>'
+  ]) assert.ok(!dashboard.includes(literal), `Hardcoded dashboard copy: ${literal}`)
+  assert.match(dashboard, /scoreCatalog\.messages\[item\.value\]/)
+  assert.match(dashboard, /safeDateLabel\(badge\.dateEarned, scoreLocale\)/)
+  assert.match(dashboard, /scoreCatalog\.dynamic\.memberSince/)
+})
