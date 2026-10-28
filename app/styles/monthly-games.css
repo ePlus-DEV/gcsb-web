@@ -78,30 +78,48 @@
 .breakdown-history-disclosure .released-detail-stats { display: grid; gap: 6px; }
 .light .breakdown-history-disclosure>summary { color: #6d28d9; }
 
-/* Keep the comparison compact even inside the desktop three-card grid. */
-.point-comparison { margin-top: 12px; color: var(--arcade-muted); font-size: .72rem; }
-.point-comparison table { font: inherit; color: inherit; width: 100%; border-collapse: collapse; table-layout: fixed; }
-.point-comparison th, .point-comparison td { padding: 8px 4px; border-bottom: 1px solid rgba(148,163,184,.14); text-align: end; overflow-wrap: anywhere; line-height: 1.45; }
-.point-comparison th:first-child { width: 44%; padding-inline-start: 0; text-align: start; }
-.point-comparison th:nth-child(2) { width: 20%; }
-.point-comparison thead th { font-size: .62rem; font-weight: 500; vertical-align: bottom; }
-.point-comparison tbody th { font-weight: 500; }
-.point-comparison tbody td:first-of-type { color: var(--arcade-text, #edf2ff); font-weight: 750; font-variant-numeric: tabular-nums; }
-.point-comparison tbody td:last-child { font-size: .67rem; }
-.point-comparison p { font-size: .65rem; line-height: 1.55; margin: 8px 0 0; }
-.point-comparison-details { margin-top: 4px; font-size: .65rem; }
-.point-comparison-details summary { cursor: pointer; padding-block: 10px; }
-.point-comparison-details dl { display: flex; flex-wrap: wrap; gap: 8px 16px; }
-.point-comparison-details dl div { display: flex; gap: 8px; }
-.point-comparison-details dd { margin: 0; font-weight: 700; }
+/* Compact point composition: categories align with the existing color bar. */
+.point-compact-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; margin-top: 12px; }
+.point-compact-item { min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: 7px; padding: 9px 10px; border: 1px solid rgba(148,163,184,.14); border-radius: 9px; background: rgba(9,16,33,.36); }
+.point-compact-name { min-width: 0; display: flex; align-items: center; gap: 7px; color: var(--arcade-muted); font-size: .73rem; line-height: 1.35; font-weight: 550; overflow-wrap: anywhere; }
+.point-compact-icon { flex: 0 0 17px; display: inline-flex; align-items: center; justify-content: center; color: #a78bfa; }
+.point-compact-icon svg { width: 15px; height: 15px; }
+.point-compact-item.point-tone-blue .point-compact-icon { color: #38bdf8; }
+.point-compact-item.point-tone-orange .point-compact-icon { color: #fb923c; }
+.point-compact-item.point-tone-violet .point-compact-icon { color: #d946ef; }
+.point-compact-item strong { flex: 0 0 auto; font-size: .89rem; line-height: 1.2; color: var(--arcade-text, #edf2ff); font-variant-numeric: tabular-nums; }
+.light .point-compact-item { background: rgba(248,250,252,.76); border-color: rgba(100,116,139,.2); }
+.light .point-compact-item strong { color: #172033; }
+.light .point-compact-item.point-tone-purple .point-compact-icon { color: #6d28d9; }
+.light .point-compact-item.point-tone-blue .point-compact-icon { color: #0284c7; }
+.light .point-compact-item.point-tone-orange .point-compact-icon { color: #c2410c; }
+.light .point-compact-item.point-tone-violet .point-compact-icon { color: #a21caf; }
+
+/* Published history is separate from profile category totals: scopes must not be mixed. */
+.point-comparison { margin-top: 9px; border-top: 1px solid rgba(148,163,184,.16); padding-top: 7px; color: var(--arcade-muted); font-size: .73rem; }
+.point-comparison-details > summary { display: flex; align-items: center; justify-content: space-between; gap: 8px; cursor: pointer; padding: 8px 0; list-style: none; line-height: 1.45; }
+.point-comparison-details > summary::-webkit-details-marker { display: none; }
+.point-comparison-details > summary::after { content: "⌄"; flex: 0 0 auto; font-size: 1rem; line-height: 1; color: #a78bfa; transition: transform .15s ease; }
+.point-comparison-details[open] > summary::after { transform: rotate(180deg); }
+.point-comparison-heading { min-width: 0; flex: 1 1 auto; font-weight: 650; color: var(--arcade-text, #edf2ff); }
+.point-comparison-count { flex: 0 1 auto; font-size: .68rem; text-align: end; color: var(--arcade-muted); }
+.point-comparison-count strong { font-size: .82rem; color: var(--arcade-text, #edf2ff); font-variant-numeric: tabular-nums; }
+.point-comparison-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 9px 0; }
+.point-comparison-stats > div { min-width: 0; border: 1px solid rgba(148,163,184,.16); border-radius: 8px; padding: 9px; background: rgba(9,16,33,.24); }
+.point-comparison-stats dt { font-size: .7rem; color: var(--arcade-muted); line-height: 1.35; }
+.point-comparison-stats dd { margin: 5px 0 0; font-size: 1rem; font-weight: 750; color: var(--arcade-text, #edf2ff); font-variant-numeric: tabular-nums; }
+.point-comparison-extra { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 10px 0; }
+.point-comparison-extra > div { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; min-width: 0; }
+.point-comparison-extra dt { font-size: .7rem; }
+.point-comparison-extra dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; }
+.point-comparison p { font-size: .7rem; line-height: 1.5; margin: 8px 0; }
 .point-comparison button { min-height: 44px; padding: 6px 12px; background: transparent; color: inherit; border: 1px solid currentColor; border-radius: 6px; }
 .point-comparison summary:focus-visible, .point-comparison button:focus-visible { outline: 2px solid #a78bfa; outline-offset: 3px; }
-.light .point-comparison tbody td:first-of-type { color: #172033; }
-
-.point-comparison-label { display: flex; align-items: baseline; gap: 6px; }
-.point-comparison-label i { flex: 0 0 5px; width: 5px; height: 5px; border-radius: 50%; background: #a78bfa; }
-.point-comparison-label.tone-skills i { background: #22d3ee; }
-.point-comparison-label.tone-bonus i { background: #d946ef; }
-.light .point-comparison-label.tone-games i { background: #7c3aed; }
-.light .point-comparison-label.tone-skills i { background: #0891b2; }
-.light .point-comparison-label.tone-bonus i { background: #a21caf; }
+.light .point-comparison-heading, .light .point-comparison-count strong, .light .point-comparison-stats dd { color: #172033; }
+.light .point-comparison-stats > div { background: #f8fafc; border-color: #e2e8f0; }
+@media(max-width: 680px) {
+  .point-compact-list { grid-template-columns: 1fr; gap: 5px; }
+  .point-compact-item { padding: 7px 9px; }
+  .point-comparison-stats { gap: 6px; }
+  .point-comparison-details > summary { flex-wrap: wrap; }
+}
