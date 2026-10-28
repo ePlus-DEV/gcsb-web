@@ -1,8 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import { profilePointSummary } from "@/components/arcade/profile-point-summary"
-import ReleasedPointsPanel from "@/components/arcade/released-points-panel"
 import DashboardTiers from "@/components/arcade/dashboard-tiers"
 import GuestDashboard from "@/components/arcade/guest-dashboard"
 import PreviewModeToolbar from "@/components/arcade/preview-mode-toolbar"
@@ -90,13 +88,13 @@ function getQualifiedMilestone(
   return [...milestones].reverse().find((tier) => points >= tier.points) ?? null
 }
 
-function safeDateLabel(value?: string, locale = "en"): string {
+function safeDateLabel(value?: string): string {
   if (!value) return "Earned badge"
 
   const parsed = new Date(value)
   if (Number.isNaN(parsed.getTime())) return value
 
-  return new Intl.DateTimeFormat(locale, {
+  return new Intl.DateTimeFormat("en", {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -228,11 +226,6 @@ export default function RedesignCalculator({
   // homepage can also be translated in place from the user's stored/browser
   // language, however. Keep this React-controlled modal synchronized with
   // the global language selector rather than freezing it to English SSR props.
-  const [analysisNowMs, setAnalysisNowMs] = useState(() => Date.now())
-  useEffect(() => {
-    const timer = window.setInterval(() => setAnalysisNowMs(Date.now()), 60_000)
-    return () => window.clearInterval(timer)
-  }, [])
   const [activeHistoryLanguage, setActiveHistoryLanguage] = useState({
     locale: historyLocale,
     catalog: historyCatalog,
@@ -469,29 +462,24 @@ export default function RedesignCalculator({
   const unknownBadges = result?.beta?.unknownBadges ?? []
   const isTierQualified = scoreComplete && Boolean(qualifiedMilestone)
 
-  const scoreCatalog = activeHistoryLanguage.catalog
-  const scoreLocale = activeHistoryLanguage.locale.replace("_", "-")
-  const scoreText = (key: string, params: Record<string, string>) =>
-    scoreCatalog.additional[`__score:${key}`].replace(/\{(\w+)\}/g, (token, name: string) => params[name] ?? token)
-  const scoreNumber = (value: number) => new Intl.NumberFormat(scoreLocale).format(value)
   const pointBreakdown = [
     {
       key: "game",
-      label: scoreCatalog.messages.gameBadges,
+      label: "Game badges",
       icon: <Gamepad2 />,
       value: numeric(result?.arcadePoints?.gamePoints),
       tone: "purple",
     },
     {
       key: "skill",
-      label: scoreCatalog.messages.skillBadges,
+      label: "Skill badges",
       icon: <BadgeCheck />,
       value: numeric(result?.arcadePoints?.skillPoints),
       tone: "blue",
     },
     {
       key: "bonus",
-      label: scoreCatalog.messages.triviaSpecial,
+      label: "Trivia & special",
       icon: <Star />,
       value:
         numeric(result?.arcadePoints?.triviaPoints) +
@@ -503,7 +491,7 @@ export default function RedesignCalculator({
       ? [
           {
             key: "facilitator",
-            label: scoreCatalog.messages.facilitatorBonus,
+            label: "Facilitator bonus",
             icon: <GraduationCap />,
             value: facilitatorBonus,
             tone: "violet",
@@ -802,34 +790,36 @@ export default function RedesignCalculator({
         <section className="dashboard-shell" aria-label="Arcade profile results" data-home-order="dashboard-results">
           <div className="dashboard-summary-grid" data-home-order="dashboard-summary">
             <article className="dashboard-panel profile-panel">
-              <PanelTitle>{scoreCatalog.messages.profileSummary}</PanelTitle>
+              <PanelTitle>Profile summary</PanelTitle>
               <div className="profile-overview">
                 <div className="profile-photo">
                   <SafeRemoteImage
                     src={profileImage}
-                    alt={scoreCatalog.dynamic.profile.replace("{value}", profileName)}
+                    alt={`${profileName} profile`}
                     fallback={<span>{profileName.slice(0, 1).toUpperCase()}</span>}
                   />
                 </div>
                 <div className="profile-name-block">
                   <h2>{profileName}<BadgeCheck /></h2>
-                  <p>{memberSince ? scoreCatalog.dynamic.memberSince.replace("{value}", memberSince) : scoreCatalog.messages.publicProfile}</p>
+                  <p>{memberSince ? `Member since ${memberSince}` : "Public Google Skills profile"}</p>
                 </div>
               </div>
               <div className="profile-stat-grid">
-                <Stat value={scoreNumber(badges.length)} label={scoreCatalog.messages.badges} icon={<BadgeCheck />} />
-                <Stat value={scoreNumber(points)} label={scoreCatalog.messages.arcadePoints} icon={<Sparkles />} />
-                <Stat value={qualifiedMilestone?.league.replace("Arcade ", "") ?? "—"} label={scoreCatalog.messages.scoreTier} icon={<Trophy />} />
+                <Stat value={String(badges.length)} label="Badges" icon={<BadgeCheck />} />
+                <Stat value={formatNumber(points)} label="Arcade points" icon={<Sparkles />} />
+                <Stat value={qualifiedMilestone?.league.replace("Arcade ", "") ?? "—"} label="Score tier" icon={<Trophy />} />
               </div>
             </article>
 
             <article className="dashboard-panel breakdown-panel">
-              <PanelTitle>{scoreCatalog.messages.pointBreakdown}</PanelTitle>
-              <div className="points-total"><strong>{formatNumber(points)}</strong><span>{scoreCatalog.messages.totalArcadePoints}</span></div>
+              <PanelTitle>Point breakdown</PanelTitle>
+              <div className="points-total"><strong>{formatNumber(points)}</strong><span>Total Arcade points</span></div>
               <div
                 className="point-composition-bar"
                 role="img"
-                aria-label={scoreText("distribution", { items: pointBreakdown.map((item) => `${item.label}: ${scoreNumber(item.value)}`).join(", ") })}
+                aria-label={`Point distribution: ${pointBreakdown
+                  .map((item) => `${item.label} ${formatNumber(item.value)} points`)
+                  .join(", ")}`}
               >
                 {pointBreakdown.map((item) => {
                   const share =
@@ -842,80 +832,71 @@ export default function RedesignCalculator({
                       key={item.key}
                       className={`point-composition-segment point-tone-${item.tone}`}
                       style={{ width: `${share}%` }}
-                      title={scoreText("segment", { label: item.label, value: scoreNumber(item.value), percent: new Intl.NumberFormat(scoreLocale, { style: "percent", maximumFractionDigits: 1 }).format(share / 100) })}
+                      title={`${item.label}: ${formatNumber(item.value)} pts (${share.toFixed(1)}%)`}
                       aria-hidden="true"
                     />
                   )
                 })}
               </div>
-              <div className="point-compact-list" role="list" aria-label={scoreCatalog.messages.pointBreakdown}>
+              <div className="point-breakdown-list">
                 {pointBreakdown.map((item) => (
-                  <div key={item.key} className={`point-compact-item point-tone-${item.tone}`} role="listitem">
-                    <span className="point-compact-name">
-                      <span className="point-compact-icon" aria-hidden="true">{item.icon}</span>
-                      <span>{item.label}</span>
-                    </span>
-                    <strong>{scoreNumber(item.value)}</strong>
-                  </div>
+                  <PointRow
+                    key={item.key}
+                    icon={item.icon}
+                    label={item.label}
+                    value={item.value}
+                    total={points}
+                    tone={item.tone}
+                  />
                 ))}
               </div>
-              <ReleasedPointsPanel
-                embedded
-                badges={badges}
-                hasProfile={Boolean(result)}
-                profilePoints={profilePointSummary(result, facilitatorBonus)}
-                catalog={activeHistoryLanguage.catalog}
-                locale={activeHistoryLanguage.locale.replace("_", "-")}
-                nowMs={analysisNowMs}
-              />
               <p className="panel-link-note">
                 {facilitatorBonus > 0
-                  ? scoreText("bonusIncluded", { bonus: scoreNumber(facilitatorBonus) })
+                  ? `Includes +${formatNumber(facilitatorBonus)} Facilitator bonus.`
                   : scoreComplete
-                    ? scoreCatalog.messages.allBadgesClassified
-                    : scoreCatalog.dynamic.needReview.replace("{count}", scoreNumber(unknownBadgeCount))}
+                    ? "All eligible returned badges were classified."
+                    : `${unknownBadgeCount} badge(s) still need scoring review.`}
               </p>
-
             </article>
 
             <article className="dashboard-panel tier-status-panel">
               <div className="panel-title-row">
-                <PanelTitle>{scoreCatalog.messages.eligibility}</PanelTitle>
+                <PanelTitle>Point eligibility · Arcade 2026</PanelTitle>
                 <span className={isTierQualified ? "score-state is-qualified" : "score-state"}>
-                  {isTierQualified ? scoreCatalog.messages.eligibleByPoints : scoreCatalog.messages.notYetEligible}
+                  {isTierQualified ? "Eligible by points" : "Not yet eligible"}
                 </span>
               </div>
               <div className="tier-status-main">
                 <span className="tier-trophy"><Trophy /></span>
                 <div>
-                  <strong>{qualifiedMilestone?.league.replace("Arcade ", "") ?? scoreCatalog.messages.noTierYet}</strong>
-                  <span>{qualifiedMilestone ? tierRangeLabel(qualifiedMilestone) : scoreCatalog.dynamic.pointsToTrooper.replace("{count}", scoreNumber(pointsToNextTier))}</span>
+                  <strong>{qualifiedMilestone?.league.replace("Arcade ", "") ?? "NO TIER YET"}</strong>
+                  <span>{qualifiedMilestone ? tierRangeLabel(qualifiedMilestone) : `${pointsToNextTier} points to Trooper`}</span>
                 </div>
               </div>
               {qualifiedMilestone && (
-                <div className="tier-availability-grid" aria-label={scoreCatalog.messages.totalTierCapacity}>
+                <div className="tier-availability-grid" aria-label="Tier slot availability">
                   <div>
                     <span className="tier-availability-icon" aria-hidden="true"><Users /></span>
-                    <span>{scoreCatalog.messages.totalTierCapacity}</span>
+                    <span>Total tier capacity</span>
                     <strong>{formatInteger(qualifiedMilestone.slots)}</strong>
                   </div>
                   <div>
                     <span className="tier-availability-icon" aria-hidden="true"><BadgeCheck /></span>
-                    <span>{scoreCatalog.messages.spotsLeft}</span>
+                    <span>Spots currently left</span>
                     <strong>
                       {qualifiedMilestone.spotsLeft === null
-                        ? scoreCatalog.messages.unavailable
+                        ? "Unavailable"
                         : formatInteger(qualifiedMilestone.spotsLeft)}
                     </strong>
                   </div>
                 </div>
               )}
               <dl className="allocation-row">
-                <dt>{scoreCatalog.messages.queuePosition}</dt>
-                <dd>{scoreCatalog.messages.notAvailable} <CircleHelp /></dd>
+                <dt>Your queue position</dt>
+                <dd>Not available <CircleHelp /></dd>
               </dl>
               <p className="allocation-message">
-                {scoreCatalog.messages.allocationMessage}
+                Point eligibility and remaining spots are different. Remaining slot counts are updated automatically from the latest available data, but Google does not expose whether your profile is ahead of other eligible users.
               </p>
             </article>
           </div>
@@ -924,10 +905,10 @@ export default function RedesignCalculator({
             <article id="badges" className="dashboard-panel badges-panel">
               <div className="badge-heading-row">
                 <div>
-                  <PanelTitle>{scoreCatalog.messages.earnedBadges}</PanelTitle>
-                  <p>{scoreCatalog.dynamic.badgesInView.replace("{count}", scoreNumber(filteredBadges.length))}</p>
+                  <PanelTitle>Earned badges</PanelTitle>
+                  <p>{filteredBadges.length} badge{filteredBadges.length === 1 ? "" : "s"} in this view</p>
                 </div>
-                <div className="badge-filters" role="group" aria-label={scoreCatalog.messages.filterBadges}>
+                <div className="badge-filters" role="group" aria-label="Filter badges">
                   {FILTERS.map((item) => (
                     <button
                       type="button"
@@ -939,7 +920,7 @@ export default function RedesignCalculator({
                         setShowAllBadges(false)
                       }}
                     >
-                      {scoreCatalog.messages[item.value]}
+                      {item.label}
                     </button>
                   ))}
                 </div>
@@ -960,13 +941,13 @@ export default function RedesignCalculator({
                       <h3>{badge.title}</h3>
                       <p>
                         {badge.points === "-*"
-                          ? scoreCatalog.messages.specialScoring
-                          : scoreCatalog.dynamic.points.replace("{count}", scoreNumber(numeric(badge.points)))}
+                          ? "Special scoring rule"
+                          : `+${formatNumber(numeric(badge.points))} pts`}
                       </p>
-                      <time>{safeDateLabel(badge.dateEarned, scoreLocale)}</time>
+                      <time>{safeDateLabel(badge.dateEarned)}</time>
                       <SafeExternalLink
                         href={badge.badgeURL}
-                        ariaLabel={scoreCatalog.dynamic.open.replace("{value}", badge.title)}
+                        ariaLabel={`Open ${badge.title}`}
                       >
                         <ExternalLink />
                       </SafeExternalLink>
@@ -976,14 +957,14 @@ export default function RedesignCalculator({
               ) : (
                 <div className="empty-badge-state">
                   <BadgeCheck />
-                  <strong>{scoreCatalog.messages.noBadges}</strong>
-                  <span>{scoreCatalog.messages.chooseFilter}</span>
+                  <strong>No badges returned in this category</strong>
+                  <span>Choose another filter or analyze a different public profile.</span>
                 </div>
               )}
 
               {filteredBadges.length > BADGE_PREVIEW_LIMIT && (
                 <button className="show-all-badges" type="button" onClick={() => setShowAllBadges((open) => !open)}>
-                  {showAllBadges ? scoreCatalog.messages.showFewer : scoreCatalog.dynamic.viewAllBadges.replace("{count}", scoreNumber(filteredBadges.length))}
+                  {showAllBadges ? "Show fewer badges" : `View all ${filteredBadges.length} badges`}
                 </button>
               )}
             </article>
@@ -1002,7 +983,7 @@ export default function RedesignCalculator({
 
           <div className="dashboard-bottom-grid" data-home-order="dashboard-bottom">
             <article className="dashboard-panel compact-panel">
-              <div className="compact-heading"><PanelTitle>{scoreCatalog.messages.recentlyEarned}</PanelTitle><span>{recentBadges.length || "—"}</span></div>
+              <div className="compact-heading"><PanelTitle>Recently earned</PanelTitle><span>{recentBadges.length || "—"}</span></div>
               {recentBadges.length > 0 ? (
                 <div className="compact-list">
                   {recentBadges.map((badge, index) => (
@@ -1016,24 +997,24 @@ export default function RedesignCalculator({
                         />
                       </span>
                       <strong>{badge.title}</strong>
-                      <b>{scoreCatalog.dynamic.points.replace("{count}", scoreNumber(numeric(badge.points)))}</b>
+                      <b>+{formatNumber(numeric(badge.points))} pts</b>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="compact-empty">{scoreCatalog.messages.noEarnedDates}</p>
+                <p className="compact-empty">No earned dates were returned by this profile.</p>
               )}
             </article>
 
             <article className="dashboard-panel compact-panel">
-              <div className="compact-heading"><PanelTitle>{scoreCatalog.messages.scoreConfidence}</PanelTitle><span>{scoreComplete ? scoreCatalog.messages.complete : scoreCatalog.messages.review}</span></div>
+              <div className="compact-heading"><PanelTitle>Score confidence</PanelTitle><span>{scoreComplete ? "Complete" : "Review"}</span></div>
               <div className="confidence-summary">
                 <span className={scoreComplete ? "confidence-ring is-complete" : "confidence-ring"}>
                   {scoreComplete ? <ShieldCheck /> : <CircleHelp />}
                 </span>
                 <div>
-                  <strong>{scoreComplete ? scoreCatalog.messages.allKnownClassified : scoreCatalog.dynamic.unknownBadges.replace("{count}", scoreNumber(unknownBadgeCount))}</strong>
-                  <p>{scoreComplete ? scoreCatalog.messages.scoreComplete : scoreCatalog.messages.unknownShown}</p>
+                  <strong>{scoreComplete ? "All known badges classified" : `${unknownBadgeCount} unknown badge(s)`}</strong>
+                  <p>{scoreComplete ? "The score is complete for the current badge index." : "These badges are shown instead of being silently ignored."}</p>
                 </div>
               </div>
               {unknownBadges.length > 0 && (
@@ -1044,15 +1025,15 @@ export default function RedesignCalculator({
             </article>
 
             <article className="dashboard-panel compact-panel next-goal-panel">
-              <div className="compact-heading"><PanelTitle>{scoreCatalog.messages.nextGoal}</PanelTitle><span>{nextMilestone.league.replace("Arcade ", "")}</span></div>
+              <div className="compact-heading"><PanelTitle>Next score goal</PanelTitle><span>{nextMilestone.league.replace("Arcade ", "")}</span></div>
               <div className="next-goal-value">
-                <strong>{hasReachedMaxTier ? scoreCatalog.messages.max : scoreNumber(pointsToNextTier)}</strong>
-                <span>{hasReachedMaxTier ? scoreCatalog.messages.topTierReached : scoreCatalog.messages.morePointsNeeded}</span>
+                <strong>{hasReachedMaxTier ? "MAX" : formatNumber(pointsToNextTier)}</strong>
+                <span>{hasReachedMaxTier ? "Top score tier reached" : "more points needed"}</span>
               </div>
               <div
                 className="goal-progress"
                 role="progressbar"
-                aria-label={hasReachedMaxTier ? scoreCatalog.messages.topTierReached : scoreCatalog.dynamic.progressToward.replace("{value}", nextMilestone.league)}
+                aria-label={hasReachedMaxTier ? "Maximum score tier reached" : `Progress toward ${nextMilestone.league}`}
                 aria-valuemin={goalStartPoints}
                 aria-valuemax={hasReachedMaxTier ? maxTierPoints : nextMilestone.points}
                 aria-valuenow={hasReachedMaxTier ? maxTierPoints : Math.min(Math.max(points, goalStartPoints), nextMilestone.points)}
@@ -1082,21 +1063,21 @@ export default function RedesignCalculator({
           <span className="arcade-brand-mark"><Gamepad2 /></span>
           <span className="arcade-brand-copy"><strong>ARCADE</strong><b>POINTS</b></span>
         </div>
-        <p>{scoreCatalog.messages.unofficial}</p>
+        <p>Unofficial community calculator by ePlus.DEV. Google remains the authority for final scores and rewards.</p>
         <nav className="footer-route-links" aria-label="Site information">
-          <Link href="/about/">{scoreCatalog.messages.about}</Link>
-          <Link href="/guide/">{scoreCatalog.messages.guide}</Link>
-          <Link href="/swag-drops/">{scoreCatalog.additional["__score:swagArchive"]}</Link>
-          <Link href="/privacy/">{scoreCatalog.messages.privacy}</Link>
-          <Link href="/terms/">{scoreCatalog.messages.terms}</Link>
+          <Link href="/about/">About</Link>
+          <Link href="/guide/">Guide</Link>
+          <Link href="/swag-drops/">Swag archive</Link>
+          <Link href="/privacy/">Privacy</Link>
+          <Link href="/terms/">Terms</Link>
         </nav>
       </footer>
 
-      <nav className="mobile-bottom-nav" aria-label={scoreCatalog.messages.mobileNavigation}>
-        <a href="#calculator"><Search /><span>{scoreCatalog.messages.calculator}</span></a>
-        <a href="#tiers"><Trophy /><span>{scoreCatalog.messages.tiers}</span></a>
+      <nav className="mobile-bottom-nav" aria-label="Mobile navigation">
+        <a href="#calculator"><Search /><span>Calculator</span></a>
+        <a href="#tiers"><Trophy /><span>Tiers</span></a>
         <a href={viewMode === "guest" ? "#monthly-games" : "#badges"}>{viewMode === "guest" ? <Gamepad2 /> : <BadgeCheck />}<span>{viewMode === "guest" ? activeHistoryLanguage.catalog.messages.guestLabsLabel : activeHistoryLanguage.catalog.messages.badges}</span></a>
-        <a href="#extension"><Chrome /><span>{scoreCatalog.messages.extension}</span></a>
+        <a href="#extension"><Chrome /><span>Extension</span></a>
       </nav>
     </main>
   )

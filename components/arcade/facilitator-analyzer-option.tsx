@@ -1,7 +1,5 @@
 "use client"
 
-import { getWebsiteLocale, loadWebsiteCatalog, type WebsiteCatalog } from "@/lib/website-i18n"
-
 import { GraduationCap, RefreshCcw } from "lucide-react"
 import { createPortal } from "react-dom"
 import { useEffect, useMemo, useRef, useState } from "react"
@@ -34,6 +32,99 @@ type Copy = {
   autoFetchDescription: string
 }
 
+const COPY: Record<string, Copy> = {
+  en: {
+    participating: "Participating in Facilitator Program",
+    includeHighest: "Include the highest eligible Facilitator milestone bonus.",
+    pasteValid: "Paste a valid public profile URL to enable this option.",
+    autoFetch: "Automatically fetch latest data",
+    autoFetchDescription: "Refresh the saved profile once whenever this page is opened.",
+  },
+  vi: {
+    participating: "Đang tham gia Facilitator Program",
+    includeHighest: "Cộng phần thưởng của cột mốc Facilitator cao nhất đủ điều kiện.",
+    pasteValid: "Dán URL hồ sơ công khai hợp lệ để bật tùy chọn này.",
+    autoFetch: "Tự động lấy dữ liệu mới nhất",
+    autoFetchDescription: "Tự làm mới hồ sơ đã lưu một lần mỗi khi mở trang.",
+  },
+  ja: {
+    participating: "Facilitator Program に参加中",
+    includeHighest: "対象となる最高マイルストーンの Facilitator ボーナスを加算します。",
+    pasteValid: "有効な公開プロフィール URL を貼り付けると、この設定を有効にできます。",
+    autoFetch: "最新データを自動取得",
+    autoFetchDescription: "このページを開くたびに、保存済みプロフィールを一度更新します。",
+  },
+  ko: {
+    participating: "Facilitator Program 참여 중",
+    includeHighest: "조건을 충족한 가장 높은 Facilitator 마일스톤 보너스를 포함합니다.",
+    pasteValid: "유효한 공개 프로필 URL을 붙여넣어 이 옵션을 활성화하세요.",
+    autoFetch: "최신 데이터 자동 가져오기",
+    autoFetchDescription: "페이지를 열 때마다 저장된 프로필을 한 번 새로고침합니다.",
+  },
+  "zh-cn": {
+    participating: "正在参加 Facilitator Program",
+    includeHighest: "计入符合条件的最高 Facilitator 里程碑奖励。",
+    pasteValid: "粘贴有效的公开个人资料网址以启用此选项。",
+    autoFetch: "自动获取最新数据",
+    autoFetchDescription: "每次打开此页面时自动刷新一次已保存的个人资料。",
+  },
+  de: {
+    participating: "Teilnahme am Facilitator Program",
+    includeHighest: "Den höchsten berechtigten Facilitator-Meilensteinbonus einbeziehen.",
+    pasteValid: "Füge eine gültige öffentliche Profil-URL ein, um diese Option zu aktivieren.",
+    autoFetch: "Neueste Daten automatisch abrufen",
+    autoFetchDescription: "Das gespeicherte Profil beim Öffnen dieser Seite einmal aktualisieren.",
+  },
+  es: {
+    participating: "Participando en Facilitator Program",
+    includeHighest: "Incluye la bonificación del hito Facilitator más alto elegible.",
+    pasteValid: "Pega una URL de perfil público válida para activar esta opción.",
+    autoFetch: "Obtener automáticamente los datos más recientes",
+    autoFetchDescription: "Actualiza una vez el perfil guardado cada vez que se abre esta página.",
+  },
+  fr: {
+    participating: "Participation au Facilitator Program",
+    includeHighest: "Inclure le bonus du plus haut jalon Facilitator admissible.",
+    pasteValid: "Collez une URL de profil public valide pour activer cette option.",
+    autoFetch: "Récupérer automatiquement les dernières données",
+    autoFetchDescription: "Actualiser une fois le profil enregistré à chaque ouverture de cette page.",
+  },
+  it: {
+    participating: "Partecipazione al Facilitator Program",
+    includeHighest: "Include il bonus del traguardo Facilitator idoneo più alto.",
+    pasteValid: "Incolla un URL di profilo pubblico valido per abilitare questa opzione.",
+    autoFetch: "Recupera automaticamente i dati più recenti",
+    autoFetchDescription: "Aggiorna una volta il profilo salvato ogni volta che apri questa pagina.",
+  },
+  "pt-br": {
+    participating: "Participando do Facilitator Program",
+    includeHighest: "Inclui o bônus do maior marco Facilitator elegível.",
+    pasteValid: "Cole uma URL de perfil público válida para ativar esta opção.",
+    autoFetch: "Buscar automaticamente os dados mais recentes",
+    autoFetchDescription: "Atualiza uma vez o perfil salvo sempre que esta página for aberta.",
+  },
+  ru: {
+    participating: "Участие в Facilitator Program",
+    includeHighest: "Учитывать бонус самого высокого доступного этапа Facilitator.",
+    pasteValid: "Вставьте корректную ссылку на публичный профиль, чтобы включить эту настройку.",
+    autoFetch: "Автоматически получать свежие данные",
+    autoFetchDescription: "Обновлять сохранённый профиль один раз при каждом открытии страницы.",
+  },
+  hi: {
+    participating: "Facilitator Program में भाग ले रहे हैं",
+    includeHighest: "योग्य सबसे ऊँचे Facilitator milestone bonus को शामिल करें।",
+    pasteValid: "इस विकल्प को चालू करने के लिए मान्य public profile URL पेस्ट करें।",
+    autoFetch: "नवीनतम डेटा अपने आप प्राप्त करें",
+    autoFetchDescription: "हर बार यह पेज खुलने पर सहेजे गए प्रोफ़ाइल को एक बार रीफ़्रेश करें।",
+  },
+  ar: {
+    participating: "المشاركة في Facilitator Program",
+    includeHighest: "تضمين مكافأة أعلى مرحلة Facilitator مؤهلة.",
+    pasteValid: "ألصق رابط ملف شخصي عام صالحًا لتفعيل هذا الخيار.",
+    autoFetch: "جلب أحدث البيانات تلقائيًا",
+    autoFetchDescription: "تحديث الملف الشخصي المحفوظ مرة واحدة عند فتح هذه الصفحة.",
+  },
+}
 
 function normalizeLocale(value: string | null | undefined): string {
   const normalized = value?.trim().toLowerCase().replace("_", "-") ?? ""
@@ -131,13 +222,7 @@ export default function FacilitatorAnalyzerOption() {
   const [locale, setLocale] = useState("en")
   const autoFetchAttempted = useRef(false)
   const previousProfileUrl = useRef("")
-  const [catalog, setCatalog] = useState<WebsiteCatalog | null>(null)
-  const copy = Object.fromEntries(["participating", "includeHighest", "pasteValid", "autoFetch", "autoFetchDescription"].map(key => [key, catalog?.additional[`__profileOption:${key}`] ?? ""])) as Copy
-  useEffect(() => {
-    let active = true
-    void loadWebsiteCatalog(getWebsiteLocale(locale)).then(value => { if (active) setCatalog(value) }).catch(() => {})
-    return () => { active = false }
-  }, [locale])
+  const copy = COPY[locale] ?? COPY.en
 
   useEffect(() => {
     const syncLocale = () => setLocale(getLocale())

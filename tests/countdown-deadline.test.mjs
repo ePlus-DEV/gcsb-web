@@ -75,7 +75,7 @@ test("missing remote config is not silently relabeled as an Arcade date", () => 
   assert.match(ui, /deadlineSource: facilitatorDeadline\.source/)
   assert.match(ui, /deadlineSource: arcadeDeadline\.source/)
   assert.match(ui, /data-deadline-source=\{config\.deadlineSource\}/)
-  assert.match(ui, /text\("notAnnounced"\)/)
+  assert.match(ui, /Not announced/)
   assert.match(helper, /if \(program === "facilitator"\)/)
 })
 

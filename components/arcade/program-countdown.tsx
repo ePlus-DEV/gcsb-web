@@ -1,7 +1,5 @@
 "use client"
 
-import { getWebsiteLocale, loadWebsiteCatalog, type WebsiteCatalog } from "@/lib/website-i18n"
-
 import { Clock, Gamepad2 } from "lucide-react"
 import { createPortal } from "react-dom"
 import { useEffect, useMemo, useState } from "react"
@@ -351,15 +349,11 @@ function ProgramCard({
   config,
   locale,
   nowMs,
-  catalog,
 }: {
-  catalog: WebsiteCatalog | null
   config: ProgramCountdownConfig
   locale?: string
   nowMs: number
 }) {
-  const text = (key: string) => catalog?.additional[`__countdown:${key}`] ?? ""
-  const title = config.id === "facilitator" ? catalog?.messages.facilitatorProgram ?? "" : config.title
   const remaining = config.deadline ? countdownParts(config.deadline, nowMs) : null
   const Icon = config.id === "arcade" ? Gamepad2 : Clock
   const timeParts: Array<{ unit: CountdownUnit; value: number }> = remaining
@@ -377,26 +371,26 @@ function ProgramCard({
       data-program={config.id}
       data-program-state={!remaining ? "unconfigured" : remaining.ended ? "ended" : "active"}
       data-deadline-source={config.deadlineSource}
-      aria-label={title}
+      aria-label={config.title}
     >
       <div className="program-countdown-heading">
         <span className="program-countdown-icon" aria-hidden="true"><Icon /></span>
         <div>
-          <strong>{title}</strong>
-          <span><b>{text("deadline")}</b> · {config.deadline ? deadlineLabel(config.deadline, locale) : text("notAnnounced")}</span>
+          <strong>{config.title}</strong>
+          <span><b>Deadline</b> · {config.deadline ? deadlineLabel(config.deadline, locale) : "Not announced"}</span>
         </div>
       </div>
 
       {!remaining ? (
         <div className="program-countdown-unconfigured" role="status">
-          <strong>{text("unavailable")}</strong>
-          <span>{text("awaiting")}</span>
+          <strong>Deadline unavailable</strong>
+          <span>Awaiting Facilitator configuration</span>
         </div>
       ) : remaining.ended ? (
         <div className="program-countdown-ended" role="status">
           <div className="program-countdown-ended-copy">
-            <strong>{catalog?.messages.unavailable}</strong>
-            <span>{catalog?.messages.programTracker}</span>
+            <strong>Unavailable</strong>
+            <span>Program tracker</span>
           </div>
           {config.id === "facilitator" ? (
             <button
@@ -404,7 +398,7 @@ function ProgramCard({
               type="button"
               onClick={openFacilitatorDetails}
             >
-              {catalog?.additional["View program details"]}
+              View program details
             </button>
           ) : null}
         </div>
@@ -428,12 +422,6 @@ function ProgramCard({
 export default function ProgramCountdown() {
   const [host, setHost] = useState<HTMLElement | null>(null)
   const [locale, setLocale] = useState<string | undefined>(undefined)
-  const [catalog, setCatalog] = useState<WebsiteCatalog | null>(null)
-  useEffect(() => {
-    let active = true
-    void loadWebsiteCatalog(getWebsiteLocale(locale)).then(value => { if (active) setCatalog(value) }).catch(() => {})
-    return () => { active = false }
-  }, [locale])
   const [nowMs, setNowMs] = useState(() => Date.now())
   const [programs, setPrograms] = useState<ProgramCountdownConfig[]>([])
   const [source, setSource] = useState<CountdownSource>("fallback")
@@ -504,11 +492,11 @@ export default function ProgramCountdown() {
   return createPortal(
     <section
       className={`program-countdown-grid${enabledPrograms.length === 1 ? " is-single" : ""}`}
-      aria-label={catalog?.additional["__countdown:deadline"]}
+      aria-label="Deadline"
       data-config-source={source}
     >
       {enabledPrograms.map((program) => (
-        <ProgramCard key={program.id} config={program} locale={locale} nowMs={nowMs} catalog={catalog} />
+        <ProgramCard key={program.id} config={program} locale={locale} nowMs={nowMs} />
       ))}
     </section>,
     host,

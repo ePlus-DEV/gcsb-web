@@ -47,7 +47,6 @@ jobs:
           mkdir -p screenshots
           node <<'NODE'
           const { chromium } = require('playwright')
-          const vi = require('./public/i18n/locales/vi.json')
 
           ;(async () => {
             const browser = await chromium.launch({ headless: true, channel: 'chrome' })
@@ -88,8 +87,7 @@ jobs:
 
             const facilitatorOption = page
               .locator('.analyzer-facilitator-option')
-              .filter({ has: page.locator('input[type="checkbox"]') })
-              .filter({ hasText: vi.additional['__profileOption:participating'] })
+              .filter({ hasText: 'Đang tham gia Facilitator Program' })
             await facilitatorOption.waitFor()
 
             if (
@@ -107,10 +105,10 @@ jobs:
 
             const autoFetchOption = page
               .locator('.analyzer-facilitator-option')
-              .filter({ hasText: vi.additional['__profileOption:autoFetch'] })
+              .filter({ hasText: 'Tự động lấy dữ liệu mới nhất' })
             await autoFetchOption.waitFor()
             await autoFetchOption.getByText(
-              vi.additional['__profileOption:autoFetchDescription'],
+              'Tự làm mới hồ sơ đã lưu một lần mỗi khi mở trang.',
               { exact: true },
             ).waitFor()
 
@@ -126,48 +124,48 @@ jobs:
             await drawer.waitFor()
             await drawer.getByText(/Tổng điểm Arcade/).first().waitFor()
             await drawer
-              .getByText(vi.additional['2026 syllabus badge checklist'], { exact: true })
+              .getByText('Danh sách huy hiệu giáo trình 2026', { exact: true })
               .waitFor()
 
             const markCompleted = drawer
               .locator('.bonus-milestone-confirmation-button')
-              .filter({ hasText: vi.additional['Mark completed'] })
+              .filter({ hasText: 'Đánh dấu hoàn thành' })
             await markCompleted.waitFor({ state: 'attached' })
             await markCompleted.scrollIntoViewIfNeeded()
             await drawer
-              .getByText(vi.additional['View 4 GEAR skill badges · 0/4'], { exact: true })
+              .getByText('Xem 4 GEAR skill badge · 0/4', { exact: true })
               .waitFor({ state: 'attached' })
             await markCompleted.click()
 
             const completedTitle = drawer.getByText(
-              vi.additional['Bonus Milestone completed'],
+              'Đã hoàn thành Bonus Milestone',
               { exact: true },
             )
             await completedTitle.waitFor({ state: 'attached' })
             const bonusApplied = drawer.getByText(
-              vi.additional['+10 bonus applied. Open to review the completed steps.'],
+              '+10 điểm thưởng đã được áp dụng. Mở chi tiết để xem lại các bước đã hoàn thành.',
               { exact: true },
             )
             await bonusApplied.waitFor({ state: 'attached' })
 
             const openDetails = drawer
               .locator('.bonus-milestone-confirmation-button')
-              .filter({ hasText: vi.additional['Open details'] })
+              .filter({ hasText: 'Mở chi tiết' })
             await openDetails.waitFor({ state: 'attached' })
             await openDetails.scrollIntoViewIfNeeded()
             await openDetails.click()
 
             const closeDetails = drawer
               .locator('.bonus-milestone-confirmation-button')
-              .filter({ hasText: vi.additional['Close details'] })
+              .filter({ hasText: 'Đóng chi tiết' })
             const undo = drawer
               .locator('.bonus-milestone-confirmation-button')
-              .filter({ hasText: vi.additional['Undo'] })
+              .filter({ hasText: 'Hoàn tác' })
             await closeDetails.waitFor({ state: 'attached' })
             await undo.waitFor({ state: 'attached' })
             await drawer
               .getByText(
-                vi.additional['Completion is saved. Close the details again or undo if needed.'],
+                'Trạng thái hoàn thành đã được lưu. Bạn có thể đóng chi tiết hoặc hoàn tác nếu cần.',
                 { exact: true },
               )
               .waitFor({ state: 'attached' })
@@ -229,8 +227,8 @@ jobs:
             })
 
             const expectedMutationTranslations = [
-              vi.additional['Overall Arcade points'],
-              vi.additional['Estimated total after bonus'],
+              'Tổng điểm Arcade hiện có',
+              'Tổng ước tính sau điểm thưởng',
             ]
             if (
               mutationQueueResult.length !== expectedMutationTranslations.length ||

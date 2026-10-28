@@ -30,8 +30,6 @@ try {
         await page.route("https://**/*", (route) => {
           const url = route.request().url()
           if (url.includes("arcade_monthly_games.json")) return route.fulfill({ status: feedFailed ? 503 : 200, contentType: "application/json", body: JSON.stringify(games) })
-          const historyMonth = url.match(/arcade_monthly_games_history\/\d{4}\/(\d{2})\.json/)
-          if (historyMonth) return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([{ title: `Browser history ${historyMonth[1]}`, points: 1, status: "game_over" }]) })
           if (url.includes("/api/arcade") && route.request().method() === "POST") return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(result) })
           return route.abort()
         })
@@ -87,58 +85,6 @@ try {
           await page.reload()
           await page.locator(".profile-panel").waitFor({ state: "visible" })
           assert.equal(await page.locator(".profile-input input").inputValue(), profileUrl)
-        }
-        // Desktop uses hover without stealing focus; mobile only opens a modal sheet on tap.
-        if (locale === "en" && theme === "dark" && [390, 1440].includes(width)) {
-          const trigger = page.locator(".point-history-trigger")
-          const pointCard = page.locator(".breakdown-panel")
-          await trigger.scrollIntoViewIfNeeded()
-          await page.locator(".point-history-count strong").waitFor({ state: "visible" })
-          const heightBefore = await pointCard.evaluate((el) => el.getBoundingClientRect().height)
-          if (width === 1440) {
-            await page.evaluate(() => {
-              window.__focusedBeforeHistoryHover = document.activeElement
-              window.__historyFirstPosition = null
-              // Observe the FIRST DOM insertion, before any post-mount effect
-              // could move the portal from an incorrect placeholder position.
-              const observer = new MutationObserver(() => {
-                const popup = document.querySelector(".point-history-popover")
-                if (!popup || window.__historyFirstPosition) return
-                const trigger = document.querySelector(".point-history-trigger").getBoundingClientRect()
-                const width = Math.min(380, innerWidth - 24)
-                window.__historyFirstPosition = {
-                  actualLeft: Number.parseFloat(popup.style.left),
-                  expectedLeft: Math.max(12, Math.min(trigger.right - width, innerWidth - width - 12)),
-                }
-                observer.disconnect()
-              })
-              observer.observe(document.body, { childList: true, subtree: true })
-            })
-            await page.locator(".point-history-label").hover()
-            await page.locator(".point-history-popover").waitFor({ state: "visible" })
-            const firstPosition = await page.evaluate(() => window.__historyFirstPosition)
-            assert.ok(firstPosition, "First popup insertion must have a measured position")
-            assert.ok(Math.abs(firstPosition.actualLeft - firstPosition.expectedLeft) <= 1,
-              `Initial popup jumped from ${firstPosition.actualLeft}px instead of opening at ${firstPosition.expectedLeft}px`)
-            assert.equal(await page.evaluate(() => document.activeElement === window.__focusedBeforeHistoryHover), true, "Desktop hover must not steal keyboard focus")
-            await page.locator(".point-history-popover .point-comparison-stats").hover()
-            await page.waitForTimeout(250)
-            assert.equal(await page.locator(".point-history-popover").count(), 1, "Hover card should stay open when pointer crosses to the popover")
-            await page.locator(".profile-panel").hover()
-            await page.locator(".point-history-popover").waitFor({ state: "detached", timeout: 2000 })
-          } else {
-            await trigger.hover()
-            assert.equal(await page.locator(".point-history-popover").count(), 0, "Mobile hover must not open the sheet")
-            await trigger.click()
-            await page.locator(".point-history-popover").waitFor({ state: "visible" })
-            assert.equal(await page.locator(".point-history-popover").getAttribute("aria-modal"), "true")
-            assert.equal(await page.evaluate(() => document.body.style.overflow), "hidden")
-            await page.locator(".point-history-close").click()
-            await page.locator(".point-history-popover").waitFor({ state: "detached" })
-            assert.equal(await page.evaluate(() => document.body.style.overflow), "")
-          }
-          const heightAfter = await pointCard.evaluate((el) => el.getBoundingClientRect().height)
-          assert.ok(Math.abs(heightAfter - heightBefore) <= 1, "Hover/tap history must not resize the point card")
         }
         if (await page.locator(".preview-mode-toolbar").count()) {
           await page.locator(".dashboard-view-switch button").first().click()
