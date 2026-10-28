@@ -848,6 +848,17 @@ export default function RedesignCalculator({
                   )
                 })}
               </div>
+              <div className="point-compact-list" role="list" aria-label={scoreCatalog.messages.pointBreakdown}>
+                {pointBreakdown.map((item) => (
+                  <div key={item.key} className={`point-compact-item point-tone-${item.tone}`} role="listitem">
+                    <span className="point-compact-name">
+                      <span className="point-compact-icon" aria-hidden="true">{item.icon}</span>
+                      <span>{item.label}</span>
+                    </span>
+                    <strong>{scoreNumber(item.value)}</strong>
+                  </div>
+                ))}
+              </div>
               <ReleasedPointsPanel
                 embedded
                 badges={badges}
