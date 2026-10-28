@@ -98,7 +98,7 @@ test("fresh score note translations live in each locale catalog", () => {
   )
   assert.match(
     noteTranslations.vi,
-    /Tự động làm mới có thể dùng dữ liệu cache gần đây/,
+    /Tự động cập nhật có thể dùng dữ liệu đã lưu gần đây/,
   )
   assert.match(generator, /public["'],\s*["']i18n["'],\s*["']locales/)
   assert.doesNotMatch(generator, /fresh-score-check\.json|gunzipSync|catalogs\.part/)
