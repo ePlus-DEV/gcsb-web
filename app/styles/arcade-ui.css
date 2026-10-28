@@ -1,0 +1,68 @@
+/* Arcade UI foundations. Theme values follow the existing dashboard palette. */
+.arcade-dashboard-page {
+  --ui-radius: 14px;
+  --ui-space: 16px;
+  --ui-focus: var(--arcade-cyan);
+  --ui-surface: var(--arcade-panel-strong);
+  --ui-outline: var(--arcade-border-soft);
+}
+.arcade-ui-surface {
+  min-width: 0;
+  border: 1px solid var(--ui-outline);
+  border-radius: var(--ui-radius);
+  background: var(--ui-surface);
+}
+.arcade-ui-metric {
+  font-variant-numeric: tabular-nums;
+  color: var(--arcade-text);
+}
+.arcade-dashboard-page .shared-tier-panel {
+  padding: 24px;
+  border-color: var(--arcade-border-soft);
+  border-radius: 18px;
+  background: var(--arcade-panel);
+  box-shadow: none;
+}
+.shared-tier-panel .panel-title-row { gap: 12px; flex-wrap: wrap; }
+.shared-tier-panel .tier-list { gap: 12px; margin-block: 20px; }
+.shared-tier-panel .arcade-ui-surface {
+  padding: var(--ui-space);
+  border-color: var(--ui-outline);
+  border-radius: var(--ui-radius);
+  background: var(--ui-surface);
+  box-shadow: none;
+}
+.shared-tier-panel .arcade-ui-surface.is-current {
+  border-color: var(--arcade-purple);
+  box-shadow: inset 3px 0 var(--arcade-purple);
+}
+.shared-tier-panel .tier-list-row > div:nth-child(2) strong {
+  font-size: .8rem;
+  line-height: 1.5;
+  letter-spacing: .025em;
+}
+.shared-tier-panel .tier-list-row > div:nth-child(2) span {
+  margin-top: 4px;
+  color: var(--arcade-muted);
+  font-size: .75rem;
+  line-height: 1.5;
+}
+.shared-tier-panel .tier-slot-count b { font-size: 1.5rem; line-height: 1.2; letter-spacing: -.04em; }
+.shared-tier-panel .tier-slot-count small { margin-top: 6px; font-size: .72rem; line-height: 1.5; }
+.shared-tier-panel .tier-note {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--arcade-muted);
+  font-size: .75rem;
+  line-height: 1.7;
+}
+.arcade-dashboard-page :where(a, button, input, summary):focus-visible {
+  outline: 2px solid var(--ui-focus);
+  outline-offset: 4px;
+}
+@media (max-width: 600px) {
+  .arcade-dashboard-page .shared-tier-panel { padding: 16px; border-radius: 14px; }
+  .shared-tier-panel .arcade-ui-surface { padding: 14px 12px; }
+  .shared-tier-panel .tier-slot-count b { font-size: 1.2rem; }
+}
