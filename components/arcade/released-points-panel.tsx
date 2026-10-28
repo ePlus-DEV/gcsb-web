@@ -30,6 +30,7 @@ export default function ReleasedPointsPanel({ badges, hasProfile, catalog, local
   const openHistoryOnHover = () => {
     if (!supportsDesktopHover()) return
     clearHoverClose()
+    positionPopover()
     setHistoryActivation("hover")
     setHistoryOpen(true)
   }
@@ -42,10 +43,28 @@ export default function ReleasedPointsPanel({ badges, hasProfile, catalog, local
     }, 180)
   }
   useEffect(() => () => clearHoverClose(), [])
-  const [popoverPosition, setPopoverPosition] = useState({ top: 12, left: 12, maxHeight: 500 })
+  // No placeholder (12, 12) coordinates: compute the initial anchor position
+  // before mounting the portal, preventing a visible jump from the top-left.
+  const [popoverPosition, setPopoverPosition] = useState<{ top: number; left: number; maxHeight: number } | null>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
   const dialogRef = useRef<HTMLElement>(null)
   const dialogId = useId()
+  const positionPopover = () => {
+    const rect = triggerRef.current?.getBoundingClientRect()
+    if (!rect) return
+    const width = Math.min(380, window.innerWidth - 24)
+    const height = Math.min(440, window.innerHeight - 24)
+    const top = rect.bottom + 8 + height <= window.innerHeight - 12
+      ? rect.bottom + 8
+      : rect.top - 8 - height >= 12
+        ? rect.top - 8 - height
+        : 12
+    setPopoverPosition({
+      top,
+      left: Math.max(12, Math.min(rect.right - width, window.innerWidth - width - 12)),
+      maxHeight: Math.max(0, window.innerHeight - top - 12),
+    })
+  }
   // Arcade publication months use the source timezone, independent of the viewer.
   const date = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kolkata", year: "numeric", month: "2-digit" }).formatToParts(nowMs)
   const year = Number(date.find((part) => part.type === "year")?.value)
@@ -76,23 +95,8 @@ export default function ReleasedPointsPanel({ badges, hasProfile, catalog, local
   // keyboard and touch interactions reliable in both the popover and mobile sheet.
   useEffect(() => {
     if (!historyOpen) return
-    const reposition = () => {
-      const rect = triggerRef.current?.getBoundingClientRect()
-      if (!rect) return
-      const width = Math.min(380, window.innerWidth - 24)
-      const height = Math.min(440, window.innerHeight - 24)
-      const top = rect.bottom + 8 + height <= window.innerHeight - 12
-        ? rect.bottom + 8
-        : rect.top - 8 - height >= 12
-          ? rect.top - 8 - height
-          : 12
-      setPopoverPosition({
-        top,
-        left: Math.max(12, Math.min(rect.right - width, window.innerWidth - width - 12)),
-        maxHeight: Math.max(0, window.innerHeight - top - 12),
-      })
-    }
-    reposition()
+    // Recalculate only for viewport or scroll changes, not the first paint.
+    positionPopover()
     const dialog = dialogRef.current
     const wasMobile = window.matchMedia("(max-width: 680px)").matches
     // Hover is non-modal: never steal focus just because the mouse entered a label.
@@ -124,13 +128,13 @@ export default function ReleasedPointsPanel({ badges, hasProfile, catalog, local
     }
     document.addEventListener("keydown", onKeyDown)
     if (!wasMobile) document.addEventListener("pointerdown", onOutsidePointer)
-    window.addEventListener("resize", reposition)
-    window.addEventListener("scroll", reposition, true)
+    window.addEventListener("resize", positionPopover)
+    window.addEventListener("scroll", positionPopover, true)
     return () => {
       document.removeEventListener("keydown", onKeyDown)
       document.removeEventListener("pointerdown", onOutsidePointer)
-      window.removeEventListener("resize", reposition)
-      window.removeEventListener("scroll", reposition, true)
+      window.removeEventListener("resize", positionPopover)
+      window.removeEventListener("scroll", positionPopover, true)
       if (wasMobile) document.body.style.overflow = originalOverflow
       if (historyActivation === "click") triggerRef.current?.focus()
     }
@@ -157,6 +161,7 @@ export default function ReleasedPointsPanel({ badges, hasProfile, catalog, local
               // On fine-pointer desktops hover is primary; keyboard activation still works.
               if (supportsDesktopHover() && event.detail !== 0) return
               clearHoverClose()
+              positionPopover()
               setHistoryActivation("click")
               setHistoryOpen((open) => !open)
             }}>
@@ -164,7 +169,7 @@ export default function ReleasedPointsPanel({ badges, hasProfile, catalog, local
           </button>
         </div>
       </section>
-      {historyOpen && typeof document !== "undefined" && createPortal(
+      {historyOpen && popoverPosition && typeof document !== "undefined" && createPortal(
         <div className={`point-history-portal${document.documentElement.classList.contains("light") || document.body.classList.contains("light") ? " is-light" : ""}`} dir={locale.startsWith("ar") ? "rtl" : "ltr"}>
           <div className="point-history-backdrop" aria-hidden="true" onClick={() => setHistoryOpen(false)} />
           <section id={dialogId} ref={dialogRef} role="dialog"
