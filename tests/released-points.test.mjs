@@ -65,7 +65,7 @@ test("English and Vietnamese panels render matching localized point summaries", 
     const module = { exports: {} }
     new Function("require", "module", "exports", compiled)((id) => {
       if (id === "react") return { ...React, useEffect: () => {}, useState: () => [stateIndex++ === 0 ? rows : failedState, () => {}] }
-      if (id === "lucide-react") return Object.fromEntries(["Trophy", "Check", "Clock", "Circle"].map((name) => [name, (props) => React.createElement("svg", props)]))
+      if (id === "lucide-react") return Object.fromEntries(["Trophy", "Check", "Clock", "Circle", "CircleHelp", "X"].map((name) => [name, (props) => React.createElement("svg", props)]))
       if (id === "./released-points") return { parseReleasedGames, summarizeReleasedPoints }
       return require(id)
     }, module, module.exports)
@@ -83,8 +83,12 @@ test("English and Vietnamese panels render matching localized point summaries", 
     stateIndex = 0
     const embeddedHtml = renderToStaticMarkup(React.createElement(module.exports.default, { embedded: true, badges: [], hasProfile: true, catalog, locale, nowMs: now, profilePoints: profilePointSummary(scoredProfile, 35) }))
     assert.ok(embeddedHtml.includes('point-comparison'))
-    assert.ok(embeddedHtml.includes('point-comparison-details'))
+    assert.ok(embeddedHtml.includes('point-history-line'))
+    assert.ok(embeddedHtml.includes('point-history-trigger'))
+    assert.ok(embeddedHtml.includes('aria-haspopup="dialog"'))
+    assert.ok(embeddedHtml.includes(catalog.additional["Open details"]))
     assert.ok(embeddedHtml.includes(catalog.additional["__releasedPoints:released"]))
+    assert.ok(!embeddedHtml.includes('<details'))
     assert.ok(!embeddedHtml.includes('<table'))
     assert.ok(!embeddedHtml.includes('<progress'))
     assert.ok(!embeddedHtml.includes('<strong>128</strong>'))
@@ -162,4 +166,30 @@ test("history belongs inside the existing point card and is absent from monthly 
   assert.match(card, /profilePoints=\{profilePointSummary\(result, facilitatorBonus\)\}/)
   assert.doesNotMatch(readRepoFile("components/arcade/monthly-games-panel.tsx"), /ReleasedPointsPanel/)
   assert.doesNotMatch(card, /<details[^>]*\bopen(?:[\s=>])/)
+})
+
+test("history details use an accessible portal popover and a mobile bottom sheet without expanding the card", () => {
+  const component = readRepoFile("components/arcade/released-points-panel.tsx")
+  const stylesheet = readRepoFile("app/styles/monthly-games.css")
+  assert.match(component, /createPortal\(/)
+  assert.match(component, /role="dialog" aria-modal="true"/)
+  assert.match(component, /aria-haspopup="dialog"/)
+  assert.match(component, /aria-expanded=\{historyOpen\}/)
+  assert.match(component, /aria-controls=\{dialogId\}/)
+  assert.match(component, /catalog\.additional\["Open details"\]/)
+  assert.match(component, /catalog\.additional\["Close details"\]/)
+  assert.match(component, /event\.key === "Escape"/)
+  assert.match(component, /event\.key !== "Tab"/)
+  assert.match(component, /triggerRef\.current\?\.focus\(\)/)
+  assert.match(component, /document\.body\.style\.overflow = "hidden"/)
+  assert.doesNotMatch(component, /<details className="point-comparison-details">/)
+  assert.match(stylesheet, /\.point-history-portal\s*\{\s*position:\s*fixed/)
+  assert.match(stylesheet, /\.point-history-popover\s*\{\s*position:\s*fixed/)
+  assert.match(stylesheet, /\.point-history-popover\s*\{[^}]*overflow-y:\s*auto/)
+  assert.match(stylesheet, /@media\(max-width:680px\)[\s\S]*?\.point-history-popover\s*\{\s*top:\s*auto\s*!important/)
+  for (const filename of fs.readdirSync("public/i18n/locales").filter(name => name.endsWith(".json"))) {
+    const catalog = JSON.parse(readRepoFile(`public/i18n/locales/${filename}`))
+    assert.ok(catalog.additional["Open details"], `${filename} missing popover trigger`)
+    assert.ok(catalog.additional["Close details"], `${filename} missing popover close label`)
+  }
 })
