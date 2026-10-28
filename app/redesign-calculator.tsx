@@ -90,13 +90,13 @@ function getQualifiedMilestone(
   return [...milestones].reverse().find((tier) => points >= tier.points) ?? null
 }
 
-function safeDateLabel(value?: string): string {
+function safeDateLabel(value?: string, locale = "en"): string {
   if (!value) return "Earned badge"
 
   const parsed = new Date(value)
   if (Number.isNaN(parsed.getTime())) return value
 
-  return new Intl.DateTimeFormat("en", {
+  return new Intl.DateTimeFormat(locale, {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -802,24 +802,24 @@ export default function RedesignCalculator({
         <section className="dashboard-shell" aria-label="Arcade profile results" data-home-order="dashboard-results">
           <div className="dashboard-summary-grid" data-home-order="dashboard-summary">
             <article className="dashboard-panel profile-panel">
-              <PanelTitle>Profile summary</PanelTitle>
+              <PanelTitle>{scoreCatalog.messages.profileSummary}</PanelTitle>
               <div className="profile-overview">
                 <div className="profile-photo">
                   <SafeRemoteImage
                     src={profileImage}
-                    alt={`${profileName} profile`}
+                    alt={scoreCatalog.dynamic.profile.replace("{value}", profileName)}
                     fallback={<span>{profileName.slice(0, 1).toUpperCase()}</span>}
                   />
                 </div>
                 <div className="profile-name-block">
                   <h2>{profileName}<BadgeCheck /></h2>
-                  <p>{memberSince ? `Member since ${memberSince}` : "Public Google Skills profile"}</p>
+                  <p>{memberSince ? scoreCatalog.dynamic.memberSince.replace("{value}", memberSince) : scoreCatalog.messages.publicProfile}</p>
                 </div>
               </div>
               <div className="profile-stat-grid">
-                <Stat value={String(badges.length)} label="Badges" icon={<BadgeCheck />} />
-                <Stat value={formatNumber(points)} label="Arcade points" icon={<Sparkles />} />
-                <Stat value={qualifiedMilestone?.league.replace("Arcade ", "") ?? "—"} label="Score tier" icon={<Trophy />} />
+                <Stat value={scoreNumber(badges.length)} label={scoreCatalog.messages.badges} icon={<BadgeCheck />} />
+                <Stat value={scoreNumber(points)} label={scoreCatalog.messages.arcadePoints} icon={<Sparkles />} />
+                <Stat value={qualifiedMilestone?.league.replace("Arcade ", "") ?? "—"} label={scoreCatalog.messages.scoreTier} icon={<Trophy />} />
               </div>
             </article>
 
@@ -880,42 +880,42 @@ export default function RedesignCalculator({
 
             <article className="dashboard-panel tier-status-panel">
               <div className="panel-title-row">
-                <PanelTitle>Point eligibility · Arcade 2026</PanelTitle>
+                <PanelTitle>{scoreCatalog.messages.eligibility}</PanelTitle>
                 <span className={isTierQualified ? "score-state is-qualified" : "score-state"}>
-                  {isTierQualified ? "Eligible by points" : "Not yet eligible"}
+                  {isTierQualified ? scoreCatalog.messages.eligibleByPoints : scoreCatalog.messages.notYetEligible}
                 </span>
               </div>
               <div className="tier-status-main">
                 <span className="tier-trophy"><Trophy /></span>
                 <div>
-                  <strong>{qualifiedMilestone?.league.replace("Arcade ", "") ?? "NO TIER YET"}</strong>
-                  <span>{qualifiedMilestone ? tierRangeLabel(qualifiedMilestone) : `${pointsToNextTier} points to Trooper`}</span>
+                  <strong>{qualifiedMilestone?.league.replace("Arcade ", "") ?? scoreCatalog.messages.noTierYet}</strong>
+                  <span>{qualifiedMilestone ? tierRangeLabel(qualifiedMilestone) : scoreCatalog.dynamic.pointsToTrooper.replace("{count}", scoreNumber(pointsToNextTier))}</span>
                 </div>
               </div>
               {qualifiedMilestone && (
-                <div className="tier-availability-grid" aria-label="Tier slot availability">
+                <div className="tier-availability-grid" aria-label={scoreCatalog.messages.totalTierCapacity}>
                   <div>
                     <span className="tier-availability-icon" aria-hidden="true"><Users /></span>
-                    <span>Total tier capacity</span>
+                    <span>{scoreCatalog.messages.totalTierCapacity}</span>
                     <strong>{formatInteger(qualifiedMilestone.slots)}</strong>
                   </div>
                   <div>
                     <span className="tier-availability-icon" aria-hidden="true"><BadgeCheck /></span>
-                    <span>Spots currently left</span>
+                    <span>{scoreCatalog.messages.spotsLeft}</span>
                     <strong>
                       {qualifiedMilestone.spotsLeft === null
-                        ? "Unavailable"
+                        ? scoreCatalog.messages.unavailable
                         : formatInteger(qualifiedMilestone.spotsLeft)}
                     </strong>
                   </div>
                 </div>
               )}
               <dl className="allocation-row">
-                <dt>Your queue position</dt>
-                <dd>Not available <CircleHelp /></dd>
+                <dt>{scoreCatalog.messages.queuePosition}</dt>
+                <dd>{scoreCatalog.messages.notAvailable} <CircleHelp /></dd>
               </dl>
               <p className="allocation-message">
-                Point eligibility and remaining spots are different. Remaining slot counts are updated automatically from the latest available data, but Google does not expose whether your profile is ahead of other eligible users.
+                {scoreCatalog.messages.allocationMessage}
               </p>
             </article>
           </div>
@@ -924,10 +924,10 @@ export default function RedesignCalculator({
             <article id="badges" className="dashboard-panel badges-panel">
               <div className="badge-heading-row">
                 <div>
-                  <PanelTitle>Earned badges</PanelTitle>
+                  <PanelTitle>{scoreCatalog.messages.earnedBadges}</PanelTitle>
                   <p>{scoreCatalog.dynamic.badgesInView.replace("{count}", scoreNumber(filteredBadges.length))}</p>
                 </div>
-                <div className="badge-filters" role="group" aria-label="Filter badges">
+                <div className="badge-filters" role="group" aria-label={scoreCatalog.messages.filterBadges}>
                   {FILTERS.map((item) => (
                     <button
                       type="button"
@@ -939,7 +939,7 @@ export default function RedesignCalculator({
                         setShowAllBadges(false)
                       }}
                     >
-                      {item.label}
+                      {scoreCatalog.messages[item.value]}
                     </button>
                   ))}
                 </div>
@@ -960,13 +960,13 @@ export default function RedesignCalculator({
                       <h3>{badge.title}</h3>
                       <p>
                         {badge.points === "-*"
-                          ? "Special scoring rule"
+                          ? scoreCatalog.messages.specialScoring
                           : scoreCatalog.dynamic.points.replace("{count}", scoreNumber(numeric(badge.points)))}
                       </p>
-                      <time>{safeDateLabel(badge.dateEarned)}</time>
+                      <time>{safeDateLabel(badge.dateEarned, scoreLocale)}</time>
                       <SafeExternalLink
                         href={badge.badgeURL}
-                        ariaLabel={`Open ${badge.title}`}
+                        ariaLabel={scoreCatalog.dynamic.open.replace("{value}", badge.title)}
                       >
                         <ExternalLink />
                       </SafeExternalLink>
@@ -976,14 +976,14 @@ export default function RedesignCalculator({
               ) : (
                 <div className="empty-badge-state">
                   <BadgeCheck />
-                  <strong>No badges returned in this category</strong>
-                  <span>Choose another filter or analyze a different public profile.</span>
+                  <strong>{scoreCatalog.messages.noBadges}</strong>
+                  <span>{scoreCatalog.messages.chooseFilter}</span>
                 </div>
               )}
 
               {filteredBadges.length > BADGE_PREVIEW_LIMIT && (
                 <button className="show-all-badges" type="button" onClick={() => setShowAllBadges((open) => !open)}>
-                  {showAllBadges ? "Show fewer badges" : `View all ${filteredBadges.length} badges`}
+                  {showAllBadges ? scoreCatalog.messages.showFewer : scoreCatalog.dynamic.viewAllBadges.replace("{count}", scoreNumber(filteredBadges.length))}
                 </button>
               )}
             </article>
@@ -1002,7 +1002,7 @@ export default function RedesignCalculator({
 
           <div className="dashboard-bottom-grid" data-home-order="dashboard-bottom">
             <article className="dashboard-panel compact-panel">
-              <div className="compact-heading"><PanelTitle>Recently earned</PanelTitle><span>{recentBadges.length || "—"}</span></div>
+              <div className="compact-heading"><PanelTitle>{scoreCatalog.messages.recentlyEarned}</PanelTitle><span>{recentBadges.length || "—"}</span></div>
               {recentBadges.length > 0 ? (
                 <div className="compact-list">
                   {recentBadges.map((badge, index) => (
@@ -1021,19 +1021,19 @@ export default function RedesignCalculator({
                   ))}
                 </div>
               ) : (
-                <p className="compact-empty">No earned dates were returned by this profile.</p>
+                <p className="compact-empty">{scoreCatalog.messages.noEarnedDates}</p>
               )}
             </article>
 
             <article className="dashboard-panel compact-panel">
-              <div className="compact-heading"><PanelTitle>Score confidence</PanelTitle><span>{scoreComplete ? "Complete" : "Review"}</span></div>
+              <div className="compact-heading"><PanelTitle>{scoreCatalog.messages.scoreConfidence}</PanelTitle><span>{scoreComplete ? scoreCatalog.messages.complete : scoreCatalog.messages.review}</span></div>
               <div className="confidence-summary">
                 <span className={scoreComplete ? "confidence-ring is-complete" : "confidence-ring"}>
                   {scoreComplete ? <ShieldCheck /> : <CircleHelp />}
                 </span>
                 <div>
-                  <strong>{scoreComplete ? "All known badges classified" : `${unknownBadgeCount} unknown badge(s)`}</strong>
-                  <p>{scoreComplete ? "The score is complete for the current badge index." : "These badges are shown instead of being silently ignored."}</p>
+                  <strong>{scoreComplete ? scoreCatalog.messages.allKnownClassified : scoreCatalog.dynamic.unknownBadges.replace("{count}", scoreNumber(unknownBadgeCount))}</strong>
+                  <p>{scoreComplete ? scoreCatalog.messages.scoreComplete : scoreCatalog.messages.unknownShown}</p>
                 </div>
               </div>
               {unknownBadges.length > 0 && (
@@ -1044,15 +1044,15 @@ export default function RedesignCalculator({
             </article>
 
             <article className="dashboard-panel compact-panel next-goal-panel">
-              <div className="compact-heading"><PanelTitle>Next score goal</PanelTitle><span>{nextMilestone.league.replace("Arcade ", "")}</span></div>
+              <div className="compact-heading"><PanelTitle>{scoreCatalog.messages.nextGoal}</PanelTitle><span>{nextMilestone.league.replace("Arcade ", "")}</span></div>
               <div className="next-goal-value">
-                <strong>{hasReachedMaxTier ? "MAX" : formatNumber(pointsToNextTier)}</strong>
-                <span>{hasReachedMaxTier ? "Top score tier reached" : "more points needed"}</span>
+                <strong>{hasReachedMaxTier ? scoreCatalog.messages.max : scoreNumber(pointsToNextTier)}</strong>
+                <span>{hasReachedMaxTier ? scoreCatalog.messages.topTierReached : scoreCatalog.messages.morePointsNeeded}</span>
               </div>
               <div
                 className="goal-progress"
                 role="progressbar"
-                aria-label={hasReachedMaxTier ? "Maximum score tier reached" : `Progress toward ${nextMilestone.league}`}
+                aria-label={hasReachedMaxTier ? scoreCatalog.messages.topTierReached : scoreCatalog.dynamic.progressToward.replace("{value}", nextMilestone.league)}
                 aria-valuemin={goalStartPoints}
                 aria-valuemax={hasReachedMaxTier ? maxTierPoints : nextMilestone.points}
                 aria-valuenow={hasReachedMaxTier ? maxTierPoints : Math.min(Math.max(points, goalStartPoints), nextMilestone.points)}
@@ -1082,21 +1082,21 @@ export default function RedesignCalculator({
           <span className="arcade-brand-mark"><Gamepad2 /></span>
           <span className="arcade-brand-copy"><strong>ARCADE</strong><b>POINTS</b></span>
         </div>
-        <p>Unofficial community calculator by ePlus.DEV. Google remains the authority for final scores and rewards.</p>
+        <p>{scoreCatalog.messages.unofficial}</p>
         <nav className="footer-route-links" aria-label="Site information">
-          <Link href="/about/">About</Link>
-          <Link href="/guide/">Guide</Link>
+          <Link href="/about/">{scoreCatalog.messages.about}</Link>
+          <Link href="/guide/">{scoreCatalog.messages.guide}</Link>
           <Link href="/swag-drops/">{scoreCatalog.additional["__score:swagArchive"]}</Link>
-          <Link href="/privacy/">Privacy</Link>
-          <Link href="/terms/">Terms</Link>
+          <Link href="/privacy/">{scoreCatalog.messages.privacy}</Link>
+          <Link href="/terms/">{scoreCatalog.messages.terms}</Link>
         </nav>
       </footer>
 
-      <nav className="mobile-bottom-nav" aria-label="Mobile navigation">
-        <a href="#calculator"><Search /><span>Calculator</span></a>
-        <a href="#tiers"><Trophy /><span>Tiers</span></a>
+      <nav className="mobile-bottom-nav" aria-label={scoreCatalog.messages.mobileNavigation}>
+        <a href="#calculator"><Search /><span>{scoreCatalog.messages.calculator}</span></a>
+        <a href="#tiers"><Trophy /><span>{scoreCatalog.messages.tiers}</span></a>
         <a href={viewMode === "guest" ? "#monthly-games" : "#badges"}>{viewMode === "guest" ? <Gamepad2 /> : <BadgeCheck />}<span>{viewMode === "guest" ? activeHistoryLanguage.catalog.messages.guestLabsLabel : activeHistoryLanguage.catalog.messages.badges}</span></a>
-        <a href="#extension"><Chrome /><span>Extension</span></a>
+        <a href="#extension"><Chrome /><span>{scoreCatalog.messages.extension}</span></a>
       </nav>
     </main>
   )
