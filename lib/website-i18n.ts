@@ -132,7 +132,8 @@ export function loadWebsiteCatalog(locale: WebsiteLocale): Promise<WebsiteCatalo
   if (cached) return cached
 
   const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ""
-  const request = fetch(`${basePath}/i18n/${locale}.json`, {
+  const version = process.env.NEXT_PUBLIC_I18N_VERSION || "dev"
+  const request = fetch(`${basePath}/i18n/${locale}.json?v=${encodeURIComponent(version)}`, {
     cache: "force-cache",
   })
     .then(async (response) => {
@@ -195,6 +196,8 @@ function translateDynamicText(
   targetCatalog: WebsiteCatalog,
 ): string {
   const messages = targetCatalog.dynamic
+  const bonusMatch = source.match(/^Includes \+([\d,.]+) Facilitator bonus\.$/)
+  if (bonusMatch) return targetCatalog.additional["__score:bonusIncluded"].replace("{bonus}", bonusMatch[1])
   let match = source.match(/^\+([\d,.]+) bonus · ([\d,.]+) badges left$/)
   if (match) {
     return facilitatorTemplate(

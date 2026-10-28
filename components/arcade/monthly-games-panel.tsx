@@ -440,6 +440,7 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
         </div>
       </div>
 
+
       {awaitingNewGames ? (
         <div className="monthly-games-coming-soon" role="status">
           <span className="monthly-coming-soon-icon" aria-hidden="true"><Gamepad2 /></span>
