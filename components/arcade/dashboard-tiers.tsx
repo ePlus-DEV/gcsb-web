@@ -1,5 +1,6 @@
 "use client"
 
+import { ArcadeSurface, ArcadeMetric } from "./ui/surface"
 import { Trophy } from "lucide-react"
 import type { WebsiteCatalog, WebsiteLocale } from "@/lib/website-i18n"
 import { formatInteger, tierRangeLabel, type ArcadeMilestone } from "./model"
@@ -31,15 +32,15 @@ export default function DashboardTiers({
         {[...milestones].reverse().map((tier) => {
           const active = activeTierPoints === tier.points
           return (
-            <div className={`tier-list-row tier-${tier.points}${active ? " is-current" : ""}`} aria-current={active ? "step" : undefined} key={tier.points}>
+            <ArcadeSurface className={`tier-list-row tier-${tier.points}${active ? " is-current" : ""}`} aria-current={active ? "step" : undefined} key={tier.points}>
               <span className="tier-list-icon" aria-hidden="true"><Trophy /></span>
               <div><strong>{tier.league.replace("Arcade ", "")}</strong><span>{tierRangeLabel(tier)}</span></div>
-              <div className="tier-slot-count">
+              <ArcadeMetric className="tier-slot-count">
                 <b>{tier.spotsLeft === null ? "—" : formatInteger(tier.spotsLeft)}</b>
                 <small>{(tier.spotsLeft === null ? catalog.dynamic.totalSlots : catalog.dynamic.leftOf).replace("{count}", formatInteger(tier.slots))}</small>
                 <SlotChangeBadge feed={slotHistory.feed} points={tier.points} currentSpotsLeft={tier.spotsLeft} catalog={catalog} locale={locale} />
-              </div>
-            </div>
+              </ArcadeMetric>
+            </ArcadeSurface>
           )
         })}
       </div>
