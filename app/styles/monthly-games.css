@@ -95,31 +95,61 @@
 .light .point-compact-item.point-tone-orange .point-compact-icon { color: #c2410c; }
 .light .point-compact-item.point-tone-violet .point-compact-icon { color: #a21caf; }
 
-/* Published history is separate from profile category totals: scopes must not be mixed. */
-.point-comparison { margin-top: 9px; border-top: 1px solid rgba(148,163,184,.16); padding-top: 7px; color: var(--arcade-muted); font-size: .73rem; }
-.point-comparison-details > summary { display: flex; align-items: center; justify-content: space-between; gap: 8px; cursor: pointer; padding: 8px 0; list-style: none; line-height: 1.45; }
-.point-comparison-details > summary::-webkit-details-marker { display: none; }
-.point-comparison-details > summary::after { content: "⌄"; flex: 0 0 auto; font-size: 1rem; line-height: 1; color: #a78bfa; transition: transform .15s ease; }
-.point-comparison-details[open] > summary::after { transform: rotate(180deg); }
-.point-comparison-heading { min-width: 0; flex: 1 1 auto; font-weight: 650; color: var(--arcade-text, #edf2ff); }
-.point-comparison-count { flex: 0 1 auto; font-size: .68rem; text-align: end; color: var(--arcade-muted); }
-.point-comparison-count strong { font-size: .82rem; color: var(--arcade-text, #edf2ff); font-variant-numeric: tabular-nums; }
-.point-comparison-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 9px 0; }
-.point-comparison-stats > div { min-width: 0; border: 1px solid rgba(148,163,184,.16); border-radius: 8px; padding: 9px; background: rgba(9,16,33,.24); }
-.point-comparison-stats dt { font-size: .7rem; color: var(--arcade-muted); line-height: 1.35; }
-.point-comparison-stats dd { margin: 5px 0 0; font-size: 1rem; font-weight: 750; color: var(--arcade-text, #edf2ff); font-variant-numeric: tabular-nums; }
-.point-comparison-extra { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 10px 0; }
-.point-comparison-extra > div { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; min-width: 0; }
-.point-comparison-extra dt { font-size: .7rem; }
-.point-comparison-extra dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; }
-.point-comparison p { font-size: .7rem; line-height: 1.5; margin: 8px 0; }
-.point-comparison button { min-height: 44px; padding: 6px 12px; background: transparent; color: inherit; border: 1px solid currentColor; border-radius: 6px; }
-.point-comparison summary:focus-visible, .point-comparison button:focus-visible { outline: 2px solid #a78bfa; outline-offset: 3px; }
-.light .point-comparison-heading, .light .point-comparison-count strong, .light .point-comparison-stats dd { color: #172033; }
-.light .point-comparison-stats > div { background: #f8fafc; border-color: #e2e8f0; }
-@media(max-width: 680px) {
+/* The history trigger never changes the dashboard card's height. */
+.point-comparison { margin-top: 9px; padding-top: 9px; border-top: 1px solid rgba(148,163,184,.16); color: var(--arcade-muted); }
+.point-history-line { min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto 28px; align-items: center; gap: 8px; min-height: 32px; }
+.point-history-label { min-width: 0; color: var(--arcade-text, #edf2ff); font-weight: 650; font-size: .75rem; line-height: 1.4; }
+.point-history-count { min-width: 0; text-align: end; color: var(--arcade-muted); font-size: .69rem; line-height: 1.4; }
+.point-history-count strong { color: var(--arcade-text, #edf2ff); font-weight: 750; font-size: .85rem; font-variant-numeric: tabular-nums; }
+.point-history-trigger { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border: 1px solid rgba(167,139,250,.32); border-radius: 8px; background: rgba(139,92,246,.10); color: #c4b5fd; cursor: pointer; transition: background .15s, border-color .15s; }
+.point-history-trigger svg { width: 15px; height: 15px; }
+.point-history-trigger:hover { border-color: rgba(167,139,250,.6); background: rgba(139,92,246,.2); }
+.point-history-trigger:focus-visible, .point-history-popover button:focus-visible { outline: 2px solid #a78bfa; outline-offset: 3px; }
+.light .point-history-trigger { color: #6d28d9; border-color: #ddd6fe; background: #f5f3ff; }
+.light .point-history-label, .light .point-history-count strong { color: #172033; }
+
+/* Rendered through a body portal so dashboard overflow/staking never clips it. */
+.point-history-portal { position: fixed; inset: 0; z-index: 10000; pointer-events: none; }
+.point-history-backdrop { position: absolute; inset: 0; background: transparent; pointer-events: auto; }
+.point-history-popover { position: fixed; z-index: 1; display: block; box-sizing: border-box; width: min(380px, calc(100vw - 24px)); max-width: calc(100vw - 24px); overflow-y: auto; overscroll-behavior: contain; padding: 16px; border: 1px solid rgba(167,139,250,.32); border-radius: 14px; background: #15132b; color: #edf2ff; box-shadow: 0 18px 52px rgba(0,0,0,.46); pointer-events: auto; font-family: inherit; font-size: .79rem; line-height: 1.5; }
+.point-history-popover-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.point-history-popover-header h3 { margin: 0; font-size: .94rem; line-height: 1.35; font-weight: 750; color: inherit; }
+.point-history-close { display: inline-flex; flex: 0 0 32px; align-items: center; justify-content: center; width: 32px; height: 32px; border: 1px solid rgba(148,163,184,.22); border-radius: 8px; background: rgba(148,163,184,.1); color: #e2e8f0; cursor: pointer; }
+.point-history-close svg { width: 17px; height: 17px; }
+.point-history-popover .point-comparison-stats { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; margin: 0 0 14px; }
+.point-history-popover .point-comparison-stats > div { min-width: 0; padding: 12px; border: 1px solid rgba(148,163,184,.18); border-radius: 10px; background: rgba(9,16,33,.55); }
+.point-history-popover .point-comparison-stats dt { color: #a4b1c6; font-size: .72rem; line-height: 1.35; }
+.point-history-popover .point-comparison-stats dd { margin: 5px 0 0; font-size: 1.13rem; line-height: 1.2; font-weight: 750; font-variant-numeric: tabular-nums; color: #f5f3ff; }
+.point-history-popover .point-comparison-extra { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; margin: 0 0 12px; }
+.point-history-popover .point-comparison-extra > div { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.point-history-popover .point-comparison-extra dt { color: #a4b1c6; font-size: .73rem; }
+.point-history-popover .point-comparison-extra dd { margin: 0; font-size: .9rem; font-weight: 700; color: #e9e5ff; font-variant-numeric: tabular-nums; }
+.point-history-popover p { margin: 9px 0 0; color: #b9c4d8; font-size: .73rem; line-height: 1.55; }
+.point-history-coverage { padding-bottom: 12px; border-bottom: 1px solid rgba(148,163,184,.2); }
+.point-history-notes p { margin: 10px 0 0; }
+.point-history-retry { min-height: 38px; margin-top: 12px; padding: 6px 12px; border: 1px solid rgba(167,139,250,.4); border-radius: 8px; background: rgba(124,58,237,.18); color: #e9d5ff; cursor: pointer; }
+.point-history-portal.is-light .point-history-popover { background: #fff; color: #172033; border-color: #ddd6fe; box-shadow: 0 18px 55px rgba(15,23,42,.18); }
+.point-history-portal.is-light .point-history-close { color: #334155; background: #f8fafc; border-color: #e2e8f0; }
+.point-history-portal.is-light .point-comparison-stats > div { background: #f8fafc; border-color: #e2e8f0; }
+.point-history-portal.is-light .point-comparison-stats dt, .point-history-portal.is-light .point-comparison-extra dt { color: #64748b; }
+.point-history-portal.is-light .point-comparison-stats dd, .point-history-portal.is-light .point-comparison-extra dd { color: #172033; }
+.point-history-portal.is-light p { color: #475569; }
+.point-history-portal.is-light .point-history-retry { color: #6d28d9; background: #f5f3ff; }
+
+/* Mobile: an anchored sheet with a dim scrim and safe-area padding. */
+@media(max-width:680px) {
   .point-compact-list { grid-template-columns: 1fr; gap: 5px; }
   .point-compact-item { padding: 7px 9px; }
-  .point-comparison-stats { gap: 6px; }
-  .point-comparison-details > summary { flex-wrap: wrap; }
+  .point-history-line { grid-template-columns: minmax(0,1fr) auto 32px; gap: 6px; }
+  .point-history-label { font-size: .72rem; }
+  .point-history-count { font-size: .67rem; }
+  .point-history-trigger { width: 32px; height: 32px; }
+  .point-history-backdrop { background: rgba(2,6,23,.6); }
+  .point-history-popover { top: auto !important; bottom: 0; left: 0 !important; right: 0; width: 100%; max-width: 100%; max-height: min(86dvh, 720px) !important; border-radius: 18px 18px 0 0; padding: 18px 16px calc(18px + env(safe-area-inset-bottom)); box-shadow: 0 -20px 55px rgba(0,0,0,.42); }
+  .point-history-popover-header { position: sticky; top: -18px; z-index: 1; background: inherit; padding: 0 0 10px; }
+  .point-history-popover .point-comparison-stats { gap: 8px; }
+}
+@media(max-width:370px) {
+  .point-history-line { grid-template-columns: minmax(0,1fr) auto 32px; }
+  .point-history-count { max-width: 112px; overflow-wrap: anywhere; }
 }
