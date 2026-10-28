@@ -13,6 +13,7 @@ import {
 } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import ReleasedPointsPanel from "./released-points-panel"
+import type { ProfilePointSummary } from "./profile-point-summary"
 import {
   DEFAULT_WEBSITE_LOCALE,
   getWebsiteLocale,
@@ -34,6 +35,7 @@ import {
 type MonthlyGamesPanelProps = {
   badges: ArcadeBadge[]
   hasProfile: boolean
+  profilePoints?: ProfilePointSummary | null
 }
 
 function normalizeBadgeTitle(value: string): string {
@@ -240,7 +242,7 @@ function latestGameMonthHeading(
   }).format(new Date(latestGame.deadline))
 }
 
-export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPanelProps) {
+export default function MonthlyGamesPanel({ badges, hasProfile, profilePoints }: MonthlyGamesPanelProps) {
   const [games, setGames] = useState<MonthlyArcadeGame[]>([])
   const [loading, setLoading] = useState(true)
   const [loadFailed, setLoadFailed] = useState(false)
@@ -441,7 +443,7 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
         </div>
       </div>
 
-      <ReleasedPointsPanel badges={badges} hasProfile={hasProfile} catalog={catalog} locale={intlLocale} nowMs={nowMs} />
+      <ReleasedPointsPanel profilePoints={profilePoints} badges={badges} hasProfile={hasProfile} catalog={catalog} locale={intlLocale} nowMs={nowMs} />
 
       {awaitingNewGames ? (
         <div className="monthly-games-coming-soon" role="status">

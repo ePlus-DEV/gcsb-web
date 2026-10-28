@@ -597,7 +597,7 @@
     "Ranger receives the Trooper core pack, including the Arcade Travel Bottle, plus the exclusive Ranger bonus reward, the Arcade Backpack.": "Ranger nhận gói Trooper, bao gồm Arcade Travel Bottle, cộng thêm phần thưởng riêng dành cho Ranger là Arcade Backpack.",
     "Official minimum: 2 confirmed Ranger items — the Arcade Travel Bottle from Trooper and the Ranger-exclusive Arcade Backpack. Historical estimate: about 6 items.": "Tối thiểu chính thức: 2 món Ranger đã xác nhận — Arcade Travel Bottle kế thừa từ Trooper và Arcade Backpack dành riêng cho Ranger. Ước tính lịch sử: khoảng 6 món.",
     "The Arcade Travel Bottle and Arcade Backpack are confirmed for Ranger; other Trooper-family items have not yet been revealed.": "Arcade Travel Bottle và Arcade Backpack đã được xác nhận cho Ranger; các món khác thuộc nhóm Trooper chưa được công bố.",
-    "__releasedPoints:title": "Điểm Arcade đã phát hành · {year}",
+    "__releasedPoints:title": "Game đã phát hành · {year}",
     "__releasedPoints:scope": "Đối chiếu badge với game đã phát hành sau khi loại trùng. Đây không phải tổng điểm Arcade của bạn: không tính skill badge, bonus facilitator và badge ngoài lịch sử này. Badge chưa khớp có thể khiến điểm đạt được hiển thị thấp hơn thực tế.",
     "__releasedPoints:coverage": "Dữ liệu lịch sử: {count}/{total} tháng. Game chưa rõ điểm: {unknown}. Không tính các tháng thiếu dữ liệu.",
     "__releasedPoints:released": "Điểm đã phát hành",
@@ -607,7 +607,9 @@
     "__releasedPoints:profile": "Phân tích hồ sơ để so sánh điểm.",
     "__releasedPoints:loading": "Đang tải lịch sử điểm…",
     "__releasedPoints:error": "Không tải được lịch sử điểm.",
-    "__releasedPoints:retry": "Thử lại"
+    "__releasedPoints:retry": "Thử lại",
+    "__releasedPoints:overviewTitle": "Phân tích điểm Arcade · {year}",
+    "__releasedPoints:skillCoverage": "Điểm Skill badges đã đạt được tính ở trên. Nguồn lịch sử chưa cung cấp đầy đủ danh sách skill badge hợp lệ, nên tổng điểm phát hành và tỷ lệ hoàn thành bên dưới chỉ áp dụng cho game."
   },
   "dynamic": {
     "memberSince": "Thành viên từ {value}",

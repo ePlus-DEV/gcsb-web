@@ -588,7 +588,7 @@
     "Ranger receives the Trooper core pack, including the Arcade Travel Bottle, plus the exclusive Ranger bonus reward, the Arcade Backpack.": "RangerにはArcade Travel Bottleを含むTrooperパックと、Ranger限定特典のArcade Backpackが含まれます。",
     "Official minimum: 2 confirmed Ranger items — the Arcade Travel Bottle from Trooper and the Ranger-exclusive Arcade Backpack. Historical estimate: about 6 items.": "公式確定分はRanger向け2点、Trooperから引き継ぐArcade Travel Bottleと限定Arcade Backpackです。過去実績による推定は約6点です。",
     "The Arcade Travel Bottle and Arcade Backpack are confirmed for Ranger; other Trooper-family items have not yet been revealed.": "Ranger向けにArcade Travel BottleとArcade Backpackが確定しています。その他のTrooper系アイテムは未発表です。",
-    "__releasedPoints:title": "公開済みArcadeポイント · {year}",
+    "__releasedPoints:title": "公開済みゲーム · {year}",
     "__releasedPoints:scope": "重複を除いた公開ゲームとプロフィールのバッジを照合します。Arcadeの総得点ではありません。スキルバッジ、ファシリテーターボーナス、履歴にないバッジは除外されます。未照合のバッジにより獲得ポイントが実際より少なく表示される場合があります。",
     "__releasedPoints:coverage": "履歴: {count}/{total}か月。ポイント不明のゲーム: {unknown}。欠落月は含みません。",
     "__releasedPoints:released": "公開ポイント",
@@ -598,7 +598,9 @@
     "__releasedPoints:profile": "プロフィールを分析してポイントを比較します。",
     "__releasedPoints:loading": "ポイント履歴を読み込み中…",
     "__releasedPoints:error": "ポイント履歴を読み込めません。",
-    "__releasedPoints:retry": "再試行"
+    "__releasedPoints:retry": "再試行",
+    "__releasedPoints:overviewTitle": "Arcadeポイント分析 · {year}",
+    "__releasedPoints:skillCoverage": "獲得したスキルバッジのポイントは上記に含まれます。履歴には対象スキルバッジの完全な一覧がないため、以下の公開総ポイントと達成率はゲームのみが対象です。"
   },
   "dynamic": {
     "memberSince": "メンバー登録: {value}",

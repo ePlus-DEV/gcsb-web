@@ -588,7 +588,7 @@
     "Ranger receives the Trooper core pack, including the Arcade Travel Bottle, plus the exclusive Ranger bonus reward, the Arcade Backpack.": "Ranger получает базовый набор Trooper, включая Arcade Travel Bottle, а также эксклюзивную награду Ranger — Arcade Backpack.",
     "Official minimum: 2 confirmed Ranger items — the Arcade Travel Bottle from Trooper and the Ranger-exclusive Arcade Backpack. Historical estimate: about 6 items.": "Официальный минимум: 2 подтверждённых предмета Ranger — Arcade Travel Bottle из Trooper и эксклюзивный Arcade Backpack. Историческая оценка: около 6 предметов.",
     "The Arcade Travel Bottle and Arcade Backpack are confirmed for Ranger; other Trooper-family items have not yet been revealed.": "Arcade Travel Bottle и Arcade Backpack подтверждены для Ranger; остальные предметы семейства Trooper ещё не объявлены.",
-    "__releasedPoints:title": "Опубликованные баллы Arcade · {year}",
+    "__releasedPoints:title": "Опубликованные игры · {year}",
     "__releasedPoints:scope": "Сопоставляет значки с опубликованными играми без дубликатов. Это не общий счёт Arcade: исключены значки навыков, бонусы фасилитатора и значки, отсутствующие в истории. Несопоставленные значки могут занижать показанные баллы.",
     "__releasedPoints:coverage": "История: {count}/{total} месяцев. Игры с неизвестными баллами: {unknown}. Месяцы без данных исключены.",
     "__releasedPoints:released": "Опубликованные баллы",
@@ -598,7 +598,9 @@
     "__releasedPoints:profile": "Проанализируйте профиль для сравнения баллов.",
     "__releasedPoints:loading": "Загрузка истории…",
     "__releasedPoints:error": "Не удалось загрузить историю.",
-    "__releasedPoints:retry": "Повторить"
+    "__releasedPoints:retry": "Повторить",
+    "__releasedPoints:overviewTitle": "Анализ баллов Arcade · {year}",
+    "__releasedPoints:skillCoverage": "Полученные баллы за значки навыков включены выше. Источник истории не содержит полного каталога подходящих значков навыков, поэтому опубликованная сумма и процент ниже относятся только к играм."
   },
   "dynamic": {
     "memberSince": "Участник с {value}",

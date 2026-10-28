@@ -588,7 +588,7 @@
     "Ranger receives the Trooper core pack, including the Arcade Travel Bottle, plus the exclusive Ranger bonus reward, the Arcade Backpack.": "Ranger recibe el paquete Trooper, incluida Arcade Travel Bottle, más la recompensa exclusiva de Ranger: Arcade Backpack.",
     "Official minimum: 2 confirmed Ranger items — the Arcade Travel Bottle from Trooper and the Ranger-exclusive Arcade Backpack. Historical estimate: about 6 items.": "Mínimo oficial: 2 artículos Ranger confirmados: Arcade Travel Bottle heredada de Trooper y Arcade Backpack exclusiva. Estimación histórica: unos 6 artículos.",
     "The Arcade Travel Bottle and Arcade Backpack are confirmed for Ranger; other Trooper-family items have not yet been revealed.": "Arcade Travel Bottle y Arcade Backpack están confirmados para Ranger; otros artículos de la familia Trooper aún no se han revelado.",
-    "__releasedPoints:title": "Puntos Arcade publicados · {year}",
+    "__releasedPoints:title": "Juegos publicados · {year}",
     "__releasedPoints:scope": "Vincula las insignias con los juegos publicados sin duplicados. No es tu puntuación Arcade total: excluye insignias de habilidades, bonos de facilitador e insignias ausentes del historial. Las insignias sin vincular pueden reducir los puntos mostrados.",
     "__releasedPoints:coverage": "Historial: {count}/{total} meses. Juegos con puntos desconocidos: {unknown}. Se excluyen los meses sin datos.",
     "__releasedPoints:released": "Puntos publicados",
@@ -598,7 +598,9 @@
     "__releasedPoints:profile": "Analiza tu perfil para comparar puntos.",
     "__releasedPoints:loading": "Cargando historial…",
     "__releasedPoints:error": "No se pudo cargar el historial.",
-    "__releasedPoints:retry": "Reintentar"
+    "__releasedPoints:retry": "Reintentar",
+    "__releasedPoints:overviewTitle": "Análisis de puntos Arcade · {year}",
+    "__releasedPoints:skillCoverage": "Los puntos obtenidos por insignias de habilidades se incluyen arriba. La fuente histórica no ofrece un catálogo completo de insignias válidas; el total publicado y el porcentaje inferior corresponden solo a juegos."
   },
   "dynamic": {
     "memberSince": "Miembro desde {value}",

@@ -588,7 +588,7 @@
     "Ranger receives the Trooper core pack, including the Arcade Travel Bottle, plus the exclusive Ranger bonus reward, the Arcade Backpack.": "Ranger recebe o pacote Trooper, incluindo Arcade Travel Bottle, mais o bônus exclusivo de Ranger, Arcade Backpack.",
     "Official minimum: 2 confirmed Ranger items — the Arcade Travel Bottle from Trooper and the Ranger-exclusive Arcade Backpack. Historical estimate: about 6 items.": "Mínimo oficial: 2 itens Ranger confirmados — Arcade Travel Bottle herdada de Trooper e Arcade Backpack exclusiva. Estimativa histórica: cerca de 6 itens.",
     "The Arcade Travel Bottle and Arcade Backpack are confirmed for Ranger; other Trooper-family items have not yet been revealed.": "Arcade Travel Bottle e Arcade Backpack estão confirmados para Ranger; outros itens da família Trooper ainda não foram revelados.",
-    "__releasedPoints:title": "Pontos Arcade publicados · {year}",
+    "__releasedPoints:title": "Jogos publicados · {year}",
     "__releasedPoints:scope": "Compara emblemas com jogos publicados sem duplicatas. Não é sua pontuação Arcade total: exclui emblemas de habilidades, bônus de facilitador e emblemas ausentes do histórico. Emblemas sem correspondência podem reduzir os pontos exibidos.",
     "__releasedPoints:coverage": "Histórico: {count}/{total} meses. Jogos com pontos desconhecidos: {unknown}. Meses sem dados são excluídos.",
     "__releasedPoints:released": "Pontos publicados",
@@ -598,7 +598,9 @@
     "__releasedPoints:profile": "Analise seu perfil para comparar pontos.",
     "__releasedPoints:loading": "Carregando histórico…",
     "__releasedPoints:error": "Não foi possível carregar o histórico.",
-    "__releasedPoints:retry": "Tentar novamente"
+    "__releasedPoints:retry": "Tentar novamente",
+    "__releasedPoints:overviewTitle": "Análise de pontos Arcade · {year}",
+    "__releasedPoints:skillCoverage": "Os pontos obtidos com emblemas de habilidades estão incluídos acima. A fonte histórica não fornece um catálogo completo dos emblemas elegíveis; o total publicado e a taxa abaixo abrangem apenas jogos."
   },
   "dynamic": {
     "memberSince": "Membro desde {value}",

@@ -57,3 +57,20 @@
   .released-stat dd { font-size: 1.65rem; }
   .released-points-notes { font-size: .61rem; }
 }
+
+.released-profile-total { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; justify-content: flex-end; text-align: end; }
+.released-profile-total span, .released-profile-regular { color: var(--released-muted); font-size: .68rem; }
+.released-profile-total strong { color: var(--released-text); font-size: 1.7rem; line-height: 1; font-variant-numeric: tabular-nums; }
+.released-stat.is-skill { --stat-color: #7dd3fc; border-color: rgba(56, 189, 248, .2); background: rgba(56, 189, 248, .04); }
+.released-profile-regular { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: -4px; }
+.released-profile-regular strong { color: var(--released-text); }
+.released-history-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 18px; margin: 18px 0 14px; border-top: 1px solid var(--released-line); }
+.released-history-heading h4 { margin: 0; color: var(--released-text); font-size: .76rem; line-height: 1.45; }
+.released-points-panel .released-skill-coverage { margin-top: 14px; padding-inline-start: 10px; border-inline-start: 2px solid rgba(56, 189, 248, .4); }
+.light .released-stat.is-skill { --stat-color: #0369a1; background: #f0f9ff; }
+@media(max-width:680px) {
+  .released-profile-total { display: grid; gap: 4px; flex: 0 0 auto; }
+  .released-profile-total span { max-width: 95px; font-size: .58rem; }
+  .released-profile-total strong { font-size: 1.5rem; }
+  .released-history-heading { margin-top: 14px; padding-top: 14px; }
+}

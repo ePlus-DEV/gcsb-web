@@ -588,7 +588,7 @@
     "Ranger receives the Trooper core pack, including the Arcade Travel Bottle, plus the exclusive Ranger bonus reward, the Arcade Backpack.": "تحصل فئة Ranger على حزمة Trooper بما فيها Arcade Travel Bottle، إضافة إلى مكافأة Ranger الحصرية Arcade Backpack.",
     "Official minimum: 2 confirmed Ranger items — the Arcade Travel Bottle from Trooper and the Ranger-exclusive Arcade Backpack. Historical estimate: about 6 items.": "الحد الأدنى الرسمي: منتجان مؤكدان لفئة Ranger، وهما Arcade Travel Bottle الموروثة من Trooper وArcade Backpack الحصرية. التقدير التاريخي نحو 6 منتجات.",
     "The Arcade Travel Bottle and Arcade Backpack are confirmed for Ranger; other Trooper-family items have not yet been revealed.": "تم تأكيد Arcade Travel Bottle وArcade Backpack لفئة Ranger؛ ولم يُعلن بعد عن بقية منتجات عائلة Trooper.",
-    "__releasedPoints:title": "نقاط Arcade المنشورة · {year}",
+    "__releasedPoints:title": "الألعاب المنشورة · {year}",
     "__releasedPoints:scope": "يطابق شارات الملف الشخصي مع الألعاب المنشورة بعد إزالة التكرار. هذه ليست مجموع نقاط Arcade: لا تشمل شارات المهارات ومكافآت الميسّر والشارات الغائبة عن السجل. قد تؤدي الشارات غير المطابقة إلى عرض نقاط أقل من الفعلية.",
     "__releasedPoints:coverage": "تغطية السجل: {count}/{total} أشهر. ألعاب بنقاط مجهولة: {unknown}. الأشهر المفقودة غير محسوبة.",
     "__releasedPoints:released": "النقاط المنشورة",
@@ -598,7 +598,9 @@
     "__releasedPoints:profile": "حلّل ملفك الشخصي لمقارنة النقاط.",
     "__releasedPoints:loading": "جارٍ تحميل سجل النقاط…",
     "__releasedPoints:error": "تعذّر تحميل سجل النقاط.",
-    "__releasedPoints:retry": "إعادة المحاولة"
+    "__releasedPoints:retry": "إعادة المحاولة",
+    "__releasedPoints:overviewTitle": "تحليل نقاط Arcade · {year}",
+    "__releasedPoints:skillCoverage": "تتضمن الأرقام أعلاه نقاط شارات المهارات المكتسبة. لا يوفر مصدر السجل قائمة كاملة بشارات المهارات المؤهلة، لذلك يقتصر المجموع المنشور ونسبة الإنجاز أدناه على الألعاب."
   },
   "dynamic": {
     "memberSince": "عضو منذ {value}",

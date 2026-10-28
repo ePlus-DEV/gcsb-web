@@ -560,7 +560,7 @@
     "Ranger receives the Trooper core pack, including the Arcade Travel Bottle, plus the exclusive Ranger bonus reward, the Arcade Backpack.": "Ranger receives the Trooper core pack, including the Arcade Travel Bottle, plus the exclusive Ranger bonus reward, the Arcade Backpack.",
     "Official minimum: 2 confirmed Ranger items — the Arcade Travel Bottle from Trooper and the Ranger-exclusive Arcade Backpack. Historical estimate: about 6 items.": "Official minimum: 2 confirmed Ranger items — the Arcade Travel Bottle from Trooper and the Ranger-exclusive Arcade Backpack. Historical estimate: about 6 items.",
     "The Arcade Travel Bottle and Arcade Backpack are confirmed for Ranger; other Trooper-family items have not yet been revealed.": "The Arcade Travel Bottle and Arcade Backpack are confirmed for Ranger; other Trooper-family items have not yet been revealed.",
-    "__releasedPoints:title": "Arcade released points · {year}",
+    "__releasedPoints:title": "Published games · {year}",
     "__releasedPoints:scope": "Matches profile badges to deduplicated published games. This is not your full Arcade score: skill badges, facilitator bonuses, and badges absent from this history are excluded. Unmatched badges can make earned points appear lower.",
     "__releasedPoints:coverage": "History coverage: {count}/{total} months. Games with unknown points: {unknown}. Missing months are not counted.",
     "__releasedPoints:released": "Published points",
@@ -570,7 +570,9 @@
     "__releasedPoints:profile": "Analyze your profile to compare points.",
     "__releasedPoints:loading": "Loading points history…",
     "__releasedPoints:error": "Unable to load points history.",
-    "__releasedPoints:retry": "Try again"
+    "__releasedPoints:retry": "Try again",
+    "__releasedPoints:overviewTitle": "Arcade point analysis · {year}",
+    "__releasedPoints:skillCoverage": "Earned skill-badge points are included above. The history source does not provide a complete eligible skill-badge catalog, so the published total and completion rate below cover games only."
   },
   "dynamic": {
     "memberSince": "Member since {value}",

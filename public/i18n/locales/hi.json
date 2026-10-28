@@ -588,7 +588,7 @@
     "Ranger receives the Trooper core pack, including the Arcade Travel Bottle, plus the exclusive Ranger bonus reward, the Arcade Backpack.": "Ranger को Arcade Travel Bottle सहित Trooper का मूल पैक और Ranger का विशेष बोनस Arcade Backpack मिलता है।",
     "Official minimum: 2 confirmed Ranger items — the Arcade Travel Bottle from Trooper and the Ranger-exclusive Arcade Backpack. Historical estimate: about 6 items.": "आधिकारिक न्यूनतम: Ranger के 2 पुष्टि किए गए आइटम — Trooper से Arcade Travel Bottle और Ranger का विशेष Arcade Backpack। ऐतिहासिक अनुमान लगभग 6 आइटम है।",
     "The Arcade Travel Bottle and Arcade Backpack are confirmed for Ranger; other Trooper-family items have not yet been revealed.": "Arcade Travel Bottle और Arcade Backpack की Ranger के लिए पुष्टि हो चुकी है; Trooper समूह के अन्य आइटम अभी घोषित नहीं हुए हैं।",
-    "__releasedPoints:title": "प्रकाशित Arcade अंक · {year}",
+    "__releasedPoints:title": "प्रकाशित गेम · {year}",
     "__releasedPoints:scope": "प्रोफ़ाइल बैज का मिलान डुप्लिकेट हटाए गए प्रकाशित गेम से करता है। यह आपका कुल Arcade स्कोर नहीं है: स्किल बैज, फ़ैसिलिटेटर बोनस और इतिहास में अनुपस्थित बैज शामिल नहीं हैं। बिना मिलान वाले बैज के कारण अर्जित अंक वास्तविक से कम दिख सकते हैं।",
     "__releasedPoints:coverage": "इतिहास: {count}/{total} महीने। अज्ञात अंक वाले गेम: {unknown}। अनुपलब्ध महीने शामिल नहीं हैं।",
     "__releasedPoints:released": "प्रकाशित अंक",
@@ -598,7 +598,9 @@
     "__releasedPoints:profile": "अंकों की तुलना के लिए प्रोफ़ाइल का विश्लेषण करें।",
     "__releasedPoints:loading": "अंक इतिहास लोड हो रहा है…",
     "__releasedPoints:error": "अंक इतिहास लोड नहीं हो सका।",
-    "__releasedPoints:retry": "फिर कोशिश करें"
+    "__releasedPoints:retry": "फिर कोशिश करें",
+    "__releasedPoints:overviewTitle": "Arcade अंक विश्लेषण · {year}",
+    "__releasedPoints:skillCoverage": "अर्जित स्किल बैज अंक ऊपर शामिल हैं। इतिहास स्रोत में सभी मान्य स्किल बैज की पूरी सूची नहीं है, इसलिए नीचे प्रकाशित अंकों का कुल और पूर्णता दर केवल गेम के लिए हैं।"
   },
   "dynamic": {
     "memberSince": "{value} से सदस्य",

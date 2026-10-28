@@ -4,9 +4,11 @@ import { useEffect, useState } from "react"
 import { Trophy, Check, Clock, Circle } from "lucide-react"
 import type { WebsiteCatalog } from "@/lib/website-i18n"
 import type { ArcadeBadge } from "./model"
+import type { ProfilePointSummary } from "./profile-point-summary"
 import { parseReleasedGames, summarizeReleasedPoints, type ReleasedGame } from "./released-points"
 
-export default function ReleasedPointsPanel({ badges, hasProfile, catalog, locale, nowMs }: {
+export default function ReleasedPointsPanel({ badges, hasProfile, catalog, locale, nowMs, profilePoints }: {
+  profilePoints?: ProfilePointSummary | null
   badges: ArcadeBadge[]; hasProfile: boolean; catalog: WebsiteCatalog; locale: string; nowMs: number
 }) {
   const [games, setGames] = useState<ReleasedGame[] | null>(null)
@@ -39,10 +41,23 @@ export default function ReleasedPointsPanel({ badges, hasProfile, catalog, local
   }, [year, month, attempt])
 
   const summary = games ? summarizeReleasedPoints(games, badges, nowMs) : null
-  const number = (value: number) => new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(value)
+  const number = (value: number | null) => value === null ? "—" : new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(value)
   return <section className="released-points-panel" aria-labelledby="released-points-title" aria-busy={!summary && !failed}>
     <div className="released-points-heading">
-      <div className="released-points-heading-title"><span className="released-points-emblem" aria-hidden="true"><Trophy /></span><h3 id="released-points-title">{text("title", { year: String(year) })}</h3></div>
+      <div className="released-points-heading-title"><span className="released-points-emblem" aria-hidden="true"><Trophy /></span><h3 id="released-points-title">{text("overviewTitle", { year: String(year) })}</h3></div>
+      {hasProfile && profilePoints && <div className="released-profile-total"><span>{catalog.messages.totalArcadePoints}</span><strong>{number(profilePoints.total)}</strong></div>}
+    </div>
+    {hasProfile && profilePoints && <>
+      <dl className="released-points-stats released-profile-stats">
+        <div className="released-stat is-total"><dt>{catalog.messages.gameBadges}</dt><dd>{number(profilePoints.games)}</dd></div>
+        <div className="released-stat is-skill"><dt>{catalog.messages.skillBadges}</dt><dd>{number(profilePoints.skills)}</dd></div>
+        <div className="released-stat is-available"><dt>{catalog.messages.triviaSpecial}</dt><dd>{number(profilePoints.triviaSpecial)}</dd></div>
+        <div className="released-stat is-earned"><dt>{catalog.messages.facilitatorBonus}</dt><dd>{number(profilePoints.bonus)}</dd></div>
+      </dl>
+      <div className="released-profile-regular"><span>{catalog.messages.regularPoints}</span><strong>{number(profilePoints.regular)}</strong></div>
+    </>}
+    <p className="released-skill-coverage">{text("skillCoverage")}</p>
+    <div className="released-history-heading"><h4>{text("title", { year: String(year) })}</h4>
       {hasProfile && summary && <output className="released-points-percent">{new Intl.NumberFormat(locale, { style: "percent", maximumFractionDigits: 1 }).format(summary.percent)}</output>}
     </div>
     {failed ? <div role="status"><p>{text("error")}</p><button type="button" onClick={() => setAttempt((value) => value + 1)}>{text("retry")}</button></div>
