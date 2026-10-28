@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - "app/profile/**"
-      - "app/[[]locale[]]/profile/**"
+      - "app/*/profile/**"
       - "components/arcade/shared-profile-client.tsx"
       - "components/fontawesome-icon-adapter.tsx"
       - ".github/workflows/shared-profile-preview.yml"

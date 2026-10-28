@@ -23,7 +23,7 @@ export default function ProfileAnalyzer({ catalog, value, onChange, onSubmit, on
     <form onSubmit={onSubmit} noValidate aria-busy={loading}>
       <div className={error ? "profile-input has-error" : "profile-input"}>
         <Search aria-hidden="true" />
-        <input id="arcade-profile-url" type="url" inputMode="url" autoComplete="url" value={value}
+        <input data-arcade-profile-input="true" id="arcade-profile-url" type="url" inputMode="url" autoComplete="url" value={value}
           onChange={event => onChange(event.target.value)} placeholder={copy.profileUrl}
           aria-invalid={Boolean(error)} aria-describedby={error ? "arcade-profile-error" : undefined} />
         {value && <button type="button" aria-label={copy.clearProfileUrl} onClick={() => onChange("")}><X /></button>}

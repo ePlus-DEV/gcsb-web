@@ -15,7 +15,7 @@ import {
 import { DASHBOARD_STORAGE_KEY, PROFILE_URL_PATTERN } from "./model"
 
 const ANALYZER_SELECTOR = ".profile-analyzer-card"
-const INPUT_SELECTOR = 'input[aria-label="Google Skills public profile URL"]'
+const INPUT_SELECTOR = 'input[data-arcade-profile-input="true"]'
 const HELP_ROW_SELECTOR = ".analyzer-help-row"
 const AUTO_FETCH_STORAGE_KEY = "gcsb-auto-fetch-latest-profile"
 const BADGE_DATE_SELECTOR = ".earned-badge time"

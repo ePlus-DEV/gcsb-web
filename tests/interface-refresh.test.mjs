@@ -62,3 +62,21 @@ test("text and primary controls have accessible contrast in both palettes", () =
     assert.ok(contrast(vars["brand-ink"],vars.brand)>=7)
   }
 })
+
+
+test("profile enhancers use the same locale-independent input anchor as the analyzer", () => {
+  const source = readRepoFile("components/arcade/profile-analyzer.tsx")
+  assert.match(source, /data-arcade-profile-input="true"/)
+  for (const path of ["components/arcade/facilitator-analyzer-option.tsx", "components/arcade/fresh-score-check-enhancer.tsx"]) {
+    const enhancer = readRepoFile(path)
+    assert.match(enhancer, /input\[data-arcade-profile-input="true"\]/)
+    assert.doesNotMatch(enhancer, /input\[aria-label=/)
+  }
+})
+
+
+test("shared-profile CI uses a valid single-segment locale path glob", () => {
+  const workflow = readRepoFile(".github/workflows/shared-profile-preview.yml")
+  assert.ok(workflow.includes('"app/*/profile/**"'))
+  assert.ok(!workflow.includes("[[]locale[]]"))
+})
