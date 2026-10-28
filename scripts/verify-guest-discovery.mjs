@@ -96,10 +96,10 @@ try {
           await page.locator(".point-history-count strong").waitFor({ state: "visible" })
           const heightBefore = await pointCard.evaluate((el) => el.getBoundingClientRect().height)
           if (width === 1440) {
-            const focusedBefore = await page.evaluate(() => document.activeElement?.outerHTML)
+            await page.evaluate(() => { window.__focusedBeforeHistoryHover = document.activeElement })
             await page.locator(".point-history-label").hover()
             await page.locator(".point-history-popover").waitFor({ state: "visible" })
-            assert.equal(await page.evaluate(() => document.activeElement?.outerHTML), focusedBefore, "Desktop hover must not steal keyboard focus")
+            assert.equal(await page.evaluate(() => document.activeElement === window.__focusedBeforeHistoryHover), true, "Desktop hover must not steal keyboard focus")
             await page.locator(".point-history-popover .point-comparison-stats").hover()
             await page.waitForTimeout(250)
             assert.equal(await page.locator(".point-history-popover").count(), 1, "Hover card should stay open when pointer crosses to the popover")
