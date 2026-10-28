@@ -119,8 +119,8 @@ export default function ReleasedPointsPanel({ badges, hasProfile, catalog, local
         </div>
       </section>
       {historyOpen && typeof document !== "undefined" && createPortal(
-        <div className="point-history-portal" dir={locale.startsWith("ar") ? "rtl" : "ltr"}>
-          <div className="point-history-backdrop" aria-hidden="true" onMouseDown={() => setHistoryOpen(false)} />
+        <div className={`point-history-portal${document.documentElement.classList.contains("light") || document.body.classList.contains("light") ? " is-light" : ""}`} dir={locale.startsWith("ar") ? "rtl" : "ltr"}>
+          <div className="point-history-backdrop" aria-hidden="true" onClick={() => setHistoryOpen(false)} />
           <section id={dialogId} ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby={`${dialogId}-title`}
             tabIndex={-1} className="point-history-popover"
             style={{ top: popoverPosition.top, left: popoverPosition.left, maxHeight: popoverPosition.maxHeight }}>
