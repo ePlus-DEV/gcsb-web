@@ -96,9 +96,30 @@ try {
           await page.locator(".point-history-count strong").waitFor({ state: "visible" })
           const heightBefore = await pointCard.evaluate((el) => el.getBoundingClientRect().height)
           if (width === 1440) {
-            await page.evaluate(() => { window.__focusedBeforeHistoryHover = document.activeElement })
+            await page.evaluate(() => {
+              window.__focusedBeforeHistoryHover = document.activeElement
+              window.__historyFirstPosition = null
+              // Observe the FIRST DOM insertion, before any post-mount effect
+              // could move the portal from an incorrect placeholder position.
+              const observer = new MutationObserver(() => {
+                const popup = document.querySelector(".point-history-popover")
+                if (!popup || window.__historyFirstPosition) return
+                const trigger = document.querySelector(".point-history-trigger").getBoundingClientRect()
+                const width = Math.min(380, innerWidth - 24)
+                window.__historyFirstPosition = {
+                  actualLeft: Number.parseFloat(popup.style.left),
+                  expectedLeft: Math.max(12, Math.min(trigger.right - width, innerWidth - width - 12)),
+                }
+                observer.disconnect()
+              })
+              observer.observe(document.body, { childList: true, subtree: true })
+            })
             await page.locator(".point-history-label").hover()
             await page.locator(".point-history-popover").waitFor({ state: "visible" })
+            const firstPosition = await page.evaluate(() => window.__historyFirstPosition)
+            assert.ok(firstPosition, "First popup insertion must have a measured position")
+            assert.ok(Math.abs(firstPosition.actualLeft - firstPosition.expectedLeft) <= 1,
+              `Initial popup jumped from ${firstPosition.actualLeft}px instead of opening at ${firstPosition.expectedLeft}px`)
             assert.equal(await page.evaluate(() => document.activeElement === window.__focusedBeforeHistoryHover), true, "Desktop hover must not steal keyboard focus")
             await page.locator(".point-history-popover .point-comparison-stats").hover()
             await page.waitForTimeout(250)
