@@ -1,4 +1,6 @@
 import path from "node:path"
+import { createHash } from "node:crypto"
+import { readFileSync, readdirSync } from "node:fs"
 
 /** @type {import('next').NextConfig} */
 // Keep static export paths configurable for production and per-PR previews.
@@ -24,6 +26,16 @@ const publicRuntimeEnvKeys = [
 const publicRuntimeEnv = Object.fromEntries(
   publicRuntimeEnvKeys.map((key) => [key, process.env[key] ?? ""]),
 )
+
+// A changed locale catalog must use a fresh URL even on cached static previews.
+const localeSourceDirectory = path.join(process.cwd(), "public", "i18n", "locales")
+const localeCatalogVersion = createHash("sha256")
+for (const filename of readdirSync(localeSourceDirectory).filter(name => name.endsWith(".json")).sort()) {
+  localeCatalogVersion.update(filename)
+  localeCatalogVersion.update(readFileSync(path.join(localeSourceDirectory, filename)))
+}
+const i18nVersion = localeCatalogVersion.digest("hex").slice(0, 16)
+publicRuntimeEnv.NEXT_PUBLIC_I18N_VERSION = i18nVersion
 
 const nextConfig = {
   ...(isStaticExport
