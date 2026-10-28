@@ -469,24 +469,29 @@ export default function RedesignCalculator({
   const unknownBadges = result?.beta?.unknownBadges ?? []
   const isTierQualified = scoreComplete && Boolean(qualifiedMilestone)
 
+  const scoreCatalog = activeHistoryLanguage.catalog
+  const scoreLocale = activeHistoryLanguage.locale.replace("_", "-")
+  const scoreText = (key: string, params: Record<string, string>) =>
+    scoreCatalog.additional[`__score:${key}`].replace(/\{(\w+)\}/g, (token, name: string) => params[name] ?? token)
+  const scoreNumber = (value: number) => new Intl.NumberFormat(scoreLocale).format(value)
   const pointBreakdown = [
     {
       key: "game",
-      label: "Game badges",
+      label: scoreCatalog.messages.gameBadges,
       icon: <Gamepad2 />,
       value: numeric(result?.arcadePoints?.gamePoints),
       tone: "purple",
     },
     {
       key: "skill",
-      label: "Skill badges",
+      label: scoreCatalog.messages.skillBadges,
       icon: <BadgeCheck />,
       value: numeric(result?.arcadePoints?.skillPoints),
       tone: "blue",
     },
     {
       key: "bonus",
-      label: "Trivia & special",
+      label: scoreCatalog.messages.triviaSpecial,
       icon: <Star />,
       value:
         numeric(result?.arcadePoints?.triviaPoints) +
@@ -498,7 +503,7 @@ export default function RedesignCalculator({
       ? [
           {
             key: "facilitator",
-            label: "Facilitator bonus",
+            label: scoreCatalog.messages.facilitatorBonus,
             icon: <GraduationCap />,
             value: facilitatorBonus,
             tone: "violet",
@@ -819,14 +824,12 @@ export default function RedesignCalculator({
             </article>
 
             <article className="dashboard-panel breakdown-panel">
-              <PanelTitle>Point breakdown</PanelTitle>
-              <div className="points-total"><strong>{formatNumber(points)}</strong><span>Total Arcade points</span></div>
+              <PanelTitle>{scoreCatalog.messages.pointBreakdown}</PanelTitle>
+              <div className="points-total"><strong>{formatNumber(points)}</strong><span>{scoreCatalog.messages.totalArcadePoints}</span></div>
               <div
                 className="point-composition-bar"
                 role="img"
-                aria-label={`Point distribution: ${pointBreakdown
-                  .map((item) => `${item.label} ${formatNumber(item.value)} points`)
-                  .join(", ")}`}
+                aria-label={scoreText("distribution", { items: pointBreakdown.map((item) => `${item.label}: ${scoreNumber(item.value)}`).join(", ") })}
               >
                 {pointBreakdown.map((item) => {
                   const share =
@@ -839,7 +842,7 @@ export default function RedesignCalculator({
                       key={item.key}
                       className={`point-composition-segment point-tone-${item.tone}`}
                       style={{ width: `${share}%` }}
-                      title={`${item.label}: ${formatNumber(item.value)} pts (${share.toFixed(1)}%)`}
+                      title={scoreText("segment", { label: item.label, value: scoreNumber(item.value), percent: new Intl.NumberFormat(scoreLocale, { style: "percent", maximumFractionDigits: 1 }).format(share / 100) })}
                       aria-hidden="true"
                     />
                   )
@@ -856,10 +859,10 @@ export default function RedesignCalculator({
               />
               <p className="panel-link-note">
                 {facilitatorBonus > 0
-                  ? `Includes +${formatNumber(facilitatorBonus)} Facilitator bonus.`
+                  ? scoreText("bonusIncluded", { bonus: scoreNumber(facilitatorBonus) })
                   : scoreComplete
-                    ? "All eligible returned badges were classified."
-                    : `${unknownBadgeCount} badge(s) still need scoring review.`}
+                    ? scoreCatalog.messages.allBadgesClassified
+                    : scoreCatalog.dynamic.needReview.replace("{count}", scoreNumber(unknownBadgeCount))}
               </p>
 
             </article>
@@ -911,7 +914,7 @@ export default function RedesignCalculator({
               <div className="badge-heading-row">
                 <div>
                   <PanelTitle>Earned badges</PanelTitle>
-                  <p>{filteredBadges.length} badge{filteredBadges.length === 1 ? "" : "s"} in this view</p>
+                  <p>{scoreCatalog.dynamic.badgesInView.replace("{count}", scoreNumber(filteredBadges.length))}</p>
                 </div>
                 <div className="badge-filters" role="group" aria-label="Filter badges">
                   {FILTERS.map((item) => (
@@ -947,7 +950,7 @@ export default function RedesignCalculator({
                       <p>
                         {badge.points === "-*"
                           ? "Special scoring rule"
-                          : `+${formatNumber(numeric(badge.points))} pts`}
+                          : scoreCatalog.dynamic.points.replace("{count}", scoreNumber(numeric(badge.points)))}
                       </p>
                       <time>{safeDateLabel(badge.dateEarned)}</time>
                       <SafeExternalLink
@@ -1002,7 +1005,7 @@ export default function RedesignCalculator({
                         />
                       </span>
                       <strong>{badge.title}</strong>
-                      <b>+{formatNumber(numeric(badge.points))} pts</b>
+                      <b>{scoreCatalog.dynamic.points.replace("{count}", scoreNumber(numeric(badge.points)))}</b>
                     </div>
                   ))}
                 </div>
@@ -1072,7 +1075,7 @@ export default function RedesignCalculator({
         <nav className="footer-route-links" aria-label="Site information">
           <Link href="/about/">About</Link>
           <Link href="/guide/">Guide</Link>
-          <Link href="/swag-drops/">Swag archive</Link>
+          <Link href="/swag-drops/">{scoreCatalog.additional["__score:swagArchive"]}</Link>
           <Link href="/privacy/">Privacy</Link>
           <Link href="/terms/">Terms</Link>
         </nav>

@@ -606,7 +606,20 @@
     "__releasedPoints:incomplete": "Unvollständige Daten",
     "__releasedPoints:category": "Kategorie",
     "__releasedPoints:history": "Im Verlauf",
-    "__releasedPoints:comparisonNote": "Die Verlaufssummen können unvollständig sein. Erreichte Punkte stammen aus der Profilbewertung; Verlaufstreffer können abweichen. Höchstwerte für Skill-Badges und Boni sind nicht verfügbar."
+    "__releasedPoints:comparisonNote": "Die Verlaufssummen können unvollständig sein. Erreichte Punkte stammen aus der Profilbewertung; Verlaufstreffer können abweichen. Höchstwerte für Skill-Badges und Boni sind nicht verfügbar.",
+    "__score:bonusIncluded": "Enthält {bonus} Facilitator-Bonuspunkte.",
+    "__score:distribution": "Punkteverteilung: {items}",
+    "__score:segment": "{label}: {value} Punkte ({percent})",
+    "__profileOption:participating": "Teilnahme am Facilitator Program",
+    "__profileOption:includeHighest": "Den höchsten berechtigten Facilitator-Meilensteinbonus einbeziehen.",
+    "__profileOption:pasteValid": "Füge eine gültige öffentliche Profil-URL ein, um diese Option zu aktivieren.",
+    "__profileOption:autoFetch": "Neueste Daten automatisch abrufen",
+    "__profileOption:autoFetchDescription": "Das gespeicherte Profil beim Öffnen dieser Seite einmal aktualisieren.",
+    "__countdown:deadline": "Frist",
+    "__countdown:notAnnounced": "Noch nicht bekannt",
+    "__countdown:unavailable": "Frist nicht verfügbar",
+    "__countdown:awaiting": "Warten auf Informationen zum Facilitator-Programm",
+    "__score:swagArchive": "Arcade-Belohnungsarchiv"
   },
   "dynamic": {
     "memberSince": "Mitglied seit {value}",

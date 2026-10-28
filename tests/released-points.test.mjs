@@ -59,7 +59,7 @@ test("English and Vietnamese panels render matching localized point summaries", 
   const compiled = ts.transpileModule(readRepoFile("components/arcade/released-points-panel.tsx"), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2022 },
   }).outputText
-  for (const [locale, heading, earned] of [["en", "Arcade point analysis", "Points matched in history"], ["vi", "Phân tích điểm Arcade", "Điểm khớp trong lịch sử"]]) {
+  for (const [locale, heading, earned] of [["en", "Arcade point analysis", "Points matched in history"], ["vi", "Tổng quan điểm Arcade", "Điểm đã xác nhận theo danh sách"]]) {
     let stateIndex = 0
     let failedState = false
     const module = { exports: {} }

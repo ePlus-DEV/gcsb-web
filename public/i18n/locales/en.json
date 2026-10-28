@@ -578,7 +578,20 @@
     "__releasedPoints:incomplete": "Incomplete data",
     "__releasedPoints:category": "Category",
     "__releasedPoints:history": "In history",
-    "__releasedPoints:comparisonNote": "History totals may be incomplete. Your earned points come from profile scoring; history matches may differ. Skill-badge and bonus maxima are unavailable."
+    "__releasedPoints:comparisonNote": "History totals may be incomplete. Your earned points come from profile scoring; history matches may differ. Skill-badge and bonus maxima are unavailable.",
+    "__score:bonusIncluded": "Includes {bonus} Facilitator bonus points.",
+    "__score:distribution": "Point distribution: {items}",
+    "__score:segment": "{label}: {value} points ({percent})",
+    "__profileOption:participating": "Participating in Facilitator Program",
+    "__profileOption:includeHighest": "Include the highest eligible Facilitator milestone bonus.",
+    "__profileOption:pasteValid": "Paste a valid public profile URL to enable this option.",
+    "__profileOption:autoFetch": "Automatically fetch latest data",
+    "__profileOption:autoFetchDescription": "Refresh the saved profile once whenever this page is opened.",
+    "__countdown:deadline": "Deadline",
+    "__countdown:notAnnounced": "Not announced",
+    "__countdown:unavailable": "Deadline unavailable",
+    "__countdown:awaiting": "Awaiting Facilitator configuration",
+    "__score:swagArchive": "Arcade rewards archive"
   },
   "dynamic": {
     "memberSince": "Member since {value}",

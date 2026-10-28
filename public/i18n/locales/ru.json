@@ -606,7 +606,20 @@
     "__releasedPoints:incomplete": "Неполные данные",
     "__releasedPoints:category": "Категория",
     "__releasedPoints:history": "В истории",
-    "__releasedPoints:comparisonNote": "Итоги истории могут быть неполными. Полученные баллы берутся из расчёта профиля; совпадения в истории могут отличаться. Максимумы для значков навыков и бонусов недоступны."
+    "__releasedPoints:comparisonNote": "Итоги истории могут быть неполными. Полученные баллы берутся из расчёта профиля; совпадения в истории могут отличаться. Максимумы для значков навыков и бонусов недоступны.",
+    "__score:bonusIncluded": "Включает {bonus} бонусных баллов Facilitator.",
+    "__score:distribution": "Распределение баллов: {items}",
+    "__score:segment": "{label}: {value} баллов ({percent})",
+    "__profileOption:participating": "Участие в Facilitator Program",
+    "__profileOption:includeHighest": "Учитывать бонус самого высокого доступного этапа Facilitator.",
+    "__profileOption:pasteValid": "Вставьте корректную ссылку на публичный профиль, чтобы включить эту настройку.",
+    "__profileOption:autoFetch": "Автоматически получать свежие данные",
+    "__profileOption:autoFetchDescription": "Обновлять сохранённый профиль один раз при каждом открытии страницы.",
+    "__countdown:deadline": "Срок",
+    "__countdown:notAnnounced": "Не объявлен",
+    "__countdown:unavailable": "Срок недоступен",
+    "__countdown:awaiting": "Ожидается информация о программе Facilitator",
+    "__score:swagArchive": "Архив наград Arcade"
   },
   "dynamic": {
     "memberSince": "Участник с {value}",

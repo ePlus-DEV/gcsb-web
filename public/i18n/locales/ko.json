@@ -606,7 +606,20 @@
     "__releasedPoints:incomplete": "데이터 부족",
     "__releasedPoints:category": "분류",
     "__releasedPoints:history": "기록 내",
-    "__releasedPoints:comparisonNote": "기록의 총점은 불완전할 수 있습니다. 획득 점수는 프로필 집계 기준이므로 기록과 일치하는 점수와 다를 수 있습니다. 스킬 배지와 보너스의 최대 점수는 확인할 수 없습니다."
+    "__releasedPoints:comparisonNote": "기록의 총점은 불완전할 수 있습니다. 획득 점수는 프로필 집계 기준이므로 기록과 일치하는 점수와 다를 수 있습니다. 스킬 배지와 보너스의 최대 점수는 확인할 수 없습니다.",
+    "__score:bonusIncluded": "Facilitator 보너스 {bonus}점이 포함되어 있습니다.",
+    "__score:distribution": "점수 구성: {items}",
+    "__score:segment": "{label}: {value}점 ({percent})",
+    "__profileOption:participating": "Facilitator Program 참여 중",
+    "__profileOption:includeHighest": "조건을 충족한 가장 높은 Facilitator 마일스톤 보너스를 포함합니다.",
+    "__profileOption:pasteValid": "유효한 공개 프로필 URL을 붙여넣어 이 옵션을 활성화하세요.",
+    "__profileOption:autoFetch": "최신 데이터 자동 가져오기",
+    "__profileOption:autoFetchDescription": "페이지를 열 때마다 저장된 프로필을 한 번 새로고침합니다.",
+    "__countdown:deadline": "마감일",
+    "__countdown:notAnnounced": "미발표",
+    "__countdown:unavailable": "마감일 정보 없음",
+    "__countdown:awaiting": "Facilitator 프로그램 정보를 기다리는 중",
+    "__score:swagArchive": "Arcade 보상 아카이브"
   },
   "dynamic": {
     "memberSince": "가입 시점 {value}",

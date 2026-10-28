@@ -606,7 +606,20 @@
     "__releasedPoints:incomplete": "بيانات غير مكتملة",
     "__releasedPoints:category": "الفئة",
     "__releasedPoints:history": "في السجل",
-    "__releasedPoints:comparisonNote": "قد تكون إجماليات السجل غير مكتملة. تُحسب النقاط المكتسبة من الملف الشخصي؛ وقد تختلف النقاط المطابقة للسجل. الحد الأقصى لشارات المهارات والمكافآت غير متاح."
+    "__releasedPoints:comparisonNote": "قد تكون إجماليات السجل غير مكتملة. تُحسب النقاط المكتسبة من الملف الشخصي؛ وقد تختلف النقاط المطابقة للسجل. الحد الأقصى لشارات المهارات والمكافآت غير متاح.",
+    "__score:bonusIncluded": "يتضمن {bonus} نقطة مكافأة من برنامج Facilitator.",
+    "__score:distribution": "توزيع النقاط: {items}",
+    "__score:segment": "{label}: {value} نقطة ({percent})",
+    "__profileOption:participating": "المشاركة في Facilitator Program",
+    "__profileOption:includeHighest": "تضمين مكافأة أعلى مرحلة Facilitator مؤهلة.",
+    "__profileOption:pasteValid": "ألصق رابط ملف شخصي عام صالحًا لتفعيل هذا الخيار.",
+    "__profileOption:autoFetch": "جلب أحدث البيانات تلقائيًا",
+    "__profileOption:autoFetchDescription": "تحديث الملف الشخصي المحفوظ مرة واحدة عند فتح هذه الصفحة.",
+    "__countdown:deadline": "الموعد النهائي",
+    "__countdown:notAnnounced": "لم يُعلن بعد",
+    "__countdown:unavailable": "الموعد النهائي غير متاح",
+    "__countdown:awaiting": "في انتظار معلومات برنامج Facilitator",
+    "__score:swagArchive": "أرشيف مكافآت Arcade"
   },
   "dynamic": {
     "memberSince": "عضو منذ {value}",

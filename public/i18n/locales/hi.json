@@ -606,7 +606,20 @@
     "__releasedPoints:incomplete": "अधूरा डेटा",
     "__releasedPoints:category": "श्रेणी",
     "__releasedPoints:history": "इतिहास में",
-    "__releasedPoints:comparisonNote": "इतिहास के कुल अंक अधूरे हो सकते हैं। अर्जित अंक प्रोफ़ाइल की गणना से आते हैं; इतिहास से मिले अंक अलग हो सकते हैं। स्किल बैज और बोनस के अधिकतम अंक उपलब्ध नहीं हैं।"
+    "__releasedPoints:comparisonNote": "इतिहास के कुल अंक अधूरे हो सकते हैं। अर्जित अंक प्रोफ़ाइल की गणना से आते हैं; इतिहास से मिले अंक अलग हो सकते हैं। स्किल बैज और बोनस के अधिकतम अंक उपलब्ध नहीं हैं।",
+    "__score:bonusIncluded": "इसमें Facilitator के {bonus} बोनस अंक शामिल हैं।",
+    "__score:distribution": "अंकों का वितरण: {items}",
+    "__score:segment": "{label}: {value} अंक ({percent})",
+    "__profileOption:participating": "Facilitator Program में भाग ले रहे हैं",
+    "__profileOption:includeHighest": "योग्य सबसे ऊँचे Facilitator milestone bonus को शामिल करें।",
+    "__profileOption:pasteValid": "इस विकल्प को चालू करने के लिए मान्य public profile URL पेस्ट करें।",
+    "__profileOption:autoFetch": "नवीनतम डेटा अपने आप प्राप्त करें",
+    "__profileOption:autoFetchDescription": "हर बार यह पेज खुलने पर सहेजे गए प्रोफ़ाइल को एक बार रीफ़्रेश करें।",
+    "__countdown:deadline": "अंतिम तिथि",
+    "__countdown:notAnnounced": "अभी घोषित नहीं",
+    "__countdown:unavailable": "अंतिम तिथि उपलब्ध नहीं",
+    "__countdown:awaiting": "Facilitator कार्यक्रम की जानकारी की प्रतीक्षा है",
+    "__score:swagArchive": "Arcade रिवॉर्ड आर्काइव"
   },
   "dynamic": {
     "memberSince": "{value} से सदस्य",

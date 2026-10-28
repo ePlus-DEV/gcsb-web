@@ -606,7 +606,20 @@
     "__releasedPoints:incomplete": "データ不足",
     "__releasedPoints:category": "分類",
     "__releasedPoints:history": "履歴内",
-    "__releasedPoints:comparisonNote": "履歴の合計は不完全な場合があります。獲得ポイントはプロフィールの集計に基づくため、履歴の一致ポイントと異なる場合があります。スキルバッジとボーナスの上限は不明です。"
+    "__releasedPoints:comparisonNote": "履歴の合計は不完全な場合があります。獲得ポイントはプロフィールの集計に基づくため、履歴の一致ポイントと異なる場合があります。スキルバッジとボーナスの上限は不明です。",
+    "__score:bonusIncluded": "Facilitatorのボーナス{bonus}ポイントを含みます。",
+    "__score:distribution": "ポイントの内訳: {items}",
+    "__score:segment": "{label}: {value}ポイント（{percent}）",
+    "__profileOption:participating": "Facilitator Program に参加中",
+    "__profileOption:includeHighest": "対象となる最高マイルストーンの Facilitator ボーナスを加算します。",
+    "__profileOption:pasteValid": "有効な公開プロフィール URL を貼り付けると、この設定を有効にできます。",
+    "__profileOption:autoFetch": "最新データを自動取得",
+    "__profileOption:autoFetchDescription": "このページを開くたびに、保存済みプロフィールを一度更新します。",
+    "__countdown:deadline": "締め切り",
+    "__countdown:notAnnounced": "未発表",
+    "__countdown:unavailable": "締め切りは未定",
+    "__countdown:awaiting": "Facilitatorプログラムの情報を待っています",
+    "__score:swagArchive": "Arcade 報酬アーカイブ"
   },
   "dynamic": {
     "memberSince": "メンバー登録: {value}",

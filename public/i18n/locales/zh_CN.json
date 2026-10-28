@@ -606,7 +606,20 @@
     "__releasedPoints:incomplete": "数据不完整",
     "__releasedPoints:category": "类别",
     "__releasedPoints:history": "历史记录",
-    "__releasedPoints:comparisonNote": "历史总分可能不完整。已获得分数来自个人资料计分，可能与历史匹配分数不同。技能徽章和奖励的最高分数暂无数据。"
+    "__releasedPoints:comparisonNote": "历史总分可能不完整。已获得分数来自个人资料计分，可能与历史匹配分数不同。技能徽章和奖励的最高分数暂无数据。",
+    "__score:bonusIncluded": "已包含 Facilitator 奖励 {bonus} 分。",
+    "__score:distribution": "分数构成：{items}",
+    "__score:segment": "{label}：{value} 分（{percent}）",
+    "__profileOption:participating": "正在参加 Facilitator Program",
+    "__profileOption:includeHighest": "计入符合条件的最高 Facilitator 里程碑奖励。",
+    "__profileOption:pasteValid": "粘贴有效的公开个人资料网址以启用此选项。",
+    "__profileOption:autoFetch": "自动获取最新数据",
+    "__profileOption:autoFetchDescription": "每次打开此页面时自动刷新一次已保存的个人资料。",
+    "__countdown:deadline": "截止日期",
+    "__countdown:notAnnounced": "尚未公布",
+    "__countdown:unavailable": "暂无截止日期",
+    "__countdown:awaiting": "等待 Facilitator 计划信息",
+    "__score:swagArchive": "Arcade 奖励档案"
   },
   "dynamic": {
     "memberSince": "加入时间：{value}",

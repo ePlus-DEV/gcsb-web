@@ -606,7 +606,20 @@
     "__releasedPoints:incomplete": "Données incomplètes",
     "__releasedPoints:category": "Catégorie",
     "__releasedPoints:history": "Dans l’historique",
-    "__releasedPoints:comparisonNote": "Les totaux de l’historique peuvent être incomplets. Les points obtenus proviennent du profil ; les correspondances historiques peuvent différer. Les maxima des badges de compétences et bonus sont indisponibles."
+    "__releasedPoints:comparisonNote": "Les totaux de l’historique peuvent être incomplets. Les points obtenus proviennent du profil ; les correspondances historiques peuvent différer. Les maxima des badges de compétences et bonus sont indisponibles.",
+    "__score:bonusIncluded": "Inclut {bonus} points bonus Facilitator.",
+    "__score:distribution": "Répartition des points : {items}",
+    "__score:segment": "{label} : {value} points ({percent})",
+    "__profileOption:participating": "Participation au Facilitator Program",
+    "__profileOption:includeHighest": "Inclure le bonus du plus haut jalon Facilitator admissible.",
+    "__profileOption:pasteValid": "Collez une URL de profil public valide pour activer cette option.",
+    "__profileOption:autoFetch": "Récupérer automatiquement les dernières données",
+    "__profileOption:autoFetchDescription": "Actualiser une fois le profil enregistré à chaque ouverture de cette page.",
+    "__countdown:deadline": "Date limite",
+    "__countdown:notAnnounced": "Non annoncée",
+    "__countdown:unavailable": "Date limite indisponible",
+    "__countdown:awaiting": "En attente des informations du programme Facilitator",
+    "__score:swagArchive": "Archives des récompenses Arcade"
   },
   "dynamic": {
     "memberSince": "Membre depuis {value}",

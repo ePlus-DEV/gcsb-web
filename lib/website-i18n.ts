@@ -195,6 +195,8 @@ function translateDynamicText(
   targetCatalog: WebsiteCatalog,
 ): string {
   const messages = targetCatalog.dynamic
+  const bonusMatch = source.match(/^Includes \+([\d,.]+) Facilitator bonus\.$/)
+  if (bonusMatch) return targetCatalog.additional["__score:bonusIncluded"].replace("{bonus}", bonusMatch[1])
   let match = source.match(/^\+([\d,.]+) bonus · ([\d,.]+) badges left$/)
   if (match) {
     return facilitatorTemplate(
