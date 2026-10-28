@@ -600,7 +600,10 @@
     "__releasedPoints:error": "अंक इतिहास लोड नहीं हो सका।",
     "__releasedPoints:retry": "फिर कोशिश करें",
     "__releasedPoints:overviewTitle": "Arcade अंक विश्लेषण · {year}",
-    "__releasedPoints:skillCoverage": "अर्जित स्किल बैज अंक ऊपर शामिल हैं। इतिहास स्रोत में सभी मान्य स्किल बैज की पूरी सूची नहीं है, इसलिए नीचे प्रकाशित अंकों का कुल और पूर्णता दर केवल गेम के लिए हैं।"
+    "__releasedPoints:skillCoverage": "अर्जित स्किल बैज अंक ऊपर शामिल हैं। इतिहास स्रोत में सभी मान्य स्किल बैज की पूरी सूची नहीं है, इसलिए नीचे प्रकाशित अंकों का कुल और पूर्णता दर केवल गेम के लिए हैं।",
+    "__releasedPoints:gamesGroup": "गेम + ट्रिविया/विशेष",
+    "__releasedPoints:achieved": "अर्जित",
+    "__releasedPoints:incomplete": "अधूरा डेटा"
   },
   "dynamic": {
     "memberSince": "{value} से सदस्य",

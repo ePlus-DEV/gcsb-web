@@ -43,6 +43,28 @@ export default function ReleasedPointsPanel({ badges, hasProfile, catalog, local
 
   const summary = games ? summarizeReleasedPoints(games, badges, nowMs) : null
   const number = (value: number | null) => value === null ? "—" : new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(value)
+  if (embedded && profilePoints && hasProfile) {
+    const rows = [
+      { label: text("gamesGroup"), value: profilePoints.games === null || profilePoints.triviaSpecial === null ? null : profilePoints.games + profilePoints.triviaSpecial, published: summary ? number(summary.total) : "—" },
+      { label: catalog.messages.skillBadges, value: profilePoints.skills, published: text("incomplete") },
+      { label: catalog.messages.facilitatorBonus, value: profilePoints.bonus, published: "—" },
+    ]
+    return <section className="point-comparison" aria-label={text("overviewTitle", { year: String(year) })}>
+      <table>
+        <thead><tr><th scope="col">{catalog.messages.pointBreakdown}</th><th scope="col">{text("achieved")}</th><th scope="col">{text("released")}*</th></tr></thead>
+        <tbody>{rows.map((row) => <tr key={row.label}>
+          <th scope="row">{row.label}</th>
+          <td data-label={text("achieved")}>{number(row.value)}</td>
+          <td data-label={text("released")}>{row.published}</td>
+        </tr>)}</tbody>
+      </table>
+      {failed ? <div role="status"><p>{text("error")}</p><button type="button" onClick={() => setAttempt((value) => value + 1)}>{text("retry")}</button></div> : !summary ? <p role="status">{text("loading")}</p> : <p className="point-comparison-scope">* {text("title", { year: String(year) })} · {text("coverage", { count: number(summary.months), total: number(month), unknown: number(summary.unknown) })}</p>}
+      {summary && <details className="point-comparison-details"><summary>{text("earned")}: {number(summary.achieved)}</summary>
+        <dl><div><dt>{text("available")}</dt><dd>{number(summary.available)}</dd></div><div><dt>{text("expired")}</dt><dd>{number(summary.expired)}</dd></div></dl>
+        <p>{text("scope")}</p><p>{text("skillCoverage")}</p>
+      </details>}
+    </section>
+  }
   return <section className={embedded ? "released-points-panel is-embedded" : "released-points-panel"} aria-labelledby={embedded ? undefined : "released-points-title"} aria-label={embedded ? text("title", { year: String(year) }) : undefined} aria-busy={!summary && !failed}>
     {!embedded && <div className="released-points-heading">
       <div className="released-points-heading-title"><span className="released-points-emblem" aria-hidden="true"><Trophy /></span><h3 id="released-points-title">{text("overviewTitle", { year: String(year) })}</h3></div>

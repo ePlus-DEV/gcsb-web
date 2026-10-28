@@ -600,7 +600,10 @@
     "__releasedPoints:error": "تعذّر تحميل سجل النقاط.",
     "__releasedPoints:retry": "إعادة المحاولة",
     "__releasedPoints:overviewTitle": "تحليل نقاط Arcade · {year}",
-    "__releasedPoints:skillCoverage": "تتضمن الأرقام أعلاه نقاط شارات المهارات المكتسبة. لا يوفر مصدر السجل قائمة كاملة بشارات المهارات المؤهلة، لذلك يقتصر المجموع المنشور ونسبة الإنجاز أدناه على الألعاب."
+    "__releasedPoints:skillCoverage": "تتضمن الأرقام أعلاه نقاط شارات المهارات المكتسبة. لا يوفر مصدر السجل قائمة كاملة بشارات المهارات المؤهلة، لذلك يقتصر المجموع المنشور ونسبة الإنجاز أدناه على الألعاب.",
+    "__releasedPoints:gamesGroup": "الألعاب + الأسئلة/الخاصة",
+    "__releasedPoints:achieved": "المكتسب",
+    "__releasedPoints:incomplete": "بيانات غير مكتملة"
   },
   "dynamic": {
     "memberSince": "عضو منذ {value}",

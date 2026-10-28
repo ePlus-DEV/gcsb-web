@@ -600,7 +600,10 @@
     "__releasedPoints:error": "Não foi possível carregar o histórico.",
     "__releasedPoints:retry": "Tentar novamente",
     "__releasedPoints:overviewTitle": "Análise de pontos Arcade · {year}",
-    "__releasedPoints:skillCoverage": "Os pontos obtidos com emblemas de habilidades estão incluídos acima. A fonte histórica não fornece um catálogo completo dos emblemas elegíveis; o total publicado e a taxa abaixo abrangem apenas jogos."
+    "__releasedPoints:skillCoverage": "Os pontos obtidos com emblemas de habilidades estão incluídos acima. A fonte histórica não fornece um catálogo completo dos emblemas elegíveis; o total publicado e a taxa abaixo abrangem apenas jogos.",
+    "__releasedPoints:gamesGroup": "Jogos + Trivia/Especiais",
+    "__releasedPoints:achieved": "Obtidos",
+    "__releasedPoints:incomplete": "Dados incompletos"
   },
   "dynamic": {
     "memberSince": "Membro desde {value}",

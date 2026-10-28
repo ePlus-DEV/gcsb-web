@@ -600,7 +600,10 @@
     "__releasedPoints:error": "Impossible de charger l’historique.",
     "__releasedPoints:retry": "Réessayer",
     "__releasedPoints:overviewTitle": "Analyse des points Arcade · {year}",
-    "__releasedPoints:skillCoverage": "Les points des badges de compétences obtenus sont inclus ci-dessus. La source historique ne fournit pas le catalogue complet des badges éligibles ; le total publié et le taux ci-dessous concernent uniquement les jeux."
+    "__releasedPoints:skillCoverage": "Les points des badges de compétences obtenus sont inclus ci-dessus. La source historique ne fournit pas le catalogue complet des badges éligibles ; le total publié et le taux ci-dessous concernent uniquement les jeux.",
+    "__releasedPoints:gamesGroup": "Jeux + Trivia/Spéciaux",
+    "__releasedPoints:achieved": "Obtenus",
+    "__releasedPoints:incomplete": "Données incomplètes"
   },
   "dynamic": {
     "memberSince": "Membre depuis {value}",

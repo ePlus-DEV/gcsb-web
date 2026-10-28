@@ -609,7 +609,10 @@
     "__releasedPoints:error": "Không tải được lịch sử điểm.",
     "__releasedPoints:retry": "Thử lại",
     "__releasedPoints:overviewTitle": "Phân tích điểm Arcade · {year}",
-    "__releasedPoints:skillCoverage": "Điểm Skill badges đã đạt được tính ở trên. Nguồn lịch sử chưa cung cấp đầy đủ danh sách skill badge hợp lệ, nên tổng điểm phát hành và tỷ lệ hoàn thành bên dưới chỉ áp dụng cho game."
+    "__releasedPoints:skillCoverage": "Điểm Skill badges đã đạt được tính ở trên. Nguồn lịch sử chưa cung cấp đầy đủ danh sách skill badge hợp lệ, nên tổng điểm phát hành và tỷ lệ hoàn thành bên dưới chỉ áp dụng cho game.",
+    "__releasedPoints:gamesGroup": "Game + Trivia/Đặc biệt",
+    "__releasedPoints:achieved": "Đã đạt",
+    "__releasedPoints:incomplete": "Chưa đủ dữ liệu"
   },
   "dynamic": {
     "memberSince": "Thành viên từ {value}",

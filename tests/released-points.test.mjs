@@ -38,7 +38,7 @@ test("all released points copy is catalog-owned and translated with intact place
   const catalogs = fs.readdirSync("public/i18n/locales").filter((name) => name.endsWith(".json")).map((name) => JSON.parse(readRepoFile(`public/i18n/locales/${name}`)))
   const english = JSON.parse(readRepoFile("public/i18n/locales/en.json")).additional
   const keys = Object.keys(english).filter((key) => key.startsWith("__releasedPoints:"))
-  assert.equal(keys.length, 13)
+  assert.equal(keys.length, 16)
   const placeholders = (value) => [...value.matchAll(/\{\w+\}/g)].map((match) => match[0]).sort()
   for (const key of keys) {
     assert.ok(!source.includes(english[key]), `hardcoded ${key}`)
@@ -82,7 +82,9 @@ test("English and Vietnamese panels render matching localized point summaries", 
     assert.ok(html.includes('value="1"'))
     stateIndex = 0
     const embeddedHtml = renderToStaticMarkup(React.createElement(module.exports.default, { embedded: true, badges: [], hasProfile: true, catalog, locale, nowMs: now, profilePoints: profilePointSummary(scoredProfile, 35) }))
-    assert.ok(embeddedHtml.includes('is-embedded'))
+    assert.ok(embeddedHtml.includes('point-comparison'))
+    assert.ok(embeddedHtml.includes('<td data-label=') && embeddedHtml.includes('55</td>'))
+    assert.ok(!embeddedHtml.includes('<progress'))
     assert.ok(!embeddedHtml.includes('<strong>128</strong>'))
     assert.ok(!embeddedHtml.includes('released-profile-stats'))
     assert.ok(!embeddedHtml.includes('aria-labelledby="released-points-title"'))
@@ -151,8 +153,9 @@ test("profile analysis includes API skill points and adds only the applied bonus
 test("history belongs inside the existing point card and is absent from monthly labs", () => {
   const calculator = readRepoFile("app/redesign-calculator.tsx")
   const card = calculator.slice(calculator.indexOf('<article className="dashboard-panel breakdown-panel">'), calculator.indexOf('<article className="dashboard-panel tier-status-panel">'))
-  assert.match(card, /<details className="breakdown-history-disclosure">/)
+  assert.doesNotMatch(card, /breakdown-history-disclosure|point-breakdown-list/)
   assert.match(card, /<ReleasedPointsPanel\s+embedded/)
+  assert.match(card, /profilePoints=\{profilePointSummary\(result, facilitatorBonus\)\}/)
   assert.doesNotMatch(readRepoFile("components/arcade/monthly-games-panel.tsx"), /ReleasedPointsPanel/)
   assert.doesNotMatch(card, /<details[^>]*\bopen(?:[\s=>])/)
 })

@@ -600,7 +600,10 @@
     "__releasedPoints:error": "无法加载积分历史。",
     "__releasedPoints:retry": "重试",
     "__releasedPoints:overviewTitle": "Arcade 积分分析 · {year}",
-    "__releasedPoints:skillCoverage": "上方已包含获得的技能徽章积分。历史来源未提供完整的有效技能徽章目录，因此下方发布积分总数及完成率仅涵盖游戏。"
+    "__releasedPoints:skillCoverage": "上方已包含获得的技能徽章积分。历史来源未提供完整的有效技能徽章目录，因此下方发布积分总数及完成率仅涵盖游戏。",
+    "__releasedPoints:gamesGroup": "游戏 + 问答/特别活动",
+    "__releasedPoints:achieved": "已获得",
+    "__releasedPoints:incomplete": "数据不完整"
   },
   "dynamic": {
     "memberSince": "加入时间：{value}",

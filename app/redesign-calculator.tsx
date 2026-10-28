@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { profilePointSummary } from "@/components/arcade/profile-point-summary"
 import ReleasedPointsPanel from "@/components/arcade/released-points-panel"
 import DashboardTiers from "@/components/arcade/dashboard-tiers"
 import GuestDashboard from "@/components/arcade/guest-dashboard"
@@ -844,18 +845,15 @@ export default function RedesignCalculator({
                   )
                 })}
               </div>
-              <div className="point-breakdown-list">
-                {pointBreakdown.map((item) => (
-                  <PointRow
-                    key={item.key}
-                    icon={item.icon}
-                    label={item.label}
-                    value={item.value}
-                    total={points}
-                    tone={item.tone}
-                  />
-                ))}
-              </div>
+              <ReleasedPointsPanel
+                embedded
+                badges={badges}
+                hasProfile={Boolean(result)}
+                profilePoints={profilePointSummary(result, facilitatorBonus)}
+                catalog={activeHistoryLanguage.catalog}
+                locale={activeHistoryLanguage.locale.replace("_", "-")}
+                nowMs={analysisNowMs}
+              />
               <p className="panel-link-note">
                 {facilitatorBonus > 0
                   ? `Includes +${formatNumber(facilitatorBonus)} Facilitator bonus.`
@@ -863,17 +861,7 @@ export default function RedesignCalculator({
                     ? "All eligible returned badges were classified."
                     : `${unknownBadgeCount} badge(s) still need scoring review.`}
               </p>
-              <details className="breakdown-history-disclosure">
-                <summary>{activeHistoryLanguage.catalog.additional["__releasedPoints:title"]?.replace("{year}", new Intl.DateTimeFormat(activeHistoryLanguage.locale.replace("_", "-"), { year: "numeric", timeZone: "Asia/Kolkata" }).format(analysisNowMs))}</summary>
-                <ReleasedPointsPanel
-                  embedded
-                  badges={badges}
-                  hasProfile={Boolean(result)}
-                  catalog={activeHistoryLanguage.catalog}
-                  locale={activeHistoryLanguage.locale.replace("_", "-")}
-                  nowMs={analysisNowMs}
-                />
-              </details>
+
             </article>
 
             <article className="dashboard-panel tier-status-panel">

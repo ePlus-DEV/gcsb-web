@@ -600,7 +600,10 @@
     "__releasedPoints:error": "ポイント履歴を読み込めません。",
     "__releasedPoints:retry": "再試行",
     "__releasedPoints:overviewTitle": "Arcadeポイント分析 · {year}",
-    "__releasedPoints:skillCoverage": "獲得したスキルバッジのポイントは上記に含まれます。履歴には対象スキルバッジの完全な一覧がないため、以下の公開総ポイントと達成率はゲームのみが対象です。"
+    "__releasedPoints:skillCoverage": "獲得したスキルバッジのポイントは上記に含まれます。履歴には対象スキルバッジの完全な一覧がないため、以下の公開総ポイントと達成率はゲームのみが対象です。",
+    "__releasedPoints:gamesGroup": "ゲーム + トリビア/特別",
+    "__releasedPoints:achieved": "獲得済み",
+    "__releasedPoints:incomplete": "データ不足"
   },
   "dynamic": {
     "memberSince": "メンバー登録: {value}",

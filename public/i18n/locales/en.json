@@ -572,7 +572,10 @@
     "__releasedPoints:error": "Unable to load points history.",
     "__releasedPoints:retry": "Try again",
     "__releasedPoints:overviewTitle": "Arcade point analysis · {year}",
-    "__releasedPoints:skillCoverage": "Earned skill-badge points are included above. The history source does not provide a complete eligible skill-badge catalog, so the published total and completion rate below cover games only."
+    "__releasedPoints:skillCoverage": "Earned skill-badge points are included above. The history source does not provide a complete eligible skill-badge catalog, so the published total and completion rate below cover games only.",
+    "__releasedPoints:gamesGroup": "Game + Trivia/Special",
+    "__releasedPoints:achieved": "Achieved",
+    "__releasedPoints:incomplete": "Incomplete data"
   },
   "dynamic": {
     "memberSince": "Member since {value}",

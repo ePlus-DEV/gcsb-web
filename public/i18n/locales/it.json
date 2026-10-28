@@ -600,7 +600,10 @@
     "__releasedPoints:error": "Impossibile caricare la cronologia.",
     "__releasedPoints:retry": "Riprova",
     "__releasedPoints:overviewTitle": "Analisi punti Arcade · {year}",
-    "__releasedPoints:skillCoverage": "I punti dei badge di competenza ottenuti sono inclusi sopra. La fonte storica non fornisce un catalogo completo dei badge validi; il totale pubblicato e la percentuale sotto riguardano solo i giochi."
+    "__releasedPoints:skillCoverage": "I punti dei badge di competenza ottenuti sono inclusi sopra. La fonte storica non fornisce un catalogo completo dei badge validi; il totale pubblicato e la percentuale sotto riguardano solo i giochi.",
+    "__releasedPoints:gamesGroup": "Giochi + Trivia/Speciali",
+    "__releasedPoints:achieved": "Ottenuti",
+    "__releasedPoints:incomplete": "Dati incompleti"
   },
   "dynamic": {
     "memberSince": "Membro dal {value}",

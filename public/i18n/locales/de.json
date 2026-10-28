@@ -600,7 +600,10 @@
     "__releasedPoints:error": "Punkteverlauf konnte nicht geladen werden.",
     "__releasedPoints:retry": "Erneut versuchen",
     "__releasedPoints:overviewTitle": "Arcade-Punkteanalyse · {year}",
-    "__releasedPoints:skillCoverage": "Erreichte Skill-Abzeichen-Punkte sind oben enthalten. Die Verlaufsquelle bietet keinen vollständigen Katalog berechtigter Skill-Abzeichen. Die veröffentlichte Summe und die Abschlussquote unten gelten daher nur für Spiele."
+    "__releasedPoints:skillCoverage": "Erreichte Skill-Abzeichen-Punkte sind oben enthalten. Die Verlaufsquelle bietet keinen vollständigen Katalog berechtigter Skill-Abzeichen. Die veröffentlichte Summe und die Abschlussquote unten gelten daher nur für Spiele.",
+    "__releasedPoints:gamesGroup": "Spiele + Trivia/Spezial",
+    "__releasedPoints:achieved": "Erreicht",
+    "__releasedPoints:incomplete": "Unvollständige Daten"
   },
   "dynamic": {
     "memberSince": "Mitglied seit {value}",

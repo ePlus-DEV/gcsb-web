@@ -600,7 +600,10 @@
     "__releasedPoints:error": "포인트 기록을 불러올 수 없습니다.",
     "__releasedPoints:retry": "다시 시도",
     "__releasedPoints:overviewTitle": "Arcade 포인트 분석 · {year}",
-    "__releasedPoints:skillCoverage": "획득한 스킬 배지 포인트는 위에 포함됩니다. 기록에는 유효한 스킬 배지 전체 목록이 없으므로 아래 공개 포인트 합계와 완료율은 게임만 포함합니다."
+    "__releasedPoints:skillCoverage": "획득한 스킬 배지 포인트는 위에 포함됩니다. 기록에는 유효한 스킬 배지 전체 목록이 없으므로 아래 공개 포인트 합계와 완료율은 게임만 포함합니다.",
+    "__releasedPoints:gamesGroup": "게임 + 퀴즈/특별",
+    "__releasedPoints:achieved": "획득",
+    "__releasedPoints:incomplete": "데이터 부족"
   },
   "dynamic": {
     "memberSince": "가입 시점 {value}",
