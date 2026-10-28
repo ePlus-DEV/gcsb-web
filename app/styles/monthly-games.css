@@ -111,6 +111,19 @@
 /* Rendered through a body portal so dashboard overflow/staking never clips it. */
 .point-history-portal { position: fixed; inset: 0; z-index: 10000; pointer-events: none; }
 .point-history-backdrop { position: absolute; inset: 0; background: transparent; pointer-events: auto; }
+/* Desktop hover must pass through the transparent portal layer, otherwise
+   mounting the popover immediately forces a mouseleave on the trigger. */
+@media (min-width: 681px) and (hover: hover) and (pointer: fine) {
+  .point-history-line { cursor: help; }
+  .point-history-line:hover .point-history-trigger,
+  .point-history-trigger[aria-expanded="true"] {
+    border-color: rgba(167,139,250,.65);
+    background: rgba(139,92,246,.2);
+  }
+}
+@media (min-width: 681px) {
+  .point-history-backdrop { pointer-events: none; }
+}
 .point-history-popover { position: fixed; z-index: 1; display: block; box-sizing: border-box; width: min(380px, calc(100vw - 24px)); max-width: calc(100vw - 24px); overflow-y: auto; overscroll-behavior: contain; padding: 16px; border: 1px solid rgba(167,139,250,.32); border-radius: 14px; background: #15132b; color: #edf2ff; box-shadow: 0 18px 52px rgba(0,0,0,.46); pointer-events: auto; font-family: inherit; font-size: .79rem; line-height: 1.5; }
 .point-history-popover-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
 .point-history-popover-header h3 { margin: 0; font-size: .94rem; line-height: 1.35; font-weight: 750; color: inherit; }
