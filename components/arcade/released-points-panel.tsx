@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { Trophy, Check, Clock, Circle } from "lucide-react"
 import type { WebsiteCatalog } from "@/lib/website-i18n"
 import type { ArcadeBadge } from "./model"
 import { parseReleasedGames, summarizeReleasedPoints, type ReleasedGame } from "./released-points"
@@ -40,21 +41,23 @@ export default function ReleasedPointsPanel({ badges, hasProfile, catalog, local
   const summary = games ? summarizeReleasedPoints(games, badges, nowMs) : null
   const number = (value: number) => new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(value)
   return <section className="released-points-panel" aria-labelledby="released-points-title" aria-busy={!summary && !failed}>
-    <h3 id="released-points-title">{text("title", { year: String(year) })}</h3>
-    <p>{text("scope")}</p>
+    <div className="released-points-heading">
+      <div className="released-points-heading-title"><span className="released-points-emblem" aria-hidden="true"><Trophy /></span><h3 id="released-points-title">{text("title", { year: String(year) })}</h3></div>
+      {hasProfile && summary && <output className="released-points-percent">{new Intl.NumberFormat(locale, { style: "percent", maximumFractionDigits: 1 }).format(summary.percent)}</output>}
+    </div>
     {failed ? <div role="status"><p>{text("error")}</p><button type="button" onClick={() => setAttempt((value) => value + 1)}>{text("retry")}</button></div>
       : !summary ? <p role="status">{text("loading")}</p>
       : <>
-        <p>{text("coverage", { count: number(summary.months), total: number(month), unknown: number(summary.unknown) })}</p>
         <dl className="released-points-stats">
-          <div><dt>{text("released")}</dt><dd>{number(summary.total)}</dd></div>
+          <div className="released-stat is-total"><dt><Trophy aria-hidden="true" />{text("released")}</dt><dd>{number(summary.total)}</dd></div>
           {hasProfile && <>
-            <div><dt>{text("earned")}</dt><dd>{number(summary.achieved)}</dd></div>
-            <div><dt>{text("available")}</dt><dd>{number(summary.available)}</dd></div>
-            <div><dt>{text("expired")}</dt><dd>{number(summary.expired)}</dd></div>
+            <div className="released-stat is-earned"><dt><Check aria-hidden="true" />{text("earned")}</dt><dd>{number(summary.achieved)}</dd></div>
+            <div className="released-stat is-available"><dt><Clock aria-hidden="true" />{text("available")}</dt><dd>{number(summary.available)}</dd></div>
+            <div className="released-stat is-expired"><dt><Circle aria-hidden="true" />{text("expired")}</dt><dd>{number(summary.expired)}</dd></div>
           </>}
         </dl>
-        {hasProfile ? <div><progress aria-label={text("earned")} max={1} value={summary.percent} /><output>{new Intl.NumberFormat(locale, { style: "percent", maximumFractionDigits: 1 }).format(summary.percent)}</output></div> : <p>{text("profile")}</p>}
+        {hasProfile ? <progress aria-label={text("earned")} max={1} value={summary.percent} /> : <p>{text("profile")}</p>}
+        <details className="released-points-notes"><summary>{text("coverage", { count: number(summary.months), total: number(month), unknown: number(summary.unknown) })}</summary><p>{text("scope")}</p></details>
       </>}
   </section>
 }

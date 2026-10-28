@@ -62,6 +62,7 @@ test("English and Vietnamese panels render matching localized point summaries", 
     const module = { exports: {} }
     new Function("require", "module", "exports", compiled)((id) => {
       if (id === "react") return { ...React, useEffect: () => {}, useState: () => [stateIndex++ === 0 ? rows : false, () => {}] }
+      if (id === "lucide-react") return Object.fromEntries(["Trophy", "Check", "Clock", "Circle"].map((name) => [name, (props) => React.createElement("svg", props)]))
       if (id === "./released-points") return { parseReleasedGames, summarizeReleasedPoints }
       return require(id)
     }, module, module.exports)
