@@ -87,7 +87,7 @@ test("English and Vietnamese panels render matching localized point summaries", 
     assert.ok(embeddedHtml.includes('point-history-trigger'))
     assert.ok(embeddedHtml.includes('aria-haspopup="dialog"'))
     assert.ok(embeddedHtml.includes(catalog.additional["Open details"]))
-    assert.ok(embeddedHtml.includes(catalog.additional["__releasedPoints:released"]))
+    assert.ok(embeddedHtml.includes(catalog.dynamic.points.replace("{count}", "2").replace(/^\\+\\s*/, "")))
     assert.ok(!embeddedHtml.includes('<details'))
     assert.ok(!embeddedHtml.includes('<table'))
     assert.ok(!embeddedHtml.includes('<progress'))
