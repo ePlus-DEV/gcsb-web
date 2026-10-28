@@ -107,7 +107,7 @@ export default function ReleasedPointsPanel({ badges, hasProfile, catalog, local
         <div className="point-history-line">
           <span className="point-history-label">{title}</span>
           <span className="point-history-count">
-            {summary ? <><strong>{number(summary.total)}</strong> {text("released")}</>
+            {summary ? <strong title={text("released")}>{catalog.dynamic.points.replace("{count}", number(summary.total)).replace(/^\+\s*/, "")}</strong>
               : failed ? text("error") : text("loading")}
           </span>
           <button ref={triggerRef} type="button" className="point-history-trigger"
