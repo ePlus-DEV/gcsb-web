@@ -390,9 +390,9 @@ export default function FreshScoreCheckEnhancer() {
             <p
               role="note"
               style={{
-                margin: "0",
+                margin: "10px 0 0",
                 padding: "2px 2px 4px",
-                color: "var(--muted-foreground, #64748b)",
+                color: "var(--arcade-muted, #64748b)",
                 fontSize: "12px",
                 lineHeight: 1.5,
               }}

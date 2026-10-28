@@ -60,7 +60,7 @@ try {
           const rows = await page.locator(".guest-dashboard .tier-list-row").evaluateAll(elements => elements.map(el => el.getBoundingClientRect().top))
           assert.ok(rows.every(top => Math.abs(top - rows[0]) < 2), "Desktop tier overview must fit on one row")
         }
-        assert.ok(geometry.extension < geometry.tiers.top)
+        assert.ok(geometry.extension >= geometry.labs.bottom, "Extension installation follows the primary dashboard and monthly games")
         const sharedAppearance = () => page.evaluate(() => {
           const selectors = [".arcade-hero", ".hero-heading h1", ".profile-analyzer-card", ".monthly-games-grid", ".monthly-game-card"]
           return selectors.map(selector => {

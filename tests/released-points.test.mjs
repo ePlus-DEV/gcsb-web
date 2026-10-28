@@ -158,7 +158,7 @@ test("profile analysis includes API skill points and adds only the applied bonus
 
 test("history belongs inside the existing point card and is absent from monthly labs", () => {
   const calculator = readRepoFile("app/redesign-calculator.tsx")
-  const card = calculator.slice(calculator.indexOf('<article className="dashboard-panel breakdown-panel">'), calculator.indexOf('<article className="dashboard-panel tier-status-panel">'))
+  const card = calculator.slice(calculator.indexOf('<DashboardPanel className="breakdown-panel">'), calculator.indexOf('<details className="dashboard-panel tier-status-panel">'))
   assert.doesNotMatch(card, /breakdown-history-disclosure|point-breakdown-list/)
   assert.match(card, /point-compact-list/)
   assert.match(card, /pointBreakdown\.map/)

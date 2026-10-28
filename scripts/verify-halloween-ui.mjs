@@ -61,11 +61,11 @@ try {
           assert.equal(geometry.decorZ, "-1")
           assert.equal(geometry.pointerEvents, "none")
           assert.equal(geometry.moon === "none", theme === "light" || width <= 820)
-          assert.equal(geometry.cardBackground, theme === "light" ? "rgb(255, 252, 248)" : "rgb(19, 17, 38)")
-          const tierColors = theme === "light" ? ["rgb(255, 252, 248)", "rgb(255, 247, 237)"] : ["rgb(19, 17, 38)", "rgb(25, 23, 47)"]
+          assert.equal(geometry.cardBackground, theme === "light" ? "rgb(255, 255, 255)" : "rgb(17, 26, 43)")
+          const tierColors = theme === "light" ? ["rgb(255, 255, 255)", "rgb(237, 241, 247)"] : ["rgb(17, 26, 43)", "rgb(23, 34, 55)"]
           assert.ok(geometry.tierBackgrounds.length > 0)
           for (const color of geometry.tierBackgrounds) assert.ok(tierColors.includes(color), `${theme}: unexpected tier surface ${color}`)
-          assert.equal(geometry.buttonColor, "rgb(255, 255, 255)")
+          assert.equal(geometry.buttonColor, "rgb(32, 26, 8)")
           assert.ok(geometry.labelLeft >= 0 && geometry.labelRight <= width)
           if (await page.locator(".preview-mode-toolbar").count()) {
             const toolbar = await page.locator(".preview-mode-toolbar").evaluate((el) => {
