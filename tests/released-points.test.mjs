@@ -57,7 +57,7 @@ test("English and Vietnamese panels render matching localized point summaries", 
   const compiled = ts.transpileModule(readRepoFile("components/arcade/released-points-panel.tsx"), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2022 },
   }).outputText
-  for (const [locale, heading, earned] of [["en", "Arcade released points", "Your earned points"], ["vi", "Điểm Arcade đã phát hành", "Điểm bạn đã đạt"]]) {
+  for (const [locale, heading, earned] of [["en", "Arcade released points", "Points matched in history"], ["vi", "Điểm Arcade đã phát hành", "Điểm khớp trong lịch sử"]]) {
     let stateIndex = 0
     const module = { exports: {} }
     new Function("require", "module", "exports", compiled)((id) => {
@@ -73,4 +73,41 @@ test("English and Vietnamese panels render matching localized point summaries", 
     assert.ok(html.includes('<dd>2</dd>'))
     assert.ok(html.includes('value="1"'))
   }
+})
+
+test("actual March and September history does not count reconstructed cards twice", () => {
+  const fixture = JSON.parse(readRepoFile("tests/fixtures/released-games-march-september.json"))
+  const rows = fixture.flatMap((row) => parseReleasedGames([row], row.month))
+  const summary = summarizeReleasedPoints(rows, [
+    { title: "Holi-istic Infrastructures", dateEarned: "2026-03-15" },
+    { title: "Arcade Voyage: App Modernization", dateEarned: "2026-09-09" },
+    { title: "Pitch Perfect", dateEarned: "2026-09-04" },
+  ], now)
+  assert.equal(summary.total, 16) // March 10 + September 6, not 12 + 10.
+  assert.equal(summary.achieved, 4)
+  assert.equal(summary.expired, 12)
+})
+
+test("recurring aliases use earned month, ignore previous years and reuse no badge", () => {
+  const rows = [
+    ...parseReleasedGames([game("Google Skills Arcade Certification Zone January 2026", 1, { aliases: ["Certification Zone"] })], "2026-01"),
+    ...parseReleasedGames([game("Arcade Certification Zone February 2026", 1, { aliases: ["Certification Zone"] })], "2026-02"),
+  ]
+  assert.equal(summarizeReleasedPoints(rows, [{ title: "Arcade Certification Zone", dateEarned: "2026-02-15" }], now).achieved, 1)
+  assert.equal(summarizeReleasedPoints(rows, [{ title: "Certification Zone", dateEarned: "2025-02-15" }], now).achieved, 0)
+})
+
+test("a unique family merges generic monthly archive titles but separate game IDs never merge", () => {
+  const rows = parseReleasedGames([
+    game("Arcade Adventure: September 2026", 1),
+    game("Arcade Adventure: Modern Cloud Architecture", 1, { joinUrl: "https://www.skills.google/games/7441" }),
+  ], "2026-09")
+  assert.equal(summarizeReleasedPoints(rows, [{ title: "Arcade Adventure: September 2026" }], now).total, 1)
+  assert.equal(summarizeReleasedPoints(rows, [{ title: "Arcade Adventure: September 2026" }], now).achieved, 1)
+  const distinct = parseReleasedGames([
+    game("Game A", 1, { joinUrl: "https://www.skills.google/games/1" }),
+    game("Game A", 1, { joinUrl: "https://www.skills.google/games/2" }),
+  ], "2026-09")
+  assert.equal(summarizeReleasedPoints(distinct, [{ title: "Game A", dateEarned: "2026-09-10" }], now).achieved, 1)
+  assert.equal(summarizeReleasedPoints(distinct, [], now).total, 2)
 })
