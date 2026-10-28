@@ -17,6 +17,31 @@ export default function ReleasedPointsPanel({ badges, hasProfile, catalog, local
   const [failed, setFailed] = useState(false)
   const [attempt, setAttempt] = useState(0)
   const [historyOpen, setHistoryOpen] = useState(false)
+  const [historyActivation, setHistoryActivation] = useState<"hover" | "click">("click")
+  const hoverCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const supportsDesktopHover = () => typeof window !== "undefined" &&
+    window.matchMedia("(min-width: 681px) and (hover: hover) and (pointer: fine)").matches
+  const clearHoverClose = () => {
+    if (hoverCloseTimerRef.current !== null) {
+      clearTimeout(hoverCloseTimerRef.current)
+      hoverCloseTimerRef.current = null
+    }
+  }
+  const openHistoryOnHover = () => {
+    if (!supportsDesktopHover()) return
+    clearHoverClose()
+    setHistoryActivation("hover")
+    setHistoryOpen(true)
+  }
+  const closeHistoryAfterHover = () => {
+    if (!supportsDesktopHover() || historyActivation !== "hover") return
+    clearHoverClose()
+    hoverCloseTimerRef.current = setTimeout(() => {
+      hoverCloseTimerRef.current = null
+      setHistoryOpen(false)
+    }, 180)
+  }
+  useEffect(() => () => clearHoverClose(), [])
   const [popoverPosition, setPopoverPosition] = useState({ top: 12, left: 12, maxHeight: 500 })
   const triggerRef = useRef<HTMLButtonElement>(null)
   const dialogRef = useRef<HTMLElement>(null)
@@ -69,13 +94,19 @@ export default function ReleasedPointsPanel({ badges, hasProfile, catalog, local
     }
     reposition()
     const dialog = dialogRef.current
-    dialog?.focus()
     const wasMobile = window.matchMedia("(max-width: 680px)").matches
+    // Hover is non-modal: never steal focus just because the mouse entered a label.
+    if (historyActivation === "click") dialog?.focus()
     const originalOverflow = document.body.style.overflow
     if (wasMobile) document.body.style.overflow = "hidden"
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") { event.preventDefault(); setHistoryOpen(false); return }
-      if (event.key !== "Tab" || !dialog) return
+      if (event.key === "Escape") {
+        event.preventDefault()
+        clearHoverClose()
+        setHistoryOpen(false)
+        return
+      }
+      if (!wasMobile || event.key !== "Tab" || !dialog) return
       const controls = Array.from(dialog.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], [tabindex="0"]'))
       if (!controls.length) { event.preventDefault(); return }
       const first = controls[0], last = controls[controls.length - 1]
@@ -85,17 +116,25 @@ export default function ReleasedPointsPanel({ badges, hasProfile, catalog, local
         event.preventDefault(); first.focus()
       }
     }
+    const onOutsidePointer = (event: PointerEvent) => {
+      const target = event.target as Node
+      if (dialog?.contains(target) || triggerRef.current?.contains(target)) return
+      clearHoverClose()
+      setHistoryOpen(false)
+    }
     document.addEventListener("keydown", onKeyDown)
+    if (!wasMobile) document.addEventListener("pointerdown", onOutsidePointer)
     window.addEventListener("resize", reposition)
     window.addEventListener("scroll", reposition, true)
     return () => {
       document.removeEventListener("keydown", onKeyDown)
+      document.removeEventListener("pointerdown", onOutsidePointer)
       window.removeEventListener("resize", reposition)
       window.removeEventListener("scroll", reposition, true)
       if (wasMobile) document.body.style.overflow = originalOverflow
-      triggerRef.current?.focus()
+      if (historyActivation === "click") triggerRef.current?.focus()
     }
-  }, [historyOpen])
+  }, [historyOpen, historyActivation])
 
   const summary = games ? summarizeReleasedPoints(games, badges, nowMs) : null
   const number = (value: number | null) => value === null ? "—" : new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(value)
@@ -104,16 +143,23 @@ export default function ReleasedPointsPanel({ badges, hasProfile, catalog, local
     const title = text("title", { year: String(year) })
     return <>
       <section className="point-comparison" dir={locale.startsWith("ar") ? "rtl" : "ltr"} aria-label={title}>
-        <div className="point-history-line">
+        <div className="point-history-line"
+          onMouseEnter={openHistoryOnHover} onMouseLeave={closeHistoryAfterHover}>
           <span className="point-history-label">{title}</span>
           <span className="point-history-count">
             {summary ? <strong title={text("released")}>{catalog.dynamic.points.replace("{count}", number(summary.total)).replace(/^\+\s*/, "")}</strong>
               : failed ? text("error") : text("loading")}
           </span>
           <button ref={triggerRef} type="button" className="point-history-trigger"
-            aria-label={catalog.additional["Open details"]} aria-haspopup="dialog"
-            aria-expanded={historyOpen} aria-controls={dialogId}
-            onClick={() => setHistoryOpen(true)}>
+            aria-label={historyOpen ? catalog.additional["Close details"] : catalog.additional["Open details"]}
+            aria-haspopup="dialog" aria-expanded={historyOpen} aria-controls={dialogId}
+            onClick={(event) => {
+              // On fine-pointer desktops hover is primary; keyboard activation still works.
+              if (supportsDesktopHover() && event.detail !== 0) return
+              clearHoverClose()
+              setHistoryActivation("click")
+              setHistoryOpen((open) => !open)
+            }}>
             <CircleHelp aria-hidden="true" />
           </button>
         </div>
@@ -121,7 +167,10 @@ export default function ReleasedPointsPanel({ badges, hasProfile, catalog, local
       {historyOpen && typeof document !== "undefined" && createPortal(
         <div className={`point-history-portal${document.documentElement.classList.contains("light") || document.body.classList.contains("light") ? " is-light" : ""}`} dir={locale.startsWith("ar") ? "rtl" : "ltr"}>
           <div className="point-history-backdrop" aria-hidden="true" onClick={() => setHistoryOpen(false)} />
-          <section id={dialogId} ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby={`${dialogId}-title`}
+          <section id={dialogId} ref={dialogRef} role="dialog"
+            aria-modal={typeof window !== "undefined" && window.matchMedia("(max-width: 680px)").matches}
+            aria-labelledby={`${dialogId}-title`} onMouseEnter={clearHoverClose}
+            onMouseLeave={closeHistoryAfterHover}
             tabIndex={-1} className="point-history-popover"
             style={{ top: popoverPosition.top, left: popoverPosition.left, maxHeight: popoverPosition.maxHeight }}>
             <header className="point-history-popover-header">
