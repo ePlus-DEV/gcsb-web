@@ -603,7 +603,10 @@
     "__releasedPoints:skillCoverage": "Los puntos obtenidos por insignias de habilidades se incluyen arriba. La fuente histórica no ofrece un catálogo completo de insignias válidas; el total publicado y el porcentaje inferior corresponden solo a juegos.",
     "__releasedPoints:gamesGroup": "Juegos + Trivia/Especiales",
     "__releasedPoints:achieved": "Obtenidos",
-    "__releasedPoints:incomplete": "Datos incompletos"
+    "__releasedPoints:incomplete": "Datos incompletos",
+    "__releasedPoints:category": "Categoría",
+    "__releasedPoints:history": "En el historial",
+    "__releasedPoints:comparisonNote": "Los totales del historial pueden estar incompletos. Los puntos obtenidos proceden de la puntuación del perfil; las coincidencias del historial pueden diferir. No hay máximos disponibles para insignias de habilidades ni bonificaciones."
   },
   "dynamic": {
     "memberSince": "Miembro desde {value}",

@@ -38,7 +38,7 @@ test("all released points copy is catalog-owned and translated with intact place
   const catalogs = fs.readdirSync("public/i18n/locales").filter((name) => name.endsWith(".json")).map((name) => JSON.parse(readRepoFile(`public/i18n/locales/${name}`)))
   const english = JSON.parse(readRepoFile("public/i18n/locales/en.json")).additional
   const keys = Object.keys(english).filter((key) => key.startsWith("__releasedPoints:"))
-  assert.equal(keys.length, 16)
+  assert.equal(keys.length, 19)
   const placeholders = (value) => [...value.matchAll(/\{\w+\}/g)].map((match) => match[0]).sort()
   for (const key of keys) {
     assert.ok(!source.includes(english[key]), `hardcoded ${key}`)

@@ -575,7 +575,10 @@
     "__releasedPoints:skillCoverage": "Earned skill-badge points are included above. The history source does not provide a complete eligible skill-badge catalog, so the published total and completion rate below cover games only.",
     "__releasedPoints:gamesGroup": "Game + Trivia/Special",
     "__releasedPoints:achieved": "Achieved",
-    "__releasedPoints:incomplete": "Incomplete data"
+    "__releasedPoints:incomplete": "Incomplete data",
+    "__releasedPoints:category": "Category",
+    "__releasedPoints:history": "In history",
+    "__releasedPoints:comparisonNote": "History totals may be incomplete. Your earned points come from profile scoring; history matches may differ. Skill-badge and bonus maxima are unavailable."
   },
   "dynamic": {
     "memberSince": "Member since {value}",

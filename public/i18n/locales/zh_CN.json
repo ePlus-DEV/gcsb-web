@@ -603,7 +603,10 @@
     "__releasedPoints:skillCoverage": "上方已包含获得的技能徽章积分。历史来源未提供完整的有效技能徽章目录，因此下方发布积分总数及完成率仅涵盖游戏。",
     "__releasedPoints:gamesGroup": "游戏 + 问答/特别活动",
     "__releasedPoints:achieved": "已获得",
-    "__releasedPoints:incomplete": "数据不完整"
+    "__releasedPoints:incomplete": "数据不完整",
+    "__releasedPoints:category": "类别",
+    "__releasedPoints:history": "历史记录",
+    "__releasedPoints:comparisonNote": "历史总分可能不完整。已获得分数来自个人资料计分，可能与历史匹配分数不同。技能徽章和奖励的最高分数暂无数据。"
   },
   "dynamic": {
     "memberSince": "加入时间：{value}",

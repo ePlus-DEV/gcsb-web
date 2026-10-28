@@ -603,7 +603,10 @@
     "__releasedPoints:skillCoverage": "획득한 스킬 배지 포인트는 위에 포함됩니다. 기록에는 유효한 스킬 배지 전체 목록이 없으므로 아래 공개 포인트 합계와 완료율은 게임만 포함합니다.",
     "__releasedPoints:gamesGroup": "게임 + 퀴즈/특별",
     "__releasedPoints:achieved": "획득",
-    "__releasedPoints:incomplete": "데이터 부족"
+    "__releasedPoints:incomplete": "데이터 부족",
+    "__releasedPoints:category": "분류",
+    "__releasedPoints:history": "기록 내",
+    "__releasedPoints:comparisonNote": "기록의 총점은 불완전할 수 있습니다. 획득 점수는 프로필 집계 기준이므로 기록과 일치하는 점수와 다를 수 있습니다. 스킬 배지와 보너스의 최대 점수는 확인할 수 없습니다."
   },
   "dynamic": {
     "memberSince": "가입 시점 {value}",

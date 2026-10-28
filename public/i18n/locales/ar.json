@@ -603,7 +603,10 @@
     "__releasedPoints:skillCoverage": "تتضمن الأرقام أعلاه نقاط شارات المهارات المكتسبة. لا يوفر مصدر السجل قائمة كاملة بشارات المهارات المؤهلة، لذلك يقتصر المجموع المنشور ونسبة الإنجاز أدناه على الألعاب.",
     "__releasedPoints:gamesGroup": "الألعاب + الأسئلة/الخاصة",
     "__releasedPoints:achieved": "المكتسب",
-    "__releasedPoints:incomplete": "بيانات غير مكتملة"
+    "__releasedPoints:incomplete": "بيانات غير مكتملة",
+    "__releasedPoints:category": "الفئة",
+    "__releasedPoints:history": "في السجل",
+    "__releasedPoints:comparisonNote": "قد تكون إجماليات السجل غير مكتملة. تُحسب النقاط المكتسبة من الملف الشخصي؛ وقد تختلف النقاط المطابقة للسجل. الحد الأقصى لشارات المهارات والمكافآت غير متاح."
   },
   "dynamic": {
     "memberSince": "عضو منذ {value}",

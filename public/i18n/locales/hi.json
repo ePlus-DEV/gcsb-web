@@ -603,7 +603,10 @@
     "__releasedPoints:skillCoverage": "अर्जित स्किल बैज अंक ऊपर शामिल हैं। इतिहास स्रोत में सभी मान्य स्किल बैज की पूरी सूची नहीं है, इसलिए नीचे प्रकाशित अंकों का कुल और पूर्णता दर केवल गेम के लिए हैं।",
     "__releasedPoints:gamesGroup": "गेम + ट्रिविया/विशेष",
     "__releasedPoints:achieved": "अर्जित",
-    "__releasedPoints:incomplete": "अधूरा डेटा"
+    "__releasedPoints:incomplete": "अधूरा डेटा",
+    "__releasedPoints:category": "श्रेणी",
+    "__releasedPoints:history": "इतिहास में",
+    "__releasedPoints:comparisonNote": "इतिहास के कुल अंक अधूरे हो सकते हैं। अर्जित अंक प्रोफ़ाइल की गणना से आते हैं; इतिहास से मिले अंक अलग हो सकते हैं। स्किल बैज और बोनस के अधिकतम अंक उपलब्ध नहीं हैं।"
   },
   "dynamic": {
     "memberSince": "{value} से सदस्य",

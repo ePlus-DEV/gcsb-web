@@ -612,7 +612,10 @@
     "__releasedPoints:skillCoverage": "Điểm Skill badges đã đạt được tính ở trên. Nguồn lịch sử chưa cung cấp đầy đủ danh sách skill badge hợp lệ, nên tổng điểm phát hành và tỷ lệ hoàn thành bên dưới chỉ áp dụng cho game.",
     "__releasedPoints:gamesGroup": "Game + Trivia/Đặc biệt",
     "__releasedPoints:achieved": "Đã đạt",
-    "__releasedPoints:incomplete": "Chưa đủ dữ liệu"
+    "__releasedPoints:incomplete": "Chưa đủ dữ liệu",
+    "__releasedPoints:category": "Nhóm điểm",
+    "__releasedPoints:history": "Trong lịch sử",
+    "__releasedPoints:comparisonNote": "Tổng điểm lịch sử có thể chưa đầy đủ. Điểm đã đạt được tính từ hồ sơ; điểm khớp lịch sử có thể khác. Chưa có tổng điểm tối đa cho Skill badges và bonus."
   },
   "dynamic": {
     "memberSince": "Thành viên từ {value}",

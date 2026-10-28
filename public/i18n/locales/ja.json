@@ -603,7 +603,10 @@
     "__releasedPoints:skillCoverage": "獲得したスキルバッジのポイントは上記に含まれます。履歴には対象スキルバッジの完全な一覧がないため、以下の公開総ポイントと達成率はゲームのみが対象です。",
     "__releasedPoints:gamesGroup": "ゲーム + トリビア/特別",
     "__releasedPoints:achieved": "獲得済み",
-    "__releasedPoints:incomplete": "データ不足"
+    "__releasedPoints:incomplete": "データ不足",
+    "__releasedPoints:category": "分類",
+    "__releasedPoints:history": "履歴内",
+    "__releasedPoints:comparisonNote": "履歴の合計は不完全な場合があります。獲得ポイントはプロフィールの集計に基づくため、履歴の一致ポイントと異なる場合があります。スキルバッジとボーナスの上限は不明です。"
   },
   "dynamic": {
     "memberSince": "メンバー登録: {value}",

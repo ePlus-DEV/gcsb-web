@@ -603,7 +603,10 @@
     "__releasedPoints:skillCoverage": "I punti dei badge di competenza ottenuti sono inclusi sopra. La fonte storica non fornisce un catalogo completo dei badge validi; il totale pubblicato e la percentuale sotto riguardano solo i giochi.",
     "__releasedPoints:gamesGroup": "Giochi + Trivia/Speciali",
     "__releasedPoints:achieved": "Ottenuti",
-    "__releasedPoints:incomplete": "Dati incompleti"
+    "__releasedPoints:incomplete": "Dati incompleti",
+    "__releasedPoints:category": "Categoria",
+    "__releasedPoints:history": "Nello storico",
+    "__releasedPoints:comparisonNote": "I totali dello storico possono essere incompleti. I punti ottenuti derivano dal profilo; le corrispondenze nello storico possono differire. I massimi per badge di competenze e bonus non sono disponibili."
   },
   "dynamic": {
     "memberSince": "Membro dal {value}",

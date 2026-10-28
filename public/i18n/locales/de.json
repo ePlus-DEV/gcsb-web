@@ -603,7 +603,10 @@
     "__releasedPoints:skillCoverage": "Erreichte Skill-Abzeichen-Punkte sind oben enthalten. Die Verlaufsquelle bietet keinen vollständigen Katalog berechtigter Skill-Abzeichen. Die veröffentlichte Summe und die Abschlussquote unten gelten daher nur für Spiele.",
     "__releasedPoints:gamesGroup": "Spiele + Trivia/Spezial",
     "__releasedPoints:achieved": "Erreicht",
-    "__releasedPoints:incomplete": "Unvollständige Daten"
+    "__releasedPoints:incomplete": "Unvollständige Daten",
+    "__releasedPoints:category": "Kategorie",
+    "__releasedPoints:history": "Im Verlauf",
+    "__releasedPoints:comparisonNote": "Die Verlaufssummen können unvollständig sein. Erreichte Punkte stammen aus der Profilbewertung; Verlaufstreffer können abweichen. Höchstwerte für Skill-Badges und Boni sind nicht verfügbar."
   },
   "dynamic": {
     "memberSince": "Mitglied seit {value}",
