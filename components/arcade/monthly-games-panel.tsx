@@ -12,6 +12,7 @@ import {
   Trophy,
 } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
+import ReleasedPointsPanel from "./released-points-panel"
 import {
   DEFAULT_WEBSITE_LOCALE,
   getWebsiteLocale,
@@ -439,6 +440,8 @@ export default function MonthlyGamesPanel({ badges, hasProfile }: MonthlyGamesPa
           )}
         </div>
       </div>
+
+      <ReleasedPointsPanel badges={badges} hasProfile={hasProfile} catalog={catalog} locale={intlLocale} nowMs={nowMs} />
 
       {awaitingNewGames ? (
         <div className="monthly-games-coming-soon" role="status">
