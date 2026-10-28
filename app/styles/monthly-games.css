@@ -4,73 +4,65 @@
   --released-text: #edf2ff;
   --released-muted: #9aabc5;
   --released-line: rgba(148, 163, 184, .14);
-  --released-card: rgba(8, 15, 31, .5);
-  position: relative;
-  margin: 0 0 22px;
-  padding: 20px;
-  border: 1px solid rgba(139, 92, 246, .22);
-  border-radius: 14px;
-  background: radial-gradient(ellipse at 0 0, rgba(124, 58, 237, .1), transparent 65%), rgba(9, 16, 33, .35);
+  margin: 0 0 16px;
+  padding: 14px 16px;
+  border: 1px solid rgba(139, 92, 246, .2);
+  border-radius: 11px;
+  background: linear-gradient(110deg, rgba(124, 58, 237, .06), rgba(9, 16, 33, .2));
   color: var(--released-text);
+  font-variant-numeric: tabular-nums;
 }
-.released-points-heading { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 18px; }
-.released-points-heading-title { display: flex; align-items: center; gap: 10px; min-width: 0; }
-.released-points-panel h3 { margin: 0; color: var(--released-text); font-size: .88rem; font-weight: 750; line-height: 1.4; }
-.released-points-emblem { display: grid; place-items: center; flex: 0 0 34px; height: 34px; border: 1px solid rgba(167, 139, 250, .22); border-radius: 10px; background: rgba(124, 58, 237, .13); color: #c4b5fd; }
-.released-points-emblem svg { width: 16px; height: 16px; }
-.released-points-percent { flex: 0 0 auto; padding: 5px 10px; border: 1px solid rgba(34, 211, 238, .2); border-radius: 7px; background: rgba(34, 211, 238, .07); color: #67e8f9; font-size: .8rem; font-weight: 800; font-variant-numeric: tabular-nums; }
-.released-points-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 0 0 16px; }
-.released-stat { --stat-color: #c4b5fd; display: flex; flex-direction: column; gap: 10px; min-width: 0; padding: 15px; border: 1px solid var(--released-line); border-radius: 10px; background: var(--released-card); }
-.released-stat.is-earned { --stat-color: #5eead4; border-color: rgba(45, 212, 191, .22); background: rgba(20, 184, 166, .05); }
-.released-stat.is-available { --stat-color: #fcd34d; }
-.released-stat.is-expired { --stat-color: #94a3b8; }
-.released-stat dt { display: flex; align-items: flex-start; gap: 7px; color: var(--released-muted); font-size: .68rem; font-weight: 600; line-height: 1.45; }
-.released-stat dt svg { flex: 0 0 12px; width: 12px; height: 12px; margin-top: 2px; color: var(--stat-color); }
-.released-stat dd { margin: auto 0 0; color: var(--stat-color); font-size: 1.9rem; line-height: 1.1; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -.04em; }
-.released-points-panel progress { display: block; appearance: none; -webkit-appearance: none; width: 100%; height: 7px; overflow: hidden; border: 0; border-radius: 999px; background: #1c2840; }
+.released-points-heading, .released-points-heading-title, .released-profile-total { display: flex; align-items: center; gap: 8px; }
+.released-points-heading { justify-content: space-between; gap: 14px; }
+.released-points-heading-title { min-width: 0; }
+.released-points-panel h3 { margin: 0; color: var(--released-text); font-size: .78rem; font-weight: 750; line-height: 1.4; }
+.released-points-emblem { display: grid; place-items: center; flex: 0 0 25px; height: 25px; border-radius: 7px; background: rgba(124, 58, 237, .13); color: #c4b5fd; }
+.released-points-emblem svg { width: 12px; height: 12px; }
+.released-profile-total { justify-content: flex-end; flex-wrap: wrap; text-align: end; }
+.released-profile-total span { color: var(--released-muted); font-size: .63rem; }
+.released-profile-total strong { color: var(--released-text); font-size: 1.35rem; line-height: 1; }
+.released-profile-stats { display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 11px 0 0; padding-bottom: 12px; border-bottom: 1px solid var(--released-line); }
+.released-profile-stats>div, .released-detail-stats>div { display: flex; align-items: baseline; gap: 6px; }
+.released-profile-stats dt, .released-detail-stats dt { color: var(--released-muted); font-size: .65rem; line-height: 1.4; }
+.released-profile-stats dd, .released-detail-stats dd { margin: 0; color: var(--released-text); font-size: .75rem; font-weight: 750; }
+.released-profile-stats .is-skill dd { color: #7dd3fc; }
+.released-history-line { display: flex; align-items: center; gap: 12px; margin: 11px 0 8px; }
+.released-history-line h4 { flex: 1; margin: 0; color: var(--released-muted); font-size: .67rem; font-weight: 600; }
+.released-history-values { display: flex; align-items: center; gap: 14px; margin: 0; }
+.released-history-values>div { display: flex; align-items: baseline; gap: 6px; }
+.released-history-values dt { color: var(--released-muted); font-size: .62rem; }
+.released-history-values dd { margin: 0; color: var(--released-text); font-size: .85rem; font-weight: 750; }
+.released-history-values>div:first-child:not(:last-child) dd { color: #5eead4; }
+.released-points-percent { color: #67e8f9; font-size: .72rem; font-weight: 750; }
+.released-points-panel progress { display: block; appearance: none; -webkit-appearance: none; width: 100%; height: 5px; overflow: hidden; border: 0; border-radius: 999px; background: #1c2840; }
 .released-points-panel progress::-webkit-progress-bar { border-radius: 999px; background: #1c2840; }
 .released-points-panel progress::-webkit-progress-value { border-radius: 999px; background: linear-gradient(90deg, #8b5cf6, #22d3ee); }
 .released-points-panel progress::-moz-progress-bar { border-radius: 999px; background: linear-gradient(90deg, #8b5cf6, #22d3ee); }
-.released-points-panel p { margin: 10px 0 0; color: var(--released-muted); font-size: .7rem; line-height: 1.6; }
-.released-points-notes { margin-top: 12px; color: var(--released-muted); font-size: .64rem; line-height: 1.6; }
-.released-points-notes summary { cursor: pointer; }
+.released-points-notes { margin-top: 9px; color: var(--released-muted); font-size: .63rem; line-height: 1.6; }
+.released-points-notes summary { width: fit-content; cursor: pointer; }
 .released-points-notes summary:hover { color: var(--released-text); }
 .released-points-notes summary:focus-visible, .released-points-panel button:focus-visible { outline: 2px solid #a78bfa; outline-offset: 4px; }
-.released-points-panel button { margin-top: 10px; padding: 7px 12px; border: 1px solid rgba(167, 139, 250, .3); border-radius: 7px; background: rgba(124, 58, 237, .12); color: #c4b5fd; font-size: .7rem; font-weight: 700; cursor: pointer; }
-.light .released-points-panel { --released-text: #172033; --released-muted: #64748b; --released-line: #e2e8f0; --released-card: rgba(255, 255, 255, .85); background: linear-gradient(135deg, #faf8ff, #f8fafc); border-color: #e4dcfa; }
-.light .released-points-emblem, .light .released-stat.is-total, .light .released-points-panel button { --stat-color: #7c3aed; color: #7c3aed; }
-.light .released-stat.is-earned { --stat-color: #0f766e; background: #f0fdfa; }
-.light .released-stat.is-available { --stat-color: #b45309; }
-.light .released-stat.is-expired { --stat-color: #64748b; }
-.light .released-points-percent { color: #0e7490; background: #ecfeff; border-color: #a5f3fc; }
-.light .released-points-panel progress, .light .released-points-panel progress::-webkit-progress-bar { background: #e2e8f0; }
-@media (max-width: 680px) {
-  .released-points-panel { padding: 14px; margin-bottom: 16px; border-radius: 11px; }
-  .released-points-heading { gap: 8px; margin-bottom: 13px; }
-  .released-points-panel h3 { font-size: .76rem; }
-  .released-points-emblem { flex-basis: 28px; height: 28px; border-radius: 8px; }
-  .released-points-heading-title { gap: 8px; }
-  .released-points-percent { padding: 4px 7px; font-size: .72rem; }
-  .released-points-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 13px; }
-  .released-stat { padding: 12px; gap: 8px; }
-  .released-stat dt { font-size: .63rem; }
-  .released-stat dd { font-size: 1.65rem; }
-  .released-points-notes { font-size: .61rem; }
-}
-
-.released-profile-total { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; justify-content: flex-end; text-align: end; }
-.released-profile-total span, .released-profile-regular { color: var(--released-muted); font-size: .68rem; }
-.released-profile-total strong { color: var(--released-text); font-size: 1.7rem; line-height: 1; font-variant-numeric: tabular-nums; }
-.released-stat.is-skill { --stat-color: #7dd3fc; border-color: rgba(56, 189, 248, .2); background: rgba(56, 189, 248, .04); }
-.released-profile-regular { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: -4px; }
-.released-profile-regular strong { color: var(--released-text); }
-.released-history-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 18px; margin: 18px 0 14px; border-top: 1px solid var(--released-line); }
-.released-history-heading h4 { margin: 0; color: var(--released-text); font-size: .76rem; line-height: 1.45; }
-.released-points-panel .released-skill-coverage { margin-top: 14px; padding-inline-start: 10px; border-inline-start: 2px solid rgba(56, 189, 248, .4); }
-.light .released-stat.is-skill { --stat-color: #0369a1; background: #f0f9ff; }
+.released-detail-stats { display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 10px 0; }
+.released-points-panel p { margin: 8px 0 0; color: var(--released-muted); font-size: .67rem; line-height: 1.6; }
+.released-points-panel button { margin-top: 8px; padding: 6px 10px; border: 1px solid rgba(167, 139, 250, .3); border-radius: 7px; background: rgba(124, 58, 237, .12); color: #c4b5fd; font-size: .7rem; cursor: pointer; }
+.light .released-points-panel { --released-text: #172033; --released-muted: #64748b; --released-line: #e2e8f0; background: #fafaff; border-color: #e4dcfa; }
+.light .released-points-emblem, .light .released-points-panel button { color: #7c3aed; }
+.light .released-profile-stats .is-skill dd { color: #0369a1; }
+.light .released-history-values>div:first-child:not(:last-child) dd { color: #0f766e; }
+.light .released-points-percent { color: #0e7490; }
+.light .released-points-panel progress { background: #e2e8f0; }
+.light .released-points-panel progress::-webkit-progress-bar { background: #e2e8f0; }
 @media(max-width:680px) {
-  .released-profile-total { display: grid; gap: 4px; flex: 0 0 auto; }
-  .released-profile-total span { max-width: 95px; font-size: .58rem; }
-  .released-profile-total strong { font-size: 1.5rem; }
-  .released-history-heading { margin-top: 14px; padding-top: 14px; }
+  .released-points-panel { padding: 12px; }
+  .released-points-panel h3 { font-size: .72rem; }
+  .released-profile-total span { display: none; }
+  .released-profile-total strong { font-size: 1.25rem; }
+  .released-profile-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px 12px; }
+  .released-profile-stats>div { justify-content: space-between; }
+  .released-profile-stats dt { font-size: .61rem; }
+  .released-history-line { flex-wrap: wrap; gap: 6px 10px; }
+  .released-history-line h4 { flex-basis: calc(100% - 70px); }
+  .released-history-values { order: 3; width: 100%; justify-content: space-between; gap: 10px; }
+  .released-history-values dt { font-size: .58rem; }
+  .released-detail-stats { display: grid; gap: 6px; }
 }

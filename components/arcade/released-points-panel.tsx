@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Trophy, Check, Clock, Circle } from "lucide-react"
+import { Trophy } from "lucide-react"
 import type { WebsiteCatalog } from "@/lib/website-i18n"
 import type { ArcadeBadge } from "./model"
 import type { ProfilePointSummary } from "./profile-point-summary"
@@ -47,32 +47,37 @@ export default function ReleasedPointsPanel({ badges, hasProfile, catalog, local
       <div className="released-points-heading-title"><span className="released-points-emblem" aria-hidden="true"><Trophy /></span><h3 id="released-points-title">{text("overviewTitle", { year: String(year) })}</h3></div>
       {hasProfile && profilePoints && <div className="released-profile-total"><span>{catalog.messages.totalArcadePoints}</span><strong>{number(profilePoints.total)}</strong></div>}
     </div>
-    {hasProfile && profilePoints && <>
-      <dl className="released-points-stats released-profile-stats">
-        <div className="released-stat is-total"><dt>{catalog.messages.gameBadges}</dt><dd>{number(profilePoints.games)}</dd></div>
-        <div className="released-stat is-skill"><dt>{catalog.messages.skillBadges}</dt><dd>{number(profilePoints.skills)}</dd></div>
-        <div className="released-stat is-available"><dt>{catalog.messages.triviaSpecial}</dt><dd>{number(profilePoints.triviaSpecial)}</dd></div>
-        <div className="released-stat is-earned"><dt>{catalog.messages.facilitatorBonus}</dt><dd>{number(profilePoints.bonus)}</dd></div>
-      </dl>
-      <div className="released-profile-regular"><span>{catalog.messages.regularPoints}</span><strong>{number(profilePoints.regular)}</strong></div>
-    </>}
-    <p className="released-skill-coverage">{text("skillCoverage")}</p>
-    <div className="released-history-heading"><h4>{text("title", { year: String(year) })}</h4>
-      {hasProfile && summary && <output className="released-points-percent">{new Intl.NumberFormat(locale, { style: "percent", maximumFractionDigits: 1 }).format(summary.percent)}</output>}
-    </div>
+    {hasProfile && profilePoints && <dl className="released-profile-stats">
+      <div><dt>{catalog.messages.gameBadges}</dt><dd>{number(profilePoints.games)}</dd></div>
+      <div className="is-skill"><dt>{catalog.messages.skillBadges}</dt><dd>{number(profilePoints.skills)}</dd></div>
+      <div><dt>{catalog.messages.triviaSpecial}</dt><dd>{number(profilePoints.triviaSpecial)}</dd></div>
+      <div><dt>{catalog.messages.facilitatorBonus}</dt><dd>{number(profilePoints.bonus)}</dd></div>
+    </dl>}
     {failed ? <div role="status"><p>{text("error")}</p><button type="button" onClick={() => setAttempt((value) => value + 1)}>{text("retry")}</button></div>
       : !summary ? <p role="status">{text("loading")}</p>
       : <>
-        <dl className="released-points-stats">
-          <div className="released-stat is-total"><dt><Trophy aria-hidden="true" />{text("released")}</dt><dd>{number(summary.total)}</dd></div>
-          {hasProfile && <>
-            <div className="released-stat is-earned"><dt><Check aria-hidden="true" />{text("earned")}</dt><dd>{number(summary.achieved)}</dd></div>
-            <div className="released-stat is-available"><dt><Clock aria-hidden="true" />{text("available")}</dt><dd>{number(summary.available)}</dd></div>
-            <div className="released-stat is-expired"><dt><Circle aria-hidden="true" />{text("expired")}</dt><dd>{number(summary.expired)}</dd></div>
-          </>}
-        </dl>
+        <div className="released-history-line">
+          <h4>{text("title", { year: String(year) })}</h4>
+          <dl className="released-history-values">
+            {hasProfile && <div><dt>{text("earned")}</dt><dd>{number(summary.achieved)}</dd></div>}
+            <div><dt>{text("released")}</dt><dd>{number(summary.total)}</dd></div>
+          </dl>
+          {hasProfile && <output className="released-points-percent">{new Intl.NumberFormat(locale, { style: "percent", maximumFractionDigits: 1 }).format(summary.percent)}</output>}
+        </div>
         {hasProfile ? <progress aria-label={text("earned")} max={1} value={summary.percent} /> : <p>{text("profile")}</p>}
-        <details className="released-points-notes"><summary>{text("coverage", { count: number(summary.months), total: number(month), unknown: number(summary.unknown) })}</summary><p>{text("scope")}</p></details>
+        <details className="released-points-notes">
+          <summary>{catalog.messages.pointBreakdown}</summary>
+          <dl className="released-detail-stats">
+            {hasProfile && <>
+              <div><dt>{text("available")}</dt><dd>{number(summary.available)}</dd></div>
+              <div><dt>{text("expired")}</dt><dd>{number(summary.expired)}</dd></div>
+            </>}
+            {hasProfile && profilePoints && <div><dt>{catalog.messages.regularPoints}</dt><dd><strong>{number(profilePoints.regular)}</strong></dd></div>}
+          </dl>
+          <p>{text("skillCoverage")}</p>
+          <p>{text("coverage", { count: number(summary.months), total: number(month), unknown: number(summary.unknown) })}</p>
+          <p>{text("scope")}</p>
+        </details>
       </>}
   </section>
 }
