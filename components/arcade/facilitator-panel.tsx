@@ -20,6 +20,7 @@ import type {
   ReactNode,
 } from "react"
 import { useEffect, useMemo, useRef, useState } from "react"
+import { createPortal } from "react-dom"
 import {
   evaluateFacilitatorSyllabus,
   FACILITATOR_SYLLABUS_2026,
@@ -163,6 +164,14 @@ function titleMatchesAliases(title: string, aliases: readonly string[]): boolean
 }
 
 export default function FacilitatorPanel() {
+  const [launcherTarget, setLauncherTarget] = useState<HTMLElement | null>(null)
+  useEffect(() => {
+    const sync = () => setLauncherTarget(document.querySelector<HTMLElement>(".dashboard-facilitator-host"))
+    sync()
+    const observer = new MutationObserver(sync)
+    observer.observe(document.body, { childList: true, subtree: true })
+    return () => observer.disconnect()
+  }, [])
   const [open, setOpen] = useState(false)
   const [dashboard, setDashboard] = useState<StoredDashboard | null>(null)
   const [isParticipating, setIsParticipating] = useState(false)
@@ -385,8 +394,7 @@ export default function FacilitatorPanel() {
     .filter(Boolean)
     .join(" ")
 
-  return (
-    <>
+  const launcher = (
       <button
         ref={launcherRef}
         className={launcherClassName}
@@ -414,6 +422,11 @@ export default function FacilitatorPanel() {
         </span>
         <ChevronRight />
       </button>
+  )
+
+  return (
+    <>
+      {launcherTarget ? createPortal(launcher, launcherTarget) : launcher}
 
       {open ? (
         <div

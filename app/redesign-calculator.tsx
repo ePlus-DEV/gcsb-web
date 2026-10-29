@@ -642,6 +642,7 @@ export default function RedesignCalculator({
                 </div>
               </div>
               <a className="profile-source-link" href={safeHttpsUrl(committedProfileUrl) ?? undefined} target="_blank" rel="noreferrer noopener">{scoreCatalog.messages.publicProfile}<ExternalLink /></a>
+              <div className="dashboard-facilitator-host" />
             </DashboardPanel>
 
             <DashboardPanel className="breakdown-panel">

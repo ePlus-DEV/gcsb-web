@@ -183,3 +183,26 @@
  .home-profile-points strong { font-size: 1.3rem; }
  .home-profile-dashboard-link { max-width: 140px; font-size: .68rem; }
 }
+
+/* Keep the score bar close to its value; no accumulated disclosure margins. */
+.arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-score-details { margin-top: 0; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-score-details .point-composition-bar { margin-top: 0; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .points-total { margin-block: 14px; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel {
+ display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 16px;
+}
+.arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel .profile-overview { grid-column: 1; grid-row: 1 / span 2; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel .profile-source-link { grid-column: 2; grid-row: 1; }
+.dashboard-facilitator-host { grid-column: 2; grid-row: 2; margin-inline-end: 80px; }
+.dashboard-facilitator-host .facilitator-launcher {
+ position: static; inset: auto; transform: none; width: 100%; min-width: 0;
+ padding: 6px 8px; gap: 8px; border-width: 1px; border-radius: 8px; box-shadow: none;
+}
+.dashboard-facilitator-host .facilitator-launcher:hover { transform: none; box-shadow: none; }
+.dashboard-facilitator-host .facilitator-launcher strong { font-size: .68rem; }
+.dashboard-facilitator-host .facilitator-launcher small { font-size: .62rem; }
+.dashboard-facilitator-host .facilitator-launcher > svg:first-child { width: 18px; height: 18px; }
+@media (max-width: 600px) {
+ .arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel { display: flex; }
+ .dashboard-facilitator-host { width: 100%; margin: 0; }
+}
