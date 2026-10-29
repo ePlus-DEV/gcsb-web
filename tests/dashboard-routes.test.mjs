@@ -166,3 +166,12 @@ test("Home CTA opens localized Dashboard instead of running a profile request", 
   assert.doesNotMatch(home, /onSubmit|PROFILE_URL_PATTERN/)
 })
 
+
+test("Monthly labs are reachable in Guest and Profile Dashboard without putting data on Home", () => {
+  const dashboard = readRepoFile("app/redesign-calculator.tsx")
+  const guest = readRepoFile("components/arcade/guest-dashboard.tsx")
+  const home = readRepoFile("components/arcade/home-page.tsx")
+  assert.match(dashboard, /showProfileDashboard \? <div id="monthly-games"/)
+  assert.match(guest, /id="monthly-games"/)
+  assert.doesNotMatch(home, /id="monthly-games"/)
+})

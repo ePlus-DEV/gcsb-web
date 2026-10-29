@@ -903,7 +903,7 @@ export default function RedesignCalculator({
         />
       )}
 
-
+      {showProfileDashboard ? <div id="monthly-games" className="monthly-games-host dashboard-profile-monthly-games" data-home-order="monthly-labs" /> : null}
 
       {footerContent}
 

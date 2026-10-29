@@ -93,3 +93,7 @@ html.light .home-intro-journey li > span { color: #6d28d9; }
   .home-intro-actions a { transition: none; }
   .home-intro-actions a:hover { transform: none; }
 }
+
+/* The monthly feed is also accessible below personal score results. */
+.dashboard-profile-monthly-games { width: min(1200px, calc(100% - 40px)); margin: 24px auto; }
+@media (max-width: 600px) { .dashboard-profile-monthly-games { width: calc(100% - 28px); } }

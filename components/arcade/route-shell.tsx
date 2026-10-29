@@ -132,7 +132,30 @@ function MobileBottomNavigation({ catalog, locale, dashboard }: Props) {
   const thirdHref = dashboard && !profileView ? "#monthly-games" : "#" + thirdId
   const sectionIds: MobileSection[] = ["calculator", "tiers", thirdId, "extension"]
   const [active, setActive] = useState<MobileSection>("calculator")
+  const [homeActive, setHomeActive] = useState<"home" | "extension">("home")
   const clickAt = useRef(0)
+
+  useEffect(() => {
+    if (dashboard) return
+    const sync = () => {
+      const extension = document.getElementById("extension")
+      const nearExtension = Boolean(extension && extension.getBoundingClientRect().top <= window.innerHeight * .65)
+      setHomeActive(nearExtension ? "extension" : "home")
+    }
+    const onHash = () => {
+      if (window.location.hash === "#extension") setHomeActive("extension")
+      else sync()
+    }
+    sync()
+    window.addEventListener("scroll", sync, { passive: true })
+    window.addEventListener("hashchange", onHash)
+    window.addEventListener("pageshow", onHash)
+    return () => {
+      window.removeEventListener("scroll", sync)
+      window.removeEventListener("hashchange", onHash)
+      window.removeEventListener("pageshow", onHash)
+    }
+  }, [dashboard])
 
   useEffect(() => {
     let frame = 0
@@ -195,10 +218,10 @@ function MobileBottomNavigation({ catalog, locale, dashboard }: Props) {
 
   if (!dashboard) return (
     <nav className="mobile-bottom-nav home-bottom-nav" aria-label={catalog.messages.mobileNavigation}>
-      <Link className="is-active" aria-current="page" href={homeHref}><Gamepad2 /><span>{catalog.messages.homeNav}</span></Link>
+      <Link className={homeActive === "home" ? "is-active" : ""} aria-current={homeActive === "home" ? "page" : undefined} href={homeHref}><Gamepad2 /><span>{catalog.messages.homeNav}</span></Link>
       <Link href={dashboardHref}><Search /><span>{catalog.messages.dashboardNav}</span></Link>
       <Link href="/guide/"><BookOpen /><span>{catalog.messages.guide}</span></Link>
-      <Link href="#extension"><Chrome /><span>{catalog.messages.extension}</span></Link>
+      <Link className={homeActive === "extension" ? "is-active" : ""} aria-current={homeActive === "extension" ? "location" : undefined} href="#extension" onClick={() => setHomeActive("extension")}><Chrome /><span>{catalog.messages.extension}</span></Link>
     </nav>
   )
 
