@@ -67,7 +67,7 @@
 .arcade-dashboard-page[data-dashboard-view="profile"] .tier-status-main strong { font-size: 1.15rem; }
 .arcade-dashboard-page[data-dashboard-view="profile"] .tier-status-main span { font-size: .68rem; }
 .arcade-dashboard-page[data-dashboard-view="profile"] .tier-status-panel .panel-title-row { flex-wrap: wrap; }
-.arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-summary-grid { align-items: start; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; }
 @media (max-width: 600px) {
  .arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel .profile-source-link { margin-inline-end: 0; }
  .arcade-home-route .profile-analyzer-card { padding: 14px; }
@@ -97,3 +97,31 @@
  .arcade-dashboard-page[data-dashboard-view="profile"] .profile-name-block { flex: 1; }
  .arcade-dashboard-page[data-dashboard-view="profile"] .profile-name-block h2 { font-size: .95rem; }
 }
+
+/* Personal results use two balanced columns; bonus already belongs to the score breakdown. */
+.arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-analyzer { padding-block: 12px; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .analyzer-facilitator-slot > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.arcade-dashboard-page[data-dashboard-view="profile"] .analyzer-facilitator-option {
+ min-height: 0; padding: 8px 10px; gap: 8px; border-color: var(--arcade-border-soft); background: transparent;
+}
+.arcade-dashboard-page[data-dashboard-view="profile"] .analyzer-facilitator-icon { width: 28px; height: 28px; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .analyzer-help-row { margin-top: 8px; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .breakdown-panel,
+.arcade-dashboard-page[data-dashboard-view="profile"] .tier-status-panel { display: flex; flex-direction: column; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .points-total { margin-block: 16px; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .points-total strong { font-size: 2.4rem; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .point-compact-item { padding: 10px; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-tier-details .tier-availability-grid > div {
+ display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: 6px; min-height: 0; padding: 10px;
+}
+.arcade-dashboard-page[data-dashboard-view="profile"] .tier-availability-icon { display: none; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .tier-availability-grid strong { margin: 0; font-size: 1.2rem; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-tier-details .allocation-message {
+ padding: 0; border: 0; background: transparent; font-size: .72rem; line-height: 1.6;
+}
+.arcade-dashboard-page[data-dashboard-view="profile"] .panel-link-note { margin-bottom: 0; }
+@media (max-width: 600px) {
+ .arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-summary-grid { grid-template-columns: 1fr; }
+ .arcade-dashboard-page[data-dashboard-view="profile"] .analyzer-facilitator-slot > div { grid-template-columns: 1fr; }
+}
+.arcade-dashboard-page[data-dashboard-view="profile"] .tier-status-panel { grid-column: auto; }

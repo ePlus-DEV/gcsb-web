@@ -88,6 +88,12 @@ try {
         }
         const profileWidth = await page.locator('.profile-name-block').evaluate(el => el.getBoundingClientRect().width)
         assert.ok(profileWidth >= 120, `Profile name is squeezed into ${profileWidth}px at ${width}px`)
+        assert.equal(await page.locator('.facilitator-summary-panel').count(), 0, 'Bonus must not duplicate the score breakdown')
+        if (width >= 768) {
+          const panels = await page.locator('.breakdown-panel, .tier-status-panel').evaluateAll(elements => elements.map(el => { const box = el.getBoundingClientRect(); return { top: box.top, height: box.height } }))
+          assert.ok(Math.abs(panels[0].top - panels[1].top) <= 1, 'Score and tier must share a row')
+          assert.ok(Math.abs(panels[0].height - panels[1].height) <= 1, 'Summary cards must have balanced heights')
+        }
         const stored = await page.evaluate(() => JSON.parse(localStorage.getItem("eplus-arcade-dashboard-v1")))
         assert.equal(stored.profileUrl, profileUrl)
         if (locale === "en" && theme === "dark" && width === 1440) {

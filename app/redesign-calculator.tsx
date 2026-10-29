@@ -641,7 +641,7 @@ export default function RedesignCalculator({
 
             <DashboardPanel className="breakdown-panel">
               <PanelTitle>{scoreCatalog.messages.totalArcadePoints}</PanelTitle>
-              <div className="points-total"><strong>{formatNumber(points)}</strong><span>{scoreCatalog.messages.totalArcadePoints}</span></div>
+              <div className="points-total"><strong>{formatNumber(points)}</strong></div>
               <div className="dashboard-score-details">
               <div
                 className="point-composition-bar"
@@ -736,11 +736,7 @@ export default function RedesignCalculator({
                 {scoreCatalog.messages.allocationMessage}
               </p>              </div>
             </article>
-            <DashboardPanel className="facilitator-summary-panel">
-              <PanelTitle>{scoreCatalog.messages.facilitatorBonus}</PanelTitle>
-              <div className="points-total"><strong>+{scoreNumber(facilitatorBonus)}</strong></div>
-              <p className="panel-link-note">{facilitatorParticipating ? scoreText("bonusIncluded", {bonus: scoreNumber(facilitatorBonus)}) : scoreCatalog.messages.facilitatorDescription}</p>
-            </DashboardPanel>
+
           </div>
 
           <div className="dashboard-content-grid">
