@@ -597,8 +597,7 @@ export default function RedesignCalculator({
         <span className="halloween-edition"><span aria-hidden="true">🎃</span>{activeHistoryLanguage.catalog.messages.halloweenEdition}</span>
         <h1 className="dashboard-page-title">{scoreCatalog.messages.dashboardNav}</h1>
 
-        <details className="dashboard-profile-settings" open={!showProfileDashboard || Boolean(error)}>
-          <summary>{scoreCatalog.messages.analyzeProfile}</summary>
+        <div className="dashboard-profile-settings">
         <ProfileAnalyzer
           catalog={activeHistoryLanguage.catalog}
           value={viewMode === "guest" ? guestProfileUrl : profileUrl}
@@ -609,7 +608,7 @@ export default function RedesignCalculator({
           error={error}
           hasResult={Boolean(result) && viewMode === "profile"}
         />
-        </details>
+        </div>
       </section>
 
       {/* Stable portal anchor: keeps countdown placement identical for every locale. */}
@@ -643,7 +642,7 @@ export default function RedesignCalculator({
             <DashboardPanel className="breakdown-panel">
               <PanelTitle>{scoreCatalog.messages.totalArcadePoints}</PanelTitle>
               <div className="points-total"><strong>{formatNumber(points)}</strong><span>{scoreCatalog.messages.totalArcadePoints}</span></div>
-              <details className="dashboard-score-details"><summary>{scoreCatalog.messages.pointBreakdown}</summary>
+              <div className="dashboard-score-details">
               <div
                 className="point-composition-bar"
                 role="img"
@@ -692,7 +691,7 @@ export default function RedesignCalculator({
                   : scoreComplete
                     ? scoreCatalog.messages.allBadgesClassified
                     : scoreCatalog.dynamic.needReview.replace("{count}", scoreNumber(unknownBadgeCount))}
-              </p>              </details>
+              </p>              </div>
 
             </DashboardPanel>
 
@@ -710,7 +709,7 @@ export default function RedesignCalculator({
                   <span>{qualifiedMilestone ? tierRangeLabel(qualifiedMilestone) : scoreCatalog.dynamic.pointsToTrooper.replace("{count}", scoreNumber(pointsToNextTier))}</span>
                 </div>
               </div>
-              <details className="dashboard-tier-details"><summary>{scoreCatalog.messages.totalTierCapacity}</summary>
+              <div className="dashboard-tier-details">
               {qualifiedMilestone && (
                 <div className="tier-availability-grid" aria-label={scoreCatalog.messages.totalTierCapacity}>
                   <div>
@@ -735,7 +734,7 @@ export default function RedesignCalculator({
               </dl>
               <p className="allocation-message">
                 {scoreCatalog.messages.allocationMessage}
-              </p>              </details>
+              </p>              </div>
             </article>
             <DashboardPanel className="facilitator-summary-panel">
               <PanelTitle>{scoreCatalog.messages.facilitatorBonus}</PanelTitle>

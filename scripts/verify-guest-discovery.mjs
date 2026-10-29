@@ -81,7 +81,13 @@ try {
         await page.locator(".profile-panel").waitFor({ state: "visible" })
         assert.ok(new URL(page.url()).pathname.endsWith("/dashboard/"))
         assert.equal(await page.locator(".monthly-game-card").count(), 0)
-        await page.locator(".dashboard-score-details summary").click()
+        // Core profile controls, point composition and reward availability stay visible.
+        assert.equal(await page.locator('.dashboard-analyzer details, .breakdown-panel details, .tier-status-panel details').count(), 0)
+        for (const selector of ['.profile-input input', '.point-compact-list', '.allocation-message']) {
+          assert.equal(await page.locator(selector).isVisible(), true, `${selector} must not require expansion`)
+        }
+        const profileWidth = await page.locator('.profile-name-block').evaluate(el => el.getBoundingClientRect().width)
+        assert.ok(profileWidth >= 120, `Profile name is squeezed into ${profileWidth}px at ${width}px`)
         const stored = await page.evaluate(() => JSON.parse(localStorage.getItem("eplus-arcade-dashboard-v1")))
         assert.equal(stored.profileUrl, profileUrl)
         if (locale === "en" && theme === "dark" && width === 1440) {
@@ -91,7 +97,6 @@ try {
         }
         // Desktop uses hover without stealing focus; mobile only opens a modal sheet on tap.
         if (locale === "en" && theme === "dark" && [390, 1440].includes(width)) {
-          if (!await page.locator(".dashboard-score-details").evaluate(el => el.open)) await page.locator(".dashboard-score-details > summary").click()
           const trigger = page.locator(".point-history-trigger")
           const pointCard = page.locator(".breakdown-panel")
           await trigger.scrollIntoViewIfNeeded()

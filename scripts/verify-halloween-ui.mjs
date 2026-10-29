@@ -87,7 +87,6 @@ try {
             }
           }
           if (screenshots && await page.locator(".preview-mode-toolbar").count()) await page.locator(".preview-mode-toolbar").screenshot({ path: `${screenshots}/toolbar-${locale}-${theme}-${width}-${state}.png` })
-          if (state === "profile") await page.locator(".dashboard-profile-settings > summary").click()
           await page.locator(".profile-input input").click()
           assert.ok(await page.locator(".profile-input input").evaluate((el) => el === document.activeElement))
           if (screenshots && state === "empty") await page.screenshot({ path: `${screenshots}/${locale}-${theme}-${width}.png`, fullPage: true })

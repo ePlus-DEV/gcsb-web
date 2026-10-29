@@ -39,8 +39,6 @@
 .profile-source-link { display: inline-flex; align-items: center; gap: 6px; font-size: .7rem; color: var(--arcade-muted); }
 .profile-source-link svg { width: 14px; height: 14px; }
 .dashboard-score-details { margin-top: 12px; font-size: .72rem; }
-.dashboard-score-details summary { cursor: pointer; color: var(--arcade-muted); }
-.dashboard-score-details[open] .point-composition-bar { margin-top: 12px; }
 @media (min-width: 1101px) {
  .arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-shell { display: grid; grid-template-columns: minmax(0, 1fr) 290px; align-items: start; gap: 14px; }
  .arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-summary-grid { grid-column: 1; margin: 0; gap: 10px; }
@@ -65,10 +63,6 @@
 .arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel { flex-direction: row; }
 .arcade-dashboard-page[data-dashboard-view="profile"] .profile-overview { min-height: 48px; }
 .arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel .profile-source-link { margin-inline-end: 80px; }
-.dashboard-profile-settings > summary,
-.dashboard-tier-details > summary { cursor: pointer; color: var(--arcade-muted); font-size: .72rem; padding-block: 6px; }
-.dashboard-profile-settings[open] > summary { margin-bottom: 8px; }
-.dashboard-tier-details[open] > summary { margin-bottom: 10px; }
 .arcade-dashboard-page[data-dashboard-view="profile"] .tier-status-main { margin-block: 12px; }
 .arcade-dashboard-page[data-dashboard-view="profile"] .tier-status-main strong { font-size: 1.15rem; }
 .arcade-dashboard-page[data-dashboard-view="profile"] .tier-status-main span { font-size: .68rem; }
@@ -84,3 +78,22 @@
 .arcade-home-route .arcade-hero { padding-block: 16px 12px; }
 .arcade-home-route .hero-heading h1 { font-size: clamp(1.1rem, 2.2vw, 1.9rem); }
 .arcade-home-route .trust-pills > span { padding-block: 5px; }
+.dashboard-score-details .point-composition-bar { margin-top: 12px; }
+.dashboard-tier-details { margin-top: 12px; }
+/* Allocation uncertainty must also be readable without hover on touch screens. */
+.arcade-dashboard-page .dashboard-tier-details .allocation-message {
+ position: static; width: auto; max-width: none; margin: 10px 0 0;
+ opacity: 1; visibility: visible; transform: none; box-shadow: none;
+ pointer-events: auto;
+}
+.arcade-dashboard-page .dashboard-tier-details .allocation-message::after { display: none; }
+@media (max-width: 600px) {
+ .arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel {
+  flex-direction: column; align-items: stretch; gap: 10px;
+ }
+ .arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel .profile-overview {
+  flex: none; width: 100%; padding-inline-end: 38px; box-sizing: border-box;
+ }
+ .arcade-dashboard-page[data-dashboard-view="profile"] .profile-name-block { flex: 1; }
+ .arcade-dashboard-page[data-dashboard-view="profile"] .profile-name-block h2 { font-size: .95rem; }
+}

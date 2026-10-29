@@ -89,9 +89,7 @@ jobs:
               waitUntil: 'domcontentloaded',
             })
 
-            // Restored profiles keep settings collapsed until the user opens them.
             await page.locator('.arcade-dashboard-page[data-dashboard-view="profile"]').waitFor()
-            await page.locator('.dashboard-profile-settings > summary').click()
 
             const facilitatorOption = page
               .locator('.analyzer-facilitator-option')
@@ -126,7 +124,8 @@ jobs:
             }
 
             // Acknowledge the first-visit notice before using the mobile launcher.
-            await page.locator('.cookie-consent-button').click()
+            const cookieNotice = page.locator('.cookie-consent-button')
+            if (await cookieNotice.isVisible()) await cookieNotice.click()
             await page.locator('.cookie-consent-layer').waitFor({ state: 'hidden' })
 
             const launcher = page.locator('.facilitator-launcher')
