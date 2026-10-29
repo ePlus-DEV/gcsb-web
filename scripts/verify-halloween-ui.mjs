@@ -123,7 +123,8 @@ try {
 
     await page.evaluate(() => {
       const grid = document.querySelector(".dashboard-content-grid")
-      window.scrollTo({ top: grid.getBoundingClientRect().top + window.scrollY + 600, behavior: "instant" })
+      document.documentElement.style.scrollBehavior = "auto"
+      window.scrollTo(0, grid.getBoundingClientRect().top + window.scrollY + 600)
     })
     const metrics = await page.locator(".dashboard-content-grid > .tier-list-panel").evaluate((el) => {
       const style = getComputedStyle(el)
