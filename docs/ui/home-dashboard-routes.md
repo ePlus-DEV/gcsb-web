@@ -16,7 +16,7 @@ Browser fixtures deliberately isolate API/remote-feed availability from UI and r
 
 ## UI consistency review (2026-10-29)
 
-- Guest Dashboard and Profile Dashboard share the same 1280px page container and gutters; neither guest input nor guest tier list has its own narrower max-width.
+- The site uses a common 1280px outer page grid. Guest Dashboard intentionally uses one centered, matching 1000px form-and-tiers column (no mismatched 800px/1000px cards), while the results-heavy Profile Dashboard retains full-width panels and a right sidebar.
 - Public tiers use one highest-first ordering and the same heading/icon/slot layout in Home and Guest Dashboard. Home may still show the extra reward artwork, which is hidden at phone widths to keep cards compact.
 - Profile header reserves space for the Share control and gives the Facilitator launcher a fluid column; narrow-screen profile cards return to full-width stacked actions.
 - Confirm at 390px, 768px, 1024px and 1440px for dark/light and at least English/Vietnamese + a long translation. This source-level change does not replace real browser visual regression checks.

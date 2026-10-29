@@ -32,10 +32,15 @@ try {
     const geometry = await page.evaluate(() => ({
       overflow: document.documentElement.scrollWidth > innerWidth + 1,
       formWidth: document.querySelector(".dashboard-analyzer").getBoundingClientRect().width,
+      formLeft: document.querySelector(".dashboard-analyzer").getBoundingClientRect().left,
+      tierWidth: document.querySelector(".dashboard-guest-start").getBoundingClientRect().width,
+      tierLeft: document.querySelector(".dashboard-guest-start").getBoundingClientRect().left,
       heights: [...document.querySelectorAll(".dashboard-guest-start .tier-list-row")].map(el => el.getBoundingClientRect().height),
     }))
     assert.equal(geometry.overflow, false)
-    assert.ok(geometry.formWidth <= 800)
+    assert.ok(geometry.formWidth <= 1000, "Guest Dashboard remains compact")
+    assert.ok(Math.abs(geometry.formWidth - geometry.tierWidth) <= 2, "Guest form and tiers have matching width")
+    assert.ok(Math.abs(geometry.formLeft - geometry.tierLeft) <= 2, "Guest form and tiers align on the same grid")
     assert.ok(geometry.heights.every(height => height < 180), "Guest cards must not reserve empty artwork space")
     if (screenshots) await page.screenshot({path: `${screenshots}/dashboard-guest-${locale}-${theme}-${width}.png`, fullPage: true})
     await context.close()

@@ -37,8 +37,8 @@ test("route navigation and form errors are translated in every locale", () => {
 test("Home and Dashboard keep one responsive tier system and consistent page gutters", () => {
   const css = readRepoFile("app/styles/route-layout.css")
   const tiers = readRepoFile("components/arcade/dashboard-tiers.tsx")
-  assert.match(css, /\[data-dashboard-view="guest"\] \.dashboard-analyzer \{\s*max-width: none;/)
-  assert.match(css, /\.dashboard-guest-start \{ max-width: none;/)
+  assert.match(css, /\[data-dashboard-view="guest"\] \.dashboard-analyzer \{\s*max-width: 1000px;/)
+  assert.match(css, /\.dashboard-guest-start \{ max-width: 1000px;/)
   assert.match(css, /\.arcade-home-route \.guest-dashboard \.tier-list-row \{ grid-template-columns: 32px minmax\(0, 1fr\)/)
   assert.match(css, /\.arcade-home-route \.guest-dashboard \.tier-list-icon \{ display: grid;/)
   assert.match(tiers, /sort\(\(left, right\) => right\.points - left\.points\)/)

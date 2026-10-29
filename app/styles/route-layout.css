@@ -137,13 +137,13 @@
 
 /* The personal Dashboard starts with a form and compact tiers, rather than Home's gift showcase. */
 .arcade-dashboard-page:not(.arcade-home-route)[data-dashboard-view="guest"] .dashboard-analyzer {
- max-width: none; margin-inline: auto; padding-block: 20px 16px;
+ max-width: 1000px; margin-inline: auto; padding-block: 20px 16px;
 }
 /* All Dashboard states follow the same page gutters and content width. */
 .arcade-dashboard-page:not(.arcade-home-route)[data-dashboard-view="guest"] .dashboard-profile-settings,
 .arcade-dashboard-page:not(.arcade-home-route)[data-dashboard-view="guest"] .profile-analyzer-card { width: 100%; min-width: 0; }
 .dashboard-start-description { margin: 8px 0 18px; color: var(--arcade-muted); font-size: .85rem; line-height: 1.6; }
-.dashboard-guest-start { max-width: none; margin-inline: auto; }
+.dashboard-guest-start { max-width: 1000px; margin-inline: auto; }
 .dashboard-guest-start > .tier-list-panel { margin-bottom: 0; }
 .dashboard-guest-start .tier-list-row { min-height: 0; gap: 10px; }
 .dashboard-guest-start .tier-slot-count { justify-items: start; text-align: start; }
