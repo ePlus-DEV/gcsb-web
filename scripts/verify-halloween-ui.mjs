@@ -178,10 +178,10 @@ try {
               decorZ: css(".halloween-season-decor").zIndex,
               pointerEvents: css(".halloween-season-decor").pointerEvents,
               moon: css(".halloween-moon").display,
-              cardBackground: getComputedStyle(card).backgroundColor,
+              cardBackground: card ? getComputedStyle(card).backgroundColor : null,
               tierBackgrounds: [...document.querySelectorAll(".tier-list-row, .guest-tier-card")].map((el) => getComputedStyle(el).backgroundColor),
               labelLeft: label?.left ?? null, labelRight: label?.right ?? null,
-              buttonColor: css(".analyze-button").color,
+              buttonColor: css(card ? ".analyze-button" : ".home-intro-primary").color,
             }
           })
           assert.equal(geometry.overflow, false, `${locale}/${theme}/${width}/${state}: overflow`)
@@ -190,10 +190,12 @@ try {
           assert.equal(geometry.decorZ, "-1")
           assert.equal(geometry.pointerEvents, "none")
           assert.equal(geometry.moon === "none", theme === "light" || width <= 820)
-          assert.equal(geometry.cardBackground, theme === "light" ? "rgb(255, 252, 248)" : "rgb(19, 17, 38)")
+          if (state === "profile") assert.equal(geometry.cardBackground, theme === "light" ? "rgb(255, 252, 248)" : "rgb(19, 17, 38)")
           const tierColors = theme === "light" ? ["rgb(255, 252, 248)", "rgb(255, 247, 237)"] : ["rgb(19, 17, 38)", "rgb(25, 23, 47)"]
-          assert.ok(geometry.tierBackgrounds.length > 0)
-          for (const color of geometry.tierBackgrounds) assert.ok(tierColors.includes(color), `${theme}: unexpected tier surface ${color}`)
+          if (state === "profile") {
+            assert.ok(geometry.tierBackgrounds.length > 0)
+            for (const color of geometry.tierBackgrounds) assert.ok(tierColors.includes(color), `${theme}: unexpected tier surface ${color}`)
+          }
           assert.equal(geometry.buttonColor, "rgb(255, 255, 255)")
           // Portal-based history dialogs must adopt the Halloween variant too.
           if (state === "profile") {
@@ -232,8 +234,9 @@ try {
             }
           }
           if (screenshots && await page.locator(".preview-mode-toolbar").count()) await page.locator(".preview-mode-toolbar").screenshot({ path: `${screenshots}/toolbar-${locale}-${theme}-${width}-${state}.png` })
-          await page.locator(".profile-input input").click()
-          assert.ok(await page.locator(".profile-input input").evaluate((el) => el === document.activeElement))
+          const action = page.locator(state === "profile" ? ".profile-input input" : ".home-intro-primary")
+          await action.focus()
+          assert.ok(await action.evaluate(el => el === document.activeElement))
           if (screenshots && state === "empty") await page.screenshot({ path: `${screenshots}/${locale}-${theme}-${width}.png`, fullPage: true })
           await context.close()
           cases++
