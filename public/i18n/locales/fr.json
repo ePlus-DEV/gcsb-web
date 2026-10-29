@@ -629,13 +629,18 @@
     "__prediction:uncertain": "Éléments insuffisants pour déterminer le niveau attribué.",
     "__prediction:scoreTier": "Niveau selon les points, hors bonus estimés : {tier}.",
     "__prediction:evidence": "Élément pour {tier} enregistré le {date}. Des places pleines ensuite ne le suppriment pas.",
-    "__prediction:scenario": "Pour une place disponible maintenant : {tier}. Cela ne détermine pas une attribution passée.",
+    "__prediction:scenario": "Palier de repli Waterfall selon le relevé du crawler : {tier}. Ce n'est pas une attribution confirmée par Google.",
     "__prediction:noPercent": "Sans les horodatages d’attribution et la file de Google, aucun pourcentage fiable n’est possible. Les places peuvent être décalées.",
     "__prediction:bonus": "Les bonus Facilitator estimés ne prouvent pas une réservation.",
     "__prediction:storage": "Enregistré uniquement dans ce navigateur, par profil et saison. La consultation ne date pas le palier.",
     "__prediction:storageFailed": "Impossible d’enregistrer l’historique.",
     "__prediction:clear": "Supprimer les éléments du profil",
-    "__prediction:source": "Règles officielles"
+    "__prediction:source": "Règles officielles",
+    "__prediction:possible": "Le relevé du crawler indique que {tier} n'a plus de places. Vous avez peut-être atteint le seuil plus tôt ; aucune rétrogradation n'est confirmée.",
+    "__prediction:crawlLag": "Le relevé du crawler précède la vérification des points de {duration}. Les places ont pu changer entre-temps.",
+    "__prediction:evidenceLag": "Le relevé historique précède cette vérification de {duration}. C'est un indice, pas une place réservée.",
+    "__prediction:staleSnapshot": "Le relevé du crawler date de {duration} avant la vérification (plus de 48 heures). Il ne permet pas d'évaluer le repli actuel.",
+    "__prediction:noOpenSlots": "Ce relevé indique zéro place dans tous les paliers accessibles avec vos points. Une attribution antérieure reste inconnue."
   },
   "dynamic": {
     "memberSince": "Membre depuis {value}",
