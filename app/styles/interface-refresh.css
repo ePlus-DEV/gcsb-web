@@ -30,3 +30,23 @@
     grid-column: 1 / -1;
   }
 }
+
+/*
+ * The profile badge list can grow to 100+ cards when "View all" is selected.
+ * Keep the tiers visible beside it without trapping content below the fold.
+ * This applies only to the profile's desktop two-column layout, never the
+ * guest tiers or the single-column mobile dashboard.
+ */
+@media (min-width: 821px) {
+  .arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-content-grid > .tier-list-panel {
+    position: sticky;
+    top: calc(var(--arcade-anchor-offset, 76px) + 10px);
+    align-self: start;
+    max-height: calc(100vh - var(--arcade-anchor-offset, 76px) - 24px);
+    max-height: calc(100dvh - var(--arcade-anchor-offset, 76px) - 24px);
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(139, 92, 246, 0.35) transparent;
+  }
+}
