@@ -34,10 +34,10 @@ export function validObservation(value: unknown): value is TierObservation {
     Number.isFinite(x.points) && x.points >= 0 && x.points <= 10000 &&
     typeof x.complete === "boolean" && (x.slotsAt === null || validTime(x.slotsAt)) &&
     Array.isArray(x.slots) && x.slots.length <= 4 &&
-    x.slots.every(s => s && typeof s === "object") &&
-    new Set(x.slots.map(s => s.points)).size === x.slots.length &&
-    x.slots.every(s => TIERS_DESC.includes(s.points as typeof TIERS_DESC[number]) &&
-      Number.isInteger(s.spotsLeft) && s.spotsLeft >= 0 && s.spotsLeft <= 10000)
+    x.slots.every(s => s && typeof s === "object" &&
+      TIERS_DESC.includes(s.points as typeof TIERS_DESC[number]) &&
+      Number.isInteger(s.spotsLeft) && s.spotsLeft >= 0 && s.spotsLeft <= 10000) &&
+    new Set(x.slots.map(s => s.points)).size === x.slots.length
 }
 function witnesses(x: TierObservation, tier: number): boolean {
   const age = x.slotsAt ? Date.parse(x.at) - Date.parse(x.slotsAt) : Infinity
