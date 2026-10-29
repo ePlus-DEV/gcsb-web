@@ -914,72 +914,136 @@ export default function RedesignCalculator({
           </div>
 
           <div className="dashboard-content-grid">
-            <article id="badges" className="dashboard-panel badges-panel">
-              <div className="badge-heading-row">
-                <div>
-                  <PanelTitle>{scoreCatalog.messages.earnedBadges}</PanelTitle>
-                  <p>{scoreCatalog.dynamic.badgesInView.replace("{count}", scoreNumber(filteredBadges.length))}</p>
-                </div>
-                <div className="badge-filters" role="group" aria-label={scoreCatalog.messages.filterBadges}>
-                  {FILTERS.map((item) => (
-                    <button
-                      type="button"
-                      key={item.value}
-                      className={filter === item.value ? "active" : ""}
-                      aria-pressed={filter === item.value}
-                      onClick={() => {
-                        setFilter(item.value)
-                        setShowAllBadges(false)
-                      }}
-                    >
-                      {scoreCatalog.messages[item.value]}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {displayedBadges.length > 0 ? (
-                <div className="earned-badge-grid">
-                  {displayedBadges.map((badge, index) => (
-                    <article className="earned-badge" key={`${badge.title}-${index}`}>
-                      <div className="earned-badge-art">
-                        <SafeRemoteImage
-                          src={badge.imageURL}
-                          alt=""
-                          loading="lazy"
-                          fallback={<BadgeCheck />}
-                        />
-                      </div>
-                      <h3>{badge.title}</h3>
-                      <p>
-                        {badge.points === "-*"
-                          ? scoreCatalog.messages.specialScoring
-                          : scoreCatalog.dynamic.points.replace("{count}", scoreNumber(numeric(badge.points)))}
-                      </p>
-                      <time>{safeDateLabel(badge.dateEarned, scoreLocale)}</time>
-                      <SafeExternalLink
-                        href={badge.badgeURL}
-                        ariaLabel={scoreCatalog.dynamic.open.replace("{value}", badge.title)}
+            <div className="dashboard-primary-column">
+              <article id="badges" className="dashboard-panel badges-panel">
+                <div className="badge-heading-row">
+                  <div>
+                    <PanelTitle>{scoreCatalog.messages.earnedBadges}</PanelTitle>
+                    <p>{scoreCatalog.dynamic.badgesInView.replace("{count}", scoreNumber(filteredBadges.length))}</p>
+                  </div>
+                  <div className="badge-filters" role="group" aria-label={scoreCatalog.messages.filterBadges}>
+                    {FILTERS.map((item) => (
+                      <button
+                        type="button"
+                        key={item.value}
+                        className={filter === item.value ? "active" : ""}
+                        aria-pressed={filter === item.value}
+                        onClick={() => {
+                          setFilter(item.value)
+                          setShowAllBadges(false)
+                        }}
                       >
-                        <ExternalLink />
-                      </SafeExternalLink>
-                    </article>
-                  ))}
+                        {scoreCatalog.messages[item.value]}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              ) : (
-                <div className="empty-badge-state">
-                  <BadgeCheck />
-                  <strong>{scoreCatalog.messages.noBadges}</strong>
-                  <span>{scoreCatalog.messages.chooseFilter}</span>
-                </div>
-              )}
 
-              {filteredBadges.length > BADGE_PREVIEW_LIMIT && (
-                <button className="show-all-badges" type="button" onClick={() => setShowAllBadges((open) => !open)}>
-                  {showAllBadges ? scoreCatalog.messages.showFewer : scoreCatalog.dynamic.viewAllBadges.replace("{count}", scoreNumber(filteredBadges.length))}
-                </button>
-              )}
-            </article>
+                {displayedBadges.length > 0 ? (
+                  <div className="earned-badge-grid">
+                    {displayedBadges.map((badge, index) => (
+                      <article className="earned-badge" key={`${badge.title}-${index}`}>
+                        <div className="earned-badge-art">
+                          <SafeRemoteImage
+                            src={badge.imageURL}
+                            alt=""
+                            loading="lazy"
+                            fallback={<BadgeCheck />}
+                          />
+                        </div>
+                        <h3>{badge.title}</h3>
+                        <p>
+                          {badge.points === "-*"
+                            ? scoreCatalog.messages.specialScoring
+                            : scoreCatalog.dynamic.points.replace("{count}", scoreNumber(numeric(badge.points)))}
+                        </p>
+                        <time>{safeDateLabel(badge.dateEarned, scoreLocale)}</time>
+                        <SafeExternalLink
+                          href={badge.badgeURL}
+                          ariaLabel={scoreCatalog.dynamic.open.replace("{value}", badge.title)}
+                        >
+                          <ExternalLink />
+                        </SafeExternalLink>
+                      </article>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="empty-badge-state">
+                    <BadgeCheck />
+                    <strong>{scoreCatalog.messages.noBadges}</strong>
+                    <span>{scoreCatalog.messages.chooseFilter}</span>
+                  </div>
+                )}
+
+                {filteredBadges.length > BADGE_PREVIEW_LIMIT && (
+                  <button className="show-all-badges" type="button" onClick={() => setShowAllBadges((open) => !open)}>
+                    {showAllBadges ? scoreCatalog.messages.showFewer : scoreCatalog.dynamic.viewAllBadges.replace("{count}", scoreNumber(filteredBadges.length))}
+                  </button>
+                )}
+              </article>
+
+              <div className="dashboard-bottom-grid" data-home-order="dashboard-bottom">
+                <article className="dashboard-panel compact-panel">
+                  <div className="compact-heading"><PanelTitle>{scoreCatalog.messages.recentlyEarned}</PanelTitle><span>{recentBadges.length || "—"}</span></div>
+                  {recentBadges.length > 0 ? (
+                    <div className="compact-list">
+                      {recentBadges.map((badge, index) => (
+                        <div key={`${badge.title}-recent-${index}`}>
+                          <span className="compact-icon">
+                            <SafeRemoteImage
+                              src={badge.imageURL}
+                              alt=""
+                              loading="lazy"
+                              fallback={<BadgeCheck />}
+                            />
+                          </span>
+                          <strong>{badge.title}</strong>
+                          <b>{scoreCatalog.dynamic.points.replace("{count}", scoreNumber(numeric(badge.points)))}</b>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="compact-empty">{scoreCatalog.messages.noEarnedDates}</p>
+                  )}
+                </article>
+
+                <article className="dashboard-panel compact-panel">
+                  <div className="compact-heading"><PanelTitle>{scoreCatalog.messages.scoreConfidence}</PanelTitle><span>{scoreComplete ? scoreCatalog.messages.complete : scoreCatalog.messages.review}</span></div>
+                  <div className="confidence-summary">
+                    <span className={scoreComplete ? "confidence-ring is-complete" : "confidence-ring"}>
+                      {scoreComplete ? <ShieldCheck /> : <CircleHelp />}
+                    </span>
+                    <div>
+                      <strong>{scoreComplete ? scoreCatalog.messages.allKnownClassified : scoreCatalog.dynamic.unknownBadges.replace("{count}", scoreNumber(unknownBadgeCount))}</strong>
+                      <p>{scoreComplete ? scoreCatalog.messages.scoreComplete : scoreCatalog.messages.unknownShown}</p>
+                    </div>
+                  </div>
+                  {unknownBadges.length > 0 && (
+                    <ul className="unknown-badge-list">
+                      {unknownBadges.slice(0, 3).map((badge) => <li key={badge}>{badge}</li>)}
+                    </ul>
+                  )}
+                </article>
+
+                <article className="dashboard-panel compact-panel next-goal-panel">
+                  <div className="compact-heading"><PanelTitle>{scoreCatalog.messages.nextGoal}</PanelTitle><span>{nextMilestone.league.replace("Arcade ", "")}</span></div>
+                  <div className="next-goal-value">
+                    <strong>{hasReachedMaxTier ? scoreCatalog.messages.max : scoreNumber(pointsToNextTier)}</strong>
+                    <span>{hasReachedMaxTier ? scoreCatalog.messages.topTierReached : scoreCatalog.messages.morePointsNeeded}</span>
+                  </div>
+                  <div
+                    className="goal-progress"
+                    role="progressbar"
+                    aria-label={hasReachedMaxTier ? scoreCatalog.messages.topTierReached : scoreCatalog.dynamic.progressToward.replace("{value}", nextMilestone.league)}
+                    aria-valuemin={goalStartPoints}
+                    aria-valuemax={hasReachedMaxTier ? maxTierPoints : nextMilestone.points}
+                    aria-valuenow={hasReachedMaxTier ? maxTierPoints : Math.min(Math.max(points, goalStartPoints), nextMilestone.points)}
+                  >
+                    <span style={{ width: `${goalProgress}%` }} />
+                  </div>
+                </article>
+              </div>
+            </div>
 
             <DashboardTiers
               milestones={milestones}
@@ -993,67 +1057,7 @@ export default function RedesignCalculator({
 
           <div id="monthly-games" className="monthly-games-host" data-home-order="monthly-labs" />
 
-          <div className="dashboard-bottom-grid" data-home-order="dashboard-bottom">
-            <article className="dashboard-panel compact-panel">
-              <div className="compact-heading"><PanelTitle>{scoreCatalog.messages.recentlyEarned}</PanelTitle><span>{recentBadges.length || "—"}</span></div>
-              {recentBadges.length > 0 ? (
-                <div className="compact-list">
-                  {recentBadges.map((badge, index) => (
-                    <div key={`${badge.title}-recent-${index}`}>
-                      <span className="compact-icon">
-                        <SafeRemoteImage
-                          src={badge.imageURL}
-                          alt=""
-                          loading="lazy"
-                          fallback={<BadgeCheck />}
-                        />
-                      </span>
-                      <strong>{badge.title}</strong>
-                      <b>{scoreCatalog.dynamic.points.replace("{count}", scoreNumber(numeric(badge.points)))}</b>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="compact-empty">{scoreCatalog.messages.noEarnedDates}</p>
-              )}
-            </article>
 
-            <article className="dashboard-panel compact-panel">
-              <div className="compact-heading"><PanelTitle>{scoreCatalog.messages.scoreConfidence}</PanelTitle><span>{scoreComplete ? scoreCatalog.messages.complete : scoreCatalog.messages.review}</span></div>
-              <div className="confidence-summary">
-                <span className={scoreComplete ? "confidence-ring is-complete" : "confidence-ring"}>
-                  {scoreComplete ? <ShieldCheck /> : <CircleHelp />}
-                </span>
-                <div>
-                  <strong>{scoreComplete ? scoreCatalog.messages.allKnownClassified : scoreCatalog.dynamic.unknownBadges.replace("{count}", scoreNumber(unknownBadgeCount))}</strong>
-                  <p>{scoreComplete ? scoreCatalog.messages.scoreComplete : scoreCatalog.messages.unknownShown}</p>
-                </div>
-              </div>
-              {unknownBadges.length > 0 && (
-                <ul className="unknown-badge-list">
-                  {unknownBadges.slice(0, 3).map((badge) => <li key={badge}>{badge}</li>)}
-                </ul>
-              )}
-            </article>
-
-            <article className="dashboard-panel compact-panel next-goal-panel">
-              <div className="compact-heading"><PanelTitle>{scoreCatalog.messages.nextGoal}</PanelTitle><span>{nextMilestone.league.replace("Arcade ", "")}</span></div>
-              <div className="next-goal-value">
-                <strong>{hasReachedMaxTier ? scoreCatalog.messages.max : scoreNumber(pointsToNextTier)}</strong>
-                <span>{hasReachedMaxTier ? scoreCatalog.messages.topTierReached : scoreCatalog.messages.morePointsNeeded}</span>
-              </div>
-              <div
-                className="goal-progress"
-                role="progressbar"
-                aria-label={hasReachedMaxTier ? scoreCatalog.messages.topTierReached : scoreCatalog.dynamic.progressToward.replace("{value}", nextMilestone.league)}
-                aria-valuemin={goalStartPoints}
-                aria-valuemax={hasReachedMaxTier ? maxTierPoints : nextMilestone.points}
-                aria-valuenow={hasReachedMaxTier ? maxTierPoints : Math.min(Math.max(points, goalStartPoints), nextMilestone.points)}
-              >
-                <span style={{ width: `${goalProgress}%` }} />
-              </div>
-            </article>
-          </div>
         </section>
       ) : (
         <GuestDashboard
