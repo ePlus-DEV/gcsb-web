@@ -40,10 +40,10 @@
 @media (min-width: 821px) {
   .arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-content-grid > .tier-list-panel {
     position: sticky;
-    top: calc(var(--arcade-anchor-offset, 76px) + 10px);
+    top: calc(var(--arcade-sticky-header-height, var(--arcade-anchor-offset, 76px)) + 10px);
     align-self: start;
-    max-height: calc(100vh - var(--arcade-anchor-offset, 76px) - 24px);
-    max-height: calc(100dvh - var(--arcade-anchor-offset, 76px) - 24px);
+    max-height: calc(100vh - var(--arcade-sticky-header-height, var(--arcade-anchor-offset, 76px)) - 24px);
+    max-height: calc(100dvh - var(--arcade-sticky-header-height, var(--arcade-anchor-offset, 76px)) - 24px);
     overflow-x: hidden;
     overflow-y: auto;
     scrollbar-width: thin;
