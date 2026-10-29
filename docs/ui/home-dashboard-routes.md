@@ -70,3 +70,7 @@ The Published games popup displays one 2×2 grid of matching cards for Points ma
 ## Logo gamepad optical alignment (2026-10-29)
 
 The Font Awesome solid gamepad glyph renders visually around 3 CSS pixels to the right inside the square brand mark (particularly noticeable at 320–390px on iOS Safari). Apply only a `translateX(-3px)` optical correction to `.arcade-brand-mark .fa-icon.fa-gamepad` in the shared icon stylesheet. Keep mark dimensions, logo text, font, colors and browser icons unchanged. Add mobile/desktop browser checks and a selector regression to prevent the offset returning.
+
+## View program details (2026-10-29)
+
+The Facilitator countdown's **View program details** on Home no longer clicks a non-existent floating tracker button. It opens a small read-only, keyboard-accessible modal using the same `FACILITATOR_MILESTONES` constants as the score engine, without requiring a public profile, enabling participation, or triggering any score fetch. Details stay accessible when the countdown has ended or no deadline is configured. A separate **View Dashboard** action opens the personal Dashboard route (relative link preserves locale and PR-preview base path), where participants can track their own progress. The overlay traps focus, restores focus and body scrolling, and uses mobile-safe dimensions with light/dark styles. Home intentionally does not mount the heavyweight Facilitator tracker. No bonus calculation or eligibility rule changed.

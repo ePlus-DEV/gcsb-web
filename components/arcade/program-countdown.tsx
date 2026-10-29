@@ -3,6 +3,7 @@
 import { getWebsiteLocale, loadWebsiteCatalog, type WebsiteCatalog } from "@/lib/website-i18n"
 
 import { Clock, Gamepad2 } from "lucide-react"
+import FacilitatorProgramDetails from "./facilitator-program-details"
 import { createPortal } from "react-dom"
 import { useEffect, useMemo, useState } from "react"
 import {
@@ -14,7 +15,6 @@ import {
 
 const HOST_SELECTOR = ".program-countdown-host"
 const HERO_SELECTOR = ".arcade-hero"
-const FACILITATOR_LAUNCHER_SELECTOR = ".facilitator-launcher"
 const DEFAULT_TIME_ZONE_OFFSET = "+05:30"
 const FIREBASE_CDN_VERSION = "12.18.0"
 const DEFAULT_FETCH_INTERVAL_MS = 900_000
@@ -341,19 +341,15 @@ function formatPart(value: number): string {
   return String(value).padStart(2, "0")
 }
 
-function openFacilitatorDetails() {
-  document
-    .querySelector<HTMLButtonElement>(FACILITATOR_LAUNCHER_SELECTOR)
-    ?.click()
-}
-
 function ProgramCard({
   config,
   locale,
   nowMs,
   catalog,
+  onOpenDetails,
 }: {
   catalog: WebsiteCatalog | null
+  onOpenDetails: () => void
   config: ProgramCountdownConfig
   locale?: string
   nowMs: number
@@ -391,6 +387,11 @@ function ProgramCard({
         <div className="program-countdown-unconfigured" role="status">
           <strong>{text("unavailable")}</strong>
           <span>{text("awaiting")}</span>
+          {config.id === "facilitator" ? (
+            <button className="program-countdown-ended-action" type="button" onClick={onOpenDetails}>
+              {catalog?.additional["View program details"]}
+            </button>
+          ) : null}
         </div>
       ) : remaining.ended ? (
         <div className="program-countdown-ended" role="status">
@@ -402,7 +403,7 @@ function ProgramCard({
             <button
               className="program-countdown-ended-action"
               type="button"
-              onClick={openFacilitatorDetails}
+              onClick={onOpenDetails}
             >
               {catalog?.additional["View program details"]}
             </button>
@@ -437,6 +438,7 @@ export default function ProgramCountdown() {
   const [nowMs, setNowMs] = useState(() => Date.now())
   const [programs, setPrograms] = useState<ProgramCountdownConfig[]>([])
   const [source, setSource] = useState<CountdownSource>("fallback")
+  const [detailsOpen, setDetailsOpen] = useState(false)
 
   useEffect(() => {
     const hero = document.querySelector<HTMLElement>(HERO_SELECTOR)
@@ -508,8 +510,9 @@ export default function ProgramCountdown() {
       data-config-source={source}
     >
       {enabledPrograms.map((program) => (
-        <ProgramCard key={program.id} config={program} locale={locale} nowMs={nowMs} catalog={catalog} />
+        <ProgramCard key={program.id} config={program} locale={locale} nowMs={nowMs} catalog={catalog} onOpenDetails={() => setDetailsOpen(true)} />
       ))}
+      {detailsOpen ? <FacilitatorProgramDetails catalog={catalog} onClose={() => setDetailsOpen(false)} /> : null}
     </section>,
     host,
   )

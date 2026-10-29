@@ -15,6 +15,43 @@ try {
   browser = await chromium.launch({
     ...(process.env.CHROMIUM_EXECUTABLE_PATH ? { executablePath: process.env.CHROMIUM_EXECUTABLE_PATH } : {}),
   })
+  // The countdown's "View program details" is read-only and must work
+  // on Home without a saved profile or a floating Facilitator launcher.
+  // The fallback is configured as unannounced in static test builds.
+  for (const width of [390, 1440]) for (const locale of ["", "vi/"]) {
+    const context = await browser.newContext({ viewport: { width, height: 844 } })
+    const page = await context.newPage()
+    await page.route("https://**/*", route => route.abort())
+    await page.goto(base + locale)
+    const card = page.locator('.program-countdown-card[data-program="facilitator"]')
+    await card.waitFor({ state: "visible" })
+    const action = card.getByRole("button", { name: /View program details|Xem chi tiết chương trình/i })
+    // If this build has an active configured countdown, no ended action is needed.
+    if (await action.count()) {
+      const notice = page.locator(".cookie-consent-button")
+      await notice.waitFor({ state: "visible", timeout: 1300 }).catch(() => {})
+      if (await notice.isVisible()) await notice.click()
+      assert.equal(await page.locator(".facilitator-launcher").count(), 0, "Home does not load the personal Facilitator tracker")
+      await action.click()
+      const dialog = page.getByRole("dialog", { name: /Facilitator Program|Chương trình Facilitator/ })
+      await dialog.waitFor({ state: "visible" })
+      assert.equal(await dialog.locator(".facilitator-program-details-milestone").count(), 4)
+      const dashboardLink = dialog.locator('a[href="dashboard/"]')
+      assert.ok(await dashboardLink.isVisible())
+      const metrics = await dialog.evaluate(el => {
+        const r = el.getBoundingClientRect()
+        return { top: r.top, bottom: r.bottom, viewport: innerHeight, overflow: getComputedStyle(el.querySelector(".facilitator-program-details-body")).overflowY }
+      })
+      assert.ok(metrics.top >= 0 && metrics.bottom <= metrics.viewport, "details fit within mobile and desktop viewport")
+      assert.equal(metrics.overflow, "auto")
+      await page.keyboard.press("Escape")
+      await dialog.waitFor({ state: "hidden" })
+      assert.notEqual(await page.evaluate(() => document.body.style.overflow), "hidden")
+      cases++
+    }
+    await context.close()
+  }
+
   // Home and Guest Dashboard share the same analyzer component and
   // dimensions, though Home keeps a centered landing-page width.
   for (const width of [390, 1440]) for (const theme of ["dark", "light"]) {
