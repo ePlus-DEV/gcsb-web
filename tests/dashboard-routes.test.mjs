@@ -110,7 +110,7 @@ test("mobile bottom navigation follows active section rather than first-child st
   const light = readRepoFile("app/styles/theme-light-components.css")
   assert.match(shell, /function MobileBottomNavigation/)
   assert.match(shell, /window\.addEventListener\("scroll", schedule/)
-  assert.match(shell, /window\.addEventListener\("hashchange", schedule/)
+  assert.match(shell, /window\.addEventListener\("hashchange", syncHash/)
   assert.match(shell, /"aria-current": \(active === id \? "location"/)
   assert.match(shell, /href="#calculator"/)
   assert.match(css, /\.mobile-bottom-nav a\.is-active/)
@@ -135,4 +135,12 @@ test("Guest mobile nav has no dead badges anchor; Profile nav links earned badge
   assert.match(shell, /const thirdId: MobileSection = dashboard && profileView \? "badges" : "monthly-games"/)
   assert.match(shell, /const thirdHref = dashboard && !profileView \? homeHref \+ "#monthly-games"/)
   assert.match(shell, /<Link href=\{thirdHref\}/)
+})
+
+test("mobile nav chooses the URL hash immediately on cross-page navigation", () => {
+  const shell = readRepoFile("components/arcade/route-shell.tsx")
+  assert.match(shell, /const syncHash = \(\) =>/)
+  assert.match(shell, /window\.location\.hash\.slice\(1\)/)
+  assert.match(shell, /setActive\(hash as MobileSection\)/)
+  assert.match(shell, /syncHash\(\)\s*window\.addEventListener\("scroll"/)
 })

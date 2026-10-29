@@ -158,16 +158,27 @@ function MobileBottomNavigation({ catalog, locale, dashboard }: Props) {
       cancelAnimationFrame(frame)
       frame = requestAnimationFrame(sync)
     }
-    schedule()
+    // Deep links may load before the browser scrolls to the destination.
+    // Honor the URL fragment immediately; normal scrolling then takes over.
+    const syncHash = () => {
+      const hash = window.location.hash.slice(1)
+      if (sectionIds.includes(hash as MobileSection) && document.getElementById(hash)) {
+        clickAt.current = Date.now()
+        setActive(hash as MobileSection)
+      } else {
+        schedule()
+      }
+    }
+    syncHash()
     window.addEventListener("scroll", schedule, { passive: true })
-    window.addEventListener("hashchange", schedule)
-    window.addEventListener("pageshow", schedule)
+    window.addEventListener("hashchange", syncHash)
+    window.addEventListener("pageshow", syncHash)
     window.addEventListener("resize", schedule)
     return () => {
       cancelAnimationFrame(frame)
       window.removeEventListener("scroll", schedule)
-      window.removeEventListener("hashchange", schedule)
-      window.removeEventListener("pageshow", schedule)
+      window.removeEventListener("hashchange", syncHash)
+      window.removeEventListener("pageshow", syncHash)
       window.removeEventListener("resize", schedule)
     }
   }, [dashboard, thirdId])
