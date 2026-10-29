@@ -629,13 +629,18 @@
     "__prediction:uncertain": "Evidenze insufficienti per il livello assegnato.",
     "__prediction:scoreTier": "Livello per punti, senza bonus stimati: {tier}.",
     "__prediction:evidence": "Evidenza per {tier} registrata il {date}. Il successivo esaurimento dei posti non la elimina.",
-    "__prediction:scenario": "Per un posto disponibile adesso: {tier}. Non determina un’assegnazione precedente.",
+    "__prediction:scenario": "Fascia alternativa Waterfall nello snapshot del crawler: {tier}. Non è un'assegnazione confermata da Google.",
     "__prediction:noPercent": "Senza orari di assegnazione e coda di Google non è possibile una percentuale affidabile. I posti possono essere in ritardo.",
     "__prediction:bonus": "I bonus Facilitator stimati non provano una prenotazione.",
     "__prediction:storage": "Salvato solo in questo browser, per profilo e stagione. Le date delle verifiche non sono quelle dei traguardi.",
     "__prediction:storageFailed": "Impossibile salvare la cronologia.",
     "__prediction:clear": "Elimina evidenze del profilo",
-    "__prediction:source": "Regole ufficiali"
+    "__prediction:source": "Regole ufficiali",
+    "__prediction:possible": "Lo snapshot del crawler indica zero posti per {tier}. Potresti aver raggiunto la soglia prima; ciò non conferma una retrocessione.",
+    "__prediction:crawlLag": "Lo snapshot del crawler precede il controllo dei punti di {duration}. La disponibilità può essere cambiata nel frattempo.",
+    "__prediction:evidenceLag": "Lo snapshot storico precede quel controllo di {duration}. È un indizio, non un posto garantito.",
+    "__prediction:staleSnapshot": "Lo snapshot del crawler precede il controllo di {duration} (oltre 48 ore). Non può indicare un'alternativa attuale.",
+    "__prediction:noOpenSlots": "In questo snapshot tutte le fasce accessibili con i tuoi punti risultano piene. Un'assegnazione precedente resta sconosciuta."
   },
   "dynamic": {
     "memberSince": "Membro dal {value}",
