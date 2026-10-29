@@ -49,7 +49,12 @@ export default function TierPredictionPanel({ profileUrl, check, feed, catalog, 
   }).format(minutes >= 60 ? minutes / 60 : minutes)
   return (
     <details className="tier-prediction">
-      <summary>{text("title")}</summary>
+      <summary>
+        {text("title")}
+        {prediction && prediction.scoreTier !== null && <span className="tier-prediction-summary-status">
+          {names[prediction.scoreTier]}{" · "}{text(prediction.state)}
+        </span>}
+      </summary>
       <p>{text("rule")}</p>
       {!prediction ? <p>{text("checkFirst")}</p> : <>
         <strong>{text(prediction.state)}</strong>
