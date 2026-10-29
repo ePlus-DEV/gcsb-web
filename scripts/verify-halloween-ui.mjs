@@ -338,6 +338,13 @@ try {
     await nav.locator('a[href="#calculator"]').click()
     await page.waitForFunction(() => document.querySelector('.mobile-bottom-nav a[href="#calculator"]')?.getAttribute("aria-current") === "location")
     assert.ok(await nav.locator('a[href="#calculator"]').evaluate(el => el.classList.contains("is-active")), path + ": calculator tab active")
+    if (path === "dashboard/") {
+      const monthly = nav.locator('a[href$="#monthly-games"]')
+      await monthly.waitFor({ state: "visible" })
+      await monthly.click()
+      await page.waitForURL("**/#monthly-games")
+      await page.waitForFunction(() => document.querySelector('.mobile-bottom-nav a[href="#monthly-games"]')?.getAttribute("aria-current") === "location")
+    }
     await mobile.close()
     cases++
   }

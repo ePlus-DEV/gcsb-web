@@ -115,7 +115,21 @@ type MobileSection = "calculator" | "tiers" | "badges" | "monthly-games" | "exte
 /** Section-aware nav: clicks, direct #links and manual scroll share one active item. */
 function MobileBottomNavigation({ catalog, locale, dashboard }: Props) {
   const homeHref = getWebsiteLocaleHref(locale)
-  const thirdId: MobileSection = dashboard ? "badges" : "monthly-games"
+  // Guest Dashboard has no earned badges section. Link its third tab to
+  // Home's monthly labs instead of a dead #badges fragment.
+  const [profileView, setProfileView] = useState(false)
+  useEffect(() => {
+    if (!dashboard) return
+    const page = document.querySelector<HTMLElement>(".arcade-dashboard-page")
+    if (!page) return
+    const sync = () => setProfileView(page.dataset.dashboardView === "profile")
+    sync()
+    const observer = new MutationObserver(sync)
+    observer.observe(page, { attributes: true, attributeFilter: ["data-dashboard-view"] })
+    return () => observer.disconnect()
+  }, [dashboard])
+  const thirdId: MobileSection = dashboard && profileView ? "badges" : "monthly-games"
+  const thirdHref = dashboard && !profileView ? homeHref + "#monthly-games" : "#" + thirdId
   const sectionIds: MobileSection[] = ["calculator", "tiers", thirdId, "extension"]
   const [active, setActive] = useState<MobileSection>("calculator")
   const clickAt = useRef(0)
@@ -172,10 +186,10 @@ function MobileBottomNavigation({ catalog, locale, dashboard }: Props) {
     <nav className="mobile-bottom-nav" aria-label={catalog.messages.mobileNavigation}>
       <a href="#calculator" {...itemProps("calculator")}><Search /><span>{catalog.messages.calculator}</span></a>
       <a href="#tiers" {...itemProps("tiers")}><Trophy /><span>{catalog.messages.tiers}</span></a>
-      <a href={"#" + thirdId} {...itemProps(thirdId)}>
-        {dashboard ? <BadgeCheck /> : <Gamepad2 />}
-        <span>{dashboard ? catalog.messages.badges : catalog.messages.guestLabsLabel}</span>
-      </a>
+      <Link href={thirdHref} {...itemProps(thirdId)}>
+        {dashboard && profileView ? <BadgeCheck /> : <Gamepad2 />}
+        <span>{dashboard && profileView ? catalog.messages.badges : catalog.messages.guestLabsLabel}</span>
+      </Link>
       <Link href={dashboard ? homeHref + "#extension" : "#extension"} {...itemProps("extension")}>
         <Chrome /><span>{catalog.messages.extension}</span>
       </Link>

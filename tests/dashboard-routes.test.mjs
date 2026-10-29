@@ -128,3 +128,11 @@ test("Home saved profile uses the same official avatar source as Dashboard", () 
   assert.match(dashboard, /profile\?\.profileImage/)
   assert.match(css, /\.home-profile-avatar img \{[^\n]*object-fit: cover/)
 })
+
+test("Guest mobile nav has no dead badges anchor; Profile nav links earned badges", () => {
+  const shell = readRepoFile("components/arcade/route-shell.tsx")
+  assert.match(shell, /page\.dataset\.dashboardView === "profile"/)
+  assert.match(shell, /const thirdId: MobileSection = dashboard && profileView \? "badges" : "monthly-games"/)
+  assert.match(shell, /const thirdHref = dashboard && !profileView \? homeHref \+ "#monthly-games"/)
+  assert.match(shell, /<Link href=\{thirdHref\}/)
+})
