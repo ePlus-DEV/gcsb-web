@@ -52,166 +52,25 @@ try {
     await context.close()
   }
 
-  // Home and Guest Dashboard share the same analyzer component and
-  // dimensions, though Home keeps a centered landing-page width.
-  for (const width of [390, 1440]) for (const theme of ["dark", "light"]) {
-    const metrics = []
-    for (const route of ["", "dashboard/"]) {
-      const context = await browser.newContext({ viewport: { width, height: 900 } })
-      await context.addInitScript(theme => localStorage.setItem("arcade-theme", theme), theme)
-      const page = await context.newPage()
-      await page.route("https://**/*", r => r.abort())
-      await page.goto(base + route)
-      const card = page.locator(".profile-analyzer-card")
-      await card.waitFor({ state: "visible" })
-      metrics.push(await card.evaluate(el => {
-        const css = selector => getComputedStyle(el.querySelector(selector))
-        const rect = selector => el.querySelector(selector).getBoundingClientRect()
-        const container = getComputedStyle(el)
-        return {
-          inputHeight: rect(".profile-input").height,
-          buttonHeight: rect(".analyze-button").height,
-          inputRadius: css(".profile-input").borderRadius,
-          buttonRadius: css(".analyze-button").borderRadius,
-          buttonSize: css(".analyze-button").fontSize,
-          cardPadding: container.paddingTop,
-          cardRadius: container.borderRadius,
-          formColumns: css("form").gridTemplateColumns,
-          cardWidth: el.getBoundingClientRect().width,
-          viewportOverflow: document.documentElement.scrollWidth > innerWidth + 1,
-        }
-      }))
-      await context.close()
-    }
-    const [home, dashboard] = metrics
-    for (const key of ["inputHeight", "buttonHeight", "inputRadius", "buttonRadius", "buttonSize", "cardPadding", "cardRadius"]) {
-      assert.equal(home[key], dashboard[key], width + "/" + theme + ": Home and Guest Dashboard analyzer controls match (" + key + ")")
-    }
-    assert.equal(home.inputHeight, width <= 600 ? 44 : 46)
-    assert.equal(home.buttonHeight, width <= 600 ? 44 : 46)
-    assert.ok(home.cardWidth <= dashboard.cardWidth, "Home hero may be narrower, controls match")
-    assert.equal(home.viewportOverflow, false)
-    assert.equal(dashboard.viewportOverflow, false)
-    cases++
-  }
-
-  // Returning visitors with results should see the same analyzer styling
-  // as Home, not a special collapsed label or oversized controls.
-  for (const width of [390, 1440]) for (const theme of ["dark", "light"]) {
-    const views = []
-    for (const state of ["home", "profile"]) {
-      const context = await browser.newContext({ viewport: { width, height: 900 } })
-      await context.addInitScript(({ theme, state, profileUrl, result }) => {
-        localStorage.setItem("arcade-theme", theme)
-        if (state === "profile") {
-          localStorage.setItem("eplus-arcade-dashboard-view-mode-v1", "profile")
-          localStorage.setItem("eplus-arcade-dashboard-v1", JSON.stringify({ profileUrl, result }))
-        }
-      }, { theme, state, profileUrl, result })
-      const page = await context.newPage()
-      await page.route("https://**/*", route => route.abort())
-      await page.goto(base + (state === "profile" ? "dashboard/" : ""))
-      if (state === "profile") await page.locator(".profile-panel").waitFor({ state: "visible" })
-      const card = page.locator(".profile-analyzer-card")
-      await card.waitFor({ state: "visible" })
-      views.push(await card.evaluate(el => {
-        const style = selector => getComputedStyle(el.querySelector(selector))
-        const rect = selector => el.querySelector(selector).getBoundingClientRect()
-        return {
-          inputHeight: rect(".profile-input").height,
-          buttonHeight: rect(".analyze-button").height,
-          inputRadius: style(".profile-input").borderRadius,
-          buttonRadius: style(".analyze-button").borderRadius,
-          buttonFontSize: style(".analyze-button").fontSize,
-          cardPadding: getComputedStyle(el).paddingTop,
-          cardRadius: getComputedStyle(el).borderRadius,
-          titleDisplay: style(".analyzer-title").display,
-          helpMargin: style(".analyzer-help-row").marginTop,
-          overflow: document.documentElement.scrollWidth > innerWidth + 1,
-        }
-      }))
-      await context.close()
-    }
-    const [home, profile] = views
-    for (const key of ["inputHeight", "buttonHeight", "inputRadius", "buttonRadius", "buttonFontSize", "cardPadding", "cardRadius", "titleDisplay", "helpMargin"]) {
-      assert.equal(home[key], profile[key], width + "/" + theme + ": Home and Profile Dashboard analyzer controls match (" + key + ")")
-    }
-    assert.equal(home.titleDisplay, "flex", "Analyze profile label stays visible in Profile Dashboard")
-    assert.equal(profile.overflow, false, "Profile Dashboard analyzer must not overflow viewport")
-    cases++
-  }
-
-  // Home restores saved profile URL without requesting points. The user can
-  // clear/edit it without the focus/pageshow/storage handlers undoing the edit.
-  for (const locale of ["en", "vi"]) for (const width of [390, 1440]) {
+  // Home introduction contains no profile form or score panels.
+  for (const width of [320, 390, 1440]) for (const theme of ["dark", "light"]) {
     const context = await browser.newContext({ viewport: { width, height: 900 } })
-    await context.addInitScript(({ profileUrl, result }) => {
-      localStorage.setItem("eplus-arcade-dashboard-v1", JSON.stringify({ profileUrl, result }))
-    }, { profileUrl, result })
+    await context.addInitScript(theme => localStorage.setItem("arcade-theme", theme), theme)
     const page = await context.newPage()
-    const requests = []
-    await page.route("https://**/*", route => {
-      if (route.request().url().includes("/api/arcade-public")) requests.push(route.request().url())
-      return route.abort()
-    })
-    await page.goto(base + (locale === "vi" ? "vi/" : ""))
-    const input = page.locator(".profile-analyzer-card input[data-arcade-profile-input=true]")
-    await input.waitFor({ state: "visible" })
-    await page.waitForFunction(expected => document.querySelector(".profile-analyzer-card input")?.value === expected, profileUrl)
-    assert.equal(await input.inputValue(), profileUrl)
-    assert.equal(requests.length, 0, "Home restores saved profile URL without requesting points")
-    await page.locator(".profile-input button").click()
-    assert.equal(await input.inputValue(), "")
-    await page.evaluate(() => {
-      window.dispatchEvent(new Event("focus"))
-      window.dispatchEvent(new Event("pageshow"))
-      window.dispatchEvent(new StorageEvent("storage", { key: "eplus-arcade-dashboard-v1" }))
-    })
-    assert.equal(await input.inputValue(), "", "cleared Home input is not overwritten by storage synchronization")
-    await input.fill("https://skills.google/public_profiles/invalid")
-    await page.evaluate(() => window.dispatchEvent(new Event("focus")))
-    assert.equal(await input.inputValue(), "https://skills.google/public_profiles/invalid", "edited Home input stays unchanged")
-    await context.close()
-    cases++
-  }
-
-  // Home should stay empty when the dashboard has no saved profile.
-  {
-    const context = await browser.newContext({ viewport: { width: 390, height: 900 } })
-    const page = await context.newPage()
-    await page.route("https://**/*", route => route.abort())
+    await page.route("https://**/*", r => r.abort())
     await page.goto(base)
-    const input = page.locator(".profile-analyzer-card input")
-    await input.waitFor({ state: "visible" })
-    assert.equal(await input.inputValue(), "")
-    await context.close()
-    cases++
-  }
-
-  // Logo: Font Awesome's filled gamepad has an asymmetric internal bearing.
-  // Verify the scoped optical correction on the actual mobile/desktop header.
-  for (const width of [320, 390, 1440]) {
-    const context = await browser.newContext({ viewport: { width, height: 900 } })
-    const page = await context.newPage()
-    await page.route("https://**/*", route => route.abort())
-    await page.goto(base)
-    const logo = page.locator(".arcade-header .arcade-brand-mark")
-    await logo.waitFor({ state: "visible" })
-    const bounds = await logo.evaluate(el => {
-      const icon = el.querySelector(".fa-gamepad")
-      const mark = el.getBoundingClientRect()
-      const symbol = icon?.getBoundingClientRect()
-      return {
-        transform: icon ? getComputedStyle(icon).transform : "",
-        markW: mark.width, markH: mark.height,
-        iconW: symbol?.width ?? 0, iconH: symbol?.height ?? 0,
-        iconLeft: symbol?.left ?? 0, markLeft: mark.left,
-      }
-    })
-    assert.equal(bounds.transform, "matrix(1, 0, 0, 1, -3, 0)", width + ": brand gamepad optical x-offset")
-    assert.ok(Math.abs(bounds.markW - bounds.markH) <= 1, width + ": brand mark keeps square proportions")
-    assert.ok(bounds.iconW > 0 && bounds.iconH > 0, width + ": centered gamepad still visible")
-    assert.ok(bounds.iconLeft >= bounds.markLeft, width + ": gamepad stays within left side of mark")
+    await page.locator(".home-intro-primary").waitFor({ state: "visible" })
+    assert.equal(await page.locator(".profile-analyzer-card, .home-profile-summary, .guest-dashboard").count(), 0)
+    assert.equal(await page.locator(".home-intro-journey li").count(), 3)
+    assert.equal(await page.locator(".mobile-bottom-nav a[href=\"#calculator\"]").count(), 0)
+    assert.equal(await page.locator(".arcade-hero .halloween-edition").count(), 1)
+    const geometry = await page.evaluate(() => ({
+      overflow: document.documentElement.scrollWidth > innerWidth + 1,
+      cta: document.querySelector(".home-intro-primary").getBoundingClientRect().width,
+    }))
+    assert.equal(geometry.overflow, false, "intro Home must not overflow")
+    assert.ok(geometry.cta > 90, "intro CTA is visible")
+    if (width <= 390) assert.equal(await page.locator(".home-bottom-nav a[aria-current=page]").count(), 1)
     await context.close()
     cases++
   }
@@ -526,60 +385,26 @@ try {
     cases++
   }
 
-  // Bottom tabs follow the clicked section and the restored URL hash.
+  // Dashboard bottom tabs track sections, but Home uses distinct route links.
   for (const path of ["", "dashboard/"]) {
-    const mobile = await browser.newContext({ viewport: { width: 390, height: 844 } })
-    const page = await mobile.newPage()
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 } })
+    const page = await context.newPage()
     await page.route("https://**/*", route => route.abort())
     await page.goto(base + path)
     const nav = page.locator(".mobile-bottom-nav")
-    await nav.locator('a[href="#tiers"]').click()
-    await page.waitForFunction(() => document.querySelector('.mobile-bottom-nav a[href="#tiers"]')?.getAttribute("aria-current") === "location")
-    assert.ok(await nav.locator('a[href="#tiers"]').evaluate(el => el.classList.contains("is-active")), path + ": tiers tab active")
-    await nav.locator('a[href="#calculator"]').click()
-    await page.waitForFunction(() => document.querySelector('.mobile-bottom-nav a[href="#calculator"]')?.getAttribute("aria-current") === "location")
-    assert.ok(await nav.locator('a[href="#calculator"]').evaluate(el => el.classList.contains("is-active")), path + ": calculator tab active")
-    if (path === "dashboard/") {
-      const monthly = nav.locator('a[href$="#monthly-games"]')
-      await monthly.waitFor({ state: "visible" })
-      await monthly.click()
+    if (path === "") {
+      assert.equal(await nav.locator('a[aria-current="page"]').count(), 1)
+      await nav.locator('a[href$="dashboard/"]').click()
+      await page.waitForURL("**/dashboard/")
+      await page.locator(".profile-analyzer-card").waitFor({ state: "visible" })
+    } else {
+      await nav.locator('a[href="#tiers"]').click()
+      await page.waitForFunction(() => document.querySelector('.mobile-bottom-nav a[href="#tiers"]')?.getAttribute("aria-current") === "location")
+      await nav.locator('a[href="#calculator"]').click()
+      await page.waitForFunction(() => document.querySelector('.mobile-bottom-nav a[href="#calculator"]')?.getAttribute("aria-current") === "location")
+      await nav.locator('a[href="#monthly-games"]').click()
       await page.waitForURL("**/#monthly-games")
-      await page.waitForFunction(() => document.querySelector('.mobile-bottom-nav a[href="#monthly-games"]')?.getAttribute("aria-current") === "location")
     }
-    await mobile.close()
-    cases++
-  }
-
-  // Home uses the saved public profile image, with graceful initials fallback.
-  {
-    const context = await browser.newContext({ viewport: { width: 390, height: 844 } })
-    const fakeAvatar = "https://avatar.arcade-example.test/photo.png"
-    await context.addInitScript(({ profileUrl, result, fakeAvatar }) => {
-      const record = { ...result, userDetails: [{ ...result.userDetails?.[0], profileImage: fakeAvatar }] }
-      localStorage.setItem("eplus-arcade-dashboard-v1", JSON.stringify({ profileUrl, result: record }))
-    }, { profileUrl, result, fakeAvatar })
-    const page = await context.newPage()
-    await page.route("https://**/*", route => route.abort())
-    const tinyPng = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+Xh9kAAAAASUVORK5CYII="
-    await page.route(fakeAvatar, route => route.fulfill({ status: 200, contentType: "image/png", body: Buffer.from(tinyPng, "base64") }))
-    await page.goto(base)
-    const avatar = page.locator(".home-profile-avatar img")
-    await avatar.waitFor({ state: "visible" })
-    await page.waitForFunction(() => {
-      const img = document.querySelector(".home-profile-avatar img")
-      return img?.complete && img.naturalWidth > 0
-    })
-    assert.equal(await avatar.getAttribute("src"), fakeAvatar)
-    // Cross-tab snapshot updates are surfaced via the storage event.
-    // Unsafe avatar URLs must never be requested and must render initials.
-    await page.evaluate(() => {
-      const raw = JSON.parse(localStorage.getItem("eplus-arcade-dashboard-v1"))
-      raw.result.userDetails[0].profileImage = "http://unsafe.example/avatar.png"
-      localStorage.setItem("eplus-arcade-dashboard-v1", JSON.stringify(raw))
-      window.dispatchEvent(new StorageEvent("storage", { key: "eplus-arcade-dashboard-v1" }))
-    })
-    await page.locator(".home-profile-avatar > span").waitFor({ state: "visible", timeout: 5000 })
-    assert.equal(await page.locator(".home-profile-avatar img").count(), 0)
     await context.close()
     cases++
   }
