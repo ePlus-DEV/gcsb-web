@@ -76,7 +76,9 @@ try {
         await page.locator(".analyze-button").click()
         await page.locator(".profile-panel").waitFor({ state: "visible" })
         assert.ok(new URL(page.url()).pathname.endsWith("/dashboard/"))
-        assert.equal(await page.locator(".monthly-game-card").count(), 0)
+        // Monthly labs remain accessible below the personal Dashboard too.
+        await page.locator(".monthly-game-card").first().waitFor({ state: "visible" })
+        assert.equal(await page.locator(".monthly-game-card").count(), 6)
         // Core profile controls, point composition and reward availability stay visible.
         assert.equal(await page.locator('.dashboard-analyzer details, .breakdown-panel details, .tier-status-panel details').count(), 0)
         for (const selector of ['.profile-input input', '.point-compact-list', '.allocation-message']) {
