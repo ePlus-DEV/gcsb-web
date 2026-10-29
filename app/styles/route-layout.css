@@ -134,3 +134,17 @@
 .arcade-dashboard-page[data-dashboard-view="profile"] .shared-tier-panel .tier-list-icon { width: 28px; height: 28px; }
 .arcade-dashboard-page[data-dashboard-view="profile"] .shared-tier-panel .tier-list-row > div:nth-child(2) span,
 .arcade-dashboard-page[data-dashboard-view="profile"] .shared-tier-panel .tier-slot-count small { overflow-wrap: anywhere; font-size: .68rem; }
+
+/* The personal Dashboard starts with a form and compact tiers, rather than Home's gift showcase. */
+.arcade-dashboard-page:not(.arcade-home-route)[data-dashboard-view="guest"] .dashboard-analyzer {
+ max-width: 800px; margin-inline: auto; padding-block: 24px 18px;
+}
+.dashboard-start-description { margin: 8px 0 18px; color: var(--arcade-muted); font-size: .85rem; line-height: 1.6; }
+.dashboard-guest-start { max-width: 1000px; margin-inline: auto; }
+.dashboard-guest-start > .tier-list-panel { margin-bottom: 0; }
+.dashboard-guest-start .tier-list-row { min-height: 0; gap: 10px; }
+.dashboard-guest-start .tier-slot-count { justify-items: start; text-align: start; }
+@media (max-width: 600px) {
+ .arcade-dashboard-page:not(.arcade-home-route)[data-dashboard-view="guest"] .dashboard-analyzer { padding-block: 16px; }
+ .dashboard-guest-start .tier-slot-count { justify-items: end; text-align: end; }
+}

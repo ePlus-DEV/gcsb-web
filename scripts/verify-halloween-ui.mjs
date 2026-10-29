@@ -15,6 +15,32 @@ try {
   browser = await chromium.launch({
     ...(process.env.CHROMIUM_EXECUTABLE_PATH ? { executablePath: process.env.CHROMIUM_EXECUTABLE_PATH } : {}),
   })
+  // Direct Dashboard guest visits must not inherit Home's artwork cards.
+  for (const locale of ["en", "vi"]) for (const theme of ["dark", "light"]) for (const width of [390, 1440]) {
+    const context = await browser.newContext({ viewport: { width, height: 900 } })
+    const page = await context.newPage()
+    await page.addInitScript(({ locale, theme }) => {
+      localStorage.setItem("arcade-points-locale", locale)
+      localStorage.setItem("arcade-theme", theme)
+    }, { locale, theme })
+    await page.route("https://**/*", route => route.abort())
+    await page.goto(`${base}${locale === "en" ? "" : `${locale}/`}dashboard/`)
+    await page.locator(".dashboard-guest-start .tier-list-row").first().waitFor()
+    assert.equal(await page.locator(".dashboard-guest-start .tier-list-row").count(), 4)
+    assert.equal(await page.locator(".dashboard-guest-start .tier-reward-art").count(), 0)
+    assert.equal(await page.locator(".dashboard-start-description").isVisible(), true)
+    const geometry = await page.evaluate(() => ({
+      overflow: document.documentElement.scrollWidth > innerWidth + 1,
+      formWidth: document.querySelector(".dashboard-analyzer").getBoundingClientRect().width,
+      heights: [...document.querySelectorAll(".dashboard-guest-start .tier-list-row")].map(el => el.getBoundingClientRect().height),
+    }))
+    assert.equal(geometry.overflow, false)
+    assert.ok(geometry.formWidth <= 800)
+    assert.ok(geometry.heights.every(height => height < 180), "Guest cards must not reserve empty artwork space")
+    if (screenshots) await page.screenshot({path: `${screenshots}/dashboard-guest-${locale}-${theme}-${width}.png`, fullPage: true})
+    await context.close()
+    cases++
+  }
   for (const locale of ["en", "vi"]) {
     const catalog = JSON.parse(readRepoFile(`public/i18n/locales/${locale}.json`))
     for (const theme of ["dark", "light"]) {

@@ -596,6 +596,7 @@ export default function RedesignCalculator({
       <section id="top" className="arcade-hero dashboard-analyzer" data-home-order="hero">
         <span className="halloween-edition"><span aria-hidden="true">🎃</span>{activeHistoryLanguage.catalog.messages.halloweenEdition}</span>
         <h1 className="dashboard-page-title">{scoreCatalog.messages.dashboardNav}</h1>
+        {!showProfileDashboard && <p className="dashboard-start-description">{scoreCatalog.messages.heroDescription}</p>}
 
         <div className="dashboard-profile-settings">
         <ProfileAnalyzer
@@ -887,6 +888,7 @@ export default function RedesignCalculator({
         </section>
       ) : (
         <GuestDashboard
+          overview={false}
           viewMode={viewMode}
           milestones={milestones}
           milestonesLive={milestonesLive}
