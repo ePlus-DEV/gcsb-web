@@ -17,3 +17,14 @@ The Monthly Labs anchor follows this overview so its full-width content does
 not break the two-column balance. At 821–1080px the insight cards use two
 columns; below 820px tiers and profile content stack; below 600px cards stack
 one per row. No score, slot, filter, share, or localization logic changed.
+
+### Sticky Tiers during expanded badge browsing
+
+On profile dashboards at widths >= 821px, the public Arcade 2026 Tiers
+sidebar sticks just below the fixed header while the longer badge list scrolls.
+The offset uses `--arcade-anchor-offset` to track the existing header.
+The panel's height is bounded by the viewport and its own contents scroll
+when they cannot fit (including history and Swag links); no data is hidden.
+Mobile (<= 820px) and the Guest layout keep normal document scrolling.
+Browser regression checks cover 64 expanded badges at mobile, tablet, and
+desktop widths, including header clearance and panel scrolling.
