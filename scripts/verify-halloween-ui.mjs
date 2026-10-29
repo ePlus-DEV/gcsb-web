@@ -39,6 +39,34 @@ try {
       tierLeft: document.querySelector(".dashboard-guest-start").getBoundingClientRect().left,
       heights: [...document.querySelectorAll(".dashboard-guest-start .tier-list-row")].map(el => el.getBoundingClientRect().height),
     }))
+    // Compare the history trigger and portaled dialog with Arcade theme tokens,
+    // including light mode and the active seasonal palette.
+    const trigger = page.locator(".dashboard-guest-start .tier-trends-trigger")
+    await trigger.waitFor({ state: "visible" })
+    await trigger.click()
+    const modal = page.locator('[role="dialog"].tier-trends-dialog')
+    await modal.waitFor({ state: "visible" })
+    const historyColors = await page.evaluate(() => {
+      const root = getComputedStyle(document.documentElement)
+      const main = document.querySelector(".dashboard-guest-start .tier-trends-trigger")
+      const dialog = document.querySelector(".tier-trends-dialog")
+      const token = key => root.getPropertyValue(key).trim()
+      return {
+        triggerBackground: getComputedStyle(main).backgroundColor,
+        dialogBackground: getComputedStyle(dialog).backgroundColor,
+        expectedTrigger: token("--slot-history-raised"),
+        expectedDialog: token("--slot-history-surface"),
+        dialogText: getComputedStyle(dialog).color,
+      }
+    })
+    const toRgb = hex => {
+      const n = hex.replace("#", "")
+      return "rgb(" + [0, 2, 4].map(i => Number.parseInt(n.slice(i, i + 2), 16)).join(", ") + ")"
+    }
+    assert.equal(historyColors.triggerBackground, toRgb(historyColors.expectedTrigger), theme + ": history trigger follows Arcade palette")
+    assert.equal(historyColors.dialogBackground, toRgb(historyColors.expectedDialog), theme + ": portaled history dialog follows Arcade palette")
+    await page.keyboard.press("Escape")
+    await modal.waitFor({ state: "hidden" })
     assert.equal(geometry.overflow, false)
     assert.ok(geometry.formWidth <= 1200, "Guest Dashboard matches the shared content width")
     assert.ok(Math.abs(geometry.formWidth - geometry.tierWidth) <= 2, "Guest form and tiers have matching width")
@@ -104,6 +132,19 @@ try {
           assert.ok(geometry.tierBackgrounds.length > 0)
           for (const color of geometry.tierBackgrounds) assert.ok(tierColors.includes(color), `${theme}: unexpected tier surface ${color}`)
           assert.equal(geometry.buttonColor, "rgb(255, 255, 255)")
+          // Portal-based history dialogs must adopt the Halloween variant too.
+          if (state === "profile") {
+            const trigger = page.locator(".shared-tier-panel .tier-trends-trigger")
+            await trigger.waitFor({ state: "visible" })
+            await trigger.click()
+            const historyDialog = page.locator(".tier-trends-dialog")
+            await historyDialog.waitFor({ state: "visible" })
+            const bg = await historyDialog.evaluate(el => getComputedStyle(el).backgroundColor)
+            assert.equal(bg, theme === "light" ? "rgb(255, 252, 248)" : "rgb(19, 17, 38)", theme + ": history dialog follows Halloween panel")
+            await page.keyboard.press("Escape")
+            await historyDialog.waitFor({ state: "hidden" })
+          }
+
           if (state === "empty") assert.ok(geometry.labelLeft >= 0 && geometry.labelRight <= width)
           if (await page.locator(".preview-mode-toolbar").count()) {
             const toolbar = await page.locator(".preview-mode-toolbar").evaluate((el) => {

@@ -89,3 +89,17 @@ test("Mobile control sizes, equal view options and stacked floating actions", ()
   assert.match(e2e, /profile card has no excessive blank height/)
   assert.match(e2e, /mobile Facilitator uses a 44px FAB/)
 })
+ 
+test("Prize slot history reuses Arcade and seasonal surface colors", () => {
+  const css = readRepoFile("app/styles/tier-slot-history.css")
+  const chart = readRepoFile("components/arcade/tier-slot-history.tsx")
+  assert.match(css, /html\[data-season="halloween"\]/)
+  assert.match(css, /html\.light\[data-season="halloween"\]/)
+  assert.match(css, /\.tier-trends-dialog\{background:var\(--slot-history-surface\)!important/)
+  assert.match(css, /\.tier-trends-trigger\{[^\n]*background:var\(--slot-history-raised\)/)
+  assert.match(css, /\.tier-trends-tier-card\{[^\n]*background:var\(--slot-history-row\)/)
+  for (const [tier, color] of Object.entries({ trooper: "#2f80ff", ranger: "#2fd17d", champion: "#ff9f1c", legend: "#c054ff" })) {
+    assert.match(chart, new RegExp('key: "' + tier + '"[^\\n]*color: "' + color + '"'))
+  }
+  assert.match(chart, /stroke="var\(--slot-history-accent\)"/)
+})
