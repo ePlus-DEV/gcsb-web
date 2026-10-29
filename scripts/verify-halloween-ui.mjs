@@ -43,6 +43,9 @@ try {
     // including light mode and the active seasonal palette.
     const trigger = page.locator(".dashboard-guest-start .tier-trends-trigger")
     await trigger.waitFor({ state: "visible" })
+    const cookie = page.locator(".cookie-consent-button")
+    await cookie.waitFor({ state: "visible", timeout: 1500 }).catch(() => {})
+    if (await cookie.isVisible()) await cookie.click()
     await trigger.click()
     const modal = page.locator('[role="dialog"].tier-trends-dialog')
     await modal.waitFor({ state: "visible" })
@@ -136,6 +139,9 @@ try {
           if (state === "profile") {
             const trigger = page.locator(".shared-tier-panel .tier-trends-trigger")
             await trigger.waitFor({ state: "visible" })
+            const cookie = page.locator(".cookie-consent-button")
+            await cookie.waitFor({ state: "visible", timeout: 1500 }).catch(() => {})
+            if (await cookie.isVisible()) await cookie.click()
             await trigger.click()
             const historyDialog = page.locator(".tier-trends-dialog")
             await historyDialog.waitFor({ state: "visible" })
