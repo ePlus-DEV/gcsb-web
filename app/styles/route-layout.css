@@ -125,3 +125,12 @@
  .arcade-dashboard-page[data-dashboard-view="profile"] .analyzer-facilitator-slot > div { grid-template-columns: 1fr; }
 }
 .arcade-dashboard-page[data-dashboard-view="profile"] .tier-status-panel { grid-column: auto; }
+@media (min-width: 1101px) {
+ .arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-shell { grid-template-columns: minmax(0, 1fr) 320px; }
+}
+.arcade-dashboard-page[data-dashboard-view="profile"] .shared-tier-panel .tier-list-row {
+ grid-template-columns: 28px minmax(0, 1fr) minmax(0, 100px); gap: 8px;
+}
+.arcade-dashboard-page[data-dashboard-view="profile"] .shared-tier-panel .tier-list-icon { width: 28px; height: 28px; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .shared-tier-panel .tier-list-row > div:nth-child(2) span,
+.arcade-dashboard-page[data-dashboard-view="profile"] .shared-tier-panel .tier-slot-count small { overflow-wrap: anywhere; font-size: .68rem; }
