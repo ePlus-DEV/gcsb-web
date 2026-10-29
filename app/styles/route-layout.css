@@ -334,3 +334,71 @@ body > .facilitator-launcher.is-floating:focus-visible {
  body > .facilitator-launcher.is-floating > span,
  body > .facilitator-launcher.is-floating > svg:last-child { display: none; }
 }
+
+
+/* Shared ProfileAnalyzer design across Home, Guest Dashboard and Profile Dashboard.
+   Home remains centered inside the landing hero; the Dashboard form fills its
+   content grid. All interactive controls have the same sizing and typography. */
+.arcade-dashboard-v2 {
+ --arcade-analyzer-control-height: 46px;
+ --arcade-analyzer-control-radius: 9px;
+}
+.arcade-dashboard-v2 .arcade-hero .profile-analyzer-card {
+ padding: 16px;
+ border-radius: 14px;
+}
+.arcade-home-route .arcade-hero .profile-analyzer-card {
+ width: min(100%, 1000px);
+ margin-inline: auto;
+ text-align: start;
+}
+.arcade-dashboard-v2 .arcade-hero .profile-analyzer-card form {
+ grid-template-columns: minmax(0, 1fr) auto;
+ align-items: stretch;
+ gap: 10px;
+}
+.arcade-dashboard-v2 .arcade-hero .profile-input,
+.arcade-dashboard-v2 .arcade-hero .analyze-button {
+ height: var(--arcade-analyzer-control-height);
+ min-height: var(--arcade-analyzer-control-height);
+ border-radius: var(--arcade-analyzer-control-radius);
+}
+.arcade-dashboard-v2 .arcade-hero .profile-input {
+ padding-inline: 12px;
+}
+.arcade-dashboard-v2 .arcade-hero .profile-input input {
+ min-width: 0;
+ font-size: .85rem;
+}
+.arcade-dashboard-v2 .arcade-hero .analyze-button {
+ min-width: 166px;
+ padding-inline: 16px;
+ font-size: .76rem;
+ box-shadow: none;
+}
+.arcade-dashboard-v2 .arcade-hero .analyzer-title {
+ margin-bottom: 12px;
+}
+.arcade-dashboard-v2 .arcade-hero .analyzer-help-row {
+ margin-top: 10px;
+}
+.arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-analyzer .profile-analyzer-card {
+ padding: 16px;
+}
+@media (max-width: 600px) {
+ .arcade-dashboard-v2 {
+  --arcade-analyzer-control-height: 44px;
+ }
+ .arcade-dashboard-v2 .arcade-hero .profile-analyzer-card,
+ .arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-analyzer .profile-analyzer-card {
+  padding: 14px;
+ }
+ .arcade-dashboard-v2 .arcade-hero .profile-analyzer-card form {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+ }
+ .arcade-dashboard-v2 .arcade-hero .analyze-button {
+  width: 100%;
+  min-width: 0;
+ }
+}

@@ -42,3 +42,11 @@ Previous inline button positioning was incorrect: route-layout.css overrode fixe
 - Guest and Profile dashboard content share a 1200px maximum width and consistent outer gutters; both preview switch buttons occupy equal columns with no special width for the selected tab.
 - On mobile, the saved profile identity has no 240px flex-basis; the avatar starts near the top instead of after empty space.
 - Browser tests assert control height, balanced switch widths, compact profile identity, fixed FAB and scroll position. Home, score logic and seasonal fonts/palette remain unchanged.
+
+## Shared Analyze profile UI (2026-10-29)
+- Home and Dashboard render the same `ProfileAnalyzer`; historical route-specific CSS had changed Home to 54px controls and Dashboard to 46/44px.
+- A shared analyzer control token now sets 46px on desktop and 44px on phone, with identical radius, typography, button min-width, card padding and help-row spacing.
+- Home stays centered within the hero (up to 1000px), while Dashboard follows the 1200px score grid. This is intentional layout hierarchy, not a different component.
+- Saved-profile and auto-fetch/Facilitator controls remain Dashboard-only because Home submits the URL and navigates to the Dashboard without fetching profile data.
+- Home clears a stale invalid-URL error while the user edits input.
+- Browser checks compare computed styles at 390 and 1440 widths for dark and light themes.

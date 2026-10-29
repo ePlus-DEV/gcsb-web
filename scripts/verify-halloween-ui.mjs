@@ -15,6 +15,49 @@ try {
   browser = await chromium.launch({
     ...(process.env.CHROMIUM_EXECUTABLE_PATH ? { executablePath: process.env.CHROMIUM_EXECUTABLE_PATH } : {}),
   })
+  // Home and Guest Dashboard share the same analyzer component and
+  // dimensions, though Home keeps a centered landing-page width.
+  for (const width of [390, 1440]) for (const theme of ["dark", "light"]) {
+    const metrics = []
+    for (const route of ["", "dashboard/"]) {
+      const context = await browser.newContext({ viewport: { width, height: 900 } })
+      await context.addInitScript(theme => localStorage.setItem("arcade-theme", theme), theme)
+      const page = await context.newPage()
+      await page.route("https://**/*", r => r.abort())
+      await page.goto(base + route)
+      const card = page.locator(".profile-analyzer-card")
+      await card.waitFor({ state: "visible" })
+      metrics.push(await card.evaluate(el => {
+        const css = selector => getComputedStyle(el.querySelector(selector))
+        const rect = selector => el.querySelector(selector).getBoundingClientRect()
+        const container = getComputedStyle(el)
+        return {
+          inputHeight: rect(".profile-input").height,
+          buttonHeight: rect(".analyze-button").height,
+          inputRadius: css(".profile-input").borderRadius,
+          buttonRadius: css(".analyze-button").borderRadius,
+          buttonSize: css(".analyze-button").fontSize,
+          cardPadding: container.paddingTop,
+          cardRadius: container.borderRadius,
+          formColumns: css("form").gridTemplateColumns,
+          cardWidth: el.getBoundingClientRect().width,
+          viewportOverflow: document.documentElement.scrollWidth > innerWidth + 1,
+        }
+      }))
+      await context.close()
+    }
+    const [home, dashboard] = metrics
+    for (const key of ["inputHeight", "buttonHeight", "inputRadius", "buttonRadius", "buttonSize", "cardPadding", "cardRadius"]) {
+      assert.equal(home[key], dashboard[key], width + "/" + theme + ": Home and Guest Dashboard analyzer controls match (" + key + ")")
+    }
+    assert.equal(home.inputHeight, width <= 600 ? 44 : 46)
+    assert.equal(home.buttonHeight, width <= 600 ? 44 : 46)
+    assert.ok(home.cardWidth <= dashboard.cardWidth, "Home hero may be narrower, controls match")
+    assert.equal(home.viewportOverflow, false)
+    assert.equal(dashboard.viewportOverflow, false)
+    cases++
+  }
+
   // Direct Dashboard guest visits must not inherit Home's artwork cards.
   for (const locale of ["en", "vi"]) for (const theme of ["dark", "light"]) for (const width of [390, 1440]) {
     const context = await browser.newContext({ viewport: { width, height: 900 } })

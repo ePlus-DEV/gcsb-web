@@ -50,7 +50,7 @@ export default function HomePage({catalog, locale, children}: {catalog: WebsiteC
         <p className="hero-description">{m.heroDescription}</p>
         <div className="trust-pills"><span><ShieldCheck />{m.publicDataOnly}</span><span><BadgeCheck />{m.noSignIn}</span></div>
       </div>
-      <ProfileAnalyzer catalog={language.catalog} value={url} onChange={setUrl} onSubmit={submit} onReset={() => setUrl("")} loading={false} error={invalid ? m.invalidProfileUrl : ""} hasResult={false} />
+      <ProfileAnalyzer catalog={language.catalog} value={url} onChange={value => { setUrl(value); if (invalid) setInvalid(false) }} onSubmit={submit} onReset={() => { setUrl(""); setInvalid(false) }} loading={false} error={invalid ? m.invalidProfileUrl : ""} hasResult={false} />
       <HomeProfileSummary catalog={language.catalog} locale={language.locale} />
     </section>
     <div className="program-countdown-host" data-home-order="program-countdown" />
