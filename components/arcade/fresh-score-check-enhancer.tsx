@@ -6,7 +6,7 @@ import { getWebsiteLocale, loadWebsiteCatalog } from "@/lib/website-i18n"
 
 const ANALYZER_SELECTOR = ".profile-analyzer-card"
 const BUTTON_SELECTOR = ".analyze-button"
-const INPUT_SELECTOR = 'input[aria-label="Google Skills public profile URL"]'
+const INPUT_SELECTOR = 'input[data-arcade-profile-input="true"]'
 const FACILITATOR_SLOT_SELECTOR = ".analyzer-facilitator-slot"
 const HELP_ROW_SELECTOR = ".analyzer-help-row"
 const MANUAL_INTENT_TTL_MS = 5_000
@@ -390,9 +390,9 @@ export default function FreshScoreCheckEnhancer() {
             <p
               role="note"
               style={{
-                margin: "0",
+                margin: "10px 0 0",
                 padding: "2px 2px 4px",
-                color: "var(--muted-foreground, #64748b)",
+                color: "var(--arcade-muted, #64748b)",
                 fontSize: "12px",
                 lineHeight: 1.5,
               }}

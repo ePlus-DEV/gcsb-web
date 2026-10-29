@@ -1,0 +1,52 @@
+/* Keep the established Arcade presentation. Refactoring must not restyle it. */
+.arcade-ui-refresh .analyzer-title > span { flex: 0 0 23px; }
+.arcade-ui-refresh .analyzer-title { cursor: text; }
+.arcade-ui-refresh .profile-input button { flex-shrink: 0; }
+.arcade-ui-refresh[data-dashboard-view="guest"] [data-share-profile-action] { display: none; }
+
+/*
+ * Profile dashboard balance: keep badge content and contextual insight cards
+ * in one natural-height column beside the public tiers/sidebar. This avoids
+ * a large empty stretch inside the badge surface on wide displays.
+ * Guest tiers, shared palette, typography, and badge filtering are unchanged.
+ */
+.arcade-dashboard-page .dashboard-content-grid {
+  align-items: start;
+}
+.arcade-dashboard-page .dashboard-primary-column {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  min-width: 0;
+}
+.arcade-dashboard-page .dashboard-primary-column > .dashboard-bottom-grid {
+  margin-bottom: 0;
+}
+@media (min-width: 821px) and (max-width: 1080px) {
+  .arcade-dashboard-page .dashboard-primary-column > .dashboard-bottom-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .arcade-dashboard-page .dashboard-primary-column .next-goal-panel {
+    grid-column: 1 / -1;
+  }
+}
+
+/*
+ * The profile badge list can grow to 100+ cards when "View all" is selected.
+ * Keep the tiers visible beside it without trapping content below the fold.
+ * This applies only to the profile's desktop two-column layout, never the
+ * guest tiers or the single-column mobile dashboard.
+ */
+@media (min-width: 821px) {
+  .arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-content-grid > .tier-list-panel {
+    position: sticky;
+    top: calc(var(--arcade-sticky-header-height, var(--arcade-anchor-offset, 76px)) + 10px);
+    align-self: start;
+    max-height: calc(100vh - var(--arcade-sticky-header-height, var(--arcade-anchor-offset, 76px)) - 24px);
+    max-height: calc(100dvh - var(--arcade-sticky-header-height, var(--arcade-anchor-offset, 76px)) - 24px);
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(139, 92, 246, 0.35) transparent;
+  }
+}

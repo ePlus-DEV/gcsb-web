@@ -97,6 +97,66 @@ try {
     }
   }
 
+  // Profile regression: "View all badges" must keep the Tiers sidebar
+  // visible on desktop, but must not create a sticky panel on phones.
+  for (const width of [390, 1024, 1440]) {
+    const viewportHeight = 720
+    const context = await browser.newContext({ viewport: { width, height: viewportHeight } })
+    const extendedResult = {
+      ...result,
+      badges: Array.from({ length: 64 }, (_, index) => ({
+        ...result.badges[index % result.badges.length],
+        title: `Regression badge ${index + 1}`,
+      })),
+    }
+    await context.addInitScript(({ profileUrl, result }) => {
+      localStorage.setItem("arcade-seasonal-theme", "off")
+      localStorage.setItem("eplus-arcade-dashboard-view-mode-v1", "profile")
+      localStorage.setItem("eplus-arcade-dashboard-v1", JSON.stringify({ profileUrl, result }))
+    }, { profileUrl, result: extendedResult })
+    const page = await context.newPage()
+    await page.route("https://**/*", (route) => route.abort())
+    await page.goto(base)
+    await page.locator(".show-all-badges").waitFor({ state: "visible" })
+    await page.locator(".show-all-badges").click()
+    assert.equal(await page.locator(".earned-badge").count(), 64, `${width}: expanded badge count`)
+
+    await page.evaluate(() => {
+      const grid = document.querySelector(".dashboard-content-grid")
+      document.documentElement.style.scrollBehavior = "auto"
+      window.scrollTo(0, grid.getBoundingClientRect().top + window.scrollY + 600)
+    })
+    const metrics = await page.locator(".dashboard-content-grid > .tier-list-panel").evaluate((el) => {
+      const style = getComputedStyle(el)
+      return {
+        position: style.position,
+        stickyTop: parseFloat(style.top),
+        actualTop: el.getBoundingClientRect().top,
+        headerBottom: document.querySelector(".arcade-header").getBoundingClientRect().bottom,
+        clientHeight: el.clientHeight,
+        scrollHeight: el.scrollHeight,
+        horizontalOverflow: document.documentElement.scrollWidth > innerWidth + 1,
+      }
+    })
+    const desktop = width > 820
+    assert.equal(metrics.position, desktop ? "sticky" : "static", `${width}: sidebar position`)
+    assert.equal(metrics.horizontalOverflow, false, `${width}: horizontal overflow`)
+    if (desktop) {
+      assert.ok(Math.abs(metrics.actualTop - metrics.stickyTop) <= 3, `${width}: sidebar must stick to its offset`)
+      assert.ok(metrics.actualTop >= metrics.headerBottom + 4, `${width}: sidebar must clear header`)
+      assert.ok(metrics.clientHeight <= viewportHeight - metrics.stickyTop + 1, `${width}: sidebar must fit viewport`)
+      if (metrics.scrollHeight > metrics.clientHeight) {
+        const scrollTop = await page.locator(".dashboard-content-grid > .tier-list-panel").evaluate((el) => {
+          el.scrollTop = 120
+          return el.scrollTop
+        })
+        assert.ok(scrollTop > 0, `${width}: sidebar content remains reachable`)
+      }
+    }
+    await context.close()
+    cases++
+  }
+
   const context = await browser.newContext({ reducedMotion: "reduce" })
   await context.addInitScript(() => localStorage.setItem("arcade-seasonal-theme", "halloween"))
   const page = await context.newPage()

@@ -43,7 +43,7 @@ test("Monthly Labs has deterministic React-owned anchors in both dashboard state
   const summary = calculator.indexOf('data-home-order="dashboard-summary"')
   const resultsMonthly = calculator.indexOf('data-home-order="monthly-labs"')
   const bottom = calculator.indexOf('data-home-order="dashboard-bottom"')
-  assert.ok(summary >= 0 && summary < resultsMonthly && resultsMonthly < bottom)
+  assert.ok(summary >= 0 && summary < bottom && bottom < resultsMonthly)
 
   const empty = calculator.indexOf("<GuestDashboard")
   const emptyMonthly = guestDashboard.indexOf('data-home-order="monthly-labs"')
@@ -55,6 +55,39 @@ test("Monthly Labs has deterministic React-owned anchors in both dashboard state
   assert.ok(about > empty)
   assert.match(calculator, /href="#monthly-games"/)
   assert.match(guide, /data-home-order="about"/)
+})
+
+test("profile layout groups badges and insight cards without stretching against tiers", () => {
+  const primaryOpen = calculator.indexOf('className="dashboard-primary-column"')
+  const badges = calculator.indexOf('id="badges"')
+  const bottom = calculator.indexOf('data-home-order="dashboard-bottom"')
+  const tiers = calculator.indexOf("<DashboardTiers")
+  const monthly = calculator.indexOf('data-home-order="monthly-labs"')
+  assert.ok(primaryOpen >= 0 && primaryOpen < badges && badges < bottom && bottom < tiers && tiers < monthly)
+  assert.equal((calculator.match(/className="dashboard-primary-column"/g) ?? []).length, 1)
+  const css = readRepoFile("app/styles/interface-refresh.css")
+  assert.ok(css.includes(".dashboard-content-grid {"))
+  assert.ok(css.includes("align-items: start;"))
+  assert.ok(css.includes(".dashboard-primary-column {"))
+  assert.ok(css.includes("display: grid;"))
+  assert.ok(css.includes("max-width: 1080px"))
+})
+
+test("Tiers sidebar stays sticky only in desktop profile layout", () => {
+  const css = readRepoFile("app/styles/interface-refresh.css")
+  const stickyRule = css.slice(css.indexOf('The profile badge list can grow'))
+  assert.match(stickyRule, /@media \(min-width: 821px\)/)
+  assert.ok(stickyRule.includes('.arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-content-grid > .tier-list-panel'))
+  assert.match(stickyRule, /position:\s*sticky;/)
+  assert.match(stickyRule, /top:\s*calc\(var\(--arcade-sticky-header-height/)
+  assert.match(stickyRule, /max-height:\s*calc\(100dvh/)
+  assert.match(stickyRule, /overflow-y:\s*auto;/)
+  assert.ok(calculator.includes('<header ref={headerRef} className="arcade-header">'))
+  assert.ok(calculator.includes("new ResizeObserver(syncHeaderHeight)"))
+  const browserCheck = readRepoFile("scripts/verify-halloween-ui.mjs")
+  assert.ok(browserCheck.includes('for (const width of [390, 1024, 1440])'))
+  assert.ok(browserCheck.includes('await page.locator(".show-all-badges").click()'))
+  assert.ok(browserCheck.includes('metrics.position, desktop ? "sticky" : "static"'))
 })
 
 test("portal targets cannot depend on translated labels or mutation timing", () => {
