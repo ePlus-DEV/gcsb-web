@@ -66,3 +66,15 @@
   .shared-tier-panel .arcade-ui-surface { padding: 14px 12px; }
   .shared-tier-panel .tier-slot-count b { font-size: 1.2rem; }
 }
+
+.tier-prediction { margin-block: 16px; padding: 16px; border: 1px solid var(--arcade-border-soft); border-radius: 12px; color: var(--arcade-text); }
+.tier-prediction summary { cursor: pointer; font-size: .85rem; font-weight: 700; }
+.tier-prediction p { color: var(--arcade-muted); font-size: .78rem; line-height: 1.7; overflow-wrap: anywhere; }
+.tier-prediction strong { font-size: .85rem; }
+.tier-prediction a, .tier-prediction button { display: inline-block; margin-inline-end: 16px; margin-block: 8px; color: var(--arcade-text); font-size: .78rem; }
+.tier-prediction button { min-height: 44px; padding: 8px 12px; border: 1px solid var(--arcade-border); border-radius: 8px; background: var(--arcade-panel-soft); cursor: pointer; }
+.tier-prediction-checks { padding-inline-start: 20px; color: var(--arcade-muted); font-size: .75rem; line-height: 1.8; font-variant-numeric: tabular-nums; }
+
+.tier-prediction .tier-prediction-warning { color: var(--arcade-text); font-weight: 650; }
+
+.tier-prediction-summary-status { display: block; margin-block-start: 4px; color: var(--arcade-muted); font-size: .76rem; font-weight: 400; line-height: 1.5; }
