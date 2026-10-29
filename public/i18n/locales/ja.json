@@ -629,13 +629,18 @@
     "__prediction:uncertain": "割り当て済みティアを判断する記録が不足しています。",
     "__prediction:scoreTier": "推定ボーナスを除くポイント上のティア：{tier}。",
     "__prediction:evidence": "{date}に{tier}の根拠を記録しました。その後枠が埋まっても記録は消えません。",
-    "__prediction:scenario": "現在の空き枠で判断する場合：{tier}。過去の割り当てを示しません。",
+    "__prediction:scenario": "クローラーの記録に基づくWaterfallの代替ティア：{tier}。Googleが確定した結果ではありません。",
     "__prediction:noPercent": "Googleの割り当て時刻と待機列がないため、信頼できる確率は算出できません。枠数には遅延があります。",
     "__prediction:bonus": "推定Facilitatorボーナスは確保の根拠に含めません。",
     "__prediction:storage": "このブラウザ内にプロフィールとシーズン別で保存します。確認日は到達日ではありません。",
     "__prediction:storageFailed": "履歴を保存できませんでした。",
     "__prediction:clear": "プロフィールの記録を削除",
-    "__prediction:source": "公式ルール"
+    "__prediction:source": "公式ルール",
+    "__prediction:possible": "クローラーの記録では{tier}の空き枠は0です。ただし、先に条件を達成していた可能性があり、降格が確定したわけではありません。",
+    "__prediction:crawlLag": "クローラーの記録はポイント確認より{duration}前のものです。その間に空き枠が変わった可能性があります。",
+    "__prediction:evidenceLag": "根拠となる過去の記録はポイント確認より{duration}前のものです。枠の確保を証明するものではありません。",
+    "__prediction:staleSnapshot": "クローラーの記録は確認より{duration}古く（48時間超）、現在の代替ティアの判断には使えません。",
+    "__prediction:noOpenSlots": "この記録ではポイント条件を満たす全ティアの空き枠が0です。過去に割り当てられたかどうかは不明です。"
   },
   "dynamic": {
     "memberSince": "メンバー登録: {value}",
