@@ -629,13 +629,18 @@
     "__prediction:uncertain": "Pruebas insuficientes para determinar el nivel asignado.",
     "__prediction:scoreTier": "Nivel por puntos, sin bonos estimados: {tier}.",
     "__prediction:evidence": "Prueba de {tier} registrada el {date}. Agotar las plazas después no la elimina.",
-    "__prediction:scenario": "Para una plaza disponible ahora: {tier}. No determina una asignación anterior.",
+    "__prediction:scenario": "Alternativa Waterfall según la captura del crawler: {tier}. Google no ha confirmado esta asignación.",
     "__prediction:noPercent": "Sin los horarios de asignación y la cola de Google no se puede calcular un porcentaje fiable. Las plazas pueden tener retraso.",
     "__prediction:bonus": "Los bonos estimados de Facilitator no prueban una reserva.",
     "__prediction:storage": "Solo se guarda en este navegador, por perfil y temporada. Las fechas de consulta no son fechas de hitos.",
     "__prediction:storageFailed": "No se pudo guardar el historial.",
     "__prediction:clear": "Eliminar pruebas del perfil",
-    "__prediction:source": "Reglas oficiales"
+    "__prediction:source": "Reglas oficiales",
+    "__prediction:possible": "La captura del crawler muestra que no quedan plazas para {tier}. Puede que alcanzaras el umbral antes; no confirma un descenso.",
+    "__prediction:crawlLag": "La captura del crawler es {duration} anterior a la consulta de puntos. Las plazas pueden haber cambiado entretanto.",
+    "__prediction:evidenceLag": "La captura histórica precede a esa consulta por {duration}. Es una indicación, no una plaza asegurada.",
+    "__prediction:staleSnapshot": "La captura del crawler es {duration} anterior a la consulta (más de 48 horas). No permite estimar una alternativa actual.",
+    "__prediction:noOpenSlots": "En esta captura, todas las categorías para las que tienes puntos aparecen llenas. Se desconoce cualquier asignación anterior."
   },
   "dynamic": {
     "memberSince": "Miembro desde {value}",
