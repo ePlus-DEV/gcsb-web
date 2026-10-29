@@ -146,6 +146,34 @@ try {
             await page.locator(".point-history-popover").waitFor({ state: "visible" })
             assert.equal(await page.locator(".point-history-popover").getAttribute("aria-modal"), "true")
             assert.equal(await page.evaluate(() => document.body.style.overflow), "hidden")
+            const sheet = page.locator(".point-history-popover")
+            const details = sheet.locator(".point-history-explanation")
+            const collapsed = await details.evaluate(el => el.open)
+            assert.equal(collapsed, false, "long explanatory copy is collapsed by default")
+            const fit = await sheet.evaluate(el => {
+              const outer = el.getBoundingClientRect()
+              const header = el.querySelector(".point-history-popover-header").getBoundingClientRect()
+              const body = el.querySelector(".point-history-popover-body")
+              return {
+                top: outer.top,
+                bottom: outer.bottom,
+                maxHeight: outer.height,
+                closeVisible: header.top >= outer.top && header.bottom <= outer.bottom,
+                scrolling: getComputedStyle(body).overflowY === "auto",
+                viewport: window.innerHeight,
+              }
+            })
+            assert.ok(fit.top > 0 && fit.bottom <= fit.viewport - 8, "mobile published-games sheet stays within the viewport")
+            assert.ok(fit.closeVisible && fit.scrolling, "mobile published-games detail sheet has a usable inner scroll")
+            await details.locator("summary").click()
+            assert.equal(await details.evaluate(el => el.open), true)
+            const scroll = await sheet.locator(".point-history-popover-body").evaluate(el => {
+              const available = el.scrollHeight - el.clientHeight
+              el.scrollTop = el.scrollHeight
+              return { available, actual: el.scrollTop }
+            })
+            if (scroll.available > 1) assert.ok(scroll.actual > 0, "expanded explanations must scroll")
+            assert.equal(await page.locator(".point-history-close").isVisible(), true, "close control stays visible after scrolling")
             await page.locator(".point-history-close").click()
             await page.locator(".point-history-popover").waitFor({ state: "detached" })
             assert.equal(await page.evaluate(() => document.body.style.overflow), "")

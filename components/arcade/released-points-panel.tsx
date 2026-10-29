@@ -183,6 +183,7 @@ export default function ReleasedPointsPanel({ badges, hasProfile, catalog, local
               <button type="button" className="point-history-close" aria-label={catalog.additional["Close details"]}
                 onClick={() => setHistoryOpen(false)}><X aria-hidden="true" /></button>
             </header>
+            <div className="point-history-popover-body" tabIndex={0}>
             {failed ? <div role="status"><p>{text("error")}</p><button type="button" className="point-history-retry"
                 onClick={() => setAttempt((value) => value + 1)}>{text("retry")}</button></div>
               : !summary ? <p role="status">{text("loading")}</p>
@@ -198,11 +199,15 @@ export default function ReleasedPointsPanel({ badges, hasProfile, catalog, local
                 <p className="point-history-coverage">{text("coverage", {
                   count: number(summary.months), total: number(month), unknown: number(summary.unknown),
                 })}</p>
-                <div className="point-history-notes">
-                  <p>{text("scope")}</p>
-                  <p>{text("skillCoverage")}</p>
-                </div>
+                <details className="point-history-explanation">
+                  <summary>{catalog.messages.pointBreakdown}</summary>
+                  <div className="point-history-notes">
+                    <p>{text("scope")}</p>
+                    <p>{text("skillCoverage")}</p>
+                  </div>
+                </details>
               </>}
+            </div>
           </section>
         </div>,
         document.body,

@@ -203,3 +203,17 @@ test("history details use an accessible portal popover and a mobile bottom sheet
     assert.ok(catalog.additional["Close details"], `${filename} missing popover close label`)
   }
 })
+
+test("Published games detail sheet has a fixed header, scrollable body and optional explanatory copy", () => {
+  const component = readRepoFile("components/arcade/released-points-panel.tsx")
+  const css = readRepoFile("app/styles/monthly-games.css")
+  const smoke = readRepoFile("scripts/verify-guest-discovery.mjs")
+  assert.match(component, /className="point-history-popover-body" tabIndex=\{0\}/)
+  assert.match(component, /<details className="point-history-explanation">/)
+  assert.match(component, /<summary>\{catalog\.messages\.pointBreakdown\}<\/summary>/)
+  assert.match(css, /max-height: min\(74dvh, 560px\) !important/)
+  assert.match(css, /bottom: max\(12px, env\(safe-area-inset-bottom\)\)/)
+  assert.match(css, /\.point-history-popover-body \{[\s\S]*?overflow-y: auto;/)
+  assert.match(css, /\.point-history-close \{ width: 40px; height: 40px; flex-basis: 40px;/)
+  assert.match(smoke, /mobile published-games detail sheet has a usable inner scroll/)
+})

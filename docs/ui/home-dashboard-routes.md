@@ -56,3 +56,9 @@ The shared analyzer's step label is also visible in Profile Dashboard. Browser r
 ## Home profile URL restoration (2026-10-29)
 
 Home's Analyze form now hydrates its URL from the same validated `eplus-arcade-dashboard-v1.profileUrl` record used by Dashboard; unlike Dashboard it never auto-fetches a score. The lightweight reader imports only model constants, avoiding the preview fixture/score bundle. Home leaves the input empty if storage is absent, blocked or malformed and does not overwrite a user-edited or cleared value when focus/pageshow/storage events run. Browser regression covers both English/Vietnamese paths, desktop/mobile widths, restored/empty URLs and deliberate edits.
+
+## Published games detail sheet – iOS mobile overflow fix
+
+- Keep key released/matched/available/expired counts visible immediately, with lengthy scope and skill coverage notes behind a localized accessible Point breakdown disclosure.
+- On screens up to 680px, the body-portaled sheet is inset from browser edges and iOS safe area, capped at 74dvh / 560px. Its header/40px close button stay fixed while only the content scrolls, including when the explanation is expanded.
+- Desktop anchored hover and keyboard behavior remains unchanged; mobile background scroll stays locked until closing. Browser checks verify bounds, scrolling and close control on mobile.
