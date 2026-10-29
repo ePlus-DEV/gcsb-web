@@ -1,7 +1,7 @@
 "use client"
 import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
-import { BadgeCheck, BookOpen, Chrome, Download, ExternalLink, Gamepad2, Globe2, House, LayoutDashboard, Menu, Search, Trophy, X } from "lucide-react"
+import { BadgeCheck, BookOpen, Chrome, Download, ExternalLink, Gamepad2, Globe2, Menu, Search, Trophy, X } from "lucide-react"
 import { getWebsiteLocaleHref, type WebsiteCatalog, type WebsiteLocale } from "@/lib/website-i18n"
 import { CURRENT_SWAG_SEASON, swagSeasonPath } from "./swag-seasons"
 const CHROME_EXTENSION_URL = "https://chromewebstore.google.com/detail/google-cloud-skills-boost/lmbhjioadhcoebhgapaidogodllonbgg"
@@ -195,8 +195,8 @@ function MobileBottomNavigation({ catalog, locale, dashboard }: Props) {
 
   if (!dashboard) return (
     <nav className="mobile-bottom-nav home-bottom-nav" aria-label={catalog.messages.mobileNavigation}>
-      <Link className="is-active" aria-current="page" href={homeHref}><House /><span>{catalog.messages.homeNav}</span></Link>
-      <Link href={dashboardHref}><LayoutDashboard /><span>{catalog.messages.dashboardNav}</span></Link>
+      <Link className="is-active" aria-current="page" href={homeHref}><Gamepad2 /><span>{catalog.messages.homeNav}</span></Link>
+      <Link href={dashboardHref}><Search /><span>{catalog.messages.dashboardNav}</span></Link>
       <Link href="/guide/"><BookOpen /><span>{catalog.messages.guide}</span></Link>
       <Link href="#extension"><Chrome /><span>{catalog.messages.extension}</span></Link>
     </nav>
