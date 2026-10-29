@@ -149,9 +149,21 @@ try {
     const page = await context.newPage()
     await page.route("https://**/*", route => route.abort())
     await page.goto(base + "dashboard/")
-    const launcher = page.locator(".dashboard-facilitator-host .facilitator-launcher")
+    const launcher = page.locator("body > .facilitator-launcher.is-floating")
     await launcher.waitFor({ state: "visible" })
     assert.ok(await launcher.isEnabled(), width + ": launcher available without opt-in")
+    const positionBeforeScroll = await launcher.evaluate(el => ({
+      position: getComputedStyle(el).position,
+      top: el.getBoundingClientRect().top,
+      width: el.getBoundingClientRect().width,
+      gutter: innerWidth - el.getBoundingClientRect().right,
+    }))
+    assert.equal(positionBeforeScroll.position, "fixed", width + ": launcher is fixed, not embedded")
+    assert.ok(positionBeforeScroll.width <= 54, width + ": compact rail must not cover Tiers")
+    assert.ok(positionBeforeScroll.gutter >= 8, width + ": launcher stays inside viewport")
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight))
+    const positionAfterScroll = await launcher.evaluate(el => el.getBoundingClientRect().top)
+    assert.ok(Math.abs(positionAfterScroll - positionBeforeScroll.top) <= 2, width + ": launcher stays on screen while scrolling")
     await launcher.click()
     const drawer = page.locator(".facilitator-drawer")
     await drawer.waitFor({ state: "visible" })

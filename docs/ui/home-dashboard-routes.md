@@ -30,3 +30,7 @@ The `Halloween edition` pill belongs exclusively to Home's promotional hero when
 - The tracker opens from the Profile header and remains visible for both enabled and disabled Facilitator participation; opening a tracker is not an opt-in.
 - The drawer and analyzer now use the shared participation state/event, and opting in/out no longer remounts or closes the drawer.
 - The button is not rendered as a floating action in Guest mode. Phone/desktop browser regressions cover opening, opt-in, opt-out and closing.
+
+## Floating Facilitator control (review 2026-10-29)
+
+Previous inline button positioning was incorrect: route-layout.css overrode fixed positioning with position: static and placed the tracker beneath the Share action. The control now portals directly into document.body only when Profile Dashboard is mounted. At widths >=1750px a full label sits in the right gutter; on smaller screens it is a compact 48–52px accessible rail action (hover/focus expands it on desktops). The launcher stays fixed during scrolling and no longer shifts profile card layout. Browser checks assert fixed positioning and constant viewport Y coordinate through full-page scrolling. Drawer and participation behavior remain unchanged.

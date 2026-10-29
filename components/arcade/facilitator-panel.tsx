@@ -167,7 +167,14 @@ function titleMatchesAliases(title: string, aliases: readonly string[]): boolean
 export default function FacilitatorPanel() {
   const [launcherTarget, setLauncherTarget] = useState<HTMLElement | null>(null)
   useEffect(() => {
-    const sync = () => setLauncherTarget(document.querySelector<HTMLElement>(".dashboard-facilitator-host"))
+    // Portal to the document body: fixed-position actions must not inherit
+    // dashboard/card layout, transforms, overflow or sticky sidebar rules.
+    const sync = () => {
+      const hasProfileDashboard = Boolean(
+        document.querySelector('.arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel')
+      )
+      setLauncherTarget(hasProfileDashboard ? document.body : null)
+    }
     sync()
     const observer = new MutationObserver(sync)
     observer.observe(document.body, { childList: true, subtree: true })
@@ -385,6 +392,7 @@ export default function FacilitatorPanel() {
 
   const launcherClassName = [
     "facilitator-launcher",
+    "is-floating",
     result
       ? isParticipating
         ? "is-participating"

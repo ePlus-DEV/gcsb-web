@@ -192,33 +192,68 @@
  .home-profile-dashboard-link { max-width: 140px; font-size: .68rem; }
 }
 
-/* Keep the score bar close to its value; no accumulated disclosure margins. */
+/* Profile identity has no tracker button inside it; Share stays independent. */
 .arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-score-details { margin-top: 0; }
 .arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-score-details .point-composition-bar { margin-top: 0; }
 .arcade-dashboard-page[data-dashboard-view="profile"] .points-total { margin-block: 14px; }
 .arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel {
- display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 260px);
- gap: 8px 16px; padding-inline-end: 78px; /* Reserve only the Share action space. */
+ display: flex; align-items: center; flex-wrap: wrap; gap: 12px 20px;
+ padding-inline-end: 78px; /* Space for independent Share action. */
 }
-.arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel .profile-overview { grid-column: 1; grid-row: 1 / span 2; }
-.arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel .profile-source-link { grid-column: 2; grid-row: 1; min-width: 0; margin-inline-end: 0; overflow-wrap: anywhere; }
-.dashboard-facilitator-host { grid-column: 2; grid-row: 2; min-width: 0; margin-inline-end: 0; }
-.dashboard-facilitator-host .facilitator-launcher {
- position: static; inset: auto; transform: none;
- display: grid; grid-template-columns: 20px minmax(0, 1fr) 16px; align-items: center;
- width: 100%; min-width: 0; min-height: 46px;
- padding: 8px 10px; gap: 9px; border-width: 1px; border-radius: 9px; box-shadow: none;
- text-align: start;
+.arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel .profile-overview {
+ flex: 1 1 240px; min-width: 0; margin: 0;
 }
-.dashboard-facilitator-host .facilitator-launcher > span { min-width: 0; }
-.dashboard-facilitator-host .facilitator-launcher strong,
-.dashboard-facilitator-host .facilitator-launcher small { overflow-wrap: anywhere; line-height: 1.4; }
-.dashboard-facilitator-host .facilitator-launcher:focus-visible { outline: 2px solid var(--arcade-cyan); outline-offset: 3px; }
-.dashboard-facilitator-host .facilitator-launcher:hover { transform: none; box-shadow: none; }
-.dashboard-facilitator-host .facilitator-launcher strong { font-size: .68rem; }
-.dashboard-facilitator-host .facilitator-launcher small { font-size: .62rem; }
-.dashboard-facilitator-host .facilitator-launcher > svg:first-child { width: 18px; height: 18px; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel .profile-source-link {
+ flex: 0 1 auto; min-width: 0; margin: 0; overflow-wrap: anywhere;
+}
 @media (max-width: 600px) {
- .arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel { display: flex; padding-inline-end: 0; }
- .dashboard-facilitator-host { width: 100%; margin: 0; }
+ .arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel {
+  flex-direction: column; align-items: stretch; gap: 10px; padding-inline-end: 0;
+ }
+}
+
+/* Floating Facilitator entry point stays outside the scrollable Dashboard.
+   Wide screens show the full label in the side gutter; tighter viewports
+   show a compact accessible rail icon instead of covering sidebar data.
+   Hover/keyboard focus reveals the label on desktops. */
+body > .facilitator-launcher.is-floating {
+ position: fixed; inset: 50% 18px auto auto; z-index: 65;
+ transform: translateY(-50%); box-sizing: border-box;
+ min-width: 0; width: 220px; min-height: 54px;
+ grid-template-columns: 26px minmax(0, 1fr) 16px;
+}
+body > .facilitator-launcher.is-floating:hover { transform: translateY(-50%); }
+body > .facilitator-launcher.is-floating:focus-visible {
+ outline: 3px solid #67e8f9; outline-offset: 3px;
+}
+@media (max-width: 1749px) {
+ body > .facilitator-launcher.is-floating {
+  width: 52px; min-width: 0; min-height: 52px;
+  padding: 10px; gap: 0;
+  grid-template-columns: 1fr; justify-items: center;
+ }
+ body > .facilitator-launcher.is-floating > svg:first-child { width: 26px; height: 26px; }
+ body > .facilitator-launcher.is-floating > span,
+ body > .facilitator-launcher.is-floating > svg:last-child { display: none; }
+}
+@media (min-width: 601px) and (max-width: 1749px) and (hover: hover) {
+ body > .facilitator-launcher.is-floating:hover,
+ body > .facilitator-launcher.is-floating:focus-visible {
+  width: 226px; padding: 11px 13px; gap: 10px;
+  grid-template-columns: 26px minmax(0, 1fr) 16px;
+ }
+ body > .facilitator-launcher.is-floating:hover > span,
+ body > .facilitator-launcher.is-floating:hover > svg:last-child,
+ body > .facilitator-launcher.is-floating:focus-visible > span,
+ body > .facilitator-launcher.is-floating:focus-visible > svg:last-child { display: grid; }
+}
+@media (max-width: 600px) {
+ body > .facilitator-launcher.is-floating {
+  top: 46%; right: 10px; bottom: auto;
+  width: 48px; min-height: 48px; padding: 9px;
+ }
+ body > .facilitator-launcher.is-floating > svg:first-child { width: 24px; height: 24px; }
+}
+@media (prefers-reduced-motion: reduce) {
+ body > .facilitator-launcher.is-floating { transition: none; }
 }
