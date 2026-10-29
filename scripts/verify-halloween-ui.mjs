@@ -182,7 +182,7 @@ try {
     if (width <= 600) {
       assert.ok(positionBeforeScroll.width <= 45 && positionBeforeScroll.height <= 45, "mobile Facilitator uses a 44px FAB")
       assert.ok(positionBeforeScroll.bottom >= 130, "mobile FAB clears bottom nav and Back to top")
-      assert.ok(positionBeforeScroll.top > innerHeight * .55 || positionBeforeScroll.bottom >= 130, "FAB is not an intrusive mid-screen overlay")
+      assert.ok(positionBeforeScroll.top >= 600 && positionBeforeScroll.bottom <= 210, "FAB is near the bottom rather than mid-screen")
     }
     await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight))
     const positionAfterScroll = await launcher.evaluate(el => el.getBoundingClientRect().top)
