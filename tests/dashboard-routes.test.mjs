@@ -32,3 +32,16 @@ test("route navigation and form errors are translated in every locale", () => {
   assert.match(readRepoFile("components/arcade/home-page.tsx"), /error=\{invalid \? m.invalidProfileUrl : ""\}/)
   assert.match(readRepoFile("components/arcade/route-shell.tsx"), /catalog.messages.dashboardNav/)
 })
+
+
+test("Home and Dashboard keep one responsive tier system and consistent page gutters", () => {
+  const css = readRepoFile("app/styles/route-layout.css")
+  const tiers = readRepoFile("components/arcade/dashboard-tiers.tsx")
+  assert.match(css, /\[data-dashboard-view="guest"\] \.dashboard-analyzer \{\s*max-width: none;/)
+  assert.match(css, /\.dashboard-guest-start \{ max-width: none;/)
+  assert.match(css, /\.arcade-home-route \.guest-dashboard \.tier-list-row \{ grid-template-columns: 32px minmax\(0, 1fr\)/)
+  assert.match(css, /\.arcade-home-route \.guest-dashboard \.tier-list-icon \{ display: grid;/)
+  assert.match(tiers, /sort\(\(left, right\) => right\.points - left\.points\)/)
+  assert.match(css, /\.profile-panel \{\s*display: grid; grid-template-columns: minmax\(0, 1fr\) minmax\(0, 260px\)/)
+  assert.match(css, /\.profile-panel \{ display: flex; padding-inline-end: 0; \}/)
+})

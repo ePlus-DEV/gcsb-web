@@ -6,7 +6,7 @@
 .arcade-home-route .trust-pills { justify-content: center; }
 .arcade-home-route .profile-analyzer-card { width: min(760px, 100%); margin-inline: auto; text-align: start; }
 .arcade-home-route .extension-strip { margin-bottom: 18px; }
-.arcade-home-route .guest-dashboard .tier-list-row { text-align: center; }
+.arcade-home-route .guest-dashboard .tier-list-row { text-align: start; }
 .arcade-home-route .guest-dashboard .tier-list { gap: 12px; }
 
 .arcade-dashboard-page .dashboard-analyzer { display: block; padding: 18px 0; }
@@ -46,12 +46,12 @@
  .arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-primary-column { grid-column: 1; grid-row: 2; }
  .arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-content-grid > .tier-list-panel { grid-column: 2; grid-row: 1 / span 2; }
 }
-.arcade-home-route .guest-dashboard .tier-list-row { grid-template-columns: 1fr; justify-items: center; }
-.tier-reward-art { display: grid; place-items: center; width: 100%; height: 80px; overflow: hidden; }
+.arcade-home-route .guest-dashboard .tier-list-row { grid-template-columns: 32px minmax(0, 1fr); justify-items: stretch; }
+.tier-reward-art { display: grid; grid-column: 1 / -1; place-items: center; width: 100%; height: 80px; overflow: hidden; }
 .tier-reward-art img { width: 100%; height: 100%; object-fit: contain; }
-.arcade-home-route .guest-dashboard .tier-list-icon { display: none; }
+.arcade-home-route .guest-dashboard .tier-list-icon { display: grid; }
 @media (max-width: 600px) {
- .arcade-home-route .guest-dashboard .tier-list-row { grid-template-columns: 38px minmax(0, 1fr) auto; justify-items: stretch; }
+ .arcade-home-route .guest-dashboard .tier-list-row { grid-template-columns: 32px minmax(0, 1fr) minmax(72px, auto); justify-items: stretch; }
  .arcade-home-route .guest-dashboard .tier-list-icon { display: grid; }
  .arcade-home-route .tier-reward-art { display: none; }
 }
@@ -137,10 +137,13 @@
 
 /* The personal Dashboard starts with a form and compact tiers, rather than Home's gift showcase. */
 .arcade-dashboard-page:not(.arcade-home-route)[data-dashboard-view="guest"] .dashboard-analyzer {
- max-width: 800px; margin-inline: auto; padding-block: 24px 18px;
+ max-width: none; margin-inline: auto; padding-block: 20px 16px;
 }
+/* All Dashboard states follow the same page gutters and content width. */
+.arcade-dashboard-page:not(.arcade-home-route)[data-dashboard-view="guest"] .dashboard-profile-settings,
+.arcade-dashboard-page:not(.arcade-home-route)[data-dashboard-view="guest"] .profile-analyzer-card { width: 100%; min-width: 0; }
 .dashboard-start-description { margin: 8px 0 18px; color: var(--arcade-muted); font-size: .85rem; line-height: 1.6; }
-.dashboard-guest-start { max-width: 1000px; margin-inline: auto; }
+.dashboard-guest-start { max-width: none; margin-inline: auto; }
 .dashboard-guest-start > .tier-list-panel { margin-bottom: 0; }
 .dashboard-guest-start .tier-list-row { min-height: 0; gap: 10px; }
 .dashboard-guest-start .tier-slot-count { justify-items: start; text-align: start; }
@@ -189,11 +192,12 @@
 .arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-score-details .point-composition-bar { margin-top: 0; }
 .arcade-dashboard-page[data-dashboard-view="profile"] .points-total { margin-block: 14px; }
 .arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel {
- display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 16px;
+ display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 260px);
+ gap: 8px 16px; padding-inline-end: 78px; /* Reserve only the Share action space. */
 }
 .arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel .profile-overview { grid-column: 1; grid-row: 1 / span 2; }
-.arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel .profile-source-link { grid-column: 2; grid-row: 1; }
-.dashboard-facilitator-host { grid-column: 2; grid-row: 2; margin-inline-end: 80px; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel .profile-source-link { grid-column: 2; grid-row: 1; min-width: 0; margin-inline-end: 0; overflow-wrap: anywhere; }
+.dashboard-facilitator-host { grid-column: 2; grid-row: 2; min-width: 0; margin-inline-end: 0; }
 .dashboard-facilitator-host .facilitator-launcher {
  position: static; inset: auto; transform: none; width: 100%; min-width: 0;
  padding: 6px 8px; gap: 8px; border-width: 1px; border-radius: 8px; box-shadow: none;
@@ -203,6 +207,6 @@
 .dashboard-facilitator-host .facilitator-launcher small { font-size: .62rem; }
 .dashboard-facilitator-host .facilitator-launcher > svg:first-child { width: 18px; height: 18px; }
 @media (max-width: 600px) {
- .arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel { display: flex; }
+ .arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel { display: flex; padding-inline-end: 0; }
  .dashboard-facilitator-host { width: 100%; margin: 0; }
 }

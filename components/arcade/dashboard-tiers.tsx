@@ -32,7 +32,7 @@ export default function DashboardTiers({
         </span>
       </div>
       <div className="tier-list">
-        {(overview ? milestones : [...milestones].reverse()).map((tier) => {
+        {[...milestones].sort((left, right) => right.points - left.points).map((tier) => {
           const active = activeTierPoints === tier.points
           const tierName = tier.league.replace("Arcade ", "").toLowerCase()
           const giftIds: Record<string, string[]> = {trooper: ["arcade-travel-bottle"], ranger: ["arcade-backpack"], champion: ["weather-shield-jacket"], legend: ["arcade-popup-pro", "weather-shield-jacket"]}

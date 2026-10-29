@@ -13,3 +13,10 @@ The board's 118-point sample is not hardcoded as live data. Product artwork come
 Validation includes unit/i18n checks, typecheck, lint, static export, SEO/analytics export checks and the adapted Home-to-Dashboard browser regressions. Successful checks persist checkedAt; restoring an existing snapshot never changes that timestamp. Older snapshots show a saved-result label without inventing a check time. Invalid or unavailable storage leaves the form usable.
 
 Browser fixtures deliberately isolate API/remote-feed availability from UI and routing behavior.
+
+## UI consistency review (2026-10-29)
+
+- Guest Dashboard and Profile Dashboard share the same 1280px page container and gutters; neither guest input nor guest tier list has its own narrower max-width.
+- Public tiers use one highest-first ordering and the same heading/icon/slot layout in Home and Guest Dashboard. Home may still show the extra reward artwork, which is hidden at phone widths to keep cards compact.
+- Profile header reserves space for the Share control and gives the Facilitator launcher a fluid column; narrow-screen profile cards return to full-width stacked actions.
+- Confirm at 390px, 768px, 1024px and 1440px for dark/light and at least English/Vietnamese + a long translation. This source-level change does not replace real browser visual regression checks.
