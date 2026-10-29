@@ -5,3 +5,15 @@ The established Arcade layout, typography, gradients, seasonal palette, panel si
 The PR now extracts ProfileAnalyzer, DashboardPanel, SectionTitle and MetricStat without introducing a new visual system. The analyzer keeps linked labels, busy/error semantics and locale-independent data anchors for Facilitator and fresh-score integrations. Header labels remain catalog-driven and Escape closes mobile navigation with focus restoration.
 
 The mobile full-width fix from main remains. Slot history, profile sharing, game history, bonus controls, copy actions and scoring are unchanged. The invalid shared-profile workflow glob is corrected and regression coverage protects the stable input anchor.
+
+## Profile dashboard visual balance
+
+The badge gallery and the three existing insight cards now share the primary
+profile column. The public tier/slot-history/swag panel remains in the sidebar.
+Both columns size naturally rather than making the badge gallery as tall as the
+sidebar, eliminating unused interior space without showing extra badge cards.
+
+The Monthly Labs anchor follows this overview so its full-width content does
+not break the two-column balance. At 821–1080px the insight cards use two
+columns; below 820px tiers and profile content stack; below 600px cards stack
+one per row. No score, slot, filter, share, or localization logic changed.
