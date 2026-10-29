@@ -17,12 +17,46 @@ test("later exhausted Legend does not downgrade existing 128-point evidence", ()
   const first = sample(); const later = {...sample(128,[0,10,100,200]), at: "2026-10-21T12:00:00.000Z", slotsAt: "2026-10-21T06:00:00.000Z"}
   const p = predictTier(later, [first, later], later)
   assert.equal(p.state, "supported"); assert.equal(p.supportedTier, 120); assert.equal(p.evidenceAt, first.at)
+  assert.equal(p.targetObservedFull, true)
+  assert.equal(p.fallbackTier, 95)
+  assert.equal(p.evidenceLagMinutes, 360)
+  assert.equal(p.slotLagMinutes, 360)
 })
 test("first check with full Legend is uncertain, with cascading current-slot scenario", () => {
   for (const [left, expected] of [[[0,5,8,10],95],[[0,0,8,10],75],[[0,0,0,10],50],[[0,0,0,0],null]]) {
     const x = sample(128,left); const p = predictTier(x,[x],x)
     assert.equal(p.state,"uncertain"); assert.equal(p.supportedTier,expected); assert.equal(p.fallbackTier,expected)
   }
+})
+test("120+ points with zero Legend slots retains uncertainty and shows a crawler-only Champion scenario", () => {
+  const x = sample(120, [0, 5, 0, 0])
+  const p = predictTier(x, [x], x)
+  assert.equal(p.scoreTier, 120)
+  assert.equal(p.state, "uncertain")
+  assert.equal(p.targetObservedFull, true)
+  assert.equal(p.fallbackTier, 95)
+  assert.equal(p.slotLagMinutes, 360)
+  assert.equal(p.allEligibleFull, false)
+})
+test("all eligible pools exhausted does not prove an earlier allocation was missed", () => {
+  const x = sample(128, [0, 0, 0, 0])
+  const p = predictTier(x, [x], x)
+  assert.equal(p.state, "uncertain")
+  assert.equal(p.allEligibleFull, true)
+  assert.equal(p.targetObservedFull, true)
+  assert.equal(p.fallbackTier, null)
+})
+test("48h-old positive crawler evidence stays indicative; older snapshots cannot suggest fallback", () => {
+  const within = { ...sample(128, [0, 10, 0, 0]), slotsAt: "2026-10-18T12:00:00.000Z" }
+  const onBoundary = predictTier(within, [within], within)
+  assert.equal(onBoundary.targetObservedFull, true)
+  assert.equal(onBoundary.fallbackTier, 95)
+  assert.equal(onBoundary.slotLagMinutes, 2880)
+  const old = { ...within, slotsAt: "2026-10-18T11:59:00.000Z" }
+  const stale = predictTier(old, [old], old)
+  assert.equal(stale.targetObservedFull, false)
+  assert.equal(stale.fallbackTier, null)
+  assert.equal(stale.slotLagMinutes, 2881)
 })
 test("unknown higher-tier slots never silently become zero", () => {
   const x = {...sample(), slots:sample().slots.filter(s=>s.points!==120)}
@@ -51,7 +85,7 @@ test("history keeps first threshold evidence beyond 40 later checks and rejects 
 test("all prediction UI copy is catalog-owned in all 13 locales with intact placeholders", () => {
   const en=JSON.parse(readRepoFile("public/i18n/locales/en.json")).additional
   const keys=Object.keys(en).filter(k=>k.startsWith("__prediction:"))
-  assert.equal(keys.length,16)
+  assert.equal(keys.length,21)
   for(const file of fs.readdirSync("public/i18n/locales")) {
     const catalog=JSON.parse(readRepoFile(`public/i18n/locales/${file}`))
     for(const key of keys) {
