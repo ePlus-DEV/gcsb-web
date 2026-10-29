@@ -22,7 +22,7 @@ one per row. No score, slot, filter, share, or localization logic changed.
 
 On profile dashboards at widths >= 821px, the public Arcade 2026 Tiers
 sidebar sticks just below the fixed header while the longer badge list scrolls.
-The offset uses `--arcade-anchor-offset` to track the existing header.
+The offset uses a ResizeObserver-measured `--arcade-sticky-header-height` (with `--arcade-anchor-offset` fallback) so longer navigation translations or tablet wrapping never overlap the sidebar.
 The panel's height is bounded by the viewport and its own contents scroll
 when they cannot fit (including history and Swag links); no data is hidden.
 Mobile (<= 820px) and the Guest layout keep normal document scrolling.
