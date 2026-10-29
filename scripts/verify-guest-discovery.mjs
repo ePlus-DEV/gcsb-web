@@ -35,9 +35,9 @@ try {
           if (url.includes("/api/arcade") && route.request().method() === "POST") return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(result) })
           return route.abort()
         })
-        await page.goto(`${server.url}${locale === "en" ? "" : `${locale}/`}`)
+        await page.goto(`${server.url}${locale === "en" ? "" : `${locale}/`}dashboard/`)
         await page.locator(".guest-dashboard .monthly-game-card").first().waitFor({ state: "visible" })
-        await page.waitForFunction((label) => document.querySelector(".hero-heading h1")?.textContent.includes(label), catalog.messages.heroTitleTop)
+        await page.locator(".dashboard-page-title").waitFor({ state: "visible" })
         assert.equal(await page.locator(".monthly-game-card").count(), 6)
         assert.equal(await page.locator(".monthly-game-status").count(), 0)
         assert.equal(await page.locator(".profile-input input").inputValue(), "")
@@ -49,20 +49,16 @@ try {
         const geometry = await page.evaluate(() => {
           const labs = document.querySelector(".guest-dashboard .monthly-games-host").getBoundingClientRect()
           const tiers = document.querySelector(".guest-dashboard .tier-list-panel").getBoundingClientRect()
-          const extension = document.querySelector(".extension-strip").getBoundingClientRect()
-          const hero = document.querySelector(".arcade-hero").getBoundingClientRect()
-          return { overflow: document.documentElement.scrollWidth > innerWidth + 1, labs: { top: labs.top, bottom: labs.bottom, right: labs.right }, tiers: { top: tiers.top, bottom: tiers.bottom, left: tiers.left }, extension: extension.top, heroHeight: hero.height }
+          return { overflow: document.documentElement.scrollWidth > innerWidth + 1, labs: { top: labs.top, bottom: labs.bottom, right: labs.right }, tiers: { top: tiers.top, bottom: tiers.bottom, left: tiers.left } }
         })
         assert.equal(geometry.overflow, false, `${locale}/${theme}/${width}: horizontal overflow`)
         assert.ok(geometry.tiers.bottom <= geometry.labs.top)
         if (width > 1100) {
-          assert.ok(geometry.heroHeight < 440, `${locale}/${theme}: entry hero height ${geometry.heroHeight}`)
           const rows = await page.locator(".guest-dashboard .tier-list-row").evaluateAll(elements => elements.map(el => el.getBoundingClientRect().top))
           assert.ok(rows.every(top => Math.abs(top - rows[0]) < 2), "Desktop tier overview must fit on one row")
         }
-        assert.ok(geometry.extension < geometry.tiers.top)
         const sharedAppearance = () => page.evaluate(() => {
-          const selectors = [".arcade-hero", ".hero-heading h1", ".profile-analyzer-card", ".monthly-games-grid", ".monthly-game-card"]
+          const selectors = [".dashboard-analyzer", ".dashboard-page-title", ".profile-analyzer-card", ".monthly-games-grid", ".monthly-game-card"]
           return selectors.map(selector => {
             const style = getComputedStyle(document.querySelector(selector))
             return [style.width, style.fontSize, style.padding, style.borderRadius, style.gridTemplateColumns]
@@ -75,7 +71,7 @@ try {
           await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }))
           await page.screenshot({ path: `${screenshots}/${locale}-${theme}-${width}.png`, fullPage: true })
         }
-        // Successful analysis leaves discovery and renders the real profile dashboard.
+        // Analysis switches Dashboard from public discovery to personal results.
         await page.locator(".profile-input input").fill(profileUrl)
         await page.locator(".analyze-button").click()
         await page.locator(".profile-panel").waitFor({ state: "visible" })
@@ -228,7 +224,7 @@ try {
   })
   let failed = true
   await page.route("https://**/*", (route) => route.request().url().includes("arcade_monthly_games.json") ? route.fulfill({ status: failed ? 503 : 200, contentType: "application/json", body: JSON.stringify(games) }) : route.abort())
-  await page.goto(server.url)
+  await page.goto(server.url + "dashboard/")
   await page.locator(".monthly-games-load-error").waitFor({ state: "visible" })
   failed = false
   await page.locator(".monthly-games-load-error button").click()
