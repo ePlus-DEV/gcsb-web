@@ -74,3 +74,5 @@
 .tier-prediction a, .tier-prediction button { display: inline-block; margin-inline-end: 16px; margin-block: 8px; color: var(--arcade-text); font-size: .78rem; }
 .tier-prediction button { min-height: 44px; padding: 8px 12px; border: 1px solid var(--arcade-border); border-radius: 8px; background: var(--arcade-panel-soft); cursor: pointer; }
 .tier-prediction-checks { padding-inline-start: 20px; color: var(--arcade-muted); font-size: .75rem; line-height: 1.8; font-variant-numeric: tabular-nums; }
+
+.tier-prediction .tier-prediction-warning { color: var(--arcade-text); font-weight: 650; }
