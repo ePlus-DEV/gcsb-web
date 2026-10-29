@@ -149,6 +149,10 @@ try {
     const page = await context.newPage()
     await page.route("https://**/*", route => route.abort())
     await page.goto(base + "dashboard/")
+    // Cookie consent has higher visual priority than floating controls.
+    // Acknowledge the notice just as a user would before opening a tracker.
+    const consent = page.locator(".cookie-consent-button")
+    if (await consent.count()) await consent.click()
     const launcher = page.locator("body > .facilitator-launcher.is-floating")
     await launcher.waitFor({ state: "visible" })
     assert.ok(await launcher.isEnabled(), width + ": launcher available without opt-in")
