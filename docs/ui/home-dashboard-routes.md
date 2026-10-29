@@ -66,3 +66,7 @@ Home's Analyze form now hydrates its URL from the same validated `eplus-arcade-d
 ## Four released-games metric cards (2026-10-29)
 
 The Published games popup displays one 2×2 grid of matching cards for Points matched in history, Published points, Still earnable, and Ended/unmatched. Previously the last two labels were unboxed and used smaller number typography. The unified grid uses consistent background, border, radius, padding, label and value scales on both dark and light themes, including narrow 320px screens. No calculation or translation keys changed; browser regressions measure all four computed styles.
+
+## Logo gamepad optical alignment (2026-10-29)
+
+The Font Awesome solid gamepad glyph renders visually around 3 CSS pixels to the right inside the square brand mark (particularly noticeable at 320–390px on iOS Safari). Apply only a `translateX(-3px)` optical correction to `.arcade-brand-mark .fa-icon.fa-gamepad` in the shared icon stylesheet. Keep mark dimensions, logo text, font, colors and browser icons unchanged. Add mobile/desktop browser checks and a selector regression to prevent the offset returning.

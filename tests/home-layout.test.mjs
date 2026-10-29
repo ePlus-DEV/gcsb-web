@@ -199,3 +199,10 @@ test("shared hero preserves the Arcade pixel font with responsive sizing", () =>
   assert.match(styles, /font-size: clamp\(1\.5rem, 2\.2vw, 2rem\)/)
   assert.match(styles, /font-size: clamp\(1\.1rem, 4\.5vw, 1\.5rem\)/)
 })
+
+test("Arcade logo corrects the Font Awesome gamepad optical alignment", () => {
+  const css = readRepoFile("app/styles/fontawesome-icons.css")
+  const shell = readRepoFile("components/arcade/route-shell.tsx")
+  assert.match(css, /\.arcade-brand-mark \.fa-icon\.fa-gamepad \{\s*transform: translateX\(-3px\);/)
+  assert.match(shell, /className="arcade-brand-mark"><Gamepad2\s*\/>/)
+})

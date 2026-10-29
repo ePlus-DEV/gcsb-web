@@ -151,6 +151,34 @@ try {
     cases++
   }
 
+  // Logo: Font Awesome's filled gamepad has an asymmetric internal bearing.
+  // Verify the scoped optical correction on the actual mobile/desktop header.
+  for (const width of [320, 390, 1440]) {
+    const context = await browser.newContext({ viewport: { width, height: 900 } })
+    const page = await context.newPage()
+    await page.route("https://**/*", route => route.abort())
+    await page.goto(base)
+    const logo = page.locator(".arcade-header .arcade-brand-mark")
+    await logo.waitFor({ state: "visible" })
+    const bounds = await logo.evaluate(el => {
+      const icon = el.querySelector(".fa-gamepad")
+      const mark = el.getBoundingClientRect()
+      const symbol = icon?.getBoundingClientRect()
+      return {
+        transform: icon ? getComputedStyle(icon).transform : "",
+        markW: mark.width, markH: mark.height,
+        iconW: symbol?.width ?? 0, iconH: symbol?.height ?? 0,
+        iconLeft: symbol?.left ?? 0, markLeft: mark.left,
+      }
+    })
+    assert.equal(bounds.transform, "matrix(1, 0, 0, 1, -3, 0)", width + ": brand gamepad optical x-offset")
+    assert.ok(Math.abs(bounds.markW - bounds.markH) <= 1, width + ": brand mark keeps square proportions")
+    assert.ok(bounds.iconW > 0 && bounds.iconH > 0, width + ": centered gamepad still visible")
+    assert.ok(bounds.iconLeft >= bounds.markLeft, width + ": gamepad stays within left side of mark")
+    await context.close()
+    cases++
+  }
+
   // Direct Dashboard guest visits must not inherit Home's artwork cards.
   for (const locale of ["en", "vi"]) for (const theme of ["dark", "light"]) for (const width of [390, 1440]) {
     const context = await browser.newContext({ viewport: { width, height: 900 } })
