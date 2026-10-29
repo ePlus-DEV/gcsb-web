@@ -42,8 +42,8 @@ test("Home and Dashboard keep one responsive tier system and consistent page gut
   assert.match(css, /\.arcade-home-route \.guest-dashboard \.tier-list-row \{ grid-template-columns: 32px minmax\(0, 1fr\)/)
   assert.match(css, /\.arcade-home-route \.guest-dashboard \.tier-list-icon \{ display: grid;/)
   assert.match(tiers, /sort\(\(left, right\) => right\.points - left\.points\)/)
-  assert.match(css, /\.profile-panel \{\s*display: grid; grid-template-columns: minmax\(0, 1fr\) minmax\(0, 260px\)/)
-  assert.match(css, /\.profile-panel \{ display: flex; padding-inline-end: 0; \}/)
+  assert.match(css, /\.profile-panel \{\s*display: flex; align-items: center; flex-wrap: wrap;/)
+  assert.match(css, /flex-direction: column; align-items: stretch; gap: 10px; padding-inline-end: 0;/)
 })
 
 test("seasonal Home edition labels never leak into Dashboard guest or profile pages", () => {
