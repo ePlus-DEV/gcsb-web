@@ -41,7 +41,12 @@ export default function TierPredictionPanel({ profileUrl, check, feed, catalog, 
   }, [key, check?.at, snapshot?.at, clearedAt])
 
   const prediction = check ? predictTier(check, historyKey === key ? history : [], observation) : null
-  const formatDate = (date: string) => new Intl.DateTimeFormat(getWebsiteLocaleInfo(locale).htmlLang, { dateStyle: "medium", timeStyle: "short" }).format(new Date(date))
+  const htmlLang = getWebsiteLocaleInfo(locale).htmlLang
+  const formatDate = (date: string) => new Intl.DateTimeFormat(htmlLang, { dateStyle: "medium", timeStyle: "short" }).format(new Date(date))
+  const formatDuration = (minutes: number) => new Intl.NumberFormat(htmlLang, {
+    style: "unit", unit: minutes >= 60 ? "hour" : "minute",
+    unitDisplay: "long", maximumFractionDigits: 1,
+  }).format(minutes >= 60 ? minutes / 60 : minutes)
   return (
     <details className="tier-prediction">
       <summary>{text("title")}</summary>
@@ -50,7 +55,11 @@ export default function TierPredictionPanel({ profileUrl, check, feed, catalog, 
         <strong>{text(prediction.state)}</strong>
         {prediction.scoreTier !== null && <p>{text("scoreTier").replace("{tier}", names[prediction.scoreTier])}</p>}
         {prediction.supportedTier !== null && prediction.evidenceAt && <p>{text("evidence").replace("{tier}", names[prediction.supportedTier]).replace("{date}", formatDate(prediction.evidenceAt))}</p>}
-        {prediction.state !== "supported" && prediction.fallbackTier !== null && <p>{text("scenario").replace("{tier}", names[prediction.fallbackTier])}</p>}
+        {prediction.evidenceLagMinutes !== null && prediction.supportedTier !== null && <p>{text("evidenceLag").replace("{duration}", formatDuration(prediction.evidenceLagMinutes))}</p>}
+        {prediction.targetObservedFull && prediction.scoreTier !== null && <p className="tier-prediction-warning">{text("possible").replace("{tier}", names[prediction.scoreTier])}</p>}
+        {prediction.fallbackTier !== null && prediction.fallbackTier !== prediction.scoreTier && <p>{text("scenario").replace("{tier}", names[prediction.fallbackTier])}</p>}
+        {prediction.allEligibleFull && <p>{text("noOpenSlots")}</p>}
+        {prediction.slotLagMinutes !== null && <p>{text(prediction.slotLagMinutes > 48 * 60 ? "staleSnapshot" : "crawlLag").replace("{duration}", formatDuration(prediction.slotLagMinutes))}</p>}
         <p>{text("noPercent")}</p>
       </>}
       {estimatedBonus && <p>{text("bonus")}</p>}
