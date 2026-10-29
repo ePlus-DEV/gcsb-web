@@ -43,7 +43,6 @@ import {
   DASHBOARD_STORAGE_KEY,
   PROFILE_URL_PATTERN,
   formatInteger,
-  formatNumber,
   numeric,
   tierRangeLabel,
 } from "@/components/arcade/model"
@@ -190,6 +189,7 @@ export default function RedesignCalculator({
   const [guestProfileUrl, setGuestProfileUrl] = useState("")
   const [committedProfileUrl, setCommittedProfileUrl] = useState("")
   const [result, setResult] = useState<ArcadeApiResponse | null>(null)
+  const [checkedAt, setCheckedAt] = useState<string | undefined>()
   const [viewMode, setViewMode] = useState<DashboardViewMode>("guest")
   const [usingPreviewFakeProfile, setUsingPreviewFakeProfile] = useState(false)
   const [viewModeRestored, setViewModeRestored] = useState(false)
@@ -272,12 +272,12 @@ export default function RedesignCalculator({
     try {
       window.localStorage.setItem(
         DASHBOARD_STORAGE_KEY,
-        JSON.stringify({ profileUrl: committedProfileUrl, result }),
+        JSON.stringify({ profileUrl: committedProfileUrl, result, checkedAt }),
       )
     } catch {
       // Storage is optional. The calculator still works without persistence.
     }
-  }, [committedProfileUrl, result, usingPreviewFakeProfile])
+  }, [committedProfileUrl, result, checkedAt, usingPreviewFakeProfile])
 
   useEffect(() => {
     const syncParticipation = () => {
@@ -462,6 +462,7 @@ export default function RedesignCalculator({
       setProfileUrl(normalized)
       setCommittedProfileUrl(normalized)
       setResult(payload)
+      setCheckedAt(new Date().toISOString())
       setUsingPreviewFakeProfile(false)
       setViewMode("profile")
       setFilter("all")
@@ -513,6 +514,7 @@ export default function RedesignCalculator({
     setProfileUrl(stored.profileUrl)
     setCommittedProfileUrl(stored.profileUrl)
     setResult(stored.result)
+    setCheckedAt(stored.checkedAt)
     setUsingPreviewFakeProfile(false)
     setViewMode(IS_PR_PREVIEW ? (storedViewMode ?? "profile") : "profile")
   }, [runAnalysis])
@@ -533,6 +535,7 @@ export default function RedesignCalculator({
     setProfileUrl("")
     setCommittedProfileUrl("")
     setResult(null)
+    setCheckedAt(undefined)
     setUsingPreviewFakeProfile(false)
     setViewMode("guest")
     setGuestProfileUrl("")
@@ -561,6 +564,7 @@ export default function RedesignCalculator({
         setProfileUrl(stored.profileUrl)
         setCommittedProfileUrl(stored.profileUrl)
         setResult(stored.result)
+        setCheckedAt(stored.checkedAt)
         setUsingPreviewFakeProfile(false)
         return
       }
@@ -642,7 +646,7 @@ export default function RedesignCalculator({
 
             <DashboardPanel className="breakdown-panel">
               <PanelTitle>{scoreCatalog.messages.totalArcadePoints}</PanelTitle>
-              <div className="points-total"><strong>{formatNumber(points)}</strong></div>
+              <div className="points-total"><strong>{scoreNumber(points)}</strong></div>
               <div className="dashboard-score-details">
               <div
                 className="point-composition-bar"

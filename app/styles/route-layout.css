@@ -148,3 +148,38 @@
  .arcade-dashboard-page:not(.arcade-home-route)[data-dashboard-view="guest"] .dashboard-analyzer { padding-block: 16px; }
  .dashboard-guest-start .tier-slot-count { justify-items: end; text-align: end; }
 }
+/* Returning learners see a saved preview, not a second dashboard on Home. */
+.arcade-home-route .home-profile-summary {
+ width: min(760px, 100%); margin: 0 auto; padding: 16px;
+ display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; align-items: center; gap: 12px;
+ border: 1px solid var(--arcade-border); border-radius: 12px;
+ background: var(--arcade-panel, rgba(20, 16, 39, .9)); text-align: start; color: var(--arcade-text);
+}
+.home-profile-identity { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.home-profile-avatar { display: grid; place-items: center; flex: 0 0 42px; width: 42px; height: 42px; border-radius: 50%; background: #6635b8; color: #fff; font-weight: 800; }
+.home-profile-identity > div { min-width: 0; }
+.home-profile-identity strong { display: block; font-size: .9rem; overflow-wrap: anywhere; }
+.home-profile-summary small { display: block; margin-top: 4px; color: var(--arcade-muted); font-size: .66rem; line-height: 1.5; }
+.home-profile-points { display: flex; align-items: baseline; gap: 5px; white-space: nowrap; }
+.home-profile-points strong { font-size: 1.6rem; font-variant-numeric: tabular-nums; }
+.home-profile-points > span { font-size: .66rem; color: var(--arcade-muted); }
+.home-profile-tier { display: flex; align-items: center; gap: 8px; padding-inline: 12px; border-inline: 1px solid var(--arcade-border-soft); }
+.home-profile-tier > svg { width: 20px; height: 20px; color: var(--arcade-purple); flex-shrink: 0; }
+.home-profile-tier strong { color: var(--arcade-purple); font-size: .85rem; }
+.home-profile-dashboard-link { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 42px; padding: 10px 12px; border: 1px solid var(--arcade-purple); border-radius: 8px; font-size: .75rem; color: var(--arcade-text); text-decoration: none; }
+.home-profile-dashboard-link:hover { background: rgba(139, 92, 246, .12); }
+.home-profile-dashboard-link:focus-visible { outline: 2px solid var(--arcade-cyan); outline-offset: 3px; }
+.home-profile-dashboard-link svg { width: 16px; height: 16px; flex-shrink: 0; }
+@media (max-width: 900px) {
+ .arcade-home-route .home-profile-summary { grid-template-columns: minmax(0, 1fr) auto; gap: 14px 10px; padding: 14px; }
+ .home-profile-identity { grid-column: 1; grid-row: 1; }
+ .home-profile-points { grid-column: 2; grid-row: 1; flex-direction: column; align-items: end; gap: 0; }
+ .home-profile-tier { grid-column: 1; grid-row: 2; border: 0; padding: 0; }
+ .home-profile-dashboard-link { grid-column: 2; grid-row: 2; white-space: normal; max-width: 160px; }
+}
+@media (max-width: 380px) {
+ .home-profile-avatar { flex-basis: 32px; width: 32px; height: 32px; }
+ .home-profile-identity { gap: 8px; }
+ .home-profile-points strong { font-size: 1.3rem; }
+ .home-profile-dashboard-link { max-width: 140px; font-size: .68rem; }
+}

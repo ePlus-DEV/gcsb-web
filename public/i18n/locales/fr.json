@@ -162,7 +162,12 @@
     "guestLabsLabel": "Labs du mois",
     "homeNav": "Accueil",
     "dashboardNav": "Tableau de bord",
-    "invalidProfileUrl": "Saisissez une URL de profil public valide provenant de skills.google ou cloudskillsboost.google."
+    "invalidProfileUrl": "Saisissez une URL de profil public valide provenant de skills.google ou cloudskillsboost.google.",
+    "homeSavedProfile": "Profil enregistré",
+    "homeLastChecked": "Dernière vérification : {value}",
+    "homeSavedResult": "Résultat enregistré",
+    "homeScoreTier": "Rang selon les points",
+    "homeOpenDashboard": "Voir le tableau de bord"
   },
   "additional": {
     "Enter a valid public profile URL from skills.google or cloudskillsboost.google.": "Saisissez une URL de profil public valide provenant de skills.google ou cloudskillsboost.google.",

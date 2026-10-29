@@ -162,7 +162,12 @@
     "guestLabsLabel": "इस महीने की लैब",
     "homeNav": "होम",
     "dashboardNav": "डैशबोर्ड",
-    "invalidProfileUrl": "skills.google या cloudskillsboost.google का मान्य सार्वजनिक प्रोफ़ाइल URL डालें।"
+    "invalidProfileUrl": "skills.google या cloudskillsboost.google का मान्य सार्वजनिक प्रोफ़ाइल URL डालें।",
+    "homeSavedProfile": "सहेजी गई प्रोफ़ाइल",
+    "homeLastChecked": "पिछली जाँच: {value}",
+    "homeSavedResult": "सहेजा गया परिणाम",
+    "homeScoreTier": "अंकों के आधार पर स्तर",
+    "homeOpenDashboard": "डैशबोर्ड देखें"
   },
   "additional": {
     "Enter a valid public profile URL from skills.google or cloudskillsboost.google.": "skills.google या cloudskillsboost.google की मान्य सार्वजनिक प्रोफ़ाइल URL दर्ज करें।",

@@ -162,7 +162,12 @@
     "guestLabsLabel": "مختبرات هذا الشهر",
     "homeNav": "الرئيسية",
     "dashboardNav": "لوحة المعلومات",
-    "invalidProfileUrl": "أدخل رابط ملف شخصي عام صالح من skills.google أو cloudskillsboost.google."
+    "invalidProfileUrl": "أدخل رابط ملف شخصي عام صالح من skills.google أو cloudskillsboost.google.",
+    "homeSavedProfile": "الملف الشخصي المحفوظ",
+    "homeLastChecked": "آخر تحقق: {value}",
+    "homeSavedResult": "النتيجة المحفوظة",
+    "homeScoreTier": "المستوى حسب النقاط",
+    "homeOpenDashboard": "عرض لوحة المعلومات"
   },
   "additional": {
     "Enter a valid public profile URL from skills.google or cloudskillsboost.google.": "أدخل رابط ملف عام صالحًا من skills.google أو cloudskillsboost.google.",

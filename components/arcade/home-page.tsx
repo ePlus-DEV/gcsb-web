@@ -5,13 +5,14 @@ import { useRouter } from "next/navigation"
 import { BadgeCheck, ShieldCheck } from "lucide-react"
 import { ArcadeHeader, ArcadeFooter, ExtensionStrip } from "./route-shell"
 import ProfileAnalyzer from "./profile-analyzer"
+import HomeProfileSummary from "./home-profile-summary"
 import GuestDashboard from "./guest-dashboard"
 import { useArcadeMilestones } from "./use-arcade-milestones"
 import { useTierSlotHistory } from "./tier-slot-history"
 import { PROFILE_URL_PATTERN } from "./model"
 import { getWebsiteLocale, getWebsiteLocaleFromPathname, getWebsiteLocaleHref, loadWebsiteCatalog, type WebsiteCatalog, type WebsiteLocale } from "@/lib/website-i18n"
 
-/** Home never restores a personal result or imports the profile dashboard. */
+/** Home keeps discovery lightweight, with only an optional saved-score strip. */
 export default function HomePage({catalog, locale, children}: {catalog: WebsiteCatalog; locale: WebsiteLocale; children?: ReactNode}) {
   const router = useRouter()
   const [language, setLanguage] = useState({catalog, locale})
@@ -50,6 +51,7 @@ export default function HomePage({catalog, locale, children}: {catalog: WebsiteC
         <div className="trust-pills"><span><ShieldCheck />{m.publicDataOnly}</span><span><BadgeCheck />{m.noSignIn}</span></div>
       </div>
       <ProfileAnalyzer catalog={language.catalog} value={url} onChange={setUrl} onSubmit={submit} onReset={() => setUrl("")} loading={false} error={invalid ? m.invalidProfileUrl : ""} hasResult={false} />
+      <HomeProfileSummary catalog={language.catalog} locale={language.locale} />
     </section>
     <div className="program-countdown-host" data-home-order="program-countdown" />
     <ExtensionStrip catalog={language.catalog} />

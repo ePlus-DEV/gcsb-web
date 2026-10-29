@@ -3,7 +3,7 @@ import test from "node:test"
 import fs from "node:fs"
 import { readRepoFile } from "./helpers/typescript-source.mjs"
 
-test("Home cannot import personal scoring or restore a saved profile", () => {
+test("Home keeps the full personal Dashboard out of its route bundle", () => {
   const home = readRepoFile("components/arcade/home-page.tsx")
   assert.doesNotMatch(home, /RedesignCalculator|ReleasedPointsPanel|readStoredDashboard|DASHBOARD_STORAGE_KEY|PREVIEW_DEBUG_PROFILE_RESULT/)
   assert.match(home, /PROFILE_URL_PATTERN.test\(profile\)/)

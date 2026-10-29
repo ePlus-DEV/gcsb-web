@@ -162,7 +162,12 @@
     "guestLabsLabel": "Hoạt động tháng này",
     "homeNav": "Trang chủ",
     "dashboardNav": "Bảng điểm",
-    "invalidProfileUrl": "Nhập URL hồ sơ công khai hợp lệ từ skills.google hoặc cloudskillsboost.google."
+    "invalidProfileUrl": "Nhập URL hồ sơ công khai hợp lệ từ skills.google hoặc cloudskillsboost.google.",
+    "homeSavedProfile": "Hồ sơ đã lưu",
+    "homeLastChecked": "Kiểm tra gần nhất: {value}",
+    "homeSavedResult": "Kết quả đã lưu",
+    "homeScoreTier": "Hạng theo điểm",
+    "homeOpenDashboard": "Xem Dashboard"
   },
   "additional": {
     "Enter a valid public profile URL from skills.google or cloudskillsboost.google.": "Nhập URL hồ sơ công khai hợp lệ từ skills.google hoặc cloudskillsboost.google.",
