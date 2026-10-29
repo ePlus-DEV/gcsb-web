@@ -216,6 +216,32 @@ export default function RedesignCalculator({
   const [showAllBadges, setShowAllBadges] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const menuToggleRef = useRef<HTMLButtonElement>(null)
+  const headerRef = useRef<HTMLElement>(null)
+  // Header height can grow when navigation or translations wrap at tablet widths.
+  // Keep sticky Tiers below its actual size rather than a fixed 72px assumption.
+  useEffect(() => {
+    const header = headerRef.current
+    const dashboard = header?.closest<HTMLElement>(".arcade-dashboard-page")
+    if (!header || !dashboard) return
+
+    const syncHeaderHeight = () => {
+      dashboard.style.setProperty(
+        "--arcade-sticky-header-height",
+        `${Math.ceil(header.getBoundingClientRect().height)}px`,
+      )
+    }
+    syncHeaderHeight()
+    const observer = typeof ResizeObserver !== "undefined"
+      ? new ResizeObserver(syncHeaderHeight)
+      : null
+    observer?.observe(header)
+    window.addEventListener("resize", syncHeaderHeight)
+    return () => {
+      observer?.disconnect()
+      window.removeEventListener("resize", syncHeaderHeight)
+      dashboard.style.removeProperty("--arcade-sticky-header-height")
+    }
+  }, [])
   useEffect(() => {
     if (!mobileMenuOpen) return
     const onKey = (event: KeyboardEvent) => {
@@ -694,7 +720,7 @@ export default function RedesignCalculator({
     >
       <div className="arcade-stars" aria-hidden="true" />
 
-      <header className="arcade-header">
+      <header ref={headerRef} className="arcade-header">
         <a className="arcade-brand" href="#top" aria-label={scoreCatalog.messages.backToCalculator}>
           <span className="arcade-brand-mark"><Gamepad2 /></span>
           <span className="arcade-brand-copy"><strong>ARCADE</strong><b>POINTS</b></span>
