@@ -629,13 +629,18 @@
     "__prediction:uncertain": "배정된 등급을 판단할 증거가 부족합니다.",
     "__prediction:scoreTier": "예상 보너스를 제외한 점수 등급: {tier}.",
     "__prediction:evidence": "{date}에 {tier} 근거를 기록했습니다. 이후 자리가 차도 기록은 사라지지 않습니다.",
-    "__prediction:scenario": "현재 남은 자리를 기준으로 판단하면: {tier}. 과거 배정을 의미하지 않습니다.",
+    "__prediction:scenario": "크롤러 스냅샷 기준 Waterfall 대체 등급: {tier}. Google이 확정한 배정은 아닙니다.",
     "__prediction:noPercent": "Google의 배정 시간과 대기열 없이는 신뢰할 확률을 계산할 수 없습니다. 자리 정보는 지연될 수 있습니다.",
     "__prediction:bonus": "예상 Facilitator 보너스는 확보 근거에서 제외됩니다.",
     "__prediction:storage": "이 브라우저에만 프로필과 시즌별로 저장됩니다. 확인 날짜는 달성 날짜가 아닙니다.",
     "__prediction:storageFailed": "기록을 저장하지 못했습니다.",
     "__prediction:clear": "프로필 기록 삭제",
-    "__prediction:source": "공식 규칙"
+    "__prediction:source": "공식 규칙",
+    "__prediction:possible": "크롤러 스냅샷에서 {tier} 잔여 자리가 0입니다. 이전에 기준을 달성했을 수 있으며, 등급 하락이 확정된 것은 아닙니다.",
+    "__prediction:crawlLag": "크롤러 스냅샷은 점수 확인보다 {duration} 이전 데이터입니다. 그 사이 잔여 자리가 바뀌었을 수 있습니다.",
+    "__prediction:evidenceLag": "근거로 사용된 과거 스냅샷은 점수 확인보다 {duration} 이전 기록입니다. 자리 확보를 증명하지는 않습니다.",
+    "__prediction:staleSnapshot": "크롤러 스냅샷은 점수 확인보다 {duration} 오래되었으며(48시간 초과), 현재 대체 등급을 판단할 수 없습니다.",
+    "__prediction:noOpenSlots": "이 스냅샷에서는 점수로 가능한 모든 등급의 잔여 자리가 0입니다. 이전 배정 여부는 알 수 없습니다."
   },
   "dynamic": {
     "memberSince": "가입 시점 {value}",
