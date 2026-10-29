@@ -149,12 +149,13 @@ try {
     const page = await context.newPage()
     await page.route("https://**/*", route => route.abort())
     await page.goto(base + "dashboard/")
-    // Cookie consent has higher visual priority than floating controls.
-    // Acknowledge the notice just as a user would before opening a tracker.
-    const consent = page.locator(".cookie-consent-button")
-    if (await consent.count()) await consent.click()
     const launcher = page.locator("body > .facilitator-launcher.is-floating")
     await launcher.waitFor({ state: "visible" })
+    // Consent mounts after client hydration, so an immediate count() can miss
+    // a banner that subsequently intercepts the floating button.
+    const consent = page.locator(".cookie-consent-button")
+    await consent.waitFor({ state: "visible", timeout: 2000 }).catch(() => {})
+    if (await consent.isVisible()) await consent.click()
     assert.ok(await launcher.isEnabled(), width + ": launcher available without opt-in")
     const toolbarButtons = page.locator(".dashboard-view-switch button")
     const toolbarWidths = await toolbarButtons.evaluateAll(nodes => nodes.map(el => el.getBoundingClientRect().width))
