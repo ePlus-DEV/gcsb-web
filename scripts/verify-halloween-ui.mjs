@@ -325,6 +325,55 @@ try {
     cases++
   }
 
+  // Bottom tabs follow the clicked section and the restored URL hash.
+  for (const path of ["", "dashboard/"]) {
+    const mobile = await browser.newContext({ viewport: { width: 390, height: 844 } })
+    const page = await mobile.newPage()
+    await page.route("https://**/*", route => route.abort())
+    await page.goto(base + path)
+    const nav = page.locator(".mobile-bottom-nav")
+    await nav.locator('a[href="#tiers"]').click()
+    await page.waitForFunction(() => document.querySelector('.mobile-bottom-nav a[href="#tiers"]')?.getAttribute("aria-current") === "location")
+    assert.ok(await nav.locator('a[href="#tiers"]').evaluate(el => el.classList.contains("is-active")), path + ": tiers tab active")
+    await nav.locator('a[href="#calculator"]').click()
+    await page.waitForFunction(() => document.querySelector('.mobile-bottom-nav a[href="#calculator"]')?.getAttribute("aria-current") === "location")
+    assert.ok(await nav.locator('a[href="#calculator"]').evaluate(el => el.classList.contains("is-active")), path + ": calculator tab active")
+    await mobile.close()
+    cases++
+  }
+
+  // Home uses the saved public profile image, with graceful initials fallback.
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 } })
+    const fakeAvatar = "https://avatar.arcade-example.test/photo.png"
+    await context.addInitScript(({ profileUrl, result, fakeAvatar }) => {
+      const record = { ...result, userDetails: [{ ...result.userDetails?.[0], profileImage: fakeAvatar }] }
+      localStorage.setItem("eplus-arcade-dashboard-v1", JSON.stringify({ profileUrl, result: record }))
+    }, { profileUrl, result, fakeAvatar })
+    const page = await context.newPage()
+    await page.route("https://**/*", route => route.abort())
+    const tinyPng = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+Xh9kAAAAASUVORK5CYII="
+    await page.route(fakeAvatar, route => route.fulfill({ status: 200, contentType: "image/png", body: Buffer.from(tinyPng, "base64") }))
+    await page.goto(base)
+    const avatar = page.locator(".home-profile-avatar img")
+    await avatar.waitFor({ state: "visible" })
+    await page.waitForFunction(() => {
+      const img = document.querySelector(".home-profile-avatar img")
+      return img?.complete && img.naturalWidth > 0
+    })
+    assert.equal(await avatar.getAttribute("src"), fakeAvatar)
+    await page.evaluate(() => {
+      const raw = JSON.parse(localStorage.getItem("eplus-arcade-dashboard-v1"))
+      raw.result.userDetails[0].profileImage = "http://unsafe.example/avatar.png"
+      localStorage.setItem("eplus-arcade-dashboard-v1", JSON.stringify(raw))
+    })
+    await page.reload()
+    await page.locator(".home-profile-avatar > span").waitFor({ state: "visible" })
+    assert.equal(await page.locator(".home-profile-avatar img").count(), 0)
+    await context.close()
+    cases++
+  }
+
   const context = await browser.newContext({ reducedMotion: "reduce" })
   await context.addInitScript(() => localStorage.setItem("arcade-seasonal-theme", "halloween"))
   const page = await context.newPage()

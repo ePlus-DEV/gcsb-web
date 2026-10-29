@@ -14,6 +14,7 @@ import { OFFICIAL_MILESTONES, PROFILE_URL_PATTERN, numeric } from "./model"
 export default function HomeProfileSummary({ catalog, locale }: { catalog: WebsiteCatalog; locale: WebsiteLocale }) {
   const [snapshot, setSnapshot] = useState<StoredDashboard | null>(null)
   const [points, setPoints] = useState(0)
+  const [avatarFailed, setAvatarFailed] = useState(false)
   useEffect(() => {
     const sync = () => {
       const saved = readStoredDashboard()
@@ -23,6 +24,7 @@ export default function HomeProfileSummary({ catalog, locale }: { catalog: Websi
         return
       }
       setSnapshot(saved)
+      setAvatarFailed(false)
       setPoints(getFacilitatorAdjustedPoints(base, {
         games: numeric(saved.result.faciCounts?.faciGame),
         skills: numeric(saved.result.faciCounts?.faciSkill),
@@ -43,13 +45,28 @@ export default function HomeProfileSummary({ catalog, locale }: { catalog: Websi
   if (!snapshot) return null
   const name = snapshot.result.userDetails?.[0]?.userName || catalog.messages.publicProfile
   const initials = name.trim().split(/\s+/).slice(0, 2).map(part => Array.from(part)[0]).join("").toLocaleUpperCase()
+  const imageUrl = snapshot.result.userDetails?.[0]?.profileImage
+  // Same HTTPS-only policy as the image on Dashboard; never load unsafe URLs.
+  const safeAvatar = (() => {
+    if (!imageUrl) return null
+    try {
+      const parsed = new URL(imageUrl)
+      return parsed.protocol === "https:" ? parsed.toString() : null
+    } catch {
+      return null
+    }
+  })()
   const tier = [...OFFICIAL_MILESTONES].reverse().find(item => points >= item.points)
   const numberLocale = locale.replace("_", "-")
   const checked = snapshot.checkedAt ? new Date(snapshot.checkedAt) : null
   const time = checked && Number.isFinite(checked.getTime()) ? new Intl.DateTimeFormat(numberLocale, { dateStyle: "short", timeStyle: "short" }).format(checked) : null
   return <section className="home-profile-summary" aria-label={catalog.messages.homeSavedProfile}>
     <div className="home-profile-identity">
-      <span className="home-profile-avatar" aria-hidden="true">{initials}</span>
+      <span className="home-profile-avatar">
+        {safeAvatar && !avatarFailed
+          ? <img src={safeAvatar} alt={catalog.dynamic.profile.replace("{value}", name)} onError={() => setAvatarFailed(true)} />
+          : <span aria-hidden="true">{initials}</span>}
+      </span>
       <div><strong>{name}</strong><small>{time ? catalog.messages.homeLastChecked.replace("{value}", time) : catalog.messages.homeSavedResult}</small></div>
     </div>
     <div className="home-profile-points"><strong>{new Intl.NumberFormat(numberLocale, { maximumFractionDigits: 2 }).format(points)}</strong><span>{catalog.messages.arcadePoints}</span></div>

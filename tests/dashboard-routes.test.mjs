@@ -103,3 +103,28 @@ test("Prize slot history reuses Arcade and seasonal surface colors", () => {
   }
   assert.match(chart, /stroke="var\(--slot-history-accent\)"/)
 })
+
+test("mobile bottom navigation follows active section rather than first-child styling", () => {
+  const shell = readRepoFile("components/arcade/route-shell.tsx")
+  const css = readRepoFile("app/styles/redesign-responsive.css")
+  const light = readRepoFile("app/styles/theme-light-components.css")
+  assert.match(shell, /function MobileBottomNavigation/)
+  assert.match(shell, /window\.addEventListener\("scroll", schedule/)
+  assert.match(shell, /window\.addEventListener\("hashchange", schedule/)
+  assert.match(shell, /"aria-current": \(active === id \? "location"/)
+  assert.match(shell, /href="#calculator"/)
+  assert.match(css, /\.mobile-bottom-nav a\.is-active/)
+  assert.doesNotMatch(css, /\.mobile-bottom-nav a:first-child\{color:/)
+  assert.match(light, /html\.light \.mobile-bottom-nav a\.is-active/)
+})
+test("Home saved profile uses the same official avatar source as Dashboard", () => {
+  const home = readRepoFile("components/arcade/home-profile-summary.tsx")
+  const dashboard = readRepoFile("app/redesign-calculator.tsx")
+  const css = readRepoFile("app/styles/route-layout.css")
+  assert.match(home, /snapshot\.result\.userDetails\?\.\[0\]\?\.profileImage/)
+  assert.match(home, /parsed\.protocol === "https:"/)
+  assert.match(home, /onError=\{\(\) => setAvatarFailed\(true\)\}/)
+  assert.match(home, /\{initials\}/)
+  assert.match(dashboard, /profile\?\.profileImage/)
+  assert.match(css, /\.home-profile-avatar img \{[^\n]*object-fit: cover/)
+})

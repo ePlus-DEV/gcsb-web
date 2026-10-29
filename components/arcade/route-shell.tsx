@@ -109,6 +109,80 @@ export function ArcadeHeader({catalog, locale, dashboard = false}: Props) {
         </div>
       </header>)
 }
+
+type MobileSection = "calculator" | "tiers" | "badges" | "monthly-games" | "extension"
+
+/** Section-aware nav: clicks, direct #links and manual scroll share one active item. */
+function MobileBottomNavigation({ catalog, locale, dashboard }: Props) {
+  const homeHref = getWebsiteLocaleHref(locale)
+  const thirdId: MobileSection = dashboard ? "badges" : "monthly-games"
+  const sectionIds: MobileSection[] = ["calculator", "tiers", thirdId, "extension"]
+  const [active, setActive] = useState<MobileSection>("calculator")
+  const clickAt = useRef(0)
+
+  useEffect(() => {
+    let frame = 0
+    const sync = () => {
+      if (Date.now() - clickAt.current < 250) return
+      const hash = window.location.hash.slice(1)
+      const available = sectionIds.filter(id => document.getElementById(id))
+      if (hash && available.includes(hash as MobileSection)) {
+        const target = document.getElementById(hash)
+        if (target && Math.abs(target.getBoundingClientRect().top) < 175) {
+          setActive(hash as MobileSection)
+          return
+        }
+      }
+      const visible = available.map(id => ({
+        id,
+        top: document.getElementById(id)!.getBoundingClientRect().top,
+      })).sort((left, right) => left.top - right.top)
+      const reached = visible.filter(item => item.top <= 180)
+      setActive((reached.at(-1) ?? visible[0])?.id ?? "calculator")
+    }
+    const schedule = () => {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(sync)
+    }
+    schedule()
+    window.addEventListener("scroll", schedule, { passive: true })
+    window.addEventListener("hashchange", schedule)
+    window.addEventListener("pageshow", schedule)
+    window.addEventListener("resize", schedule)
+    return () => {
+      cancelAnimationFrame(frame)
+      window.removeEventListener("scroll", schedule)
+      window.removeEventListener("hashchange", schedule)
+      window.removeEventListener("pageshow", schedule)
+      window.removeEventListener("resize", schedule)
+    }
+  }, [dashboard, thirdId])
+
+  const select = (id: MobileSection) => {
+    clickAt.current = Date.now()
+    setActive(id)
+  }
+  const itemProps = (id: MobileSection) => ({
+    className: active === id ? "is-active" : "",
+    "aria-current": (active === id ? "location" : undefined) as "location" | undefined,
+    onClick: () => select(id),
+  })
+
+  return (
+    <nav className="mobile-bottom-nav" aria-label={catalog.messages.mobileNavigation}>
+      <a href="#calculator" {...itemProps("calculator")}><Search /><span>{catalog.messages.calculator}</span></a>
+      <a href="#tiers" {...itemProps("tiers")}><Trophy /><span>{catalog.messages.tiers}</span></a>
+      <a href={"#" + thirdId} {...itemProps(thirdId)}>
+        {dashboard ? <BadgeCheck /> : <Gamepad2 />}
+        <span>{dashboard ? catalog.messages.badges : catalog.messages.guestLabsLabel}</span>
+      </a>
+      <Link href={dashboard ? homeHref + "#extension" : "#extension"} {...itemProps("extension")}>
+        <Chrome /><span>{catalog.messages.extension}</span>
+      </Link>
+    </nav>
+  )
+}
+
 export function ArcadeFooter({catalog, locale, dashboard = false}: Props) {
  const homeHref = getWebsiteLocaleHref(locale)
  return <>      <footer className="arcade-footer" data-home-order="footer">
@@ -126,12 +200,7 @@ export function ArcadeFooter({catalog, locale, dashboard = false}: Props) {
         </nav>
       </footer>
 
-      <nav className="mobile-bottom-nav" aria-label={catalog.messages.mobileNavigation}>
-        <Link href={dashboard ? "#calculator" : homeHref}><Search /><span>{catalog.messages.calculator}</span></Link>
-        <a href="#tiers"><Trophy /><span>{catalog.messages.tiers}</span></a>
-        <a href={!dashboard ? "#monthly-games" : "#badges"}>{!dashboard ? <Gamepad2 /> : <BadgeCheck />}<span>{!dashboard ? catalog.messages.guestLabsLabel : catalog.messages.badges}</span></a>
-        <Link href={`${homeHref}#extension`}><Chrome /><span>{catalog.messages.extension}</span></Link>
-      </nav></>
+      <MobileBottomNavigation catalog={catalog} locale={locale} dashboard={dashboard} /></>
 }
 export function ExtensionStrip({catalog}: {catalog: WebsiteCatalog}) {
   return (
