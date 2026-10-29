@@ -629,13 +629,18 @@
     "__prediction:uncertain": "Evidências insuficientes para determinar o nível atribuído.",
     "__prediction:scoreTier": "Nível por pontos, sem bônus estimados: {tier}.",
     "__prediction:evidence": "Evidência de {tier} registrada em {date}. Vagas esgotadas depois não a apagam.",
-    "__prediction:scenario": "Para uma vaga disponível agora: {tier}. Não determina uma atribuição anterior.",
+    "__prediction:scenario": "Faixa alternativa do Waterfall no registro do crawler: {tier}. Isso não é uma atribuição confirmada pelo Google.",
     "__prediction:noPercent": "Sem horários de atribuição e dados da fila do Google, não há porcentagem confiável. As vagas podem estar defasadas.",
     "__prediction:bonus": "Bônus estimados do Facilitator não comprovam reserva.",
     "__prediction:storage": "Salvo apenas neste navegador, por perfil e temporada. Datas de consulta não são datas de marcos.",
     "__prediction:storageFailed": "Não foi possível salvar o histórico.",
     "__prediction:clear": "Excluir evidências do perfil",
-    "__prediction:source": "Regras oficiais"
+    "__prediction:source": "Regras oficiais",
+    "__prediction:possible": "O registro do crawler mostra zero vagas em {tier}. Você pode ter atingido a meta antes; isso não confirma rebaixamento.",
+    "__prediction:crawlLag": "O registro do crawler é {duration} anterior à consulta dos pontos. As vagas podem ter mudado nesse intervalo.",
+    "__prediction:evidenceLag": "O registro histórico é {duration} anterior à consulta dos pontos. É apenas um indício, não uma vaga garantida.",
+    "__prediction:staleSnapshot": "O registro do crawler é {duration} anterior à consulta (mais de 48 horas). Não permite indicar uma alternativa atual.",
+    "__prediction:noOpenSlots": "Neste registro, todas as faixas possíveis pelos pontos estão sem vagas. Uma atribuição anterior ainda é desconhecida."
   },
   "dynamic": {
     "memberSince": "Membro desde {value}",
