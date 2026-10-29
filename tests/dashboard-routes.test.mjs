@@ -45,3 +45,14 @@ test("Home and Dashboard keep one responsive tier system and consistent page gut
   assert.match(css, /\.profile-panel \{\s*display: grid; grid-template-columns: minmax\(0, 1fr\) minmax\(0, 260px\)/)
   assert.match(css, /\.profile-panel \{ display: flex; padding-inline-end: 0; \}/)
 })
+
+test("seasonal Home edition labels never leak into Dashboard guest or profile pages", () => {
+  const home = readRepoFile("components/arcade/home-page.tsx")
+  const dashboard = readRepoFile("app/redesign-calculator.tsx")
+  const browser = readRepoFile("scripts/verify-halloween-ui.mjs")
+  assert.match(home, /className="halloween-edition"/)
+  assert.doesNotMatch(dashboard, /className="halloween-edition"/)
+  assert.match(dashboard, /className="dashboard-page-heading"/)
+  assert.match(browser, /Dashboard must not contain a promotional seasonal label/)
+  assert.match(browser, /Profile Dashboard must not display the Home edition label/)
+})

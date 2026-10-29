@@ -598,10 +598,11 @@ export default function RedesignCalculator({
       )}
 
       <section id="top" className="arcade-hero dashboard-analyzer" data-home-order="hero">
-        <span className="halloween-edition"><span aria-hidden="true">🎃</span>{activeHistoryLanguage.catalog.messages.halloweenEdition}</span>
-        <h1 className="dashboard-page-title">{scoreCatalog.messages.dashboardNav}</h1>
-        {!showProfileDashboard && <p className="dashboard-start-description">{scoreCatalog.messages.heroDescription}</p>}
-
+        {/* Seasonal edition labels belong to Home marketing, not the score workspace. */}
+        <div className="dashboard-page-heading">
+          <h1 className="dashboard-page-title">{scoreCatalog.messages.dashboardNav}</h1>
+          {!showProfileDashboard && <p className="dashboard-start-description">{scoreCatalog.messages.heroDescription}</p>}
+        </div>
         <div className="dashboard-profile-settings">
         <ProfileAnalyzer
           catalog={activeHistoryLanguage.catalog}

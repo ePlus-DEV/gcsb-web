@@ -20,3 +20,7 @@ Browser fixtures deliberately isolate API/remote-feed availability from UI and r
 - Public tiers use one highest-first ordering and the same heading/icon/slot layout in Home and Guest Dashboard. Home may still show the extra reward artwork, which is hidden at phone widths to keep cards compact.
 - Profile header reserves space for the Share control and gives the Facilitator launcher a fluid column; narrow-screen profile cards return to full-width stacked actions.
 - Confirm at 390px, 768px, 1024px and 1440px for dark/light and at least English/Vietnamese + a long translation. This source-level change does not replace real browser visual regression checks.
+
+## Seasonal labeling scope
+
+The `Halloween edition` pill belongs exclusively to Home's promotional hero when the Halloween season is active. Neither Guest Dashboard nor Profile Dashboard renders the pill, even while retaining the seasonal background palette. Dashboard uses its own compact and translated page heading; the shared profile form stays below the heading. Browser tests assert the pill never appears on Dashboard. No font, color theme or score logic changes are needed for this rule.

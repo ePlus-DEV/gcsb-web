@@ -29,6 +29,8 @@ try {
     assert.equal(await page.locator(".dashboard-guest-start .tier-list-row").count(), 4)
     assert.equal(await page.locator(".dashboard-guest-start .tier-reward-art").count(), 0)
     assert.equal(await page.locator(".dashboard-start-description").isVisible(), true)
+    assert.equal(await page.locator(".dashboard-page-title").isVisible(), true)
+    assert.equal(await page.locator(".halloween-edition").count(), 0, "Dashboard must not contain a promotional seasonal label")
     const geometry = await page.evaluate(() => ({
       overflow: document.documentElement.scrollWidth > innerWidth + 1,
       formWidth: document.querySelector(".dashboard-analyzer").getBoundingClientRect().width,
@@ -64,15 +66,20 @@ try {
           await page.route("https://**/*", (route) => route.abort())
           await page.goto(`${base}${locale === "en" ? "" : `${locale}/`}${state === "profile" ? "dashboard/" : ""}`)
           await page.waitForFunction(() => document.documentElement.dataset.season === "halloween")
-          await page.locator(".halloween-edition").waitFor({ state: "visible" })
-          await page.waitForFunction((label) => document.querySelector(".halloween-edition")?.textContent.includes(label), catalog.messages.halloweenEdition)
-          if (state === "profile") await page.locator(".profile-panel").waitFor({ state: "visible" })
+          if (state === "profile") {
+            assert.equal(await page.locator(".halloween-edition").count(), 0, "Profile Dashboard must not display the Home edition label")
+            await page.locator(".dashboard-page-title").waitFor({ state: "visible" })
+            await page.locator(".profile-panel").waitFor({ state: "visible" })
+          } else {
+            await page.locator(".halloween-edition").waitFor({ state: "visible" })
+            await page.waitForFunction((label) => document.querySelector(".halloween-edition")?.textContent.includes(label), catalog.messages.halloweenEdition)
+          }
           const geometry = await page.evaluate(() => {
             const css = (s) => getComputedStyle(document.querySelector(s))
             const page = document.querySelector(".arcade-dashboard-page")
             const decor = document.querySelector(".halloween-season-decor")
             const card = document.querySelector(".profile-analyzer-card")
-            const label = document.querySelector(".halloween-edition").getBoundingClientRect()
+            const label = document.querySelector(".halloween-edition")?.getBoundingClientRect()
             return {
               overflow: document.documentElement.scrollWidth > innerWidth + 1,
               decorInPage: decor.parentElement === page,
@@ -82,7 +89,7 @@ try {
               moon: css(".halloween-moon").display,
               cardBackground: getComputedStyle(card).backgroundColor,
               tierBackgrounds: [...document.querySelectorAll(".tier-list-row, .guest-tier-card")].map((el) => getComputedStyle(el).backgroundColor),
-              labelLeft: label.left, labelRight: label.right,
+              labelLeft: label?.left ?? null, labelRight: label?.right ?? null,
               buttonColor: css(".analyze-button").color,
             }
           })
@@ -97,7 +104,7 @@ try {
           assert.ok(geometry.tierBackgrounds.length > 0)
           for (const color of geometry.tierBackgrounds) assert.ok(tierColors.includes(color), `${theme}: unexpected tier surface ${color}`)
           assert.equal(geometry.buttonColor, "rgb(255, 255, 255)")
-          assert.ok(geometry.labelLeft >= 0 && geometry.labelRight <= width)
+          if (state === "empty") assert.ok(geometry.labelLeft >= 0 && geometry.labelRight <= width)
           if (await page.locator(".preview-mode-toolbar").count()) {
             const toolbar = await page.locator(".preview-mode-toolbar").evaluate((el) => {
               const css = getComputedStyle(el)
