@@ -161,3 +161,11 @@ test("Home and Dashboard share one ProfileAnalyzer visual contract", () => {
   assert.match(browser, /Home and Guest Dashboard analyzer controls match/)
   assert.match(home, /if \(invalid\) setInvalid\(false\)/)
 })
+
+test("Profile Dashboard retains the shared Analyze profile title and compact styles", () => {
+  const css = readRepoFile("app/styles/route-layout.css")
+  const e2e = readRepoFile("scripts/verify-halloween-ui.mjs")
+  assert.doesNotMatch(css, /\.dashboard-analyzer \.analyzer-title \{ display: none; \}/)
+  assert.match(e2e, /Home and Profile Dashboard analyzer controls match/)
+  assert.match(e2e, /Analyze profile label stays visible in Profile Dashboard/)
+})

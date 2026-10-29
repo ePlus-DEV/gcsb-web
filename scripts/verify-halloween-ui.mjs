@@ -58,6 +58,52 @@ try {
     cases++
   }
 
+  // Returning visitors with results should see the same analyzer styling
+  // as Home, not a special collapsed label or oversized controls.
+  for (const width of [390, 1440]) for (const theme of ["dark", "light"]) {
+    const views = []
+    for (const state of ["home", "profile"]) {
+      const context = await browser.newContext({ viewport: { width, height: 900 } })
+      await context.addInitScript(({ theme, state, profileUrl, result }) => {
+        localStorage.setItem("arcade-theme", theme)
+        if (state === "profile") {
+          localStorage.setItem("eplus-arcade-dashboard-view-mode-v1", "profile")
+          localStorage.setItem("eplus-arcade-dashboard-v1", JSON.stringify({ profileUrl, result }))
+        }
+      }, { theme, state, profileUrl, result })
+      const page = await context.newPage()
+      await page.route("https://**/*", route => route.abort())
+      await page.goto(base + (state === "profile" ? "dashboard/" : ""))
+      if (state === "profile") await page.locator(".profile-panel").waitFor({ state: "visible" })
+      const card = page.locator(".profile-analyzer-card")
+      await card.waitFor({ state: "visible" })
+      views.push(await card.evaluate(el => {
+        const style = selector => getComputedStyle(el.querySelector(selector))
+        const rect = selector => el.querySelector(selector).getBoundingClientRect()
+        return {
+          inputHeight: rect(".profile-input").height,
+          buttonHeight: rect(".analyze-button").height,
+          inputRadius: style(".profile-input").borderRadius,
+          buttonRadius: style(".analyze-button").borderRadius,
+          buttonFontSize: style(".analyze-button").fontSize,
+          cardPadding: getComputedStyle(el).paddingTop,
+          cardRadius: getComputedStyle(el).borderRadius,
+          titleDisplay: style(".analyzer-title").display,
+          helpMargin: style(".analyzer-help-row").marginTop,
+          overflow: document.documentElement.scrollWidth > innerWidth + 1,
+        }
+      }))
+      await context.close()
+    }
+    const [home, profile] = views
+    for (const key of ["inputHeight", "buttonHeight", "inputRadius", "buttonRadius", "buttonFontSize", "cardPadding", "cardRadius", "titleDisplay", "helpMargin"]) {
+      assert.equal(home[key], profile[key], width + "/" + theme + ": Home and Profile Dashboard analyzer controls match (" + key + ")")
+    }
+    assert.equal(home.titleDisplay, "flex", "Analyze profile label stays visible in Profile Dashboard")
+    assert.equal(profile.overflow, false, "Profile Dashboard analyzer must not overflow viewport")
+    cases++
+  }
+
   // Direct Dashboard guest visits must not inherit Home's artwork cards.
   for (const locale of ["en", "vi"]) for (const theme of ["dark", "light"]) for (const width of [390, 1440]) {
     const context = await browser.newContext({ viewport: { width, height: 900 } })

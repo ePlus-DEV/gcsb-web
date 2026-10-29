@@ -50,3 +50,5 @@ Previous inline button positioning was incorrect: route-layout.css overrode fixe
 - Saved-profile and auto-fetch/Facilitator controls remain Dashboard-only because Home submits the URL and navigates to the Dashboard without fetching profile data.
 - Home clears a stale invalid-URL error while the user edits input.
 - Browser checks compare computed styles at 390 and 1440 widths for dark and light themes.
+
+The shared analyzer's step label is also visible in Profile Dashboard. Browser regressions cover Home, Guest Dashboard and Profile Dashboard across 390px/1440px and dark/light modes; Dashboard-only Facilitator/auto-fetch options remain intact.
