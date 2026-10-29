@@ -787,6 +787,7 @@ export default function RedesignCalculator({
       {/* Stable portal anchor: keeps countdown placement identical for every locale. */}
       <div className="program-countdown-host" data-home-order="program-countdown" />
 
+      {extensionStrip}
 
 
 
@@ -810,6 +811,7 @@ export default function RedesignCalculator({
               </div>
               <div className="profile-stat-grid">
                 <Stat value={scoreNumber(badges.length)} label={scoreCatalog.messages.badges} icon={<BadgeCheck />} />
+                <Stat value={scoreNumber(points)} label={scoreCatalog.messages.arcadePoints} icon={<Sparkles />} />
                 <Stat value={qualifiedMilestone?.league.replace("Arcade ", "") ?? "—"} label={scoreCatalog.messages.scoreTier} icon={<Trophy />} />
               </div>
             </DashboardPanel>
@@ -869,31 +871,13 @@ export default function RedesignCalculator({
 
             </DashboardPanel>
 
-            <DashboardPanel className="compact-panel next-goal-panel">
-              <div className="compact-heading"><PanelTitle>{scoreCatalog.messages.nextGoal}</PanelTitle><span>{nextMilestone.league.replace("Arcade ", "")}</span></div>
-              <div className="next-goal-value">
-                <strong>{hasReachedMaxTier ? scoreCatalog.messages.max : scoreNumber(pointsToNextTier)}</strong>
-                <span>{hasReachedMaxTier ? scoreCatalog.messages.topTierReached : scoreCatalog.messages.morePointsNeeded}</span>
-              </div>
-              <div
-                className="goal-progress"
-                role="progressbar"
-                aria-label={hasReachedMaxTier ? scoreCatalog.messages.topTierReached : scoreCatalog.dynamic.progressToward.replace("{value}", nextMilestone.league)}
-                aria-valuemin={goalStartPoints}
-                aria-valuemax={hasReachedMaxTier ? maxTierPoints : nextMilestone.points}
-                aria-valuenow={hasReachedMaxTier ? maxTierPoints : Math.min(Math.max(points, goalStartPoints), nextMilestone.points)}
-              >
-                <span style={{ width: `${goalProgress}%` }} />
-              </div>
-            </DashboardPanel>
-
-            <details className="dashboard-panel tier-status-panel">
-              <summary className="panel-title-row">
-                <span className="panel-title">{scoreCatalog.messages.eligibility}</span>
+            <article className="dashboard-panel tier-status-panel">
+              <div className="panel-title-row">
+                <PanelTitle>{scoreCatalog.messages.eligibility}</PanelTitle>
                 <span className={isTierQualified ? "score-state is-qualified" : "score-state"}>
                   {isTierQualified ? scoreCatalog.messages.eligibleByPoints : scoreCatalog.messages.notYetEligible}
                 </span>
-              </summary>
+              </div>
               <div className="tier-status-main">
                 <span className="tier-trophy"><Trophy /></span>
                 <div>
@@ -926,7 +910,7 @@ export default function RedesignCalculator({
               <p className="allocation-message">
                 {scoreCatalog.messages.allocationMessage}
               </p>
-            </details>
+            </article>
           </div>
 
           <div className="dashboard-content-grid">
@@ -1052,7 +1036,23 @@ export default function RedesignCalculator({
               )}
             </article>
 
-
+            <article className="dashboard-panel compact-panel next-goal-panel">
+              <div className="compact-heading"><PanelTitle>{scoreCatalog.messages.nextGoal}</PanelTitle><span>{nextMilestone.league.replace("Arcade ", "")}</span></div>
+              <div className="next-goal-value">
+                <strong>{hasReachedMaxTier ? scoreCatalog.messages.max : scoreNumber(pointsToNextTier)}</strong>
+                <span>{hasReachedMaxTier ? scoreCatalog.messages.topTierReached : scoreCatalog.messages.morePointsNeeded}</span>
+              </div>
+              <div
+                className="goal-progress"
+                role="progressbar"
+                aria-label={hasReachedMaxTier ? scoreCatalog.messages.topTierReached : scoreCatalog.dynamic.progressToward.replace("{value}", nextMilestone.league)}
+                aria-valuemin={goalStartPoints}
+                aria-valuemax={hasReachedMaxTier ? maxTierPoints : nextMilestone.points}
+                aria-valuenow={hasReachedMaxTier ? maxTierPoints : Math.min(Math.max(points, goalStartPoints), nextMilestone.points)}
+              >
+                <span style={{ width: `${goalProgress}%` }} />
+              </div>
+            </article>
           </div>
         </section>
       ) : (
@@ -1067,8 +1067,6 @@ export default function RedesignCalculator({
       )}
 
 
-
-      {extensionStrip}
 
       {footerContent}
 

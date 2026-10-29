@@ -19,7 +19,7 @@ type Props = {
 export default function ProfileAnalyzer({ catalog, value, onChange, onSubmit, onReset, loading, error, hasResult }: Props) {
   const copy = catalog.messages
   return <div id="calculator" className="profile-analyzer-card">
-    <label className="analyzer-title" htmlFor="arcade-profile-url"><span aria-hidden="true"><Search /></span>{copy.pasteProfile}</label>
+    <label className="analyzer-title" htmlFor="arcade-profile-url"><span aria-hidden="true">{1}</span>{copy.pasteProfile}</label>
     <form onSubmit={onSubmit} noValidate aria-busy={loading}>
       <div className={error ? "profile-input has-error" : "profile-input"}>
         <Search aria-hidden="true" />

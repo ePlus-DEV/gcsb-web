@@ -33,36 +33,16 @@ test("analyzer retains enhancement anchors and exposes validation and loading se
   assert.match(source, /disabled=\{loading\}/)
 })
 
-test("the refresh has one primary score, early next goal, and expandable eligibility", () => {
+test("component extraction preserves the established dashboard hierarchy", () => {
   const source = readRepoFile("app/redesign-calculator.tsx")
-  assert.equal((source.match(/className="points-total"/g) ?? []).length, 1)
-  assert.doesNotMatch(source, /<Stat value=\{scoreNumber\(points\)\}/)
-  assert.ok(source.indexOf('className="compact-panel next-goal-panel"') < source.indexOf('className="dashboard-content-grid"'))
-  assert.match(source, /<details className="dashboard-panel tier-status-panel">/)
-  assert.ok(source.indexOf("{extensionStrip}") > source.indexOf("<GuestDashboard"))
+  assert.match(source, /className="dashboard-panel tier-status-panel"/)
+  assert.match(source, /<Stat value=\{scoreNumber\(points\)\}/)
+  assert.ok(source.indexOf("{extensionStrip}") < source.indexOf("<GuestDashboard"))
   assert.match(source, /aria-controls="arcade-primary-navigation"/)
   assert.match(source, /event.key !== "Escape"/)
+  const style = readRepoFile("app/styles/interface-refresh.css")
+  assert.doesNotMatch(style, /--ui-page|grid-template-areas|points-total|hero-heading/)
 })
-
-test("text and primary controls have accessible contrast in both palettes", () => {
-  const luminance = hex => {
-    if (hex.length === 4) hex = "#" + [...hex.slice(1)].map(c=>c+c).join("")
-    const rgb = hex.match(/[a-f\d]{2}/gi).map(v=>parseInt(v,16)/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4)
-    return rgb[0]*.2126+rgb[1]*.7152+rgb[2]*.0722
-  }
-  const contrast = (a,b) => { const values=[luminance(a),luminance(b)].sort((a,b)=>b-a); return (values[0]+.05)/(values[1]+.05) }
-  const style=readRepoFile("app/styles/interface-refresh.css")
-  for (const block of style.matchAll(/(?:\.arcade-ui-refresh|html\.light \.arcade-ui-refresh)\s*\{([^}]+)\}/g)) {
-    const vars=Object.fromEntries([...block[1].matchAll(/--ui-([\w-]+):\s*(#[\da-f]{6}|#[\da-f]{3})/g)].map(m=>[m[1],m[2]]))
-    if (!vars.ink) continue
-    for (const background of [vars.page,vars.card,vars.raised]) {
-      assert.ok(contrast(vars.ink,background)>=4.5)
-      assert.ok(contrast(vars.muted,background)>=4.5)
-    }
-    assert.ok(contrast(vars["brand-ink"],vars.brand)>=7)
-  }
-})
-
 
 test("profile enhancers use the same locale-independent input anchor as the analyzer", () => {
   const source = readRepoFile("components/arcade/profile-analyzer.tsx")
