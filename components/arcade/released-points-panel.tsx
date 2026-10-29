@@ -191,8 +191,6 @@ export default function ReleasedPointsPanel({ badges, hasProfile, catalog, local
                 <dl className="point-comparison-stats">
                   <div><dt>{text("earned")}</dt><dd>{number(summary.achieved)}</dd></div>
                   <div><dt>{text("released")}</dt><dd>{number(summary.total)}</dd></div>
-                </dl>
-                <dl className="point-comparison-extra">
                   <div><dt>{text("available")}</dt><dd>{number(summary.available)}</dd></div>
                   <div><dt>{text("expired")}</dt><dd>{number(summary.expired)}</dd></div>
                 </dl>

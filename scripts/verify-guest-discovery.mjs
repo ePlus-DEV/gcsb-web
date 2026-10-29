@@ -102,7 +102,7 @@ try {
           assert.equal(await page.locator(".profile-input input").inputValue(), profileUrl)
         }
         // Desktop uses hover without stealing focus; mobile only opens a modal sheet on tap.
-        if (locale === "en" && theme === "dark" && [390, 1440].includes(width)) {
+        if (locale === "en" && ((theme === "dark" && [320, 390, 1440].includes(width)) || (theme === "light" && width === 390))) {
           const trigger = page.locator(".point-history-trigger")
           const pointCard = page.locator(".breakdown-panel")
           await trigger.scrollIntoViewIfNeeded()
@@ -146,6 +146,30 @@ try {
             await page.locator(".point-history-popover").waitFor({ state: "visible" })
             assert.equal(await page.locator(".point-history-popover").getAttribute("aria-modal"), "true")
             assert.equal(await page.evaluate(() => document.body.style.overflow), "hidden")
+            // All 4 numbers must be styled as one consistent 2×2 card grid.
+            const cards = page.locator(".point-history-popover .point-comparison-stats > div")
+            await cards.first().waitFor({ state: "visible" })
+            assert.equal(await cards.count(), 4, "published history includes all four metrics")
+            const visuals = await cards.evaluateAll(nodes => nodes.map(node => {
+              const style = getComputedStyle(node)
+              const label = getComputedStyle(node.querySelector("dt"))
+              const value = getComputedStyle(node.querySelector("dd"))
+              return {
+                background: style.backgroundColor,
+                border: style.borderTopWidth + " " + style.borderTopStyle + " " + style.borderTopColor,
+                radius: style.borderRadius, padding: style.padding,
+                labelColor: label.color, labelSize: label.fontSize,
+                valueColor: value.color, valueSize: value.fontSize,
+                width: node.getBoundingClientRect().width,
+                height: node.getBoundingClientRect().height,
+              }
+            }))
+            for (const item of visuals.slice(1)) {
+              for (const key of ["background", "border", "radius", "padding", "labelColor", "labelSize", "valueColor", "valueSize"]) {
+                assert.equal(item[key], visuals[0][key], "four Published games metrics use identical card styling: " + key)
+              }
+            }
+            assert.ok(visuals.every(item => item.width > 70 && item.height >= 79), "each metric card has a touch-friendly width and height")
             const sheet = page.locator(".point-history-popover")
             const details = sheet.locator(".point-history-explanation")
             const collapsed = await details.evaluate(el => el.open)

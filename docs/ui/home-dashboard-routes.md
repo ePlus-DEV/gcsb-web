@@ -62,3 +62,7 @@ Home's Analyze form now hydrates its URL from the same validated `eplus-arcade-d
 - Keep key released/matched/available/expired counts visible immediately, with lengthy scope and skill coverage notes behind a localized accessible Point breakdown disclosure.
 - On screens up to 680px, the body-portaled sheet is inset from browser edges and iOS safe area, capped at 74dvh / 560px. Its header/40px close button stay fixed while only the content scrolls, including when the explanation is expanded.
 - Desktop anchored hover and keyboard behavior remains unchanged; mobile background scroll stays locked until closing. Browser checks verify bounds, scrolling and close control on mobile.
+
+## Four released-games metric cards (2026-10-29)
+
+The Published games popup displays one 2×2 grid of matching cards for Points matched in history, Published points, Still earnable, and Ended/unmatched. Previously the last two labels were unboxed and used smaller number typography. The unified grid uses consistent background, border, radius, padding, label and value scales on both dark and light themes, including narrow 320px screens. No calculation or translation keys changed; browser regressions measure all four computed styles.
