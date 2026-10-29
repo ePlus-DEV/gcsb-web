@@ -3,13 +3,13 @@ import test from "node:test"
 import fs from "node:fs"
 import { readRepoFile } from "./helpers/typescript-source.mjs"
 
-test("Home keeps the full personal Dashboard out of its route bundle", () => {
+test("Home contains introduction only, without score or profile analysis", () => {
   const home = readRepoFile("components/arcade/home-page.tsx")
-  assert.doesNotMatch(home, /RedesignCalculator|ReleasedPointsPanel|readStoredDashboard|DASHBOARD_STORAGE_KEY|PREVIEW_DEBUG_PROFILE_RESULT/)
-  assert.match(home, /PROFILE_URL_PATTERN.test\(profile\)/)
-  assert.match(home, /dashboard\/\?profile=\$\{encodeURIComponent\(profile\)\}/)
-  assert.match(home, /catalog=\{language.catalog\}/)
+  assert.doesNotMatch(home, /RedesignCalculator|ReleasedPointsPanel|<ProfileAnalyzer|<GuestDashboard|<HomeProfileSummary|readSavedProfileUrl|useArcadeMilestones|useTierSlotHistory/)
+  assert.match(home, /m.startUsing/)
+  assert.match(home, /home-intro-journey/)
 })
+
 
 test("Dashboard routes are exported for every locale and keep personal pages out of search", () => {
   const localized = readRepoFile("app/[locale]/dashboard/page.tsx")
@@ -29,7 +29,7 @@ test("route navigation and form errors are translated in every locale", () => {
     const catalog = JSON.parse(readRepoFile(`public/i18n/locales/${name}`))
     for (const key of ["homeNav", "dashboardNav", "invalidProfileUrl"]) assert.ok(catalog.messages[key]?.trim(), `${name}: ${key}`)
   }
-  assert.match(readRepoFile("components/arcade/home-page.tsx"), /error=\{invalid \? m.invalidProfileUrl : ""\}/)
+  assert.match(readRepoFile("components/arcade/home-page.tsx"), /m.startUsing/)
   assert.match(readRepoFile("components/arcade/route-shell.tsx"), /catalog.messages.dashboardNav/)
 })
 
@@ -39,8 +39,7 @@ test("Home and Dashboard keep one responsive tier system and consistent page gut
   const tiers = readRepoFile("components/arcade/dashboard-tiers.tsx")
   assert.match(css, /\[data-dashboard-view="guest"\] \.dashboard-analyzer \{\s*max-width: 1200px;/)
   assert.match(css, /\.dashboard-guest-start \{ max-width: 1200px;/)
-  assert.match(css, /\.arcade-home-route \.guest-dashboard \.tier-list-row \{ grid-template-columns: 32px minmax\(0, 1fr\)/)
-  assert.match(css, /\.arcade-home-route \.guest-dashboard \.tier-list-icon \{ display: grid;/)
+  assert.match(readRepoFile("app/styles/home-introduction.css"), /\.home-intro-journey/)
   assert.match(tiers, /sort\(\(left, right\) => right\.points - left\.points\)/)
   assert.match(css, /\.profile-panel \{\s*display: flex; align-items: center; flex-wrap: wrap;/)
   assert.match(css, /flex-direction: column; align-items: stretch; gap: 10px; padding-inline-end: 0;/)
@@ -133,7 +132,7 @@ test("Guest mobile nav has no dead badges anchor; Profile nav links earned badge
   const shell = readRepoFile("components/arcade/route-shell.tsx")
   assert.match(shell, /page\.dataset\.dashboardView === "profile"/)
   assert.match(shell, /const thirdId: MobileSection = dashboard && profileView \? "badges" : "monthly-games"/)
-  assert.match(shell, /const thirdHref = dashboard && !profileView \? homeHref \+ "#monthly-games"/)
+  assert.match(shell, /const thirdHref = dashboard && !profileView \? "#monthly-games"/)
   assert.match(shell, /<Link href=\{thirdHref\}/)
 })
 
@@ -145,42 +144,25 @@ test("mobile nav chooses the URL hash immediately on cross-page navigation", () 
   assert.match(shell, /syncHash\(\)\s*window\.addEventListener\("scroll"/)
 })
 
-test("Home and Dashboard share one ProfileAnalyzer visual contract", () => {
-  const analyzer = readRepoFile("components/arcade/profile-analyzer.tsx")
-  const home = readRepoFile("components/arcade/home-page.tsx")
-  const dashboard = readRepoFile("app/redesign-calculator.tsx")
-  const css = readRepoFile("app/styles/route-layout.css")
-  const browser = readRepoFile("scripts/verify-halloween-ui.mjs")
-  assert.match(home, /<ProfileAnalyzer catalog=\{language.catalog\}/)
-  assert.match(dashboard, /<ProfileAnalyzer/)
-  assert.match(analyzer, /className="profile-analyzer-card"/)
-  assert.match(css, /--arcade-analyzer-control-height: 46px/)
-  assert.match(css, /--arcade-analyzer-control-height: 44px/)
-  assert.match(css, /\.arcade-home-route \.arcade-hero \.profile-analyzer-card \{/)
-  assert.match(css, /\.arcade-dashboard-v2 \.arcade-hero \.analyze-button \{/)
-  assert.match(browser, /Home and Guest Dashboard analyzer controls match/)
-  assert.match(home, /if \(invalid\) setInvalid\(false\)/)
+test("Dashboard alone owns the profile input", () => {
+  assert.doesNotMatch(readRepoFile("components/arcade/home-page.tsx"), /<ProfileAnalyzer/)
+  assert.match(readRepoFile("app/redesign-calculator.tsx"), /<ProfileAnalyzer/)
 })
+
 
 test("Profile Dashboard retains the shared Analyze profile title and compact styles", () => {
   const css = readRepoFile("app/styles/route-layout.css")
   const e2e = readRepoFile("scripts/verify-halloween-ui.mjs")
   assert.doesNotMatch(css, /\.dashboard-analyzer \.analyzer-title \{ display: none; \}/)
-  assert.match(e2e, /Home and Profile Dashboard analyzer controls match/)
-  assert.match(e2e, /Analyze profile label stays visible in Profile Dashboard/)
+  assert.match(css, /--arcade-analyzer-control-height: 46px/)
 })
 
-test("Home restores the same saved profile URL as Dashboard without overriding edits", () => {
+test("Home CTA opens localized Dashboard instead of running a profile request", () => {
   const home = readRepoFile("components/arcade/home-page.tsx")
-  const helper = readRepoFile("components/arcade/saved-profile-url.ts")
-  const browser = readRepoFile("scripts/verify-halloween-ui.mjs")
-  assert.match(home, /import \{ readSavedProfileUrl \} from "\.\/saved-profile-url"/)
-  assert.match(home, /if \(!hasEditedUrl\.current\) setUrl\(readSavedProfileUrl\(\)\)/)
-  assert.match(home, /hasEditedUrl\.current = true; setUrl\(value\)/)
-  assert.match(home, /hasEditedUrl\.current = true; setUrl\(""\)/)
-  assert.match(helper, /DASHBOARD_STORAGE_KEY/)
-  assert.match(helper, /PROFILE_URL_PATTERN\.test\(value\)/)
-  assert.match(helper, /typeof result !== "object"/)
-  assert.match(browser, /Home restores saved profile URL without requesting points/)
-  assert.match(browser, /cleared Home input is not overwritten by storage synchronization/)
+  const shell = readRepoFile("components/arcade/route-shell.tsx")
+  assert.match(home, /getWebsiteLocaleHref\(language.locale\)/)
+  assert.match(home, /className="home-intro-primary"/)
+  assert.match(shell, /home-bottom-nav/)
+  assert.doesNotMatch(home, /onSubmit|PROFILE_URL_PATTERN/)
 })
+

@@ -23,7 +23,7 @@ export default function GuestDashboard({
         catalog={catalog}
         locale={locale}
       />
-      {overview && <div id="monthly-games" className="monthly-games-host" data-home-order="monthly-labs" />}
+      <div id="monthly-games" className="monthly-games-host" data-home-order="monthly-labs" />
 
     </section>
   )

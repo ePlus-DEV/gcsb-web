@@ -28,19 +28,22 @@ test("all locales mount the English homepage block sequence", () => {
   assert.deepEqual(homepageBlocks(home), [
     "HomePage",
     "ProgramCountdown",
-    "SwagDropsPreview",
-    "MonthlyGamesPanelGate",
     "SeoContent",
   ])
 })
 
-test("public programs stay on Home and link back from Dashboard", () => {
-  assert.match(homeClient, /<GuestDashboard/)
-  assert.doesNotMatch(calculator, /id="monthly-games"/)
+test("Home introduces the tool while Dashboard hosts live data", () => {
+  const dashboardPage = readRepoFile("components/arcade/dashboard-page.tsx")
+  assert.doesNotMatch(homeClient, /<GuestDashboard|<ProfileAnalyzer|<HomeProfileSummary|useArcadeMilestones|useTierSlotHistory/)
+  assert.match(homeClient, /className="arcade-hero home-intro-hero"/)
+  assert.match(homeClient, /home-intro-journey/)
   assert.match(guestDashboard, /id="monthly-games"/)
-  assert.match(shell, /homeHref\}#monthly-games/)
+  assert.match(dashboardPage, /<MonthlyGamesPanelGate/)
+  assert.match(dashboardPage, /<SwagDropsPreview/)
+  assert.match(shell, /dashboardHref\}#monthly-games/)
   assert.match(guide, /data-home-order="about"/)
 })
+
 
 test("profile layout groups badges and insight cards without stretching against tiers", () => {
   const primaryOpen = calculator.indexOf('className="dashboard-primary-column"')
