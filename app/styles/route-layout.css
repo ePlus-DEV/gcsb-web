@@ -204,9 +204,16 @@
 .arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel .profile-source-link { grid-column: 2; grid-row: 1; min-width: 0; margin-inline-end: 0; overflow-wrap: anywhere; }
 .dashboard-facilitator-host { grid-column: 2; grid-row: 2; min-width: 0; margin-inline-end: 0; }
 .dashboard-facilitator-host .facilitator-launcher {
- position: static; inset: auto; transform: none; width: 100%; min-width: 0;
- padding: 6px 8px; gap: 8px; border-width: 1px; border-radius: 8px; box-shadow: none;
+ position: static; inset: auto; transform: none;
+ display: grid; grid-template-columns: 20px minmax(0, 1fr) 16px; align-items: center;
+ width: 100%; min-width: 0; min-height: 46px;
+ padding: 8px 10px; gap: 9px; border-width: 1px; border-radius: 9px; box-shadow: none;
+ text-align: start;
 }
+.dashboard-facilitator-host .facilitator-launcher > span { min-width: 0; }
+.dashboard-facilitator-host .facilitator-launcher strong,
+.dashboard-facilitator-host .facilitator-launcher small { overflow-wrap: anywhere; line-height: 1.4; }
+.dashboard-facilitator-host .facilitator-launcher:focus-visible { outline: 2px solid var(--arcade-cyan); outline-offset: 3px; }
 .dashboard-facilitator-host .facilitator-launcher:hover { transform: none; box-shadow: none; }
 .dashboard-facilitator-host .facilitator-launcher strong { font-size: .68rem; }
 .dashboard-facilitator-host .facilitator-launcher small { font-size: .62rem; }

@@ -135,6 +135,43 @@ try {
     }
   }
 
+
+  // The tracker must remain accessible without opt-in, and opening it must
+  // survive both participation toggles at phone and desktop widths.
+  for (const width of [390, 1440]) {
+    const context = await browser.newContext({ viewport: { width, height: 900 } })
+    await context.addInitScript(({ profileUrl, result }) => {
+      localStorage.setItem("arcade-seasonal-theme", "off")
+      localStorage.setItem("eplus-arcade-dashboard-view-mode-v1", "profile")
+      localStorage.setItem("eplus-arcade-dashboard-v1", JSON.stringify({ profileUrl, result }))
+      localStorage.removeItem("arcade-facilitator-participation-v1:" + profileUrl)
+    }, { profileUrl, result })
+    const page = await context.newPage()
+    await page.route("https://**/*", route => route.abort())
+    await page.goto(base + "dashboard/")
+    const launcher = page.locator(".dashboard-facilitator-host .facilitator-launcher")
+    await launcher.waitFor({ state: "visible" })
+    assert.ok(await launcher.isEnabled(), width + ": launcher available without opt-in")
+    await launcher.click()
+    const drawer = page.locator(".facilitator-drawer")
+    await drawer.waitFor({ state: "visible" })
+    const toggle = drawer.getByRole("checkbox", { name: "Include Facilitator Program bonus in the estimated total" })
+    await toggle.check()
+    await page.waitForTimeout(1000)
+    assert.equal(await drawer.isVisible(), true, width + ": drawer stays open after opt-in")
+    assert.equal(await launcher.isVisible(), true, width + ": launcher stays visible when participating")
+    assert.ok(await launcher.evaluate(el => el.classList.contains("is-participating")))
+    await toggle.uncheck()
+    await page.waitForTimeout(1000)
+    assert.equal(await drawer.isVisible(), true, width + ": drawer stays open after opt-out")
+    assert.equal(await launcher.isVisible(), true, width + ": launcher stays visible after opt-out")
+    await drawer.locator(".facilitator-header > button").click()
+    assert.equal(await drawer.count(), 0, width + ": drawer closes on request")
+    assert.equal(await launcher.isVisible(), true)
+    await context.close()
+    cases++
+  }
+
   // Profile regression: "View all badges" must keep the Tiers sidebar
   // visible on desktop, but must not create a sticky panel on phones.
   for (const width of [390, 1024, 1440]) {

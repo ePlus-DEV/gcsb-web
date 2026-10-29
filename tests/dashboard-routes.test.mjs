@@ -56,3 +56,16 @@ test("seasonal Home edition labels never leak into Dashboard guest or profile pa
   assert.match(browser, /Dashboard must not contain a promotional seasonal label/)
   assert.match(browser, /Profile Dashboard must not display the Home edition label/)
 })
+
+test("Facilitator launcher remains visible regardless of program enrollment", () => {
+  const gate = readRepoFile("components/arcade/facilitator-panel-gate.tsx")
+  const panel = readRepoFile("components/arcade/facilitator-panel.tsx")
+  const browser = readRepoFile("scripts/verify-halloween-ui.mjs")
+  assert.doesNotMatch(gate, /launcher\.hidden\s*=\s*!participating/)
+  assert.match(gate, /key=\{normalizeFacilitatorProfileUrl\(profileUrl\)\}/)
+  assert.match(panel, /writeFacilitatorParticipation\(currentProfileUrl, participating\)/)
+  assert.match(panel, /FACILITATOR_PARTICIPATION_EVENT/)
+  assert.match(panel, /launcherTarget && result \? createPortal\(launcher, launcherTarget\) : null/)
+  assert.match(browser, /drawer stays open after opt-in/)
+  assert.match(browser, /drawer stays open after opt-out/)
+})

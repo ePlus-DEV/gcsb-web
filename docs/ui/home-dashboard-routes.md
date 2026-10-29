@@ -24,3 +24,9 @@ Browser fixtures deliberately isolate API/remote-feed availability from UI and r
 ## Seasonal labeling scope
 
 The `Halloween edition` pill belongs exclusively to Home's promotional hero when the Halloween season is active. Neither Guest Dashboard nor Profile Dashboard renders the pill, even while retaining the seasonal background palette. Dashboard uses its own compact and translated page heading; the shared profile form stays below the heading. Browser tests assert the pill never appears on Dashboard. No font, color theme or score logic changes are needed for this rule.
+
+## Facilitator button behavior
+
+- The tracker opens from the Profile header and remains visible for both enabled and disabled Facilitator participation; opening a tracker is not an opt-in.
+- The drawer and analyzer now use the shared participation state/event, and opting in/out no longer remounts or closes the drawer.
+- The button is not rendered as a floating action in Guest mode. Phone/desktop browser regressions cover opening, opt-in, opt-out and closing.

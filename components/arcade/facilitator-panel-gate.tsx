@@ -80,28 +80,6 @@ export default function FacilitatorPanelGate() {
   }, [profileUrl])
 
   useEffect(() => {
-    const updateLauncherVisibility = () => {
-      const launcher =
-        document.querySelector<HTMLButtonElement>(".facilitator-launcher")
-      if (!launcher) return
-
-      launcher.hidden =
-        !participating || !launcher.classList.contains("is-participating")
-    }
-
-    updateLauncherVisibility()
-    const observer = new MutationObserver(updateLauncherVisibility)
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: ["class"],
-    })
-
-    return () => observer.disconnect()
-  }, [participating])
-
-  useEffect(() => {
     const restoreFocusWhenDrawerCloses = () => {
       const drawerIsOpen = Boolean(
         document.querySelector(".facilitator-overlay"),
@@ -135,10 +113,7 @@ export default function FacilitatorPanelGate() {
           document.querySelector<HTMLButtonElement>(".facilitator-launcher")
         if (!launcher) return
 
-        const wasHidden = launcher.hidden
-        launcher.hidden = false
-        launcher.click()
-        launcher.hidden = wasHidden
+        if (!launcher.hidden) launcher.click()
       })
     }
 
@@ -150,7 +125,7 @@ export default function FacilitatorPanelGate() {
   return (
     <>
       <FacilitatorPanel
-        key={`${normalizeFacilitatorProfileUrl(profileUrl)}:${participating}`}
+        key={normalizeFacilitatorProfileUrl(profileUrl)}
       />
       <FacilitatorBonusMilestoneControl
         profileUrl={profileUrl}

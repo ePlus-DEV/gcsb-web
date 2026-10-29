@@ -30,10 +30,16 @@ import {
 } from "./facilitator-syllabus"
 import { formatNumber, numeric } from "./model"
 import { readActiveDashboard, observeDashboardMode, type StoredDashboard } from "./dashboard-state"
+import {
+  FACILITATOR_PARTICIPATION_EVENT,
+  normalizeFacilitatorProfileUrl,
+  readFacilitatorParticipation,
+  writeFacilitatorParticipation,
+  type FacilitatorParticipationDetail,
+} from "./facilitator-participation"
 
 const SYNC_INTERVAL_MS = 1_500
 const BONUS_MILESTONE_POINTS = 10
-const PARTICIPATION_STORAGE_PREFIX = "arcade-facilitator-participation-v1"
 const BONUS_GUIDE_URL =
   "https://rsvp.withgoogle.com/events/arcade-facilitator/bonus-milestone"
 const BONUS_FORM_URL = "https://forms.gle/MMfH5RKp83TfRtXj9"
@@ -106,11 +112,6 @@ type StatusFilter = "missing" | "completed" | "all"
 type TrackFilter = "all" | FacilitatorTrack
 
 type EvaluatedSyllabus = ReturnType<typeof evaluateFacilitatorSyllabus>
-
-function getParticipationStorageKey(profileUrl?: string): string {
-  const profileKey = profileUrl?.trim() || "default-profile"
-  return `${PARTICIPATION_STORAGE_PREFIX}:${profileKey}`
-}
 
 function milestoneComplete(
   counts: Counts,
@@ -208,19 +209,26 @@ export default function FacilitatorPanel() {
     }
   }, [])
 
-  const participationStorageKey = getParticipationStorageKey(
-    dashboard?.profileUrl,
-  )
+  // Synchronize launcher, form and drawer without remounting on enrollment updates.
+  const currentProfileUrl = dashboard?.profileUrl
 
   useEffect(() => {
-    try {
-      setIsParticipating(
-        window.localStorage.getItem(participationStorageKey) === "true",
-      )
-    } catch {
-      setIsParticipating(false)
+    const sync = () => setIsParticipating(readFacilitatorParticipation(currentProfileUrl))
+    const onParticipationChange = (event: Event) => {
+      const detail = (event as CustomEvent<FacilitatorParticipationDetail>).detail
+      if (detail &&
+        normalizeFacilitatorProfileUrl(detail.profileUrl) ===
+        normalizeFacilitatorProfileUrl(currentProfileUrl)
+      ) setIsParticipating(detail.participating)
     }
-  }, [participationStorageKey])
+    sync()
+    window.addEventListener(FACILITATOR_PARTICIPATION_EVENT, onParticipationChange)
+    window.addEventListener("storage", sync)
+    return () => {
+      window.removeEventListener(FACILITATOR_PARTICIPATION_EVENT, onParticipationChange)
+      window.removeEventListener("storage", sync)
+    }
+  }, [currentProfileUrl])
 
   useEffect(() => {
     if (!open) return
@@ -362,15 +370,7 @@ export default function FacilitatorPanel() {
 
   const updateParticipation = (participating: boolean) => {
     setIsParticipating(participating)
-
-    try {
-      window.localStorage.setItem(
-        participationStorageKey,
-        participating ? "true" : "false",
-      )
-    } catch {
-      // Keep the in-memory preference when storage is unavailable.
-    }
+    writeFacilitatorParticipation(currentProfileUrl, participating)
   }
 
   const goToCalculator = () => {
@@ -426,7 +426,7 @@ export default function FacilitatorPanel() {
 
   return (
     <>
-      {launcherTarget ? createPortal(launcher, launcherTarget) : launcher}
+      {launcherTarget && result ? createPortal(launcher, launcherTarget) : null}
 
       {open ? (
         <div
