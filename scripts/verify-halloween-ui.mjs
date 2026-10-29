@@ -362,18 +362,15 @@ try {
       return img?.complete && img.naturalWidth > 0
     })
     assert.equal(await avatar.getAttribute("src"), fakeAvatar)
-    // Simulate an unavailable HTTPS image and verify the visible initials.
-    // This also covers the real-world case of a user changing their avatar.
-    const brokenAvatar = "https://avatar.arcade-example.test/unavailable.png"
-    await page.route(brokenAvatar, route => route.abort())
-    await page.evaluate(brokenAvatar => {
+    // Cross-tab snapshot updates are surfaced via the storage event.
+    // Unsafe avatar URLs must never be requested and must render initials.
+    await page.evaluate(() => {
       const raw = JSON.parse(localStorage.getItem("eplus-arcade-dashboard-v1"))
-      raw.result.userDetails[0].profileImage = brokenAvatar
+      raw.result.userDetails[0].profileImage = "http://unsafe.example/avatar.png"
       localStorage.setItem("eplus-arcade-dashboard-v1", JSON.stringify(raw))
-    }, brokenAvatar)
-    await page.reload()
-    await page.locator(".home-profile-summary").waitFor({ state: "visible" })
-    await page.locator(".home-profile-avatar > span").waitFor({ state: "visible" })
+      window.dispatchEvent(new StorageEvent("storage", { key: "eplus-arcade-dashboard-v1" }))
+    })
+    await page.locator(".home-profile-avatar > span").waitFor({ state: "visible", timeout: 5000 })
     assert.equal(await page.locator(".home-profile-avatar img").count(), 0)
     await context.close()
     cases++
