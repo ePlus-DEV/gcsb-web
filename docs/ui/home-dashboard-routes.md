@@ -34,3 +34,11 @@ The `Halloween edition` pill belongs exclusively to Home's promotional hero when
 ## Floating Facilitator control (review 2026-10-29)
 
 Previous inline button positioning was incorrect: route-layout.css overrode fixed positioning with position: static and placed the tracker beneath the Share action. The control now portals directly into document.body only when Profile Dashboard is mounted. At widths >=1750px a full label sits in the right gutter; on smaller screens it is a compact 48–52px accessible rail action (hover/focus expands it on desktops). The launcher stays fixed during scrolling and no longer shifts profile card layout. Browser checks assert fixed positioning and constant viewport Y coordinate through full-page scrolling. Drawer and participation behavior remain unchanged.
+
+## Mobile ergonomics follow-up (2026-10-29)
+
+- Floating Facilitator is a 44px icon-only FAB, bottom 132px plus safe-area, stacked above Back to top at 82px and above the mobile bottom nav. No middle-right rail on phones.
+- Dashboard input and Analyze button share 46px desktop and 44px mobile heights. Mobile action width stays full for accessible tapping but with less vertical weight.
+- Guest and Profile dashboard content share a 1200px maximum width and consistent outer gutters; both preview switch buttons occupy equal columns with no special width for the selected tab.
+- On mobile, the saved profile identity has no 240px flex-basis; the avatar starts near the top instead of after empty space.
+- Browser tests assert control height, balanced switch widths, compact profile identity, fixed FAB and scroll position. Home, score logic and seasonal fonts/palette remain unchanged.

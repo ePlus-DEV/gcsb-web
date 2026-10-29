@@ -114,8 +114,10 @@ html.light .arcade-dashboard-v2 .preview-mode-toolbar {
   }
 
   .arcade-dashboard-v2 .preview-mode-toolbar {
-    width: calc(100% - 32px);
+    width: calc(100% - 24px);
     max-width: 360px;
+    gap: 6px;
+    padding-inline: 6px;
   }
 }
 
@@ -152,4 +154,27 @@ html.light .arcade-dashboard-v2 .preview-mode-toolbar {
 }
 @media (max-width: 600px) {
   .arcade-dashboard-v2 .hero-heading h1 { font-size: clamp(1.1rem, 4.5vw, 1.5rem); }
+}
+
+/* Equal-width Guest/Profile choices, independent of the active button. */
+.arcade-dashboard-v2 .preview-mode-toolbar .dashboard-view-switch {
+ flex: 1 1 0; min-width: 0; display: grid;
+ grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px;
+}
+.arcade-dashboard-v2 .preview-mode-toolbar .dashboard-view-switch button {
+ min-width: 0; width: 100%; min-height: 40px; padding-inline: 6px;
+ display: inline-flex; align-items: center; justify-content: center;
+ gap: 6px; white-space: nowrap;
+}
+.arcade-dashboard-v2 .preview-mode-toolbar .dashboard-view-switch button > span {
+ min-width: 0; overflow: hidden; text-overflow: ellipsis;
+}
+.arcade-dashboard-v2 .preview-mode-badge { flex: 0 0 26px; }
+@media (max-width: 600px) {
+ .arcade-dashboard-v2 .preview-mode-toolbar .dashboard-view-switch button {
+  min-height: 40px; padding-inline: 4px; font-size: .68rem;
+ }
+ .arcade-dashboard-v2 .preview-mode-toolbar .dashboard-view-switch button :is(svg, .fa-icon) {
+  width: 16px; height: 16px; min-width: 16px; flex-basis: 16px;
+ }
 }

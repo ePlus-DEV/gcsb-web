@@ -142,13 +142,13 @@
 
 /* The personal Dashboard starts with a form and compact tiers, rather than Home's gift showcase. */
 .arcade-dashboard-page:not(.arcade-home-route)[data-dashboard-view="guest"] .dashboard-analyzer {
- max-width: 1000px; margin-inline: auto; padding-block: 18px 14px;
+ max-width: 1200px; margin-inline: auto; padding-block: 18px 14px;
 }
 /* All Dashboard states follow the same page gutters and content width. */
 .arcade-dashboard-page:not(.arcade-home-route)[data-dashboard-view="guest"] .dashboard-profile-settings,
 .arcade-dashboard-page:not(.arcade-home-route)[data-dashboard-view="guest"] .profile-analyzer-card { width: 100%; min-width: 0; }
 .dashboard-start-description { margin: 0; max-width: 76ch; color: var(--arcade-muted); font-size: .85rem; line-height: 1.6; }
-.dashboard-guest-start { max-width: 1000px; margin-inline: auto; }
+.dashboard-guest-start { max-width: 1200px; margin-inline: auto; }
 .dashboard-guest-start > .tier-list-panel { margin-bottom: 0; }
 .dashboard-guest-start .tier-list-row { min-height: 0; gap: 10px; }
 .dashboard-guest-start .tier-slot-count { justify-items: start; text-align: start; }
@@ -256,4 +256,79 @@ body > .facilitator-launcher.is-floating:focus-visible {
 }
 @media (prefers-reduced-motion: reduce) {
  body > .facilitator-launcher.is-floating { transition: none; }
+}
+ 
+
+/* Dashboard PR #108 – shared controls and compact mobile profile layout.
+   Keep the same Arcade color/font tokens; only sizing and placement change. */
+.arcade-dashboard-page:not(.arcade-home-route) {
+ --arcade-dashboard-control-height: 46px;
+ --arcade-dashboard-content-width: 1200px;
+}
+.arcade-dashboard-page:not(.arcade-home-route) :is(.dashboard-analyzer, .dashboard-shell, .dashboard-guest-start) {
+ max-width: var(--arcade-dashboard-content-width);
+}
+.arcade-dashboard-page:not(.arcade-home-route) .profile-input,
+.arcade-dashboard-page:not(.arcade-home-route) .analyze-button {
+ min-height: var(--arcade-dashboard-control-height);
+ height: var(--arcade-dashboard-control-height);
+}
+.arcade-dashboard-page:not(.arcade-home-route) .analyze-button {
+ padding-inline: 16px; font-size: .76rem; box-shadow: none;
+}
+.arcade-dashboard-page:not(.arcade-home-route) .profile-input {
+ padding-inline: 12px;
+}
+.arcade-dashboard-page:not(.arcade-home-route) .profile-input input {
+ min-width: 0;
+}
+.arcade-dashboard-page:not(.arcade-home-route) .dashboard-page-heading {
+ max-width: var(--arcade-dashboard-content-width);
+}
+
+/* Touch screens: one 44px action size across both Guest and Profile modes. */
+@media (max-width: 600px) {
+ .arcade-dashboard-page:not(.arcade-home-route) {
+  --arcade-dashboard-control-height: 44px;
+ }
+ .arcade-dashboard-page:not(.arcade-home-route) .profile-analyzer-card form { gap: 8px; }
+ .arcade-dashboard-page:not(.arcade-home-route) .analyze-button {
+  width: 100%; border-radius: 9px; font-size: .76rem;
+ }
+ .arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel {
+  min-height: 0; padding: 14px; gap: 10px;
+ }
+ /* A flex-basis of 240px previously placed the avatar at the card bottom. */
+ .arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel .profile-overview {
+  flex: 0 0 auto; min-height: 0; margin: 0;
+  width: 100%; padding-inline-end: 40px;
+ }
+ .arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel .profile-source-link {
+  flex: 0 1 auto; align-self: flex-start; margin: 0;
+  max-width: calc(100% - 40px);
+ }
+}
+
+/* Fixed 44px Facilitator FAB is stacked above Back to top (bottom 82px)
+   and the 66px mobile tab bar. Never float at mid-screen on phones. */
+@media (max-width: 600px) {
+ body > .facilitator-launcher.is-floating,
+ body > .facilitator-launcher.is-floating:hover,
+ body > .facilitator-launcher.is-floating:focus-visible {
+  top: auto;
+  right: max(12px, env(safe-area-inset-right));
+  bottom: calc(132px + env(safe-area-inset-bottom));
+  left: auto;
+  transform: none;
+  width: 44px; height: 44px; min-height: 44px; min-width: 44px;
+  display: grid; grid-template-columns: 1fr; place-items: center;
+  padding: 8px; gap: 0;
+  border-radius: 12px; border-width: 1px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, .26);
+ }
+ body > .facilitator-launcher.is-floating > svg:first-child {
+  width: 22px; height: 22px;
+ }
+ body > .facilitator-launcher.is-floating > span,
+ body > .facilitator-launcher.is-floating > svg:last-child { display: none; }
 }

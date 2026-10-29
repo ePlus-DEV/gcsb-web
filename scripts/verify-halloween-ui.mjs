@@ -40,7 +40,7 @@ try {
       heights: [...document.querySelectorAll(".dashboard-guest-start .tier-list-row")].map(el => el.getBoundingClientRect().height),
     }))
     assert.equal(geometry.overflow, false)
-    assert.ok(geometry.formWidth <= 1000, "Guest Dashboard remains compact")
+    assert.ok(geometry.formWidth <= 1200, "Guest Dashboard matches the shared content width")
     assert.ok(Math.abs(geometry.formWidth - geometry.tierWidth) <= 2, "Guest form and tiers have matching width")
     assert.ok(Math.abs(geometry.formLeft - geometry.tierLeft) <= 2, "Guest form and tiers align on the same grid")
     assert.ok(geometry.heights.every(height => height < 180), "Guest cards must not reserve empty artwork space")
@@ -152,15 +152,38 @@ try {
     const launcher = page.locator("body > .facilitator-launcher.is-floating")
     await launcher.waitFor({ state: "visible" })
     assert.ok(await launcher.isEnabled(), width + ": launcher available without opt-in")
+    const toolbarButtons = page.locator(".dashboard-view-switch button")
+    const toolbarWidths = await toolbarButtons.evaluateAll(nodes => nodes.map(el => el.getBoundingClientRect().width))
+    assert.equal(toolbarWidths.length, 2)
+    assert.ok(Math.abs(toolbarWidths[0] - toolbarWidths[1]) <= 1, width + ": Guest and Profile have equal widths")
+    if (width <= 600) {
+      const dimensions = await page.evaluate(() => {
+        const form = document.querySelector(".profile-input").getBoundingClientRect()
+        const action = document.querySelector(".analyze-button").getBoundingClientRect()
+        const card = document.querySelector(".profile-panel").getBoundingClientRect()
+        const identity = document.querySelector(".profile-panel .profile-overview").getBoundingClientRect()
+        return { formH: form.height, actionH: action.height, cardH: card.height, identityTop: identity.top, cardTop: card.top }
+      })
+      assert.ok(dimensions.formH <= 45 && dimensions.actionH <= 45, width + ": form controls use 44px mobile height")
+      assert.ok(dimensions.identityTop - dimensions.cardTop < 90, width + ": profile avatar stays near the card heading")
+      assert.ok(dimensions.cardH < 190, width + ": profile card has no excessive blank height")
+    }
     const positionBeforeScroll = await launcher.evaluate(el => ({
       position: getComputedStyle(el).position,
       top: el.getBoundingClientRect().top,
       width: el.getBoundingClientRect().width,
       gutter: innerWidth - el.getBoundingClientRect().right,
+      bottom: innerHeight - el.getBoundingClientRect().bottom,
+      height: el.getBoundingClientRect().height,
     }))
     assert.equal(positionBeforeScroll.position, "fixed", width + ": launcher is fixed, not embedded")
     assert.ok(positionBeforeScroll.width <= 54, width + ": compact rail must not cover Tiers")
     assert.ok(positionBeforeScroll.gutter >= 8, width + ": launcher stays inside viewport")
+    if (width <= 600) {
+      assert.ok(positionBeforeScroll.width <= 45 && positionBeforeScroll.height <= 45, "mobile Facilitator uses a 44px FAB")
+      assert.ok(positionBeforeScroll.bottom >= 130, "mobile FAB clears bottom nav and Back to top")
+      assert.ok(positionBeforeScroll.top > innerHeight * .55 || positionBeforeScroll.bottom >= 130, "FAB is not an intrusive mid-screen overlay")
+    }
     await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight))
     const positionAfterScroll = await launcher.evaluate(el => el.getBoundingClientRect().top)
     assert.ok(Math.abs(positionAfterScroll - positionBeforeScroll.top) <= 2, width + ": launcher stays on screen while scrolling")
