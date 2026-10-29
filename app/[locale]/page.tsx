@@ -3,9 +3,7 @@ import path from "node:path"
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { cache } from "react"
-import MonthlyGamesPanelGate from "@/components/arcade/monthly-games-panel-gate"
 import ProgramCountdown from "@/components/arcade/program-countdown"
-import SwagDropsPreview from "@/components/arcade/swag-drops-preview"
 import HomeSearchGuide from "@/components/seo/home-search-guide"
 import SeoContent from "@/components/seo/seo-content"
 import {
@@ -79,8 +77,6 @@ export default async function LocalizedPage({ params }: LocalizedPageProps) {
     <>
       <HomePage catalog={catalog} locale={locale}><HomeSearchGuide catalog={catalog} /></HomePage>
       <ProgramCountdown />
-      <SwagDropsPreview />
-      <MonthlyGamesPanelGate />
       <SeoContent locale={locale} title={title} description={description} />
     </>
   )

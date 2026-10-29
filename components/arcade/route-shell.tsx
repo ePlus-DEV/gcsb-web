@@ -1,7 +1,7 @@
 "use client"
 import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
-import { BadgeCheck, Chrome, Download, ExternalLink, Gamepad2, Globe2, Menu, Search, Trophy, X } from "lucide-react"
+import { BadgeCheck, BookOpen, Chrome, Download, ExternalLink, Gamepad2, Globe2, House, LayoutDashboard, Menu, Search, Trophy, X } from "lucide-react"
 import { getWebsiteLocaleHref, type WebsiteCatalog, type WebsiteLocale } from "@/lib/website-i18n"
 import { CURRENT_SWAG_SEASON, swagSeasonPath } from "./swag-seasons"
 const CHROME_EXTENSION_URL = "https://chromewebstore.google.com/detail/google-cloud-skills-boost/lmbhjioadhcoebhgapaidogodllonbgg"
@@ -64,8 +64,8 @@ export function ArcadeHeader({catalog, locale, dashboard = false}: Props) {
         <nav id="arcade-primary-navigation" className={mobileMenuOpen ? "arcade-nav is-open" : "arcade-nav"}>
           <Link className={!dashboard ? "active" : ""} aria-current={!dashboard ? "page" : undefined} href={homeHref} onClick={() => setMobileMenuOpen(false)}>{catalog.messages.homeNav}</Link>
           <Link className={dashboard ? "active" : ""} aria-current={dashboard ? "page" : undefined} href={dashboardHref} onClick={() => setMobileMenuOpen(false)}>{catalog.messages.dashboardNav}</Link>
-          <a href="#calculator" onClick={() => setMobileMenuOpen(false)}>{catalog.messages.calculator}</a>
-          <a href="#tiers" onClick={() => setMobileMenuOpen(false)}>{catalog.messages.tiers}</a>
+          <Link href={`${dashboardHref}#calculator`} onClick={() => setMobileMenuOpen(false)}>{catalog.messages.calculator}</Link>
+          <Link href={`${dashboardHref}#tiers`} onClick={() => setMobileMenuOpen(false)}>{catalog.messages.tiers}</Link>
           {dashboard && <a href="#badges" onClick={() => setMobileMenuOpen(false)}>{catalog.messages.badges}</a>}
           <Link href={`${homeHref}#extension`} onClick={() => setMobileMenuOpen(false)}>{catalog.messages.extension}</Link>
           <Link
@@ -73,7 +73,7 @@ export function ArcadeHeader({catalog, locale, dashboard = false}: Props) {
             href={swagSeasonPath(CURRENT_SWAG_SEASON)}
             onClick={() => setMobileMenuOpen(false)}
           >{catalog.additional["Swag Drops"]}</Link>
-          <Link href={`${homeHref}#monthly-games`} onClick={() => setMobileMenuOpen(false)}>{catalog.messages.guestLabsLabel}</Link>
+          <Link href={`${dashboardHref}#monthly-games`} onClick={() => setMobileMenuOpen(false)}>{catalog.messages.guestLabsLabel}</Link>
         </nav>
 
         <div className="arcade-header-actions">
@@ -115,8 +115,8 @@ type MobileSection = "calculator" | "tiers" | "badges" | "monthly-games" | "exte
 /** Section-aware nav: clicks, direct #links and manual scroll share one active item. */
 function MobileBottomNavigation({ catalog, locale, dashboard }: Props) {
   const homeHref = getWebsiteLocaleHref(locale)
-  // Guest Dashboard has no earned badges section. Link its third tab to
-  // Home's monthly labs instead of a dead #badges fragment.
+  const dashboardHref = `${homeHref}dashboard/`
+  // Guest Dashboard has no earned badges section; monthly games live there.
   const [profileView, setProfileView] = useState(false)
   useEffect(() => {
     if (!dashboard) return
@@ -129,7 +129,7 @@ function MobileBottomNavigation({ catalog, locale, dashboard }: Props) {
     return () => observer.disconnect()
   }, [dashboard])
   const thirdId: MobileSection = dashboard && profileView ? "badges" : "monthly-games"
-  const thirdHref = dashboard && !profileView ? homeHref + "#monthly-games" : "#" + thirdId
+  const thirdHref = dashboard && !profileView ? "#monthly-games" : "#" + thirdId
   const sectionIds: MobileSection[] = ["calculator", "tiers", thirdId, "extension"]
   const [active, setActive] = useState<MobileSection>("calculator")
   const clickAt = useRef(0)
@@ -192,6 +192,15 @@ function MobileBottomNavigation({ catalog, locale, dashboard }: Props) {
     "aria-current": (active === id ? "location" : undefined) as "location" | undefined,
     onClick: () => select(id),
   })
+
+  if (!dashboard) return (
+    <nav className="mobile-bottom-nav home-bottom-nav" aria-label={catalog.messages.mobileNavigation}>
+      <Link className="is-active" aria-current="page" href={homeHref}><House /><span>{catalog.messages.homeNav}</span></Link>
+      <Link href={dashboardHref}><LayoutDashboard /><span>{catalog.messages.dashboardNav}</span></Link>
+      <Link href="/guide/"><BookOpen /><span>{catalog.messages.guide}</span></Link>
+      <Link href="#extension"><Chrome /><span>{catalog.messages.extension}</span></Link>
+    </nav>
+  )
 
   return (
     <nav className="mobile-bottom-nav" aria-label={catalog.messages.mobileNavigation}>

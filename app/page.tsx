@@ -1,7 +1,5 @@
 import type { Metadata } from "next"
-import MonthlyGamesPanelGate from "@/components/arcade/monthly-games-panel-gate"
 import ProgramCountdown from "@/components/arcade/program-countdown"
-import SwagDropsPreview from "@/components/arcade/swag-drops-preview"
 import HomeSearchGuide from "@/components/seo/home-search-guide"
 import englishCatalog from "@/public/i18n/locales/en.json"
 import SeoContent from "@/components/seo/seo-content"
@@ -28,8 +26,6 @@ export default function Page() {
     <>
       <HomePage catalog={englishCatalog} locale="en"><HomeSearchGuide catalog={englishCatalog} /></HomePage>
       <ProgramCountdown />
-      <SwagDropsPreview />
-      <MonthlyGamesPanelGate />
       <SeoContent />
     </>
   )
