@@ -14,7 +14,13 @@ export type Prediction = {
   scoreTier: number | null
   supportedTier: number | null
   evidenceAt: string | null
+  /** Minutes between the supportive crawler snapshot and that score check. */
+  evidenceLagMinutes: number | null
   fallbackTier: number | null
+  /** Minutes the latest crawler snapshot preceded the current score check, even if stale. */
+  slotLagMinutes: number | null
+  targetObservedFull: boolean
+  allEligibleFull: boolean
   state: "review" | "below" | "supported" | "uncertain"
 }
 
@@ -54,7 +60,11 @@ export function mergeObservations(old: TierObservation[], next: TierObservation)
 
 export function predictTier(current: ScoreCheck, history: TierObservation[], slots: TierObservation | null): Prediction {
   const scoreTier = TIERS_DESC.find(tier => current.points >= tier) ?? null
-  const output: Prediction = { scoreTier, supportedTier: null, evidenceAt: null, fallbackTier: null, state: "uncertain" }
+  const output: Prediction = {
+    scoreTier, supportedTier: null, evidenceAt: null, evidenceLagMinutes: null,
+    fallbackTier: null, slotLagMinutes: null, targetObservedFull: false,
+    allEligibleFull: false, state: "uncertain",
+  }
   if (!current.complete || !Number.isFinite(current.points) || current.points < 0) return { ...output, state: "review" }
   const observations = history.filter(validObservation).filter(x => Date.parse(x.at) <= Date.parse(current.at))
   // A lower recalculated score invalidates our inference; never silently erase history.
@@ -65,15 +75,26 @@ export function predictTier(current: ScoreCheck, history: TierObservation[], slo
     if (evidence) {
       output.supportedTier = tier
       output.evidenceAt = evidence.at
+      output.evidenceLagMinutes = Math.ceil((Date.parse(evidence.at) - Date.parse(evidence.slotsAt!)) / 60000)
       break
     }
   }
   if (output.supportedTier === scoreTier) output.state = "supported"
-  // This is a present-slot scenario only, not an inferred official allocation.
-  if (slots && validObservation(slots) && slots.slotsAt &&
-      Date.parse(current.at) - Date.parse(slots.slotsAt) >= 0 &&
-      Date.parse(current.at) - Date.parse(slots.slotsAt) <= MAX_SLOT_AGE_MS) {
-    for (const tier of TIERS_DESC.filter(t => t <= scoreTier)) {
+  // The crawler clock and Google's private allocation timestamp are not interchangeable.
+  const slotAge = slots && validObservation(slots) && slots.slotsAt
+    ? Date.parse(current.at) - Date.parse(slots.slotsAt) : null
+  if (slotAge !== null && slotAge >= 0) {
+    output.slotLagMinutes = Math.ceil(slotAge / 60000)
+  }
+  // A snapshot up to 48 hours old provides a *historical scenario*, never a reservation.
+  // Older snapshots cannot be used to suggest a currently available fallback tier.
+  if (slots && validObservation(slots) && slotAge !== null &&
+      slotAge >= 0 && slotAge <= MAX_SLOT_AGE_MS) {
+    const eligible = TIERS_DESC.filter(t => t <= scoreTier)
+    output.targetObservedFull = slots.slots.some(s => s.points === scoreTier && s.spotsLeft === 0)
+    output.allEligibleFull = eligible.every(tier =>
+      slots.slots.some(s => s.points === tier && s.spotsLeft === 0))
+    for (const tier of eligible) {
       const entry = slots.slots.find(s => s.points === tier)
       if (!entry) break // Unknown is never treated as zero.
       if (entry.spotsLeft > 0) { output.fallbackTier = tier; break }
