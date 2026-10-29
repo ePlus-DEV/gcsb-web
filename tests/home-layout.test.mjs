@@ -73,6 +73,21 @@ test("profile layout groups badges and insight cards without stretching against 
   assert.ok(css.includes("max-width: 1080px"))
 })
 
+test("Tiers sidebar stays sticky only in desktop profile layout", () => {
+  const css = readRepoFile("app/styles/interface-refresh.css")
+  const stickyRule = css.slice(css.indexOf('The profile badge list can grow'))
+  assert.match(stickyRule, /@media \(min-width: 821px\)/)
+  assert.ok(stickyRule.includes('.arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-content-grid > .tier-list-panel'))
+  assert.match(stickyRule, /position:\s*sticky;/)
+  assert.match(stickyRule, /top:\s*calc\(var\(--arcade-anchor-offset/)
+  assert.match(stickyRule, /max-height:\s*calc\(100dvh/)
+  assert.match(stickyRule, /overflow-y:\s*auto;/)
+  const browserCheck = readRepoFile("scripts/verify-halloween-ui.mjs")
+  assert.ok(browserCheck.includes('for (const width of [390, 1024, 1440])'))
+  assert.ok(browserCheck.includes('await page.locator(".show-all-badges").click()'))
+  assert.ok(browserCheck.includes('metrics.position, desktop ? "sticky" : "static"'))
+})
+
 test("portal targets cannot depend on translated labels or mutation timing", () => {
   assert.match(calculator, /data-home-order="program-countdown"/)
   assert.ok(
