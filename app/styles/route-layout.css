@@ -1,0 +1,86 @@
+/* Route composition follows the pixel Arcade board; inherited tokens and fonts stay shared. */
+.arcade-home-route .arcade-hero { display: grid; grid-template-columns: 1fr; gap: 18px; padding: 38px 16px 24px; text-align: center; }
+.arcade-home-route .hero-heading { text-align: center; }
+.arcade-home-route .hero-heading h1 { font-size: clamp(1.2rem, 3vw, 2.6rem); line-height: 1.6; }
+.arcade-home-route .hero-description { margin-inline: auto; }
+.arcade-home-route .trust-pills { justify-content: center; }
+.arcade-home-route .profile-analyzer-card { width: min(760px, 100%); margin-inline: auto; text-align: start; }
+.arcade-home-route .extension-strip { margin-bottom: 18px; }
+.arcade-home-route .guest-dashboard .tier-list-row { text-align: center; }
+.arcade-home-route .guest-dashboard .tier-list { gap: 12px; }
+
+.arcade-dashboard-page .dashboard-analyzer { display: block; padding: 18px 0; }
+.arcade-dashboard-page .dashboard-page-title { margin: 0 0 12px; font-size: 1rem; color: var(--arcade-text); }
+.arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-analyzer .profile-analyzer-card { padding: 12px 16px; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-analyzer .analyzer-title { display: none; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-summary-grid > .dashboard-panel { min-height: 0; padding: 16px; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .profile-photo { width: 48px; height: 48px; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .profile-overview { margin: 12px 0; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .earned-badge-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .earned-badge { display: grid; grid-template-columns: 38px minmax(0, 1fr); gap: 4px 8px; padding: 10px; text-align: start; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .earned-badge-art { grid-row: 1 / 4; width: 38px; height: 38px; margin: 0; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .earned-badge h3 { font-size: .68rem; margin: 0; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .earned-badge p,
+.arcade-dashboard-page[data-dashboard-view="profile"] .earned-badge time { font-size: .6rem; margin: 0; }
+@media (max-width: 1100px) {
+ .arcade-dashboard-page[data-dashboard-view="profile"] .earned-badge-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+ .arcade-home-route .arcade-hero { padding: 24px 0 18px; }
+ .arcade-home-route .hero-heading h1 { font-size: 1.1rem; }
+ .arcade-home-route .guest-dashboard .tier-list-row { text-align: start; }
+ .arcade-dashboard-page[data-dashboard-view="profile"] .earned-badge-grid { grid-template-columns: 1fr; }
+ .arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-analyzer .profile-analyzer-card { padding: 10px; }
+ .arcade-header .arcade-nav.is-open { inset-inline: 0; width: 100%; max-width: none; box-sizing: border-box; }
+}
+.arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel { grid-column: 1 / -1; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel > .panel-title { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel .profile-overview { margin: 0; flex: 1; }
+.profile-source-link { display: inline-flex; align-items: center; gap: 6px; font-size: .7rem; color: var(--arcade-muted); }
+.profile-source-link svg { width: 14px; height: 14px; }
+.dashboard-score-details { margin-top: 12px; font-size: .72rem; }
+.dashboard-score-details summary { cursor: pointer; color: var(--arcade-muted); }
+.dashboard-score-details[open] .point-composition-bar { margin-top: 12px; }
+@media (min-width: 1101px) {
+ .arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-shell { display: grid; grid-template-columns: minmax(0, 1fr) 290px; align-items: start; gap: 14px; }
+ .arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-summary-grid { grid-column: 1; margin: 0; gap: 10px; }
+ .arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-content-grid { display: contents; }
+ .arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-primary-column { grid-column: 1; grid-row: 2; }
+ .arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-content-grid > .tier-list-panel { grid-column: 2; grid-row: 1 / span 2; }
+}
+.arcade-home-route .guest-dashboard .tier-list-row { grid-template-columns: 1fr; justify-items: center; }
+.tier-reward-art { display: grid; place-items: center; width: 100%; height: 80px; overflow: hidden; }
+.tier-reward-art img { width: 100%; height: 100%; object-fit: contain; }
+.arcade-home-route .guest-dashboard .tier-list-icon { display: none; }
+@media (max-width: 600px) {
+ .arcade-home-route .guest-dashboard .tier-list-row { grid-template-columns: 38px minmax(0, 1fr) auto; justify-items: stretch; }
+ .arcade-home-route .guest-dashboard .tier-list-icon { display: grid; }
+ .arcade-home-route .tier-reward-art { display: none; }
+}
+.arcade-home-route .arcade-hero { padding-block: 22px 18px; gap: 12px; }
+.arcade-home-route .hero-heading h1 { font-size: clamp(1.1rem, 2.2vw, 2rem); line-height: 1.4; margin-block: 10px; }
+.arcade-home-route .hero-heading .halloween-edition { margin-top: 0; }
+.arcade-home-route .trust-pills { margin-top: 10px; }
+.arcade-home-route .profile-analyzer-card { padding: 14px 18px; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel { flex-direction: row; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .profile-overview { min-height: 48px; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel .profile-source-link { margin-inline-end: 80px; }
+.dashboard-profile-settings > summary,
+.dashboard-tier-details > summary { cursor: pointer; color: var(--arcade-muted); font-size: .72rem; padding-block: 6px; }
+.dashboard-profile-settings[open] > summary { margin-bottom: 8px; }
+.dashboard-tier-details[open] > summary { margin-bottom: 10px; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .tier-status-main { margin-block: 12px; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .tier-status-main strong { font-size: 1.15rem; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .tier-status-main span { font-size: .68rem; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .tier-status-panel .panel-title-row { flex-wrap: wrap; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-summary-grid { align-items: start; }
+@media (max-width: 600px) {
+ .arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel .profile-source-link { margin-inline-end: 0; }
+ .arcade-home-route .profile-analyzer-card { padding: 14px; }
+}
+.tier-reward-art { display: flex; align-items: center; justify-content: center; gap: 4px; }
+.tier-reward-art img { min-width: 0; max-width: 100%; flex: 1; }
+@media (max-width: 600px) { .arcade-home-route .tier-reward-art { display: none; } }
+.arcade-home-route .arcade-hero { padding-block: 16px 12px; }
+.arcade-home-route .hero-heading h1 { font-size: clamp(1.1rem, 2.2vw, 1.9rem); }
+.arcade-home-route .trust-pills > span { padding-block: 5px; }

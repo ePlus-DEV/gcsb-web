@@ -159,7 +159,10 @@
     "guestHeroTop": "EXPLORE",
     "guestHeroBottom": "ARCADE",
     "guestHeroDescription": "Browse this month's games and rewards. Paste your public profile to check your points.",
-    "guestLabsLabel": "Monthly labs"
+    "guestLabsLabel": "Monthly labs",
+    "homeNav": "Home",
+    "dashboardNav": "Dashboard",
+    "invalidProfileUrl": "Enter a valid public profile URL from skills.google or cloudskillsboost.google."
   },
   "additional": {
     "Participating in Facilitator Program": "Participating in Facilitator Program",

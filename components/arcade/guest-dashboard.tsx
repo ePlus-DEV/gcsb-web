@@ -15,6 +15,7 @@ export default function GuestDashboard({
     >
 
       <DashboardTiers
+        overview
         milestones={milestones}
         milestonesLive={milestonesLive}
         slotHistory={slotHistory}

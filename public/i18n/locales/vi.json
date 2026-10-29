@@ -159,7 +159,10 @@
     "guestHeroTop": "KHÁM PHÁ",
     "guestHeroBottom": "ARCADE",
     "guestHeroDescription": "Khám phá trò chơi và quà tặng Arcade tháng này. Dán liên kết hồ sơ công khai để xem điểm của bạn.",
-    "guestLabsLabel": "Hoạt động tháng này"
+    "guestLabsLabel": "Hoạt động tháng này",
+    "homeNav": "Trang chủ",
+    "dashboardNav": "Bảng điểm",
+    "invalidProfileUrl": "Nhập URL hồ sơ công khai hợp lệ từ skills.google hoặc cloudskillsboost.google."
   },
   "additional": {
     "Enter a valid public profile URL from skills.google or cloudskillsboost.google.": "Nhập URL hồ sơ công khai hợp lệ từ skills.google hoặc cloudskillsboost.google.",

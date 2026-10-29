@@ -31,7 +31,7 @@ try {
           const page = await context.newPage()
           // Keep network-dependent game/slot feeds deterministic; profile is local fixture data.
           await page.route("https://**/*", (route) => route.abort())
-          await page.goto(`${base}${locale === "en" ? "" : `${locale}/`}`)
+          await page.goto(`${base}${locale === "en" ? "" : `${locale}/`}${state === "profile" ? "dashboard/" : ""}`)
           await page.waitForFunction(() => document.documentElement.dataset.season === "halloween")
           await page.locator(".halloween-edition").waitFor({ state: "visible" })
           await page.waitForFunction((label) => document.querySelector(".halloween-edition")?.textContent.includes(label), catalog.messages.halloweenEdition)
@@ -87,6 +87,7 @@ try {
             }
           }
           if (screenshots && await page.locator(".preview-mode-toolbar").count()) await page.locator(".preview-mode-toolbar").screenshot({ path: `${screenshots}/toolbar-${locale}-${theme}-${width}-${state}.png` })
+          if (state === "profile") await page.locator(".dashboard-profile-settings > summary").click()
           await page.locator(".profile-input input").click()
           assert.ok(await page.locator(".profile-input input").evaluate((el) => el === document.activeElement))
           if (screenshots && state === "empty") await page.screenshot({ path: `${screenshots}/${locale}-${theme}-${width}.png`, fullPage: true })
@@ -116,13 +117,13 @@ try {
     }, { profileUrl, result: extendedResult })
     const page = await context.newPage()
     await page.route("https://**/*", (route) => route.abort())
-    await page.goto(base)
+    await page.goto(`${base}dashboard/`)
     await page.locator(".show-all-badges").waitFor({ state: "visible" })
     await page.locator(".show-all-badges").click()
     assert.equal(await page.locator(".earned-badge").count(), 64, `${width}: expanded badge count`)
 
     await page.evaluate(() => {
-      const grid = document.querySelector(".dashboard-content-grid")
+      const grid = document.querySelector(".dashboard-primary-column")
       document.documentElement.style.scrollBehavior = "auto"
       window.scrollTo(0, grid.getBoundingClientRect().top + window.scrollY + 600)
     })

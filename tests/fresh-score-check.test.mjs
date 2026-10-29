@@ -120,9 +120,8 @@ test("locale changes hide stale fresh score notes until the new catalog loads", 
   assert.match(enhancer, /noteTarget && note/)
 })
 
-test("the fresh check enhancer is mounted on default and localized calculator pages", () => {
-  assert.match(page, /FreshScoreCheckEnhancer/)
-  assert.match(page, /<FreshScoreCheckEnhancer \/>/)
-  assert.match(localizedPage, /FreshScoreCheckEnhancer/)
-  assert.match(localizedPage, /<FreshScoreCheckEnhancer \/>/)
+test("fresh checks are mounted on the shared Dashboard route, never Home", () => {
+  assert.match(readFileSync(new URL("../components/arcade/dashboard-page.tsx", import.meta.url), "utf8"), /<FreshScoreCheckEnhancer \/>/)
+  assert.doesNotMatch(page, /<FreshScoreCheckEnhancer/)
+  assert.doesNotMatch(localizedPage, /<FreshScoreCheckEnhancer/)
 })

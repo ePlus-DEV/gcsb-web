@@ -1,8 +1,9 @@
 "use client"
 
-import Link from "next/link"
+import { ArcadeHeader, ArcadeFooter } from "@/components/arcade/route-shell"
+import { useArcadeMilestones } from "@/components/arcade/use-arcade-milestones"
 import ProfileAnalyzer from "@/components/arcade/profile-analyzer"
-import { DashboardPanel, SectionTitle as PanelTitle, MetricStat as Stat } from "@/components/arcade/ui/dashboard-kit"
+import { DashboardPanel, SectionTitle as PanelTitle } from "@/components/arcade/ui/dashboard-kit"
 import { profilePointSummary } from "@/components/arcade/profile-point-summary"
 import ReleasedPointsPanel from "@/components/arcade/released-points-panel"
 import DashboardTiers from "@/components/arcade/dashboard-tiers"
@@ -19,25 +20,17 @@ import {
 } from "@/lib/website-i18n"
 import {
   BadgeCheck,
-  Chrome,
   CircleHelp,
-  Download,
   ExternalLink,
   Gamepad2,
-  Globe2,
   GraduationCap,
-  Menu,
-  Search,
   ShieldCheck,
-  Sparkles,
   Star,
   Trophy,
   Users,
-  X,
 } from "lucide-react"
 import type { FormEvent, ReactNode } from "react"
-import { useEffect, useMemo, useRef, useState } from "react"
-import { CURRENT_SWAG_SEASON, swagSeasonPath } from "@/components/arcade/swag-seasons"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { getFacilitatorAdjustedPoints } from "@/components/arcade/facilitator-points"
 import {
   IS_PR_PREVIEW,
@@ -47,9 +40,7 @@ import {
 import { readFacilitatorParticipation } from "@/components/arcade/facilitator-participation"
 import {
   API_URL,
-  ARCADE_MILESTONES_URL,
   DASHBOARD_STORAGE_KEY,
-  OFFICIAL_MILESTONES,
   PROFILE_URL_PATTERN,
   formatInteger,
   formatNumber,
@@ -63,10 +54,6 @@ import type {
   BadgeFilter,
 } from "@/components/arcade/model"
 
-const CHROME_EXTENSION_URL =
-  "https://chromewebstore.google.com/detail/google-cloud-skills-boost/lmbhjioadhcoebhgapaidogodllonbgg"
-const FIREFOX_EXTENSION_URL =
-  "https://addons.mozilla.org/addon/cloud-skills-boost-helper"
 const BADGE_PREVIEW_LIMIT = 8
 const DASHBOARD_VIEW_MODE_STORAGE_KEY = "eplus-arcade-dashboard-view-mode-v1"
 
@@ -190,16 +177,12 @@ function readStoredViewMode(): DashboardViewMode | null {
   }
 }
 
-type HeroCopy = { top: string; bottom: string; description: string }
-
 export default function RedesignCalculator({
   footerContent,
-  heroCopy,
   historyCatalog,
   historyLocale,
 }: {
   footerContent?: ReactNode
-  heroCopy?: HeroCopy
   historyCatalog: WebsiteCatalog
   historyLocale: WebsiteLocale
 }) {
@@ -214,56 +197,12 @@ export default function RedesignCalculator({
   const [error, setError] = useState("")
   const [filter, setFilter] = useState<BadgeFilter>("all")
   const [showAllBadges, setShowAllBadges] = useState(false)
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const menuToggleRef = useRef<HTMLButtonElement>(null)
-  const headerRef = useRef<HTMLElement>(null)
-  // Header height can grow when navigation or translations wrap at tablet widths.
-  // Keep sticky Tiers below its actual size rather than a fixed 72px assumption.
-  useEffect(() => {
-    const header = headerRef.current
-    const dashboard = header?.closest<HTMLElement>(".arcade-dashboard-page")
-    if (!header || !dashboard) return
-
-    const syncHeaderHeight = () => {
-      dashboard.style.setProperty(
-        "--arcade-sticky-header-height",
-        `${Math.ceil(header.getBoundingClientRect().height)}px`,
-      )
-    }
-    syncHeaderHeight()
-    const observer = typeof ResizeObserver !== "undefined"
-      ? new ResizeObserver(syncHeaderHeight)
-      : null
-    observer?.observe(header)
-    window.addEventListener("resize", syncHeaderHeight)
-    return () => {
-      observer?.disconnect()
-      window.removeEventListener("resize", syncHeaderHeight)
-      dashboard.style.removeProperty("--arcade-sticky-header-height")
-    }
-  }, [])
-  useEffect(() => {
-    if (!mobileMenuOpen) return
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") return
-      setMobileMenuOpen(false)
-      menuToggleRef.current?.focus()
-    }
-    const onResize = () => { if (window.innerWidth > 1100) setMobileMenuOpen(false) }
-    window.addEventListener("keydown", onKey)
-    window.addEventListener("resize", onResize)
-    return () => {
-      window.removeEventListener("keydown", onKey)
-      window.removeEventListener("resize", onResize)
-    }
-  }, [mobileMenuOpen])
   const [facilitatorParticipation, setFacilitatorParticipation] =
     useState<FacilitatorParticipationState>({
       profileUrl: "",
       participating: false,
     })
-  const [milestones, setMilestones] = useState<ArcadeMilestone[]>(OFFICIAL_MILESTONES)
-  const [milestonesLive, setMilestonesLive] = useState(false)
+  const { milestones, milestonesLive } = useArcadeMilestones()
   const slotHistory = useTierSlotHistory()
 
   // Localized routes are prerendered with their correct catalog. The default
@@ -315,29 +254,7 @@ export default function RedesignCalculator({
 
   const abortControllerRef = useRef<AbortController | null>(null)
 
-  useEffect(() => {
-    const stored = readStoredDashboard()
-    setViewModeRestored(true)
-    const storedViewMode = IS_PR_PREVIEW ? readStoredViewMode() : null
 
-    if (!stored) {
-      const initialMode = IS_PR_PREVIEW ? (storedViewMode ?? "guest") : "guest"
-      setViewMode(initialMode)
-
-      if (IS_PR_PREVIEW && initialMode === "profile") {
-        setCommittedProfileUrl(PREVIEW_DEBUG_PROFILE_URL)
-        setResult(PREVIEW_DEBUG_PROFILE_RESULT)
-        setUsingPreviewFakeProfile(true)
-      }
-      return
-    }
-
-    setProfileUrl(stored.profileUrl)
-    setCommittedProfileUrl(stored.profileUrl)
-    setResult(stored.result)
-    setUsingPreviewFakeProfile(false)
-    setViewMode(IS_PR_PREVIEW ? (storedViewMode ?? "profile") : "profile")
-  }, [])
 
   useEffect(() => {
     if (!IS_PR_PREVIEW || !viewModeRestored) return
@@ -383,78 +300,7 @@ export default function RedesignCalculator({
     }
   }, [committedProfileUrl])
 
-  useEffect(() => {
-    let active = true
-    const controller = new AbortController()
-    const timeout = window.setTimeout(() => controller.abort(), 15_000)
 
-    async function loadLiveMilestones() {
-      try {
-        const response = await fetch(ARCADE_MILESTONES_URL, {
-          cache: "no-store",
-          signal: controller.signal,
-        })
-        if (!response.ok) return
-
-        const payload: unknown = await response.json()
-        if (!Array.isArray(payload)) return
-
-        const liveMilestones = OFFICIAL_MILESTONES.map((fallback) => {
-          const candidate = payload.find(
-            (item) =>
-              typeof item === "object" &&
-              item !== null &&
-              numeric((item as { points?: unknown }).points) === fallback.points,
-          ) as Record<string, unknown> | undefined
-
-          if (!candidate) return fallback
-
-          const hasSlots =
-            candidate.slots !== undefined &&
-            candidate.slots !== null &&
-            candidate.slots !== ""
-          const hasSpotsLeft =
-            candidate.spotsLeft !== undefined &&
-            candidate.spotsLeft !== null &&
-            candidate.spotsLeft !== ""
-          if (!hasSlots || !hasSpotsLeft) return fallback
-
-          const slots = numeric(candidate.slots)
-          const spotsLeft = numeric(candidate.spotsLeft)
-          if (slots <= 0 || spotsLeft < 0 || spotsLeft > slots) return fallback
-
-          return {
-            ...fallback,
-            league:
-              typeof candidate.league === "string"
-                ? candidate.league
-                : fallback.league,
-            slots,
-            spotsLeft,
-          }
-        })
-
-        if (active) {
-          setMilestones(liveMilestones)
-          setMilestonesLive(
-            liveMilestones.every((milestone) => milestone.spotsLeft !== null),
-          )
-        }
-      } catch {
-        // Keep the verified tier thresholds and total-slot fallback.
-      } finally {
-        window.clearTimeout(timeout)
-      }
-    }
-
-    void loadLiveMilestones()
-
-    return () => {
-      active = false
-      window.clearTimeout(timeout)
-      controller.abort()
-    }
-  }, [])
 
   const badges = useMemo<ArcadeBadge[]>(() => {
     const allBadges = result
@@ -502,7 +348,7 @@ export default function RedesignCalculator({
   const facilitatorBonus = facilitatorScore.bonus
   const points = facilitatorScore.totalPoints
   const profile = result?.userDetails?.[0]
-  const profileName = profile?.userName || "Google Skills learner"
+  const profileName = profile?.userName || activeHistoryLanguage.catalog.messages.publicProfile
   const profileImage = profile?.profileImage
   const memberSince = profile?.memberSince
   const qualifiedMilestone = getQualifiedMilestone(points, milestones)
@@ -575,12 +421,13 @@ export default function RedesignCalculator({
     const normalized = (viewMode === "guest" ? guestProfileUrl : profileUrl).trim().replace(/\/$/, "")
 
     if (!PROFILE_URL_PATTERN.test(normalized)) {
-      setError(
-        "Enter a valid public profile URL from skills.google or cloudskillsboost.google.",
-      )
+      setError(scoreCatalog.messages.invalidProfileUrl)
       return
     }
+    await runAnalysis(normalized)
+  }
 
+  const runAnalysis = useCallback(async (normalized: string) => {
     setLoading(true)
     setError("")
     abortControllerRef.current?.abort()
@@ -609,6 +456,9 @@ export default function RedesignCalculator({
         )
       }
 
+      const url = new URL(window.location.href)
+      url.searchParams.set("profile", normalized)
+      window.history.replaceState(window.history.state, "", url)
       setProfileUrl(normalized)
       setCommittedProfileUrl(normalized)
       setResult(payload)
@@ -633,13 +483,52 @@ export default function RedesignCalculator({
         setLoading(false)
       }
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    const requestedProfile = new URLSearchParams(window.location.search).get("profile")
+    if (requestedProfile && PROFILE_URL_PATTERN.test(requestedProfile)) {
+      setProfileUrl(requestedProfile)
+      setGuestProfileUrl(requestedProfile)
+      setViewModeRestored(true)
+      void runAnalysis(requestedProfile)
+      return
+    }
+    const stored = readStoredDashboard()
+    setViewModeRestored(true)
+    const storedViewMode = IS_PR_PREVIEW ? readStoredViewMode() : null
+
+    if (!stored) {
+      const initialMode = IS_PR_PREVIEW ? (storedViewMode ?? "guest") : "guest"
+      setViewMode(initialMode)
+
+      if (IS_PR_PREVIEW && initialMode === "profile") {
+        setCommittedProfileUrl(PREVIEW_DEBUG_PROFILE_URL)
+        setResult(PREVIEW_DEBUG_PROFILE_RESULT)
+        setUsingPreviewFakeProfile(true)
+      }
+      return
+    }
+
+    setProfileUrl(stored.profileUrl)
+    setCommittedProfileUrl(stored.profileUrl)
+    setResult(stored.result)
+    setUsingPreviewFakeProfile(false)
+    setViewMode(IS_PR_PREVIEW ? (storedViewMode ?? "profile") : "profile")
+  }, [runAnalysis])
+
+  useEffect(() => () => {
+    abortControllerRef.current?.abort()
+  }, [])
 
   function resetResult() {
     const controller = abortControllerRef.current
     abortControllerRef.current = null
     controller?.abort()
 
+    const url = new URL(window.location.href)
+    url.searchParams.delete("profile")
+    window.history.replaceState(window.history.state, "", url)
     setLoading(false)
     setProfileUrl("")
     setCommittedProfileUrl("")
@@ -684,33 +573,7 @@ export default function RedesignCalculator({
 
   const showProfileDashboard = viewMode === "profile" && Boolean(result)
 
-  const extensionStrip = (
-    <section id="extension" className="extension-strip" data-home-order="extension">
-      <span className="extension-store-mark"><Download /></span>
-      <div className="extension-copy-block">
-        <strong>{activeHistoryLanguage.catalog.messages.installExtension}</strong>
-        <span>{activeHistoryLanguage.catalog.messages.automaticTracking}</span>
-      </div>
-      <div className="extension-store-actions">
-        <a
-          className="store-button is-chrome"
-          href={CHROME_EXTENSION_URL}
-          target="_blank"
-          rel="noreferrer noopener"
-        >
-          <Chrome /> Chrome <ExternalLink />
-        </a>
-        <a
-          className="store-button is-firefox"
-          href={FIREFOX_EXTENSION_URL}
-          target="_blank"
-          rel="noreferrer noopener"
-        >
-          <Globe2 /> Firefox <ExternalLink />
-        </a>
-      </div>
-    </section>
-  )
+
 
   return (
     <main
@@ -720,58 +583,7 @@ export default function RedesignCalculator({
     >
       <div className="arcade-stars" aria-hidden="true" />
 
-      <header ref={headerRef} className="arcade-header">
-        <a className="arcade-brand" href="#top" aria-label={scoreCatalog.messages.backToCalculator}>
-          <span className="arcade-brand-mark"><Gamepad2 /></span>
-          <span className="arcade-brand-copy"><strong>ARCADE</strong><b>POINTS</b></span>
-          <em>PRO</em>
-        </a>
-
-        <nav id="arcade-primary-navigation" className={mobileMenuOpen ? "arcade-nav is-open" : "arcade-nav"}>
-          <a className="active" href="#calculator" onClick={() => setMobileMenuOpen(false)}>{scoreCatalog.messages.calculator}</a>
-          <a href="#tiers" onClick={() => setMobileMenuOpen(false)}>{scoreCatalog.messages.tiers}</a>
-          {viewMode === "profile" && <a href="#badges" onClick={() => setMobileMenuOpen(false)}>{scoreCatalog.messages.badges}</a>}
-          <a href="#extension" onClick={() => setMobileMenuOpen(false)}>{scoreCatalog.messages.extension}</a>
-          <Link
-            data-arcade-swag-nav="true"
-            href={swagSeasonPath(CURRENT_SWAG_SEASON)}
-            onClick={() => setMobileMenuOpen(false)}
-          >{scoreCatalog.additional["Swag Drops"]}</Link>
-          <a href="#monthly-games" onClick={() => setMobileMenuOpen(false)}>{scoreCatalog.messages.guestLabsLabel}</a>
-        </nav>
-
-        <div className="arcade-header-actions">
-          <a
-            className="header-store-link is-chrome"
-            href={CHROME_EXTENSION_URL}
-            target="_blank"
-            rel="noreferrer noopener"
-            aria-label={scoreCatalog.messages.installChrome}
-          >
-            <Chrome /> <span>Chrome</span>
-          </a>
-          <a
-            className="header-store-link is-firefox"
-            href={FIREFOX_EXTENSION_URL}
-            target="_blank"
-            rel="noreferrer noopener"
-            aria-label={scoreCatalog.messages.installFirefox}
-          >
-            <Globe2 /> <span>Firefox</span>
-          </a>
-          <button
-            className="mobile-menu-toggle"
-            ref={menuToggleRef}
-            type="button"
-            aria-expanded={mobileMenuOpen}
-            aria-controls="arcade-primary-navigation"
-            aria-label={mobileMenuOpen ? scoreCatalog.messages.closeNavigation : scoreCatalog.messages.openNavigation}
-            onClick={() => setMobileMenuOpen((open) => !open)}
-          >
-            {mobileMenuOpen ? <X /> : <Menu />}
-          </button>
-        </div>
-      </header>
+      <ArcadeHeader catalog={scoreCatalog} locale={activeHistoryLanguage.locale} dashboard />
 
       {IS_PR_PREVIEW && (
         <PreviewModeToolbar
@@ -781,23 +593,12 @@ export default function RedesignCalculator({
         />
       )}
 
-      <section id="top" className="arcade-hero" data-home-order="hero">
-        <div className="hero-heading">
-          <p className="pixel-kicker"><Sparkles /> Google Cloud Skills Boost Arcade 2026</p>
-          <span className="halloween-edition">
-            <span aria-hidden="true">🎃</span>
-            {activeHistoryLanguage.catalog.messages.halloweenEdition}
-          </span>
-          <h1>{heroCopy?.top ?? activeHistoryLanguage.catalog.messages.heroTitleTop}<br /><span>{heroCopy?.bottom ?? activeHistoryLanguage.catalog.messages.heroTitleBottom}</span></h1>
-          <p className="hero-description">
-            {heroCopy?.description ?? activeHistoryLanguage.catalog.messages.heroDescription}
-          </p>
-          <div className="trust-pills">
-            <span><ShieldCheck />{scoreCatalog.messages.publicDataOnly}</span>
-            <span><BadgeCheck />{scoreCatalog.messages.noSignIn}</span>
-          </div>
-        </div>
+      <section id="top" className="arcade-hero dashboard-analyzer" data-home-order="hero">
+        <span className="halloween-edition"><span aria-hidden="true">🎃</span>{activeHistoryLanguage.catalog.messages.halloweenEdition}</span>
+        <h1 className="dashboard-page-title">{scoreCatalog.messages.dashboardNav}</h1>
 
+        <details className="dashboard-profile-settings" open={!showProfileDashboard || Boolean(error)}>
+          <summary>{scoreCatalog.messages.analyzeProfile}</summary>
         <ProfileAnalyzer
           catalog={activeHistoryLanguage.catalog}
           value={viewMode === "guest" ? guestProfileUrl : profileUrl}
@@ -808,17 +609,18 @@ export default function RedesignCalculator({
           error={error}
           hasResult={Boolean(result) && viewMode === "profile"}
         />
+        </details>
       </section>
 
       {/* Stable portal anchor: keeps countdown placement identical for every locale. */}
       <div className="program-countdown-host" data-home-order="program-countdown" />
 
-      {extensionStrip}
+
 
 
 
       {showProfileDashboard ? (
-        <section className="dashboard-shell" aria-label="Arcade profile results" data-home-order="dashboard-results">
+        <section className="dashboard-shell" aria-label={scoreCatalog.messages.profileSummary} data-home-order="dashboard-results">
           <div className="dashboard-summary-grid" data-home-order="dashboard-summary">
             <DashboardPanel className="profile-panel">
               <PanelTitle>{scoreCatalog.messages.profileSummary}</PanelTitle>
@@ -835,16 +637,13 @@ export default function RedesignCalculator({
                   <p>{memberSince ? scoreCatalog.dynamic.memberSince.replace("{value}", memberSince) : scoreCatalog.messages.publicProfile}</p>
                 </div>
               </div>
-              <div className="profile-stat-grid">
-                <Stat value={scoreNumber(badges.length)} label={scoreCatalog.messages.badges} icon={<BadgeCheck />} />
-                <Stat value={scoreNumber(points)} label={scoreCatalog.messages.arcadePoints} icon={<Sparkles />} />
-                <Stat value={qualifiedMilestone?.league.replace("Arcade ", "") ?? "—"} label={scoreCatalog.messages.scoreTier} icon={<Trophy />} />
-              </div>
+              <a className="profile-source-link" href={safeHttpsUrl(committedProfileUrl) ?? undefined} target="_blank" rel="noreferrer noopener">{scoreCatalog.messages.publicProfile}<ExternalLink /></a>
             </DashboardPanel>
 
             <DashboardPanel className="breakdown-panel">
-              <PanelTitle>{scoreCatalog.messages.pointBreakdown}</PanelTitle>
+              <PanelTitle>{scoreCatalog.messages.totalArcadePoints}</PanelTitle>
               <div className="points-total"><strong>{formatNumber(points)}</strong><span>{scoreCatalog.messages.totalArcadePoints}</span></div>
+              <details className="dashboard-score-details"><summary>{scoreCatalog.messages.pointBreakdown}</summary>
               <div
                 className="point-composition-bar"
                 role="img"
@@ -893,7 +692,7 @@ export default function RedesignCalculator({
                   : scoreComplete
                     ? scoreCatalog.messages.allBadgesClassified
                     : scoreCatalog.dynamic.needReview.replace("{count}", scoreNumber(unknownBadgeCount))}
-              </p>
+              </p>              </details>
 
             </DashboardPanel>
 
@@ -911,6 +710,7 @@ export default function RedesignCalculator({
                   <span>{qualifiedMilestone ? tierRangeLabel(qualifiedMilestone) : scoreCatalog.dynamic.pointsToTrooper.replace("{count}", scoreNumber(pointsToNextTier))}</span>
                 </div>
               </div>
+              <details className="dashboard-tier-details"><summary>{scoreCatalog.messages.totalTierCapacity}</summary>
               {qualifiedMilestone && (
                 <div className="tier-availability-grid" aria-label={scoreCatalog.messages.totalTierCapacity}>
                   <div>
@@ -935,8 +735,13 @@ export default function RedesignCalculator({
               </dl>
               <p className="allocation-message">
                 {scoreCatalog.messages.allocationMessage}
-              </p>
+              </p>              </details>
             </article>
+            <DashboardPanel className="facilitator-summary-panel">
+              <PanelTitle>{scoreCatalog.messages.facilitatorBonus}</PanelTitle>
+              <div className="points-total"><strong>+{scoreNumber(facilitatorBonus)}</strong></div>
+              <p className="panel-link-note">{facilitatorParticipating ? scoreText("bonusIncluded", {bonus: scoreNumber(facilitatorBonus)}) : scoreCatalog.messages.facilitatorDescription}</p>
+            </DashboardPanel>
           </div>
 
           <div className="dashboard-content-grid">
@@ -1081,7 +886,7 @@ export default function RedesignCalculator({
             />
           </div>
 
-          <div id="monthly-games" className="monthly-games-host" data-home-order="monthly-labs" />
+
 
 
         </section>
@@ -1100,27 +905,8 @@ export default function RedesignCalculator({
 
       {footerContent}
 
-      <footer className="arcade-footer" data-home-order="footer">
-        <div className="arcade-brand footer-brand">
-          <span className="arcade-brand-mark"><Gamepad2 /></span>
-          <span className="arcade-brand-copy"><strong>ARCADE</strong><b>POINTS</b></span>
-        </div>
-        <p>{scoreCatalog.messages.unofficial}</p>
-        <nav className="footer-route-links" aria-label="Site information">
-          <Link href="/about/">{scoreCatalog.messages.about}</Link>
-          <Link href="/guide/">{scoreCatalog.messages.guide}</Link>
-          <Link href="/swag-drops/">{scoreCatalog.additional["__score:swagArchive"]}</Link>
-          <Link href="/privacy/">{scoreCatalog.messages.privacy}</Link>
-          <Link href="/terms/">{scoreCatalog.messages.terms}</Link>
-        </nav>
-      </footer>
+      <ArcadeFooter catalog={scoreCatalog} locale={activeHistoryLanguage.locale} dashboard />
 
-      <nav className="mobile-bottom-nav" aria-label={scoreCatalog.messages.mobileNavigation}>
-        <a href="#calculator"><Search /><span>{scoreCatalog.messages.calculator}</span></a>
-        <a href="#tiers"><Trophy /><span>{scoreCatalog.messages.tiers}</span></a>
-        <a href={viewMode === "guest" ? "#monthly-games" : "#badges"}>{viewMode === "guest" ? <Gamepad2 /> : <BadgeCheck />}<span>{viewMode === "guest" ? activeHistoryLanguage.catalog.messages.guestLabsLabel : activeHistoryLanguage.catalog.messages.badges}</span></a>
-        <a href="#extension"><Chrome /><span>{scoreCatalog.messages.extension}</span></a>
-      </nav>
     </main>
   )
 }

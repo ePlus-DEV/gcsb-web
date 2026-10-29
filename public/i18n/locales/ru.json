@@ -159,7 +159,10 @@
     "guestHeroTop": "ОТКРОЙТЕ",
     "guestHeroBottom": "ARCADE",
     "guestHeroDescription": "Ознакомьтесь с играми и наградами этого месяца. Вставьте ссылку на открытый профиль, чтобы проверить баллы.",
-    "guestLabsLabel": "Лабы месяца"
+    "guestLabsLabel": "Лабы месяца",
+    "homeNav": "Главная",
+    "dashboardNav": "Обзор",
+    "invalidProfileUrl": "Введите корректный URL публичного профиля skills.google или cloudskillsboost.google."
   },
   "additional": {
     "Enter a valid public profile URL from skills.google or cloudskillsboost.google.": "Введите корректный URL публичного профиля skills.google или cloudskillsboost.google.",

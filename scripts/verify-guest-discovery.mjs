@@ -79,8 +79,9 @@ try {
         await page.locator(".profile-input input").fill(profileUrl)
         await page.locator(".analyze-button").click()
         await page.locator(".profile-panel").waitFor({ state: "visible" })
-        await page.locator(".monthly-game-card").first().waitFor({ state: "visible" })
-        assert.deepEqual(await sharedAppearance(), guestAppearance, "Guest must share Profile hero, form and Labs styling")
+        assert.ok(new URL(page.url()).pathname.endsWith("/dashboard/"))
+        assert.equal(await page.locator(".monthly-game-card").count(), 0)
+        await page.locator(".dashboard-score-details summary").click()
         const stored = await page.evaluate(() => JSON.parse(localStorage.getItem("eplus-arcade-dashboard-v1")))
         assert.equal(stored.profileUrl, profileUrl)
         if (locale === "en" && theme === "dark" && width === 1440) {
@@ -90,6 +91,7 @@ try {
         }
         // Desktop uses hover without stealing focus; mobile only opens a modal sheet on tap.
         if (locale === "en" && theme === "dark" && [390, 1440].includes(width)) {
+          if (!await page.locator(".dashboard-score-details").evaluate(el => el.open)) await page.locator(".dashboard-score-details > summary").click()
           const trigger = page.locator(".point-history-trigger")
           const pointCard = page.locator(".breakdown-panel")
           await trigger.scrollIntoViewIfNeeded()

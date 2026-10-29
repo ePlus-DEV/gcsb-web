@@ -35,6 +35,7 @@ import "./styles/halloween-season.css"
 import "./styles/guest-discovery.css"
 import "./styles/arcade-ui.css"
 import "./styles/interface-refresh.css"
+import "./styles/route-layout.css"
 
 const arcadeRequestDedupeBootstrap = readFileSync(
   path.join(process.cwd(), "scripts", "arcade-request-dedupe.js"),

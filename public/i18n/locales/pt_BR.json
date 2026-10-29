@@ -159,7 +159,10 @@
     "guestHeroTop": "EXPLORE",
     "guestHeroBottom": "ARCADE",
     "guestHeroDescription": "Explore os jogos e recompensas deste mês. Cole seu perfil público para conferir seus pontos.",
-    "guestLabsLabel": "Labs deste mês"
+    "guestLabsLabel": "Labs deste mês",
+    "homeNav": "Início",
+    "dashboardNav": "Painel",
+    "invalidProfileUrl": "Insira um URL válido de perfil público do skills.google ou cloudskillsboost.google."
   },
   "additional": {
     "Enter a valid public profile URL from skills.google or cloudskillsboost.google.": "Insira uma URL de perfil público válida de skills.google ou cloudskillsboost.google.",

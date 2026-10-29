@@ -10,12 +10,14 @@ const guestStyles = readRepoFile("app/styles/guest-discovery.css")
 const previewToolbar = readRepoFile("components/arcade/preview-mode-toolbar.tsx")
 const dashboardState = readRepoFile("components/arcade/dashboard-state.ts")
 const calculator = readRepoFile("app/redesign-calculator.tsx")
+const homeClient = readRepoFile("components/arcade/home-page.tsx")
+const shell = readRepoFile("components/arcade/route-shell.tsx")
 const monthlyGate = readRepoFile("components/arcade/monthly-games-panel-gate.tsx")
 const monthlyPanel = readRepoFile("components/arcade/monthly-games-panel.tsx")
 const monthlyStyles = readRepoFile("app/styles/monthly-games.css")
 const guide = readRepoFile("components/seo/home-search-guide.tsx")
 
-const sharedBlocks = /<(RedesignCalculator|ProgramCountdown|FreshScoreCheckEnhancer|TierStatusIconEnhancer|SwagDropsPreview|MonthlyGamesPanelGate|ShareProfileEnhancer|FacilitatorAnalyzerOption|FacilitatorPanelGate|SeoContent)\b/g
+const sharedBlocks = /<(HomePage|ProgramCountdown|FreshScoreCheckEnhancer|TierStatusIconEnhancer|SwagDropsPreview|MonthlyGamesPanelGate|ShareProfileEnhancer|FacilitatorAnalyzerOption|FacilitatorPanelGate|SeoContent)\b/g
 
 function homepageBlocks(source) {
   return [...source.matchAll(sharedBlocks)].map((match) => match[1])
@@ -24,36 +26,19 @@ function homepageBlocks(source) {
 test("all locales mount the English homepage block sequence", () => {
   assert.deepEqual(homepageBlocks(localizedHome), homepageBlocks(home))
   assert.deepEqual(homepageBlocks(home), [
-    "RedesignCalculator",
+    "HomePage",
     "ProgramCountdown",
-    "FreshScoreCheckEnhancer",
-    "TierStatusIconEnhancer",
     "SwagDropsPreview",
     "MonthlyGamesPanelGate",
-    "ShareProfileEnhancer",
-    "FacilitatorAnalyzerOption",
-    "FacilitatorPanelGate",
     "SeoContent",
   ])
 })
 
-test("Monthly Labs has deterministic React-owned anchors in both dashboard states", () => {
-  assert.equal(((calculator + guestDashboard).match(/id="monthly-games"/g) ?? []).length, 2)
-  assert.equal(((calculator + guestDashboard).match(/data-home-order="monthly-labs"/g) ?? []).length, 2)
-  const summary = calculator.indexOf('data-home-order="dashboard-summary"')
-  const resultsMonthly = calculator.indexOf('data-home-order="monthly-labs"')
-  const bottom = calculator.indexOf('data-home-order="dashboard-bottom"')
-  assert.ok(summary >= 0 && summary < bottom && bottom < resultsMonthly)
-
-  const empty = calculator.indexOf("<GuestDashboard")
-  const emptyMonthly = guestDashboard.indexOf('data-home-order="monthly-labs"')
-  const about = calculator.indexOf("{footerContent}")
-  assert.ok(empty > bottom)
-  assert.ok(emptyMonthly >= 0 && emptyMonthly > guestDashboard.indexOf("<DashboardTiers\n"))
-  assert.match(guestDashboard, /<DashboardTiers/)
-  assert.match(dashboardTiers, /data-home-order="tier-history"/)
-  assert.ok(about > empty)
-  assert.match(calculator, /href="#monthly-games"/)
+test("public programs stay on Home and link back from Dashboard", () => {
+  assert.match(homeClient, /<GuestDashboard/)
+  assert.doesNotMatch(calculator, /id="monthly-games"/)
+  assert.match(guestDashboard, /id="monthly-games"/)
+  assert.match(shell, /homeHref\}#monthly-games/)
   assert.match(guide, /data-home-order="about"/)
 })
 
@@ -63,7 +48,7 @@ test("profile layout groups badges and insight cards without stretching against 
   const bottom = calculator.indexOf('data-home-order="dashboard-bottom"')
   const tiers = calculator.indexOf("<DashboardTiers")
   const monthly = calculator.indexOf('data-home-order="monthly-labs"')
-  assert.ok(primaryOpen >= 0 && primaryOpen < badges && badges < bottom && bottom < tiers && tiers < monthly)
+  assert.ok(primaryOpen >= 0 && primaryOpen < badges && badges < bottom && bottom < tiers)
   assert.equal((calculator.match(/className="dashboard-primary-column"/g) ?? []).length, 1)
   const css = readRepoFile("app/styles/interface-refresh.css")
   assert.ok(css.includes(".dashboard-content-grid {"))
@@ -82,8 +67,8 @@ test("Tiers sidebar stays sticky only in desktop profile layout", () => {
   assert.match(stickyRule, /top:\s*calc\(var\(--arcade-sticky-header-height/)
   assert.match(stickyRule, /max-height:\s*calc\(100dvh/)
   assert.match(stickyRule, /overflow-y:\s*auto;/)
-  assert.ok(calculator.includes('<header ref={headerRef} className="arcade-header">'))
-  assert.ok(calculator.includes("new ResizeObserver(syncHeaderHeight)"))
+  assert.ok(shell.includes('<header ref={headerRef} className="arcade-header">'))
+  assert.ok(shell.includes("new ResizeObserver(syncHeaderHeight)"))
   const browserCheck = readRepoFile("scripts/verify-halloween-ui.mjs")
   assert.ok(browserCheck.includes('for (const width of [390, 1024, 1440])'))
   assert.ok(browserCheck.includes('await page.locator(".show-all-badges").click()'))
@@ -91,15 +76,9 @@ test("Tiers sidebar stays sticky only in desktop profile layout", () => {
 })
 
 test("portal targets cannot depend on translated labels or mutation timing", () => {
-  assert.match(calculator, /data-home-order="program-countdown"/)
-  assert.ok(
-    calculator.indexOf('data-home-order="hero"') <
-    calculator.indexOf('data-home-order="program-countdown"'),
-  )
-  assert.ok(
-    calculator.indexOf('data-home-order="program-countdown"') <
-    calculator.indexOf("{extensionStrip}"),
-  )
+  assert.match(homeClient, /data-home-order="program-countdown"/)
+  assert.ok(homeClient.indexOf('data-home-order="hero"') < homeClient.indexOf('data-home-order="program-countdown"'))
+  assert.ok(homeClient.indexOf('data-home-order="program-countdown"') < homeClient.indexOf("<ExtensionStrip"))
   assert.ok(monthlyGate.includes('page?.querySelector<HTMLElement>(`#${HOST_ID}.${HOST_CLASS_NAME}`)'))
   assert.doesNotMatch(monthlyGate, /\[aria-label=/)
   assert.doesNotMatch(monthlyGate, /insertAdjacentElement|document\.createElement/)
