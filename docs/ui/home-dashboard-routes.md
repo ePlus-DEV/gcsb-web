@@ -52,3 +52,7 @@ Previous inline button positioning was incorrect: route-layout.css overrode fixe
 - Browser checks compare computed styles at 390 and 1440 widths for dark and light themes.
 
 The shared analyzer's step label is also visible in Profile Dashboard. Browser regressions cover Home, Guest Dashboard and Profile Dashboard across 390px/1440px and dark/light modes; Dashboard-only Facilitator/auto-fetch options remain intact.
+
+## Home profile URL restoration (2026-10-29)
+
+Home's Analyze form now hydrates its URL from the same validated `eplus-arcade-dashboard-v1.profileUrl` record used by Dashboard; unlike Dashboard it never auto-fetches a score. The lightweight reader imports only model constants, avoiding the preview fixture/score bundle. Home leaves the input empty if storage is absent, blocked or malformed and does not overwrite a user-edited or cleared value when focus/pageshow/storage events run. Browser regression covers both English/Vietnamese paths, desktop/mobile widths, restored/empty URLs and deliberate edits.

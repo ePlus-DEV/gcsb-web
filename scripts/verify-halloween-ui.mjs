@@ -104,6 +104,53 @@ try {
     cases++
   }
 
+  // Home restores saved profile URL without requesting points. The user can
+  // clear/edit it without the focus/pageshow/storage handlers undoing the edit.
+  for (const locale of ["en", "vi"]) for (const width of [390, 1440]) {
+    const context = await browser.newContext({ viewport: { width, height: 900 } })
+    await context.addInitScript(({ profileUrl, result }) => {
+      localStorage.setItem("eplus-arcade-dashboard-v1", JSON.stringify({ profileUrl, result }))
+    }, { profileUrl, result })
+    const page = await context.newPage()
+    const requests = []
+    await page.route("https://**/*", route => {
+      if (route.request().url().includes("/api/arcade-public")) requests.push(route.request().url())
+      return route.abort()
+    })
+    await page.goto(base + (locale === "vi" ? "vi/" : ""))
+    const input = page.locator(".profile-analyzer-card input[data-arcade-profile-input=true]")
+    await input.waitFor({ state: "visible" })
+    await page.waitForFunction(expected => document.querySelector(".profile-analyzer-card input")?.value === expected, profileUrl)
+    assert.equal(await input.inputValue(), profileUrl)
+    assert.equal(requests.length, 0, "Home restores saved profile URL without requesting points")
+    await page.locator(".profile-input button").click()
+    assert.equal(await input.inputValue(), "")
+    await page.evaluate(() => {
+      window.dispatchEvent(new Event("focus"))
+      window.dispatchEvent(new Event("pageshow"))
+      window.dispatchEvent(new StorageEvent("storage", { key: "eplus-arcade-dashboard-v1" }))
+    })
+    assert.equal(await input.inputValue(), "", "cleared Home input is not overwritten by storage synchronization")
+    await input.fill("https://skills.google/public_profiles/invalid")
+    await page.evaluate(() => window.dispatchEvent(new Event("focus")))
+    assert.equal(await input.inputValue(), "https://skills.google/public_profiles/invalid", "edited Home input stays unchanged")
+    await context.close()
+    cases++
+  }
+
+  // Home should stay empty when the dashboard has no saved profile.
+  {
+    const context = await browser.newContext({ viewport: { width: 390, height: 900 } })
+    const page = await context.newPage()
+    await page.route("https://**/*", route => route.abort())
+    await page.goto(base)
+    const input = page.locator(".profile-analyzer-card input")
+    await input.waitFor({ state: "visible" })
+    assert.equal(await input.inputValue(), "")
+    await context.close()
+    cases++
+  }
+
   // Direct Dashboard guest visits must not inherit Home's artwork cards.
   for (const locale of ["en", "vi"]) for (const theme of ["dark", "light"]) for (const width of [390, 1440]) {
     const context = await browser.newContext({ viewport: { width, height: 900 } })

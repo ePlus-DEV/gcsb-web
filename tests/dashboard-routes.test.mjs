@@ -169,3 +169,18 @@ test("Profile Dashboard retains the shared Analyze profile title and compact sty
   assert.match(e2e, /Home and Profile Dashboard analyzer controls match/)
   assert.match(e2e, /Analyze profile label stays visible in Profile Dashboard/)
 })
+
+test("Home restores the same saved profile URL as Dashboard without overriding edits", () => {
+  const home = readRepoFile("components/arcade/home-page.tsx")
+  const helper = readRepoFile("components/arcade/saved-profile-url.ts")
+  const browser = readRepoFile("scripts/verify-halloween-ui.mjs")
+  assert.match(home, /import \{ readSavedProfileUrl \} from "\.\/saved-profile-url"/)
+  assert.match(home, /if \(!hasEditedUrl\.current\) setUrl\(readSavedProfileUrl\(\)\)/)
+  assert.match(home, /hasEditedUrl\.current = true; setUrl\(value\)/)
+  assert.match(home, /hasEditedUrl\.current = true; setUrl\(""\)/)
+  assert.match(helper, /DASHBOARD_STORAGE_KEY/)
+  assert.match(helper, /PROFILE_URL_PATTERN\.test\(value\)/)
+  assert.match(helper, /typeof result !== "object"/)
+  assert.match(browser, /Home restores saved profile URL without requesting points/)
+  assert.match(browser, /cleared Home input is not overwritten by storage synchronization/)
+})

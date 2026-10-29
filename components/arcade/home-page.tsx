@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, type FormEvent, type ReactNode } from "react"
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react"
 import { useRouter } from "next/navigation"
 import { BadgeCheck, ShieldCheck } from "lucide-react"
 import { ArcadeHeader, ArcadeFooter, ExtensionStrip } from "./route-shell"
@@ -10,6 +10,7 @@ import GuestDashboard from "./guest-dashboard"
 import { useArcadeMilestones } from "./use-arcade-milestones"
 import { useTierSlotHistory } from "./tier-slot-history"
 import { PROFILE_URL_PATTERN } from "./model"
+import { readSavedProfileUrl } from "./saved-profile-url"
 import { getWebsiteLocale, getWebsiteLocaleFromPathname, getWebsiteLocaleHref, loadWebsiteCatalog, type WebsiteCatalog, type WebsiteLocale } from "@/lib/website-i18n"
 
 /** Home keeps discovery lightweight, with only an optional saved-score strip. */
@@ -18,6 +19,24 @@ export default function HomePage({catalog, locale, children}: {catalog: WebsiteC
   const [language, setLanguage] = useState({catalog, locale})
   const [url, setUrl] = useState("")
   const [invalid, setInvalid] = useState(false)
+  // Hydrate from the same saved profile as Dashboard, but never override
+  // a URL the visitor is typing or has deliberately cleared in this session.
+  const hasEditedUrl = useRef(false)
+  useEffect(() => {
+    const sync = () => {
+      if (!hasEditedUrl.current) setUrl(readSavedProfileUrl())
+    }
+    const onStorage = () => sync()
+    sync()
+    window.addEventListener("storage", onStorage)
+    window.addEventListener("pageshow", sync)
+    window.addEventListener("focus", sync)
+    return () => {
+      window.removeEventListener("storage", onStorage)
+      window.removeEventListener("pageshow", sync)
+      window.removeEventListener("focus", sync)
+    }
+  }, [])
   const {milestones, milestonesLive} = useArcadeMilestones()
   const slotHistory = useTierSlotHistory()
   useEffect(() => {
@@ -50,7 +69,7 @@ export default function HomePage({catalog, locale, children}: {catalog: WebsiteC
         <p className="hero-description">{m.heroDescription}</p>
         <div className="trust-pills"><span><ShieldCheck />{m.publicDataOnly}</span><span><BadgeCheck />{m.noSignIn}</span></div>
       </div>
-      <ProfileAnalyzer catalog={language.catalog} value={url} onChange={value => { setUrl(value); if (invalid) setInvalid(false) }} onSubmit={submit} onReset={() => { setUrl(""); setInvalid(false) }} loading={false} error={invalid ? m.invalidProfileUrl : ""} hasResult={false} />
+      <ProfileAnalyzer catalog={language.catalog} value={url} onChange={value => { hasEditedUrl.current = true; setUrl(value); if (invalid) setInvalid(false) }} onSubmit={submit} onReset={() => { hasEditedUrl.current = true; setUrl(""); setInvalid(false) }} loading={false} error={invalid ? m.invalidProfileUrl : ""} hasResult={false} />
       <HomeProfileSummary catalog={language.catalog} locale={language.locale} />
     </section>
     <div className="program-countdown-host" data-home-order="program-countdown" />
