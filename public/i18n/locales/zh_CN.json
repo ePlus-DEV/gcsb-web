@@ -629,13 +629,18 @@
     "__prediction:uncertain": "证据不足，无法确定已分配等级。",
     "__prediction:scoreTier": "按积分对应的等级，不含估算奖励分：{tier}。",
     "__prediction:evidence": "已于 {date} 记录支持 {tier} 的证据。之后名额用尽不会自动清除此证据。",
-    "__prediction:scenario": "按当前空余名额判断：{tier}。这不确定过去的分配结果。",
+    "__prediction:scenario": "爬虫快照中的 Waterfall 备选等级：{tier}。这不是 Google 已确认的分配结果。",
     "__prediction:noPercent": "缺少 Google 的分配时间和队列，无法计算可靠百分比。名额数据可能延迟。",
     "__prediction:bonus": "估算 Facilitator 奖励分不作为锁定名额的证据。",
     "__prediction:storage": "仅按资料和赛季保存在此浏览器。查询日期不是达标日期。",
     "__prediction:storageFailed": "无法保存历史记录。",
     "__prediction:clear": "删除资料的证据",
-    "__prediction:source": "官方规则"
+    "__prediction:source": "官方规则",
+    "__prediction:possible": "爬虫快照显示 {tier} 已无剩余名额。你可能更早就达到了门槛，因此不能据此确认降级。",
+    "__prediction:crawlLag": "爬虫快照比本次积分查询早 {duration}。期间剩余名额可能发生变化。",
+    "__prediction:evidenceLag": "作为依据的历史快照比当次积分查询早 {duration}。这只是参考线索，不代表已锁定名额。",
+    "__prediction:staleSnapshot": "爬虫快照比积分查询早 {duration}（超过 48 小时），无法用于判断当前的备选等级。",
+    "__prediction:noOpenSlots": "该快照显示所有积分达标的等级均无剩余名额。是否曾在此前获得分配仍未知。"
   },
   "dynamic": {
     "memberSince": "加入时间：{value}",
