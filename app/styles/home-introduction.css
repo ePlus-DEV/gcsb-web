@@ -126,7 +126,7 @@ html.light[data-season="halloween"] .arcade-dashboard-page.landing-home {
   grid-template-columns: minmax(0,.98fr) minmax(0,1.13fr);
   gap: clamp(32px,4.2vw,74px);
   align-items: center;
-  width: min(1400px,calc(100% - 64px));
+  width: min(1480px,calc(100% - 96px));
   min-height: 470px;
   padding: 64px 0 70px;
   margin: 0 auto;
@@ -338,7 +338,7 @@ html.light[data-season="halloween"] .arcade-dashboard-page.landing-home {
 
 /* Shared section scale and cards. */
 .landing-home .landing-section {
-  width:min(1320px,calc(100% - 64px));
+  width:min(1480px,calc(100% - 96px));
   margin:0 auto;
   padding:56px 0 72px;
   position:relative;
@@ -395,10 +395,10 @@ html.light[data-season="halloween"] .arcade-dashboard-page.landing-home {
 .landing-card-arrow .fa-icon{font-size:12px;}
 .landing-home .landing-how {
   width:100%;max-width:none;
-  padding:66px max(32px,calc((100vw - 1320px)/2)) 75px;
+  padding:66px max(32px,calc((100vw - 1480px)/2)) 75px;
   background:linear-gradient(100deg,#f0f7ff 0%,#f8fbff 48%,#f0faff 100%);
 }
-.landing-home .landing-how .landing-section-lead{max-width:1320px;}
+.landing-home .landing-how .landing-section-lead{max-width:1480px;}
 .landing-step-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:42px;}
 .landing-step-wrap{min-width:0;position:relative;}
 .landing-step-card{
@@ -511,7 +511,7 @@ html.light[data-season="halloween"] .arcade-dashboard-page.landing-home {
 .landing-home .landing-last-cta{
   position:relative;
   display:flex;align-items:center;gap:22px;
-  width:min(1400px,calc(100% - 64px));
+  width:min(1480px,calc(100% - 96px));
   min-height:118px;margin:0 auto 32px;
   padding:26px 30px;
   border-radius:15px;
@@ -538,7 +538,7 @@ html.light[data-season="halloween"] .arcade-dashboard-page.landing-home {
 
 /* Footer: restrained four columns with a clear brand signature. */
 .landing-home .landing-footer{
-  width:min(1320px,calc(100% - 64px));margin:0 auto;
+  width:min(1480px,calc(100% - 96px));margin:0 auto;
   padding:29px 0 30px;
   display:grid;grid-template-columns:minmax(215px,1.5fr) repeat(3,minmax(130px,1fr));
   gap:26px 36px;align-items:start;
