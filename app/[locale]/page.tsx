@@ -4,7 +4,6 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { cache } from "react"
 import ProgramCountdown from "@/components/arcade/program-countdown"
-import HomeSearchGuide from "@/components/seo/home-search-guide"
 import SeoContent from "@/components/seo/seo-content"
 import {
   getWebsiteCanonicalUrl,
@@ -75,7 +74,7 @@ export default async function LocalizedPage({ params }: LocalizedPageProps) {
 
   return (
     <>
-      <HomePage catalog={catalog} locale={locale}><HomeSearchGuide catalog={catalog} /></HomePage>
+      <HomePage catalog={catalog} locale={locale} />
       <ProgramCountdown />
       <SeoContent locale={locale} title={title} description={description} />
     </>
