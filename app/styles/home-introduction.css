@@ -450,7 +450,7 @@ html.dark[data-season="halloween"] .arcade-dashboard-page.landing-home {
 }
 .landing-home .landing-hero::before{
   content:"";position:absolute;z-index:-1;pointer-events:none;
-  inset:15px calc((min(1620px,100vw - 64px) - 100vw + 20px)/2) 0;
+  top:15px;bottom:0;left:50%;right:auto;width:calc(100vw - 32px);transform:translateX(-50%);
   border-radius:24px;
   background:
     radial-gradient(ellipse at 74% 40%,rgba(195,231,255,.43),transparent 33%),
@@ -543,7 +543,8 @@ html.dark .landing-home .landing-faq-art-large{box-shadow:0 20px 35px rgba(39,29
 }
 @media(max-width:860px){
   .landing-home .landing-hero{gap:26px;padding-block:43px 50px;}
-  .landing-home .landing-hero::before{inset:0 -20px 0;}
+  .landing-home .landing-hero::before{top:0;bottom:0;width:calc(100vw - 16px);}
+  .landing-home .landing-demo{transform:none;}
   .landing-home .landing-hero h1{font-size:clamp(31px,5.8vw,43px);}
   .landing-demo-floating-controller{left:-15px;bottom:25px;width:45px;height:45px;font-size:23px;}
   .landing-demo-floating-controller .fa-icon{font-size:24px!important;}
@@ -553,7 +554,7 @@ html.dark .landing-home .landing-faq-art-large{box-shadow:0 20px 35px rgba(39,29
 }
 @media(max-width:600px){
   .landing-home .landing-hero{width:calc(100% - 30px);padding-block:34px 43px;gap:22px;}
-  .landing-home .landing-hero::before{inset:-10px -15px 0;border-radius:0;}
+  .landing-home .landing-hero::before{top:-10px;bottom:0;width:100vw;border-radius:0;}
   .landing-home .landing-hero h1{font-size:clamp(27px,7.7vw,37px);}
   .landing-demo-floating-controller{width:32px;height:32px;left:-6px;bottom:24px;border-radius:9px;}
   .landing-demo-floating-controller .fa-icon{font-size:18px!important;}
