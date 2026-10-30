@@ -27,26 +27,28 @@ try {
   const page=await context.newPage()
   await page.goto(server.url+(locale==="vi"?"vi/":""),{waitUntil:"domcontentloaded"})
   await page.locator(".landing-demo").waitFor({state:"visible"})
-  assert.equal(await page.locator(".landing-dashboard-shot-image").count(),1,"Home Hero must contain the real Dashboard screenshot")
+  assert.equal(await page.locator(".landing-dashboard-shot-image").count(),2,"Home Hero must contain the real Dashboard screenshots for both themes")
   assert.equal(await page.locator(".landing-demo-card").count(),0,"No invented dashboard card markup may appear in the Hero")
   await page.waitForFunction(theme=>document.documentElement.classList.contains(theme),theme)
   const expectedImage = "dashboard-hero-"+(locale==="vi"?"vi":"en")+(theme==="dark"?"-dark":"")+".png"
+  const expectedSelector = ".landing-dashboard-shot-image.is-"+theme
+  const otherSelector = ".landing-dashboard-shot-image.is-"+(theme==="dark"?"light":"dark")
+  assert.equal(await page.locator(expectedSelector).isVisible(),true,"Correct Dashboard theme image must be visible")
+  assert.equal(await page.locator(otherSelector).isVisible(),false,"Wrong Dashboard theme image must be hidden")
   await fs.access(path.join(process.cwd(),"out","images",expectedImage))
   try {
-    await page.waitForFunction(expected=>{
-      const image=document.querySelector(".landing-dashboard-shot-image")
-      return image instanceof HTMLImageElement &&
-        image.src.includes(expected) && image.complete && image.naturalWidth>400
-    },expectedImage,{timeout:15000})
+    await page.waitForFunction(selector=>{
+      const image=document.querySelector(selector)
+      return image instanceof HTMLImageElement && image.complete && image.naturalWidth>400
+    },expectedSelector,{timeout:15000})
   } catch(error) {
-    const diagnostics=await page.locator(".landing-dashboard-shot-image").evaluate(img=>({
+    const diagnostics=await page.locator(expectedSelector).evaluate(img=>({
       src:img.getAttribute("src"),complete:img.complete,naturalWidth:img.naturalWidth,
-      theme:document.documentElement.className,
-      alt:img.getAttribute("alt")
+      theme:document.documentElement.className
     }))
     throw new Error("Hero image failed to match "+expectedImage+": "+JSON.stringify(diagnostics),{cause:error})
   }
-  const source=await page.locator(".landing-dashboard-shot-image").getAttribute("src")
+  const source=await page.locator(expectedSelector).getAttribute("src")
   assert.ok(source?.includes(expectedImage),"Theme- and locale-matched Dashboard screenshot missing")
   await page.evaluate(()=>document.fonts.ready)
   const wordmark = await page.locator(".landing-home .arcade-brand-copy").first().evaluate(el=>getComputedStyle(el).fontFamily)
