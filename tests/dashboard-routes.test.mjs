@@ -6,8 +6,8 @@ import { readRepoFile } from "./helpers/typescript-source.mjs"
 test("Home contains introduction only, without score or profile analysis", () => {
   const home = readRepoFile("components/arcade/home-page.tsx")
   assert.doesNotMatch(home, /RedesignCalculator|ReleasedPointsPanel|<ProfileAnalyzer|<GuestDashboard|<HomeProfileSummary|readSavedProfileUrl|useArcadeMilestones|useTierSlotHistory/)
-  assert.match(home, /m.startUsing/)
-  assert.match(home, /home-intro-journey/)
+  assert.match(home, /landing-button is-primary/)
+  assert.match(home, /landing-step-grid/)
 })
 
 
@@ -29,7 +29,7 @@ test("route navigation and form errors are translated in every locale", () => {
     const catalog = JSON.parse(readRepoFile(`public/i18n/locales/${name}`))
     for (const key of ["homeNav", "dashboardNav", "invalidProfileUrl"]) assert.ok(catalog.messages[key]?.trim(), `${name}: ${key}`)
   }
-  assert.match(readRepoFile("components/arcade/home-page.tsx"), /m.startUsing/)
+  assert.match(readRepoFile("components/arcade/home-page.tsx"), /landingCopy\(language.locale/)
   assert.match(readRepoFile("components/arcade/route-shell.tsx"), /catalog.messages.dashboardNav/)
 })
 
@@ -39,7 +39,7 @@ test("Home and Dashboard keep one responsive tier system and consistent page gut
   const tiers = readRepoFile("components/arcade/dashboard-tiers.tsx")
   assert.match(css, /\[data-dashboard-view="guest"\] \.dashboard-analyzer \{\s*max-width: 1200px;/)
   assert.match(css, /\.dashboard-guest-start \{ max-width: 1200px;/)
-  assert.match(readRepoFile("app/styles/home-introduction.css"), /\.home-intro-journey/)
+  assert.match(readRepoFile("app/styles/home-introduction.css"), /\.landing-step-grid/)
   assert.match(tiers, /sort\(\(left, right\) => right\.points - left\.points\)/)
   assert.match(css, /\.profile-panel \{\s*display: flex; align-items: center; flex-wrap: wrap;/)
   assert.match(css, /flex-direction: column; align-items: stretch; gap: 10px; padding-inline-end: 0;/)
@@ -49,7 +49,7 @@ test("seasonal Home edition labels never leak into Dashboard guest or profile pa
   const home = readRepoFile("components/arcade/home-page.tsx")
   const dashboard = readRepoFile("app/redesign-calculator.tsx")
   const browser = readRepoFile("scripts/verify-halloween-ui.mjs")
-  assert.match(home, /className="halloween-edition"/)
+  assert.doesNotMatch(home, /className="halloween-edition"/)
   assert.doesNotMatch(dashboard, /className="halloween-edition"/)
   assert.match(dashboard, /className="dashboard-page-heading"/)
   assert.match(browser, /Dashboard must not contain a promotional seasonal label/)
@@ -161,7 +161,7 @@ test("Home CTA opens localized Dashboard instead of running a profile request", 
   const home = readRepoFile("components/arcade/home-page.tsx")
   const shell = readRepoFile("components/arcade/route-shell.tsx")
   assert.match(home, /getWebsiteLocaleHref\(language.locale\)/)
-  assert.match(home, /className="home-intro-primary"/)
+  assert.match(home, /className="landing-button is-primary"/)
   assert.match(shell, /home-bottom-nav/)
   assert.doesNotMatch(home, /onSubmit|PROFILE_URL_PATTERN/)
 })
