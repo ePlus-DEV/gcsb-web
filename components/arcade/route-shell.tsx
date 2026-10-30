@@ -253,22 +253,59 @@ function MobileBottomNavigation({ catalog, locale, dashboard }: Props) {
 
 export function ArcadeFooter({catalog, locale, dashboard = false, landing = false}: Props) {
  const homeHref = getWebsiteLocaleHref(locale)
- return <>      <footer className="arcade-footer" data-home-order="footer">
-        <div className="arcade-brand footer-brand">
-          <span className="arcade-brand-mark"><Gamepad2 /></span>
-          <span className="arcade-brand-copy">{landing ? <><strong>ePlus Arcade</strong><b>Track · Plan · Score · Get Rewards</b></> : <><strong>ARCADE</strong><b>POINTS</b></>}</span>
-        </div>
-        <p>{catalog.messages.unofficial}</p>
-        <nav className="footer-route-links" aria-label={catalog.messages.about}>
-          <Link href="/about/">{catalog.messages.about}</Link>
-          <Link href="/guide/">{catalog.messages.guide}</Link>
-          <Link href="/swag-drops/">{catalog.additional["__score:swagArchive"]}</Link>
-          <Link href="/privacy/">{catalog.messages.privacy}</Link>
-          <Link href="/terms/">{catalog.messages.terms}</Link>
-        </nav>
-      </footer>
+ return <>
+      {landing ? (
+        <footer className="arcade-footer landing-footer" data-home-order="footer">
+          <div className="landing-footer-about">
+            <Link className="arcade-brand footer-brand" href={homeHref}>
+              <span className="arcade-brand-mark"><Gamepad2/></span>
+              <span className="arcade-brand-copy"><strong>ePlus Arcade</strong><b>Track · Plan · Score · Get Rewards</b></span>
+            </Link>
+            <p>{catalog.messages.unofficial}</p>
+          </div>
+          <nav className="landing-footer-links" aria-label={catalog.messages.about}>
+            <strong>{catalog.messages.about}</strong>
+            <Link href={homeHref + "dashboard/"}>{catalog.messages.dashboardNav}</Link>
+            <Link href="/guide/">{catalog.messages.guide}</Link>
+            <Link href="/swag-drops/2026/">{catalog.additional["__score:swagArchive"]}</Link>
+            <Link href="/about/">{catalog.messages.aboutArcade}</Link>
+          </nav>
+          <nav className="landing-footer-links" aria-label="Community">
+            <strong>ePlus.DEV</strong>
+            <a href="https://github.com/ePlus-DEV/gcsb-web" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a href="https://eplus.dev/" target="_blank" rel="noopener noreferrer">ePlus.DEV</a>
+            <Link href="/privacy/">{catalog.messages.privacy}</Link>
+            <Link href="/terms/">{catalog.messages.terms}</Link>
+          </nav>
+          <nav className="landing-footer-links" aria-label={catalog.messages.guide}>
+            <strong>{catalog.messages.extension}</strong>
+            <a href={CHROME_EXTENSION_URL} target="_blank" rel="noopener noreferrer">Chrome</a>
+            <a href={FIREFOX_EXTENSION_URL} target="_blank" rel="noopener noreferrer">Firefox</a>
+            <Link href={homeHref + "dashboard/"}>{catalog.messages.calculator}</Link>
+          </nav>
+          <div className="landing-footer-bottom">
+            <span>© 2026 ePlus.DEV</span>
+            <span>{catalog.messages.unofficial}</span>
+          </div>
+        </footer>
+      ) : (
+        <footer className="arcade-footer" data-home-order="footer">
+          <div className="arcade-brand footer-brand">
+            <span className="arcade-brand-mark"><Gamepad2 /></span>
+            <span className="arcade-brand-copy"><strong>ARCADE</strong><b>POINTS</b></span>
+          </div>
+          <p>{catalog.messages.unofficial}</p>
+          <nav className="footer-route-links" aria-label={catalog.messages.about}>
+            <Link href="/about/">{catalog.messages.about}</Link>
+            <Link href="/guide/">{catalog.messages.guide}</Link>
+            <Link href="/swag-drops/">{catalog.additional["__score:swagArchive"]}</Link>
+            <Link href="/privacy/">{catalog.messages.privacy}</Link>
+            <Link href="/terms/">{catalog.messages.terms}</Link>
+          </nav>
+        </footer>
+      )}
 
-      <MobileBottomNavigation catalog={catalog} locale={locale} dashboard={dashboard} /></>
+            <MobileBottomNavigation catalog={catalog} locale={locale} dashboard={dashboard} /></>
 }
 export function ExtensionStrip({catalog}: {catalog: WebsiteCatalog}) {
   return (
