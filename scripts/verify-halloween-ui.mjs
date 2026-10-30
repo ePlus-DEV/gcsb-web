@@ -87,7 +87,7 @@ try {
     }))
     assert.equal(geometry.overflow, false, "intro Home must not overflow")
     assert.ok(geometry.cta > 90, "intro CTA is visible")
-    if (width <= 390) assert.equal(await page.locator(".home-bottom-nav a[aria-current=page]").count(), 1)
+    if (width <= 390) assert.equal(await page.locator(".home-bottom-nav").count(), 0, "mobile Home uses hamburger and CTA, not a fixed bottom tab bar")
     await context.close()
     cases++
   }
