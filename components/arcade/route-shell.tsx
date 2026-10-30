@@ -267,7 +267,7 @@ export function ArcadeFooter({catalog, locale, dashboard = false, landing = fals
             <strong>{catalog.messages.about}</strong>
             <Link href={homeHref + "dashboard/"}>{catalog.messages.dashboardNav}</Link>
             <Link href="/guide/">{catalog.messages.guide}</Link>
-            <Link href="/swag-drops/2026/">{catalog.additional["__score:swagArchive"]}</Link>
+            <Link href="/swag-drops/">{catalog.additional["__score:swagArchive"]}</Link>
             <Link href="/about/">{catalog.messages.aboutArcade}</Link>
           </nav>
           <nav className="landing-footer-links" aria-label="Community">
