@@ -4,7 +4,7 @@ import { useEffect, useState, type ReactNode } from "react"
 import { useTheme } from "next-themes"
 import Link from "next/link"
 import {
-  ArrowRight, Award, BadgeCheck, CalendarDays, ChartNoAxesCombined, Chrome,
+  ArrowRight, BadgeCheck, CalendarDays, ChartNoAxesCombined, Chrome,
   ChevronDown, Cloud, Gift, Gamepad2, Globe2, Link2, Medal, Puzzle,
   ShieldCheck, Sparkles, Target, Trophy, Users,
 } from "lucide-react"
