@@ -90,7 +90,7 @@ export default function ThemeToggle() {
         // Home has its own approved light design; an explicit user selection
         // remains respected on future Home visits without changing Dashboard logic.
         if (document.querySelector(".landing-home")) {
-          try { window.localStorage.setItem("arcade-home-theme-v1", nextTheme) } catch { /* optional storage */ }
+          try { window.localStorage.setItem("arcade-home-theme-v2", nextTheme) } catch { /* optional storage */ }
         }
         setTheme(nextTheme)
       }}
