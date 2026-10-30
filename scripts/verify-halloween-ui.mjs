@@ -59,14 +59,14 @@ try {
     const page = await context.newPage()
     await page.route("https://**/*", r => r.abort())
     await page.goto(base)
-    await page.locator(".home-intro-primary").waitFor({ state: "visible" })
+    await page.locator(".landing-actions .landing-button.is-primary").waitFor({ state: "visible" })
     assert.equal(await page.locator(".profile-analyzer-card, .home-profile-summary, .guest-dashboard").count(), 0)
-    assert.equal(await page.locator(".home-intro-journey li").count(), 3)
+    assert.equal(await page.locator(".landing-step-card").count(), 3)
     assert.equal(await page.locator(".mobile-bottom-nav a[href=\"#calculator\"]").count(), 0)
-    assert.equal(await page.locator(".arcade-hero .halloween-edition").count(), 1)
+    assert.equal(await page.locator(".landing-demo").count(), 1)
     const geometry = await page.evaluate(() => ({
       overflow: document.documentElement.scrollWidth > innerWidth + 1,
-      cta: document.querySelector(".home-intro-primary").getBoundingClientRect().width,
+      cta: document.querySelector(".landing-actions .landing-button.is-primary").getBoundingClientRect().width,
     }))
     assert.equal(geometry.overflow, false, "intro Home must not overflow")
     assert.ok(geometry.cta > 90, "intro CTA is visible")
@@ -162,15 +162,15 @@ try {
             await page.locator(".dashboard-page-title").waitFor({ state: "visible" })
             await page.locator(".profile-panel").waitFor({ state: "visible" })
           } else {
-            await page.locator(".halloween-edition").waitFor({ state: "visible" })
-            await page.waitForFunction((label) => document.querySelector(".halloween-edition")?.textContent.includes(label), catalog.messages.halloweenEdition)
+            await page.locator(".landing-hero").waitFor({ state: "visible" })
+            assert.equal(await page.locator(".landing-demo").count(), 1, "Home keeps the illustrative preview")
           }
           const geometry = await page.evaluate(() => {
             const css = (s) => getComputedStyle(document.querySelector(s))
             const page = document.querySelector(".arcade-dashboard-page")
             const decor = document.querySelector(".halloween-season-decor")
             const card = document.querySelector(".profile-analyzer-card")
-            const label = document.querySelector(".halloween-edition")?.getBoundingClientRect()
+            const label = document.querySelector(".landing-kicker")?.getBoundingClientRect()
             return {
               overflow: document.documentElement.scrollWidth > innerWidth + 1,
               decorInPage: decor.parentElement === page,
@@ -181,7 +181,7 @@ try {
               cardBackground: card ? getComputedStyle(card).backgroundColor : null,
               tierBackgrounds: [...document.querySelectorAll(".tier-list-row, .guest-tier-card")].map((el) => getComputedStyle(el).backgroundColor),
               labelLeft: label?.left ?? null, labelRight: label?.right ?? null,
-              buttonColor: css(card ? ".analyze-button" : ".home-intro-primary").color,
+              buttonColor: css(card ? ".analyze-button" : ".landing-actions .landing-button.is-primary").color,
             }
           })
           assert.equal(geometry.overflow, false, `${locale}/${theme}/${width}/${state}: overflow`)
@@ -234,7 +234,7 @@ try {
             }
           }
           if (screenshots && await page.locator(".preview-mode-toolbar").count()) await page.locator(".preview-mode-toolbar").screenshot({ path: `${screenshots}/toolbar-${locale}-${theme}-${width}-${state}.png` })
-          const action = page.locator(state === "profile" ? ".profile-input input" : ".home-intro-primary")
+          const action = page.locator(state === "profile" ? ".profile-input input" : ".landing-actions .landing-button.is-primary")
           await action.focus()
           assert.ok(await action.evaluate(el => el === document.activeElement))
           if (screenshots && state === "empty") await page.screenshot({ path: `${screenshots}/${locale}-${theme}-${width}.png`, fullPage: true })
