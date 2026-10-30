@@ -1011,6 +1011,52 @@ html.light[data-season="halloween"] .arcade-dashboard-page.landing-home {
   background: var(--home-page-bg);
   color: var(--home-text);
 }
+
+/* Branding matches the actual Dashboard: dark indigo gamepad with yellow
+ * detail in dark mode, light violet mark in light mode. */
+html.dark .landing-home .arcade-brand-mark {
+  color: var(--arcade-yellow);
+  background: linear-gradient(145deg,#152653,#281557);
+  border: 1px solid rgba(255,212,59,.32);
+  box-shadow: 0 0 22px rgba(139,92,246,.24);
+}
+html.light .landing-home .arcade-brand-mark {
+  color: var(--arcade-purple);
+  background: linear-gradient(145deg,#eef2ff,#ede9fe);
+  border: 1px solid rgba(202,138,4,.28);
+  box-shadow: 0 0 22px rgba(99,102,241,.13);
+}
+html.dark .landing-home .arcade-brand-mark .fa-icon { color: var(--arcade-yellow); }
+html.light .landing-home .arcade-brand-mark .fa-icon { color: var(--arcade-purple); }
+html.dark .landing-home .landing-dashboard-shot-head,
+html.dark .landing-home .landing-dashboard-shot-caption {
+  background: var(--arcade-panel-strong);
+  color: var(--arcade-text);
+  border-color: var(--arcade-border);
+}
+html.dark .landing-home .landing-dashboard-shot-content {
+  background: var(--arcade-bg);
+}
+html.dark .landing-home .landing-dashboard-shot-image,
+html.dark .landing-home .landing-demo {
+  background: var(--arcade-panel-strong);
+  border-color: var(--arcade-border);
+}
+html.dark .landing-home .landing-dashboard-shot-title,
+html.dark .landing-home .landing-dashboard-shot-caption { color: var(--arcade-muted); }
+html.dark .landing-home .landing-dashboard-shot-brand { color: var(--arcade-purple); }
+html.dark .landing-home .landing-dashboard-shot-badge {
+  background: var(--home-tint);
+  border-color: var(--home-tint-border);
+  color: var(--home-tint-text);
+}
+html.dark .landing-home .landing-feature-icon.tone-blue {background: rgba(47,128,255,.14);color:#75abff;}
+html.dark .landing-home .landing-feature-icon.tone-orange {background:rgba(255,159,28,.13);color:#ffba66;}
+html.dark .landing-home .landing-feature-icon.tone-gold {background:rgba(255,212,59,.12);color:#ffda70;}
+html.dark .landing-home .landing-feature-icon.tone-rose {background:rgba(251,113,133,.13);color:#ff9fb0;}
+html.dark .landing-home .landing-feature-icon.tone-violet {background:rgba(192,84,255,.13);color:#d5a2ff;}
+html.dark .landing-home .landing-feature-icon.tone-cyan {background:rgba(34,211,238,.13);color:#73e9ff;}
+
 html.dark .landing-home .arcade-header,
 html.light .landing-home .arcade-header {
   background: var(--home-header-bg);
