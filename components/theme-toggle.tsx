@@ -86,14 +86,7 @@ export default function ThemeToggle() {
       type="button"
       aria-label={label}
       title={label}
-      onClick={() => {
-        // Home has its own approved light design; an explicit user selection
-        // remains respected on future Home visits without changing Dashboard logic.
-        if (document.querySelector(".landing-home")) {
-          try { window.localStorage.setItem("arcade-home-theme-v2", nextTheme) } catch { /* optional storage */ }
-        }
-        setTheme(nextTheme)
-      }}
+      onClick={() => setTheme(nextTheme)}
     >
       <SunIcon />
       <MoonIcon />
