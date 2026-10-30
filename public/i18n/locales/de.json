@@ -159,7 +159,15 @@
     "guestHeroTop": "ENTDECKE",
     "guestHeroBottom": "ARCADE",
     "guestHeroDescription": "Entdecke die Spiele und Belohnungen dieses Monats. Füge dein öffentliches Profil ein, um deine Punkte zu prüfen.",
-    "guestLabsLabel": "Labs dieses Monats"
+    "guestLabsLabel": "Labs dieses Monats",
+    "homeNav": "Startseite",
+    "dashboardNav": "Übersicht",
+    "invalidProfileUrl": "Gib eine gültige öffentliche Profil-URL von skills.google oder cloudskillsboost.google ein.",
+    "homeSavedProfile": "Gespeichertes Profil",
+    "homeLastChecked": "Zuletzt geprüft: {value}",
+    "homeSavedResult": "Gespeichertes Ergebnis",
+    "homeScoreTier": "Rang nach Punkten",
+    "homeOpenDashboard": "Dashboard öffnen"
   },
   "additional": {
     "Enter a valid public profile URL from skills.google or cloudskillsboost.google.": "Gib eine gültige öffentliche Profil-URL von skills.google oder cloudskillsboost.google ein.",

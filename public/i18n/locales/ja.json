@@ -159,7 +159,15 @@
     "guestHeroTop": "探索しよう",
     "guestHeroBottom": "ARCADE",
     "guestHeroDescription": "今月のゲームと報酬を探しましょう。公開プロフィールを貼り付けるとポイントを確認できます。",
-    "guestLabsLabel": "今月のラボ"
+    "guestLabsLabel": "今月のラボ",
+    "homeNav": "ホーム",
+    "dashboardNav": "ダッシュボード",
+    "invalidProfileUrl": "skills.google または cloudskillsboost.google の有効な公開プロフィール URL を入力してください。",
+    "homeSavedProfile": "保存済みプロフィール",
+    "homeLastChecked": "最終確認: {value}",
+    "homeSavedResult": "保存済みの結果",
+    "homeScoreTier": "ポイントによるランク",
+    "homeOpenDashboard": "ダッシュボードを見る"
   },
   "additional": {
     "Enter a valid public profile URL from skills.google or cloudskillsboost.google.": "skills.google または cloudskillsboost.google の有効な公開プロフィールURLを入力してください。",

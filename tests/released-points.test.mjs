@@ -203,3 +203,33 @@ test("history details use an accessible portal popover and a mobile bottom sheet
     assert.ok(catalog.additional["Close details"], `${filename} missing popover close label`)
   }
 })
+
+test("Published games detail sheet has a fixed header, scrollable body and optional explanatory copy", () => {
+  const component = readRepoFile("components/arcade/released-points-panel.tsx")
+  const css = readRepoFile("app/styles/monthly-games.css")
+  const smoke = readRepoFile("scripts/verify-guest-discovery.mjs")
+  assert.match(component, /className="point-history-popover-body" tabIndex=\{0\}/)
+  assert.match(component, /<details className="point-history-explanation">/)
+  assert.match(component, /<summary>\{catalog\.messages\.pointBreakdown\}<\/summary>/)
+  assert.match(css, /max-height: min\(74dvh, 560px\) !important/)
+  assert.match(css, /bottom: max\(12px, env\(safe-area-inset-bottom\)\)/)
+  assert.match(css, /\.point-history-popover-body \{[\s\S]*?overflow-y: auto;/)
+  assert.match(css, /\.point-history-close \{ width: 40px; height: 40px; flex-basis: 40px;/)
+  assert.match(smoke, /mobile published-games detail sheet has a usable inner scroll/)
+})
+ 
+test("all four Published games metrics have the same card structure and stylesheet", () => {
+  const component = readRepoFile("components/arcade/released-points-panel.tsx")
+  const css = readRepoFile("app/styles/monthly-games.css")
+  const browser = readRepoFile("scripts/verify-guest-discovery.mjs")
+  const grid = component.match(/<dl className="point-comparison-stats">([\s\S]*?)<\/dl>/)
+  assert.ok(grid, "single metrics grid must be present")
+  for (const field of ["earned", "released", "available", "expired"]) {
+    assert.match(grid[1], new RegExp('text\\("' + field + '"\\)'))
+  }
+  assert.equal((grid[1].match(/<div><dt>/g) || []).length, 4)
+  assert.doesNotMatch(component, /className="point-comparison-extra"/)
+  assert.match(css, /\.point-history-popover \.point-comparison-stats > div \{[\s\S]*?min-height: 86px; padding: 11px 12px;[\s\S]*?border: 1px solid/)
+  assert.match(css, /\.point-history-portal\.is-light \.point-comparison-stats > div/)
+  assert.match(browser, /four Published games metrics use identical card styling/)
+})

@@ -36,6 +36,15 @@
   font-size: 24px;
 }
 
+/* The filled Font Awesome gamepad has an asymmetric glyph bearing: its visible
+   yellow shape appears ~3 CSS pixels right of the mark's visual center.
+   Correct the optical offset without resizing the logo or moving its label.
+   Applies to the shared header, footer and static/internal page variants. */
+.arcade-brand-mark .fa-icon.fa-gamepad {
+  transform: translateX(-3px);
+  transform-origin: center;
+}
+
 .header-store-link .fa-icon,
 .mobile-menu-toggle .fa-icon {
   width: 17px;

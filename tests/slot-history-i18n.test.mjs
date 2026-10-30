@@ -42,6 +42,6 @@ test("slot history uses existing catalog data and the localized static route", (
   const page = readRepoFile("app/[locale]/page.tsx")
   assert.ok(helper.includes("catalog.additional["))
   assert.ok(helper.includes("__slotHistory:"))
-  assert.ok(page.includes("historyCatalog={catalog}"))
-  assert.ok(page.includes("historyLocale={locale}"))
+  assert.ok(page.includes("catalog={catalog}"))
+  assert.ok(page.includes("locale={locale}"))
 })

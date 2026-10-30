@@ -35,9 +35,9 @@ try {
           if (url.includes("/api/arcade") && route.request().method() === "POST") return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(result) })
           return route.abort()
         })
-        await page.goto(`${server.url}${locale === "en" ? "" : `${locale}/`}`)
+        await page.goto(`${server.url}${locale === "en" ? "" : `${locale}/`}dashboard/`)
         await page.locator(".guest-dashboard .monthly-game-card").first().waitFor({ state: "visible" })
-        await page.waitForFunction((label) => document.querySelector(".hero-heading h1")?.textContent.includes(label), catalog.messages.heroTitleTop)
+        await page.locator(".dashboard-page-title").waitFor({ state: "visible" })
         assert.equal(await page.locator(".monthly-game-card").count(), 6)
         assert.equal(await page.locator(".monthly-game-status").count(), 0)
         assert.equal(await page.locator(".profile-input input").inputValue(), "")
@@ -49,20 +49,16 @@ try {
         const geometry = await page.evaluate(() => {
           const labs = document.querySelector(".guest-dashboard .monthly-games-host").getBoundingClientRect()
           const tiers = document.querySelector(".guest-dashboard .tier-list-panel").getBoundingClientRect()
-          const extension = document.querySelector(".extension-strip").getBoundingClientRect()
-          const hero = document.querySelector(".arcade-hero").getBoundingClientRect()
-          return { overflow: document.documentElement.scrollWidth > innerWidth + 1, labs: { top: labs.top, bottom: labs.bottom, right: labs.right }, tiers: { top: tiers.top, bottom: tiers.bottom, left: tiers.left }, extension: extension.top, heroHeight: hero.height }
+          return { overflow: document.documentElement.scrollWidth > innerWidth + 1, labs: { top: labs.top, bottom: labs.bottom, right: labs.right }, tiers: { top: tiers.top, bottom: tiers.bottom, left: tiers.left } }
         })
         assert.equal(geometry.overflow, false, `${locale}/${theme}/${width}: horizontal overflow`)
         assert.ok(geometry.tiers.bottom <= geometry.labs.top)
         if (width > 1100) {
-          assert.ok(geometry.heroHeight < 440, `${locale}/${theme}: entry hero height ${geometry.heroHeight}`)
           const rows = await page.locator(".guest-dashboard .tier-list-row").evaluateAll(elements => elements.map(el => el.getBoundingClientRect().top))
           assert.ok(rows.every(top => Math.abs(top - rows[0]) < 2), "Desktop tier overview must fit on one row")
         }
-        assert.ok(geometry.extension < geometry.tiers.top)
         const sharedAppearance = () => page.evaluate(() => {
-          const selectors = [".arcade-hero", ".hero-heading h1", ".profile-analyzer-card", ".monthly-games-grid", ".monthly-game-card"]
+          const selectors = [".dashboard-analyzer", ".dashboard-page-title", ".profile-analyzer-card", ".monthly-games-grid", ".monthly-game-card"]
           return selectors.map(selector => {
             const style = getComputedStyle(document.querySelector(selector))
             return [style.width, style.fontSize, style.padding, style.borderRadius, style.gridTemplateColumns]
@@ -75,12 +71,27 @@ try {
           await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }))
           await page.screenshot({ path: `${screenshots}/${locale}-${theme}-${width}.png`, fullPage: true })
         }
-        // Successful analysis leaves discovery and renders the real profile dashboard.
+        // Analysis switches Dashboard from public discovery to personal results.
         await page.locator(".profile-input input").fill(profileUrl)
         await page.locator(".analyze-button").click()
         await page.locator(".profile-panel").waitFor({ state: "visible" })
+        assert.ok(new URL(page.url()).pathname.endsWith("/dashboard/"))
+        // Monthly labs remain accessible below the personal Dashboard too.
         await page.locator(".monthly-game-card").first().waitFor({ state: "visible" })
-        assert.deepEqual(await sharedAppearance(), guestAppearance, "Guest must share Profile hero, form and Labs styling")
+        assert.equal(await page.locator(".monthly-game-card").count(), 6)
+        // Core profile controls, point composition and reward availability stay visible.
+        assert.equal(await page.locator('.dashboard-analyzer details, .breakdown-panel details, .tier-status-panel details').count(), 0)
+        for (const selector of ['.profile-input input', '.point-compact-list', '.allocation-message']) {
+          assert.equal(await page.locator(selector).isVisible(), true, `${selector} must not require expansion`)
+        }
+        const profileWidth = await page.locator('.profile-name-block').evaluate(el => el.getBoundingClientRect().width)
+        assert.ok(profileWidth >= 120, `Profile name is squeezed into ${profileWidth}px at ${width}px`)
+        assert.equal(await page.locator('.facilitator-summary-panel').count(), 0, 'Bonus must not duplicate the score breakdown')
+        if (width >= 768) {
+          const panels = await page.locator('.breakdown-panel, .tier-status-panel').evaluateAll(elements => elements.map(el => { const box = el.getBoundingClientRect(); return { top: box.top, height: box.height } }))
+          assert.ok(Math.abs(panels[0].top - panels[1].top) <= 1, 'Score and tier must share a row')
+          assert.ok(Math.abs(panels[0].height - panels[1].height) <= 1, 'Summary cards must have balanced heights')
+        }
         const stored = await page.evaluate(() => JSON.parse(localStorage.getItem("eplus-arcade-dashboard-v1")))
         assert.equal(stored.profileUrl, profileUrl)
         if (locale === "en" && theme === "dark" && width === 1440) {
@@ -89,7 +100,7 @@ try {
           assert.equal(await page.locator(".profile-input input").inputValue(), profileUrl)
         }
         // Desktop uses hover without stealing focus; mobile only opens a modal sheet on tap.
-        if (locale === "en" && theme === "dark" && [390, 1440].includes(width)) {
+        if (locale === "en" && ((theme === "dark" && [320, 390, 1440].includes(width)) || (theme === "light" && width === 390))) {
           const trigger = page.locator(".point-history-trigger")
           const pointCard = page.locator(".breakdown-panel")
           await trigger.scrollIntoViewIfNeeded()
@@ -133,6 +144,58 @@ try {
             await page.locator(".point-history-popover").waitFor({ state: "visible" })
             assert.equal(await page.locator(".point-history-popover").getAttribute("aria-modal"), "true")
             assert.equal(await page.evaluate(() => document.body.style.overflow), "hidden")
+            // All 4 numbers must be styled as one consistent 2×2 card grid.
+            const cards = page.locator(".point-history-popover .point-comparison-stats > div")
+            await cards.first().waitFor({ state: "visible" })
+            assert.equal(await cards.count(), 4, "published history includes all four metrics")
+            const visuals = await cards.evaluateAll(nodes => nodes.map(node => {
+              const style = getComputedStyle(node)
+              const label = getComputedStyle(node.querySelector("dt"))
+              const value = getComputedStyle(node.querySelector("dd"))
+              return {
+                background: style.backgroundColor,
+                border: style.borderTopWidth + " " + style.borderTopStyle + " " + style.borderTopColor,
+                radius: style.borderRadius, padding: style.padding,
+                labelColor: label.color, labelSize: label.fontSize,
+                valueColor: value.color, valueSize: value.fontSize,
+                width: node.getBoundingClientRect().width,
+                height: node.getBoundingClientRect().height,
+              }
+            }))
+            for (const item of visuals.slice(1)) {
+              for (const key of ["background", "border", "radius", "padding", "labelColor", "labelSize", "valueColor", "valueSize"]) {
+                assert.equal(item[key], visuals[0][key], "four Published games metrics use identical card styling: " + key)
+              }
+            }
+            assert.ok(visuals.every(item => item.width > 70 && item.height >= 79), "each metric card has a touch-friendly width and height")
+            const sheet = page.locator(".point-history-popover")
+            const details = sheet.locator(".point-history-explanation")
+            const collapsed = await details.evaluate(el => el.open)
+            assert.equal(collapsed, false, "long explanatory copy is collapsed by default")
+            const fit = await sheet.evaluate(el => {
+              const outer = el.getBoundingClientRect()
+              const header = el.querySelector(".point-history-popover-header").getBoundingClientRect()
+              const body = el.querySelector(".point-history-popover-body")
+              return {
+                top: outer.top,
+                bottom: outer.bottom,
+                maxHeight: outer.height,
+                closeVisible: header.top >= outer.top && header.bottom <= outer.bottom,
+                scrolling: getComputedStyle(body).overflowY === "auto",
+                viewport: window.innerHeight,
+              }
+            })
+            assert.ok(fit.top > 0 && fit.bottom <= fit.viewport - 8, "mobile published-games sheet stays within the viewport")
+            assert.ok(fit.closeVisible && fit.scrolling, "mobile published-games detail sheet has a usable inner scroll")
+            await details.locator("summary").click()
+            assert.equal(await details.evaluate(el => el.open), true)
+            const scroll = await sheet.locator(".point-history-popover-body").evaluate(el => {
+              const available = el.scrollHeight - el.clientHeight
+              el.scrollTop = el.scrollHeight
+              return { available, actual: el.scrollTop }
+            })
+            if (scroll.available > 1) assert.ok(scroll.actual > 0, "expanded explanations must scroll")
+            assert.equal(await page.locator(".point-history-close").isVisible(), true, "close control stays visible after scrolling")
             await page.locator(".point-history-close").click()
             await page.locator(".point-history-popover").waitFor({ state: "detached" })
             assert.equal(await page.evaluate(() => document.body.style.overflow), "")
@@ -163,7 +226,7 @@ try {
   })
   let failed = true
   await page.route("https://**/*", (route) => route.request().url().includes("arcade_monthly_games.json") ? route.fulfill({ status: failed ? 503 : 200, contentType: "application/json", body: JSON.stringify(games) }) : route.abort())
-  await page.goto(server.url)
+  await page.goto(server.url + "dashboard/")
   await page.locator(".monthly-games-load-error").waitFor({ state: "visible" })
   failed = false
   await page.locator(".monthly-games-load-error button").click()

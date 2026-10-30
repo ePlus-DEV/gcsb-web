@@ -1,5 +1,7 @@
 "use client"
 
+import Link from "next/link"
+import { ARCADE_SWAG_DROPS } from "./swag-drops"
 import { ArcadeSurface, ArcadeMetric } from "./ui/surface"
 import { Trophy } from "lucide-react"
 import type { WebsiteCatalog, WebsiteLocale } from "@/lib/website-i18n"
@@ -12,12 +14,13 @@ export type DashboardTiersProps = {
   slotHistory: SlotHistoryState
   catalog: WebsiteCatalog
   locale: WebsiteLocale
+  overview?: boolean
   activeTierPoints?: number
 }
 
 /** Public tier data and appearance are identical in guest and profile views. */
 export default function DashboardTiers({
-  milestones, milestonesLive, slotHistory, catalog, locale, activeTierPoints,
+  milestones, milestonesLive, slotHistory, catalog, locale, activeTierPoints, overview = false,
 }: DashboardTiersProps) {
   const viewMessages = catalog.messages
   return (
@@ -29,12 +32,18 @@ export default function DashboardTiers({
         </span>
       </div>
       <div className="tier-list">
-        {[...milestones].reverse().map((tier) => {
+        {[...milestones].sort((left, right) => right.points - left.points).map((tier) => {
           const active = activeTierPoints === tier.points
+          const tierName = tier.league.replace("Arcade ", "").toLowerCase()
+          const giftIds: Record<string, string[]> = {trooper: ["arcade-travel-bottle"], ranger: ["arcade-backpack"], champion: ["weather-shield-jacket"], legend: ["arcade-popup-pro", "weather-shield-jacket"]}
+          const artwork = ARCADE_SWAG_DROPS.filter(drop => giftIds[tierName]?.includes(drop.id))
           return (
             <ArcadeSurface className={`tier-list-row tier-${tier.points}${active ? " is-current" : ""}`} aria-current={active ? "step" : undefined} key={tier.points}>
               <span className="tier-list-icon" aria-hidden="true"><Trophy /></span>
               <div><strong>{tier.league.replace("Arcade ", "")}</strong><span>{tierRangeLabel(tier)}</span></div>
+              {overview && artwork.length > 0 && <Link className="tier-reward-art" href={`/swag-drops/2026/${tierName}/`} aria-label={catalog.dynamic.open.replace("{value}", tier.league)}>
+                {artwork.map(drop => <img key={drop.id} src={drop.imageUrl} alt="" loading="lazy" onError={event => { event.currentTarget.style.visibility = "hidden" }} />)}
+              </Link>}
               <ArcadeMetric className="tier-slot-count">
                 <b>{tier.spotsLeft === null ? "—" : formatInteger(tier.spotsLeft)}</b>
                 <small>{(tier.spotsLeft === null ? catalog.dynamic.totalSlots : catalog.dynamic.leftOf).replace("{count}", formatInteger(tier.slots))}</small>

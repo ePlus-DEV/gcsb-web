@@ -159,7 +159,15 @@
     "guestHeroTop": "探索",
     "guestHeroBottom": "ARCADE",
     "guestHeroDescription": "浏览本月的游戏和奖励。粘贴您的公开个人资料链接以查看积分。",
-    "guestLabsLabel": "本月实验"
+    "guestLabsLabel": "本月实验",
+    "homeNav": "首页",
+    "dashboardNav": "仪表板",
+    "invalidProfileUrl": "请输入来自 skills.google 或 cloudskillsboost.google 的有效公开个人资料网址。",
+    "homeSavedProfile": "已保存的个人资料",
+    "homeLastChecked": "上次检查：{value}",
+    "homeSavedResult": "已保存的结果",
+    "homeScoreTier": "积分对应等级",
+    "homeOpenDashboard": "查看仪表板"
   },
   "additional": {
     "Enter a valid public profile URL from skills.google or cloudskillsboost.google.": "请输入来自 skills.google 或 cloudskillsboost.google 的有效公开个人资料网址。",

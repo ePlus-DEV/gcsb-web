@@ -6,7 +6,7 @@ test("internal non-localized pages switch language without leaving the current r
   const language = readRepoFile("components/i18n/website-language.tsx")
 
   assert.match(language, /const isHomepage = pathWithoutBase === "\/"/)
-  assert.match(language, /if \(isHomepage \|\| pathLocale\)/)
+  assert.match(language, /if \(isHomepage \|\| pathLocale \|\| isDashboard\)/)
   assert.match(language, /setLocale\(nextLocale\)/)
   assert.match(language, /Internal non-localized routes/)
 })

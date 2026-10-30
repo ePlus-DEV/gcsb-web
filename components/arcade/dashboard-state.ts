@@ -2,7 +2,7 @@ import { DASHBOARD_STORAGE_KEY, type ArcadeApiResponse } from "./model"
 import { IS_PR_PREVIEW, PREVIEW_DEBUG_PROFILE_RESULT, PREVIEW_DEBUG_PROFILE_URL } from "./preview-debug-profile"
 
 export type DashboardViewMode = "guest" | "profile"
-export type StoredDashboard = { profileUrl: string; result: ArcadeApiResponse }
+export type StoredDashboard = { profileUrl: string; result: ArcadeApiResponse; checkedAt?: string }
 
 /** Storage is optional; reject malformed records before restoring a profile. */
 export function readStoredDashboard(): StoredDashboard | null {
@@ -11,9 +11,9 @@ export function readStoredDashboard(): StoredDashboard | null {
     if (!raw) return null
     const parsed: unknown = JSON.parse(raw)
     if (!parsed || typeof parsed !== "object") return null
-    const { profileUrl, result } = parsed as Record<string, unknown>
+    const { profileUrl, result, checkedAt } = parsed as Record<string, unknown>
     if (typeof profileUrl !== "string" || !result || typeof result !== "object" || Array.isArray(result)) return null
-    return { profileUrl, result: result as ArcadeApiResponse }
+    return { profileUrl, result: result as ArcadeApiResponse, ...(typeof checkedAt === "string" ? { checkedAt } : {}) }
   } catch {
     return null
   }

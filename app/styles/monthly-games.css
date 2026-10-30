@@ -129,14 +129,27 @@
 .point-history-popover-header h3 { margin: 0; font-size: .94rem; line-height: 1.35; font-weight: 750; color: inherit; }
 .point-history-close { display: inline-flex; flex: 0 0 32px; align-items: center; justify-content: center; width: 32px; height: 32px; border: 1px solid rgba(148,163,184,.22); border-radius: 8px; background: rgba(148,163,184,.1); color: #e2e8f0; cursor: pointer; }
 .point-history-close svg { width: 17px; height: 17px; }
-.point-history-popover .point-comparison-stats { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; margin: 0 0 14px; }
-.point-history-popover .point-comparison-stats > div { min-width: 0; padding: 12px; border: 1px solid rgba(148,163,184,.18); border-radius: 10px; background: rgba(9,16,33,.55); }
-.point-history-popover .point-comparison-stats dt { color: #a4b1c6; font-size: .72rem; line-height: 1.35; }
-.point-history-popover .point-comparison-stats dd { margin: 5px 0 0; font-size: 1.13rem; line-height: 1.2; font-weight: 750; font-variant-numeric: tabular-nums; color: #f5f3ff; }
-.point-history-popover .point-comparison-extra { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; margin: 0 0 12px; }
-.point-history-popover .point-comparison-extra > div { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.point-history-popover .point-comparison-extra dt { color: #a4b1c6; font-size: .73rem; }
-.point-history-popover .point-comparison-extra dd { margin: 0; font-size: .9rem; font-weight: 700; color: #e9e5ff; font-variant-numeric: tabular-nums; }
+/* Four released-points metrics use one visual component: a balanced 2×2 grid
+   on desktop and mobile, rather than two boxed metrics and two plain labels. */
+.point-history-popover .point-comparison-stats {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px; margin: 0 0 12px;
+}
+.point-history-popover .point-comparison-stats > div {
+  display: flex; flex-direction: column; justify-content: space-between;
+  min-width: 0; min-height: 86px; padding: 11px 12px;
+  border: 1px solid rgba(148,163,184,.18);
+  border-radius: 10px; background: rgba(9,16,33,.55);
+}
+.point-history-popover .point-comparison-stats dt {
+  color: #a4b1c6; font-size: .72rem; line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.point-history-popover .point-comparison-stats dd {
+  margin: 7px 0 0; color: #f5f3ff;
+  font-size: 1.13rem; line-height: 1.2; font-weight: 750;
+  font-variant-numeric: tabular-nums;
+}
 .point-history-popover p { margin: 9px 0 0; color: #b9c4d8; font-size: .73rem; line-height: 1.55; }
 .point-history-coverage { padding-bottom: 12px; border-bottom: 1px solid rgba(148,163,184,.2); }
 .point-history-notes p { margin: 10px 0 0; }
@@ -144,10 +157,19 @@
 .point-history-portal.is-light .point-history-popover { background: #fff; color: #172033; border-color: #ddd6fe; box-shadow: 0 18px 55px rgba(15,23,42,.18); }
 .point-history-portal.is-light .point-history-close { color: #334155; background: #f8fafc; border-color: #e2e8f0; }
 .point-history-portal.is-light .point-comparison-stats > div { background: #f8fafc; border-color: #e2e8f0; }
-.point-history-portal.is-light .point-comparison-stats dt, .point-history-portal.is-light .point-comparison-extra dt { color: #64748b; }
-.point-history-portal.is-light .point-comparison-stats dd, .point-history-portal.is-light .point-comparison-extra dd { color: #172033; }
+.point-history-portal.is-light .point-comparison-stats dt { color: #64748b; }
+.point-history-portal.is-light .point-comparison-stats dd { color: #172033; }
 .point-history-portal.is-light p { color: #475569; }
 .point-history-portal.is-light .point-history-retry { color: #6d28d9; background: #f5f3ff; }
+
+/* Long explanations are optional, so the phone sheet keeps the score summary
+   compact. All copy remains available and keyboard-accessible on expansion. */
+.point-history-explanation { margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(148,163,184,.20); }
+.point-history-explanation summary { padding: 7px 2px; color: #c4b5fd; font-size: .75rem; font-weight: 750; cursor: pointer; }
+.point-history-explanation summary:focus-visible { outline: 2px solid #a78bfa; outline-offset: 2px; border-radius: 4px; }
+.point-history-explanation[open] summary { margin-bottom: 5px; }
+.point-history-portal.is-light .point-history-explanation summary { color: #6d28d9; }
+.point-history-popover-body { min-width: 0; }
 
 /* Mobile: an anchored sheet with a dim scrim and safe-area padding. */
 @media(max-width:680px) {
@@ -158,9 +180,33 @@
   .point-history-count { font-size: .67rem; }
   .point-history-trigger { width: 32px; height: 32px; }
   .point-history-backdrop { background: rgba(2,6,23,.6); }
-  .point-history-popover { top: auto !important; bottom: 0; left: 0 !important; right: 0; width: 100%; max-width: 100%; max-height: min(86dvh, 720px) !important; border-radius: 18px 18px 0 0; padding: 18px 16px calc(18px + env(safe-area-inset-bottom)); box-shadow: 0 -20px 55px rgba(0,0,0,.42); }
-  .point-history-popover-header { position: sticky; top: -18px; z-index: 1; background: inherit; padding: 0 0 10px; }
+  /* iOS Safari may draw its browser toolbar over the bottom few pixels.
+     Keep the sheet inset, cap its height by the visible viewport and scroll
+     *only* the content; the close button must always remain accessible. */
+  .point-history-popover {
+    top: auto !important; bottom: max(12px, env(safe-area-inset-bottom));
+    left: 10px !important; right: 10px; width: auto; max-width: none;
+    display: flex; flex-direction: column; box-sizing: border-box;
+    max-height: min(74dvh, 560px) !important; overflow: hidden;
+    border-radius: 18px; padding: 0;
+    box-shadow: 0 18px 55px rgba(0,0,0,.42);
+  }
+  .point-history-popover-header {
+    position: relative; top: auto; z-index: 2; flex: 0 0 auto;
+    margin: 0; padding: 15px 16px 12px;
+    border-bottom: 1px solid rgba(148,163,184,.18);
+    background: inherit;
+  }
+  .point-history-popover-header h3 { min-width: 0; overflow-wrap: anywhere; }
+  .point-history-close { width: 40px; height: 40px; flex-basis: 40px; }
+  .point-history-popover-body {
+    flex: 0 1 auto; min-height: 0; overflow-y: auto;
+    overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+    touch-action: pan-y; padding: 14px 16px 20px;
+    scrollbar-width: thin;
+  }
   .point-history-popover .point-comparison-stats { gap: 8px; }
+  .point-history-popover .point-comparison-stats > div { min-height: 80px; padding: 10px 11px; }
 }
 @media(max-width:370px) {
   .point-history-line { grid-template-columns: minmax(0,1fr) auto 32px; }

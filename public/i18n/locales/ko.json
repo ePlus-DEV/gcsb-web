@@ -159,7 +159,15 @@
     "guestHeroTop": "둘러보기",
     "guestHeroBottom": "ARCADE",
     "guestHeroDescription": "이번 달 게임과 보상을 둘러보세요. 공개 프로필을 붙여 넣으면 포인트를 확인할 수 있습니다.",
-    "guestLabsLabel": "이번 달 랩"
+    "guestLabsLabel": "이번 달 랩",
+    "homeNav": "홈",
+    "dashboardNav": "대시보드",
+    "invalidProfileUrl": "skills.google 또는 cloudskillsboost.google의 올바른 공개 프로필 URL을 입력하세요.",
+    "homeSavedProfile": "저장된 프로필",
+    "homeLastChecked": "최근 확인: {value}",
+    "homeSavedResult": "저장된 결과",
+    "homeScoreTier": "점수 기준 등급",
+    "homeOpenDashboard": "대시보드 보기"
   },
   "additional": {
     "Enter a valid public profile URL from skills.google or cloudskillsboost.google.": "skills.google 또는 cloudskillsboost.google의 유효한 공개 프로필 URL을 입력하세요.",

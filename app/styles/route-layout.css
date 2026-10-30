@@ -1,0 +1,403 @@
+/* Route composition follows the pixel Arcade board; inherited tokens and fonts stay shared. */
+.arcade-home-route .arcade-hero { display: grid; grid-template-columns: 1fr; gap: 18px; padding: 38px 16px 24px; text-align: center; }
+.arcade-home-route .hero-heading { text-align: center; }
+.arcade-home-route .hero-heading h1 { font-size: clamp(1.2rem, 3vw, 2.6rem); line-height: 1.6; }
+.arcade-home-route .hero-description { margin-inline: auto; }
+.arcade-home-route .trust-pills { justify-content: center; }
+.arcade-home-route .profile-analyzer-card { width: min(760px, 100%); margin-inline: auto; text-align: start; }
+.arcade-home-route .extension-strip { margin-bottom: 18px; }
+.arcade-home-route .guest-dashboard .tier-list-row { text-align: start; }
+.arcade-home-route .guest-dashboard .tier-list { gap: 12px; }
+
+/* The score workspace has its own quiet heading, not Home's seasonal hero. */
+.arcade-dashboard-page:not(.arcade-home-route) .dashboard-analyzer { display: block; padding-block: 14px; }
+.arcade-dashboard-page:not(.arcade-home-route) .dashboard-page-heading { display: grid; gap: 6px; margin-bottom: 14px; }
+.arcade-dashboard-page:not(.arcade-home-route) .dashboard-page-title {
+ margin: 0; color: var(--arcade-text); font-size: clamp(1.125rem, 1.5vw, 1.375rem);
+ font-weight: 800; line-height: 1.35; letter-spacing: -.02em;
+}
+.arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-analyzer .profile-analyzer-card { padding: 12px 16px; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-summary-grid > .dashboard-panel { min-height: 0; padding: 16px; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .profile-photo { width: 48px; height: 48px; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .profile-overview { margin: 12px 0; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .earned-badge-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .earned-badge { display: grid; grid-template-columns: 38px minmax(0, 1fr); gap: 4px 8px; padding: 10px; text-align: start; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .earned-badge-art { grid-row: 1 / 4; width: 38px; height: 38px; margin: 0; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .earned-badge h3 { font-size: .68rem; margin: 0; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .earned-badge p,
+.arcade-dashboard-page[data-dashboard-view="profile"] .earned-badge time { font-size: .6rem; margin: 0; }
+@media (max-width: 1100px) {
+ .arcade-dashboard-page[data-dashboard-view="profile"] .earned-badge-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+ .arcade-home-route .arcade-hero { padding: 24px 0 18px; }
+ .arcade-home-route .hero-heading h1 { font-size: 1.1rem; }
+ .arcade-home-route .guest-dashboard .tier-list-row { text-align: start; }
+ .arcade-dashboard-page[data-dashboard-view="profile"] .earned-badge-grid { grid-template-columns: 1fr; }
+ .arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-analyzer .profile-analyzer-card { padding: 10px; }
+ .arcade-header .arcade-nav.is-open { inset-inline: 0; width: 100%; max-width: none; box-sizing: border-box; }
+}
+.arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel { grid-column: 1 / -1; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel > .panel-title { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel .profile-overview { margin: 0; flex: 1; }
+.profile-source-link { display: inline-flex; align-items: center; gap: 6px; font-size: .7rem; color: var(--arcade-muted); }
+.profile-source-link svg { width: 14px; height: 14px; }
+.dashboard-score-details { margin-top: 12px; font-size: .72rem; }
+@media (min-width: 1101px) {
+ .arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-shell { display: grid; grid-template-columns: minmax(0, 1fr) 290px; align-items: start; gap: 14px; }
+ .arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-summary-grid { grid-column: 1; margin: 0; gap: 10px; }
+ .arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-content-grid { display: contents; }
+ .arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-primary-column { grid-column: 1; grid-row: 2; }
+ .arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-content-grid > .tier-list-panel { grid-column: 2; grid-row: 1 / span 2; }
+}
+.arcade-home-route .guest-dashboard .tier-list-row { grid-template-columns: 32px minmax(0, 1fr); justify-items: stretch; }
+.tier-reward-art { display: grid; grid-column: 1 / -1; place-items: center; width: 100%; height: 80px; overflow: hidden; }
+.tier-reward-art img { width: 100%; height: 100%; object-fit: contain; }
+.arcade-home-route .guest-dashboard .tier-list-icon { display: grid; }
+@media (max-width: 600px) {
+ .arcade-home-route .guest-dashboard .tier-list-row { grid-template-columns: 32px minmax(0, 1fr) minmax(72px, auto); justify-items: stretch; }
+ .arcade-home-route .guest-dashboard .tier-list-icon { display: grid; }
+ .arcade-home-route .tier-reward-art { display: none; }
+}
+.arcade-home-route .arcade-hero { padding-block: 22px 18px; gap: 12px; }
+.arcade-home-route .hero-heading h1 { font-size: clamp(1.1rem, 2.2vw, 2rem); line-height: 1.4; margin-block: 10px; }
+.arcade-home-route .hero-heading .halloween-edition { margin-top: 0; }
+.arcade-home-route .trust-pills { margin-top: 10px; }
+.arcade-home-route .profile-analyzer-card { padding: 14px 18px; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel { flex-direction: row; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .profile-overview { min-height: 48px; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel .profile-source-link { margin-inline-end: 80px; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .tier-status-main { margin-block: 12px; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .tier-status-main strong { font-size: 1.15rem; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .tier-status-main span { font-size: .68rem; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .tier-status-panel .panel-title-row { flex-wrap: wrap; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; }
+@media (max-width: 600px) {
+ .arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel .profile-source-link { margin-inline-end: 0; }
+ .arcade-home-route .profile-analyzer-card { padding: 14px; }
+}
+.tier-reward-art { display: flex; align-items: center; justify-content: center; gap: 4px; }
+.tier-reward-art img { min-width: 0; max-width: 100%; flex: 1; }
+@media (max-width: 600px) { .arcade-home-route .tier-reward-art { display: none; } }
+.arcade-home-route .arcade-hero { padding-block: 16px 12px; }
+.arcade-home-route .hero-heading h1 { font-size: clamp(1.1rem, 2.2vw, 1.9rem); }
+.arcade-home-route .trust-pills > span { padding-block: 5px; }
+.dashboard-score-details .point-composition-bar { margin-top: 12px; }
+.dashboard-tier-details { margin-top: 12px; }
+/* Allocation uncertainty must also be readable without hover on touch screens. */
+.arcade-dashboard-page .dashboard-tier-details .allocation-message {
+ position: static; width: auto; max-width: none; margin: 10px 0 0;
+ opacity: 1; visibility: visible; transform: none; box-shadow: none;
+ pointer-events: auto;
+}
+.arcade-dashboard-page .dashboard-tier-details .allocation-message::after { display: none; }
+@media (max-width: 600px) {
+ .arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel {
+  flex-direction: column; align-items: stretch; gap: 10px;
+ }
+ .arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel .profile-overview {
+  flex: none; width: 100%; padding-inline-end: 38px; box-sizing: border-box;
+ }
+ .arcade-dashboard-page[data-dashboard-view="profile"] .profile-name-block { flex: 1; }
+ .arcade-dashboard-page[data-dashboard-view="profile"] .profile-name-block h2 { font-size: .95rem; }
+}
+
+/* Personal results use two balanced columns; bonus already belongs to the score breakdown. */
+.arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-analyzer { padding-block: 12px; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .analyzer-facilitator-slot > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.arcade-dashboard-page[data-dashboard-view="profile"] .analyzer-facilitator-option {
+ min-height: 0; padding: 8px 10px; gap: 8px; border-color: var(--arcade-border-soft); background: transparent;
+}
+.arcade-dashboard-page[data-dashboard-view="profile"] .analyzer-facilitator-icon { width: 28px; height: 28px; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .analyzer-help-row { margin-top: 8px; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .breakdown-panel,
+.arcade-dashboard-page[data-dashboard-view="profile"] .tier-status-panel { display: flex; flex-direction: column; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .points-total { margin-block: 16px; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .points-total strong { font-size: 2.4rem; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .point-compact-item { padding: 10px; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-tier-details .tier-availability-grid > div {
+ display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: 6px; min-height: 0; padding: 10px;
+}
+.arcade-dashboard-page[data-dashboard-view="profile"] .tier-availability-icon { display: none; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .tier-availability-grid strong { margin: 0; font-size: 1.2rem; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-tier-details .allocation-message {
+ padding: 0; border: 0; background: transparent; font-size: .72rem; line-height: 1.6;
+}
+.arcade-dashboard-page[data-dashboard-view="profile"] .panel-link-note { margin-bottom: 0; }
+@media (max-width: 600px) {
+ .arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-summary-grid { grid-template-columns: 1fr; }
+ .arcade-dashboard-page[data-dashboard-view="profile"] .analyzer-facilitator-slot > div { grid-template-columns: 1fr; }
+}
+.arcade-dashboard-page[data-dashboard-view="profile"] .tier-status-panel { grid-column: auto; }
+@media (min-width: 1101px) {
+ .arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-shell { grid-template-columns: minmax(0, 1fr) 320px; }
+}
+.arcade-dashboard-page[data-dashboard-view="profile"] .shared-tier-panel .tier-list-row {
+ grid-template-columns: 28px minmax(0, 1fr) minmax(0, 100px); gap: 8px;
+}
+.arcade-dashboard-page[data-dashboard-view="profile"] .shared-tier-panel .tier-list-icon { width: 28px; height: 28px; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .shared-tier-panel .tier-list-row > div:nth-child(2) span,
+.arcade-dashboard-page[data-dashboard-view="profile"] .shared-tier-panel .tier-slot-count small { overflow-wrap: anywhere; font-size: .68rem; }
+
+/* The personal Dashboard starts with a form and compact tiers, rather than Home's gift showcase. */
+.arcade-dashboard-page:not(.arcade-home-route)[data-dashboard-view="guest"] .dashboard-analyzer {
+ max-width: 1200px; margin-inline: auto; padding-block: 18px 14px;
+}
+/* All Dashboard states follow the same page gutters and content width. */
+.arcade-dashboard-page:not(.arcade-home-route)[data-dashboard-view="guest"] .dashboard-profile-settings,
+.arcade-dashboard-page:not(.arcade-home-route)[data-dashboard-view="guest"] .profile-analyzer-card { width: 100%; min-width: 0; }
+.dashboard-start-description { margin: 0; max-width: 76ch; color: var(--arcade-muted); font-size: .85rem; line-height: 1.6; }
+.dashboard-guest-start { max-width: 1200px; margin-inline: auto; }
+.dashboard-guest-start > .tier-list-panel { margin-bottom: 0; }
+.dashboard-guest-start .tier-list-row { min-height: 0; gap: 10px; }
+.dashboard-guest-start .tier-slot-count { justify-items: start; text-align: start; }
+@media (max-width: 600px) {
+ .arcade-dashboard-page:not(.arcade-home-route)[data-dashboard-view="guest"] .dashboard-analyzer { padding-block: 16px; }
+ .dashboard-guest-start .tier-slot-count { justify-items: end; text-align: end; }
+}
+/* Returning learners see a saved preview, not a second dashboard on Home. */
+.arcade-home-route .home-profile-summary {
+ width: min(760px, 100%); margin: 0 auto; padding: 16px;
+ display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; align-items: center; gap: 12px;
+ border: 1px solid var(--arcade-border); border-radius: 12px;
+ background: var(--arcade-panel, rgba(20, 16, 39, .9)); text-align: start; color: var(--arcade-text);
+}
+.home-profile-identity { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.home-profile-avatar { display: grid; place-items: center; flex: 0 0 42px; width: 42px; height: 42px; overflow: hidden; border: 2px solid rgba(47,128,255,.65); border-radius: 50%; background: #6635b8; color: #fff; font-weight: 800; }
+.home-profile-avatar img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.home-profile-avatar > span { display: grid; place-items: center; width: 100%; height: 100%; }
+.home-profile-identity > div { min-width: 0; }
+.home-profile-identity strong { display: block; font-size: .9rem; overflow-wrap: anywhere; }
+.home-profile-summary small { display: block; margin-top: 4px; color: var(--arcade-muted); font-size: .66rem; line-height: 1.5; }
+.home-profile-points { display: flex; align-items: baseline; gap: 5px; white-space: nowrap; }
+.home-profile-points strong { font-size: 1.6rem; font-variant-numeric: tabular-nums; }
+.home-profile-points > span { font-size: .66rem; color: var(--arcade-muted); }
+.home-profile-tier { display: flex; align-items: center; gap: 8px; padding-inline: 12px; border-inline: 1px solid var(--arcade-border-soft); }
+.home-profile-tier > svg { width: 20px; height: 20px; color: var(--arcade-purple); flex-shrink: 0; }
+.home-profile-tier strong { color: var(--arcade-purple); font-size: .85rem; }
+.home-profile-dashboard-link { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 42px; padding: 10px 12px; border: 1px solid var(--arcade-purple); border-radius: 8px; font-size: .75rem; color: var(--arcade-text); text-decoration: none; }
+.home-profile-dashboard-link:hover { background: rgba(139, 92, 246, .12); }
+.home-profile-dashboard-link:focus-visible { outline: 2px solid var(--arcade-cyan); outline-offset: 3px; }
+.home-profile-dashboard-link svg { width: 16px; height: 16px; flex-shrink: 0; }
+@media (max-width: 900px) {
+ .arcade-home-route .home-profile-summary { grid-template-columns: minmax(0, 1fr) auto; gap: 14px 10px; padding: 14px; }
+ .home-profile-identity { grid-column: 1; grid-row: 1; }
+ .home-profile-points { grid-column: 2; grid-row: 1; flex-direction: column; align-items: end; gap: 0; }
+ .home-profile-tier { grid-column: 1; grid-row: 2; border: 0; padding: 0; }
+ .home-profile-dashboard-link { grid-column: 2; grid-row: 2; white-space: normal; max-width: 160px; }
+}
+@media (max-width: 380px) {
+ .home-profile-avatar { flex-basis: 32px; width: 32px; height: 32px; }
+ .home-profile-identity { gap: 8px; }
+ .home-profile-points strong { font-size: 1.3rem; }
+ .home-profile-dashboard-link { max-width: 140px; font-size: .68rem; }
+}
+
+/* Profile identity has no tracker button inside it; Share stays independent. */
+.arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-score-details { margin-top: 0; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-score-details .point-composition-bar { margin-top: 0; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .points-total { margin-block: 14px; }
+.arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel {
+ display: flex; align-items: center; flex-wrap: wrap; gap: 12px 20px;
+ padding-inline-end: 78px; /* Space for independent Share action. */
+}
+.arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel .profile-overview {
+ flex: 1 1 240px; min-width: 0; margin: 0;
+}
+.arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel .profile-source-link {
+ flex: 0 1 auto; min-width: 0; margin: 0; overflow-wrap: anywhere;
+}
+@media (max-width: 600px) {
+ .arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel {
+  flex-direction: column; align-items: stretch; gap: 10px; padding-inline-end: 0;
+ }
+}
+
+/* Floating Facilitator entry point stays outside the scrollable Dashboard.
+   Wide screens show the full label in the side gutter; tighter viewports
+   show a compact accessible rail icon instead of covering sidebar data.
+   Hover/keyboard focus reveals the label on desktops. */
+body > .facilitator-launcher.is-floating {
+ position: fixed; inset: 50% 18px auto auto; z-index: 65;
+ transform: translateY(-50%); box-sizing: border-box;
+ min-width: 0; width: 220px; min-height: 54px;
+ grid-template-columns: 26px minmax(0, 1fr) 16px;
+}
+body > .facilitator-launcher.is-floating:hover { transform: translateY(-50%); }
+body > .facilitator-launcher.is-floating:focus-visible {
+ outline: 3px solid #67e8f9; outline-offset: 3px;
+}
+@media (max-width: 1749px) {
+ body > .facilitator-launcher.is-floating {
+  width: 52px; min-width: 0; min-height: 52px;
+  padding: 10px; gap: 0;
+  grid-template-columns: 1fr; justify-items: center;
+ }
+ body > .facilitator-launcher.is-floating > svg:first-child { width: 26px; height: 26px; }
+ body > .facilitator-launcher.is-floating > span,
+ body > .facilitator-launcher.is-floating > svg:last-child { display: none; }
+}
+@media (min-width: 601px) and (max-width: 1749px) and (hover: hover) {
+ body > .facilitator-launcher.is-floating:hover,
+ body > .facilitator-launcher.is-floating:focus-visible {
+  width: 226px; padding: 11px 13px; gap: 10px;
+  grid-template-columns: 26px minmax(0, 1fr) 16px;
+ }
+ body > .facilitator-launcher.is-floating:hover > span,
+ body > .facilitator-launcher.is-floating:hover > svg:last-child,
+ body > .facilitator-launcher.is-floating:focus-visible > span,
+ body > .facilitator-launcher.is-floating:focus-visible > svg:last-child { display: grid; }
+}
+@media (max-width: 600px) {
+ body > .facilitator-launcher.is-floating {
+  top: 46%; right: 10px; bottom: auto;
+  width: 48px; min-height: 48px; padding: 9px;
+ }
+ body > .facilitator-launcher.is-floating > svg:first-child { width: 24px; height: 24px; }
+}
+@media (prefers-reduced-motion: reduce) {
+ body > .facilitator-launcher.is-floating { transition: none; }
+}
+ 
+
+/* Dashboard PR #108 – shared controls and compact mobile profile layout.
+   Keep the same Arcade color/font tokens; only sizing and placement change. */
+.arcade-dashboard-page:not(.arcade-home-route) {
+ --arcade-dashboard-control-height: 46px;
+ --arcade-dashboard-content-width: 1200px;
+}
+.arcade-dashboard-page:not(.arcade-home-route) :is(.dashboard-analyzer, .dashboard-shell, .dashboard-guest-start) {
+ max-width: var(--arcade-dashboard-content-width);
+}
+.arcade-dashboard-page:not(.arcade-home-route) .profile-input,
+.arcade-dashboard-page:not(.arcade-home-route) .analyze-button {
+ min-height: var(--arcade-dashboard-control-height);
+ height: var(--arcade-dashboard-control-height);
+}
+.arcade-dashboard-page:not(.arcade-home-route) .analyze-button {
+ padding-inline: 16px; font-size: .76rem; box-shadow: none;
+}
+.arcade-dashboard-page:not(.arcade-home-route) .profile-input {
+ padding-inline: 12px;
+}
+.arcade-dashboard-page:not(.arcade-home-route) .profile-input input {
+ min-width: 0;
+}
+.arcade-dashboard-page:not(.arcade-home-route) .dashboard-page-heading {
+ max-width: var(--arcade-dashboard-content-width);
+}
+
+/* Touch screens: one 44px action size across both Guest and Profile modes. */
+@media (max-width: 600px) {
+ .arcade-dashboard-page:not(.arcade-home-route) {
+  --arcade-dashboard-control-height: 44px;
+ }
+ .arcade-dashboard-page:not(.arcade-home-route) .profile-analyzer-card form { gap: 8px; }
+ .arcade-dashboard-page:not(.arcade-home-route) .analyze-button {
+  width: 100%; border-radius: 9px; font-size: .76rem;
+ }
+ .arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel {
+  min-height: 0; padding: 14px; gap: 10px;
+ }
+ /* A flex-basis of 240px previously placed the avatar at the card bottom. */
+ .arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel .profile-overview {
+  flex: 0 0 auto; min-height: 0; margin: 0;
+  width: 100%; padding-inline-end: 40px;
+ }
+ .arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel .profile-source-link {
+  flex: 0 1 auto; align-self: flex-start; margin: 0;
+  max-width: calc(100% - 40px);
+ }
+}
+
+/* Fixed 44px Facilitator FAB is stacked above Back to top (bottom 82px)
+   and the 66px mobile tab bar. Never float at mid-screen on phones. */
+@media (max-width: 600px) {
+ body > .facilitator-launcher.is-floating,
+ body > .facilitator-launcher.is-floating:hover,
+ body > .facilitator-launcher.is-floating:focus-visible {
+  top: auto;
+  right: max(12px, env(safe-area-inset-right));
+  bottom: calc(132px + env(safe-area-inset-bottom));
+  left: auto;
+  transform: none;
+  width: 44px; height: 44px; min-height: 44px; min-width: 44px;
+  display: grid; grid-template-columns: 1fr; place-items: center;
+  padding: 8px; gap: 0;
+  border-radius: 12px; border-width: 1px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, .26);
+ }
+ body > .facilitator-launcher.is-floating > svg:first-child {
+  width: 22px; height: 22px;
+ }
+ body > .facilitator-launcher.is-floating > span,
+ body > .facilitator-launcher.is-floating > svg:last-child { display: none; }
+}
+
+
+/* Shared ProfileAnalyzer design across Home, Guest Dashboard and Profile Dashboard.
+   Home remains centered inside the landing hero; the Dashboard form fills its
+   content grid. All interactive controls have the same sizing and typography. */
+.arcade-dashboard-v2 {
+ --arcade-analyzer-control-height: 46px;
+ --arcade-analyzer-control-radius: 9px;
+}
+.arcade-dashboard-v2 .arcade-hero .profile-analyzer-card {
+ padding: 16px;
+ border-radius: 14px;
+}
+.arcade-home-route .arcade-hero .profile-analyzer-card {
+ width: min(100%, 1000px);
+ margin-inline: auto;
+ text-align: start;
+}
+.arcade-dashboard-v2 .arcade-hero .profile-analyzer-card form {
+ grid-template-columns: minmax(0, 1fr) auto;
+ align-items: stretch;
+ gap: 10px;
+}
+.arcade-dashboard-v2 .arcade-hero .profile-input,
+.arcade-dashboard-v2 .arcade-hero .analyze-button {
+ height: var(--arcade-analyzer-control-height);
+ min-height: var(--arcade-analyzer-control-height);
+ border-radius: var(--arcade-analyzer-control-radius);
+}
+.arcade-dashboard-v2 .arcade-hero .profile-input {
+ padding-inline: 12px;
+}
+.arcade-dashboard-v2 .arcade-hero .profile-input input {
+ min-width: 0;
+ font-size: .85rem;
+}
+.arcade-dashboard-v2 .arcade-hero .analyze-button {
+ min-width: 166px;
+ padding-inline: 16px;
+ font-size: .76rem;
+ box-shadow: none;
+}
+.arcade-dashboard-v2 .arcade-hero .analyzer-title {
+ margin-bottom: 12px;
+}
+.arcade-dashboard-v2 .arcade-hero .analyzer-help-row {
+ margin-top: 10px;
+}
+.arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-analyzer .profile-analyzer-card {
+ padding: 16px;
+}
+@media (max-width: 600px) {
+ .arcade-dashboard-v2 {
+  --arcade-analyzer-control-height: 44px;
+ }
+ .arcade-dashboard-v2 .arcade-hero .profile-analyzer-card,
+ .arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-analyzer .profile-analyzer-card {
+  padding: 14px;
+ }
+ .arcade-dashboard-v2 .arcade-hero .profile-analyzer-card form {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+ }
+ .arcade-dashboard-v2 .arcade-hero .analyze-button {
+  width: 100%;
+  min-width: 0;
+ }
+}
