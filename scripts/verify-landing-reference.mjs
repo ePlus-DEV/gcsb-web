@@ -29,14 +29,15 @@ try {
   await page.locator(".landing-demo").waitFor({state:"visible"})
   assert.equal(await page.locator(".landing-dashboard-shot-image").count(),1,"Home Hero must contain the real Dashboard screenshot")
   assert.equal(await page.locator(".landing-demo-card").count(),0,"No invented dashboard card markup may appear in the Hero")
-  await page.waitForFunction(()=>{
-    const image=document.querySelector(".landing-dashboard-shot-image")
-    return image instanceof HTMLImageElement && image.complete && image.naturalWidth>400
-  },{timeout:15000})
-  const source=await page.locator(".landing-dashboard-shot-image").getAttribute("src")
-  assert.ok(source?.includes("dashboard-hero-"+(locale==="vi"?"vi":"en")+".png"),"Locale-matched screenshot missing")
-
   await page.waitForFunction(theme=>document.documentElement.classList.contains(theme),theme)
+  const expectedImage = "dashboard-hero-"+(locale==="vi"?"vi":"en")+(theme==="dark"?"-dark":"")+".png"
+  await page.waitForFunction(expected=>{
+    const image=document.querySelector(".landing-dashboard-shot-image")
+    return image instanceof HTMLImageElement &&
+      image.src.includes(expected) && image.complete && image.naturalWidth>400
+  },expectedImage,{timeout:15000})
+  const source=await page.locator(".landing-dashboard-shot-image").getAttribute("src")
+  assert.ok(source?.includes(expectedImage),"Theme- and locale-matched Dashboard screenshot missing")
   await page.evaluate(()=>document.fonts.ready)
   const wordmark = await page.locator(".landing-home .arcade-brand-copy").first().evaluate(el=>getComputedStyle(el).fontFamily)
   assert.ok(wordmark.includes("Inter"),locale+"-"+width+": wordmark must not inherit legacy pixel font")
