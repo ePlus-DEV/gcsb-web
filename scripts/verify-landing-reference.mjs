@@ -29,6 +29,18 @@ try {
   await page.locator(".landing-demo").waitFor({state:"visible"})
   await page.waitForFunction(theme=>document.documentElement.classList.contains(theme),theme)
   await page.evaluate(()=>document.fonts.ready)
+  const wordmark = await page.locator(".landing-home .arcade-brand-copy").first().evaluate(el=>getComputedStyle(el).fontFamily)
+  assert.ok(wordmark.includes("Inter"),locale+"-"+width+": wordmark must not inherit legacy pixel font")
+  if(width<=390){
+   const nav=page.locator("#arcade-primary-navigation")
+   assert.equal(await nav.isVisible(),false,"Mobile navigation must remain collapsed on load")
+   const hamburger=page.locator(".mobile-menu-toggle")
+   assert.equal(await hamburger.isVisible(),true,"Mobile hamburger missing")
+   await hamburger.click()
+   assert.equal(await nav.isVisible(),true,"Mobile hamburger does not open navigation")
+   await hamburger.click()
+   assert.equal(await nav.isVisible(),false,"Mobile hamburger does not close navigation")
+  }
   const m=await page.evaluate(()=>{
    const q=(s)=>document.querySelector(s)
    const r=(s)=>q(s).getBoundingClientRect()
@@ -82,6 +94,7 @@ try {
  const migrated=await browser.newContext({viewport:{width:1440,height:900}})
  await migrated.addInitScript(()=>{
   localStorage.setItem("arcade-theme","dark")
+  localStorage.setItem("arcade-home-theme-v1","dark")
   localStorage.removeItem("arcade-home-theme-v2")
   localStorage.setItem("arcade-seasonal-theme","off")
  })
