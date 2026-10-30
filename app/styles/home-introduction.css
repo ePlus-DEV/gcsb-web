@@ -788,3 +788,164 @@ html.dark .landing-home .landing-last-cta{background:linear-gradient(120deg,#253
 /* Layout retained for the actual Dashboard, not the marketing home. */
 .dashboard-profile-monthly-games{width:min(1200px,calc(100% - 40px));margin:24px auto;}
 @media(max-width:600px){.dashboard-profile-monthly-games{width:calc(100% - 28px);}}
+
+
+/* Hero: an optional, explicitly synthetic activity walkthrough.
+ * Not a live feed, no person names, timestamps, or fabricated user actions.
+ * The illustration belongs to Home only and does not change Dashboard logic. */
+.landing-home .landing-activity {
+  display: grid;
+  gap: 7px;
+  width: min(100%, 530px);
+  margin-top: 19px;
+  padding: 11px 13px 10px;
+  border: 1px solid #e1e5f5;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .91);
+  box-shadow: 0 8px 23px rgba(61, 72, 135, .055);
+  text-align: left;
+}
+.landing-home .landing-activity-head,
+.landing-home .landing-activity-content,
+.landing-home .landing-activity-bottom,
+.landing-home .landing-activity-controls {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+.landing-home .landing-activity-head { justify-content: space-between; gap: 10px; }
+.landing-home .landing-activity-heading {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #38466b;
+  font-size: 11px;
+  font-weight: 760;
+  line-height: 1.35;
+}
+.landing-home .landing-activity-status {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  flex: none;
+  border-radius: 50%;
+  background: #8a6af4;
+  box-shadow: 0 0 0 3px #f1edff;
+}
+.landing-home .landing-activity-demo-badge {
+  padding: 3px 7px;
+  border-radius: 5px;
+  background: #f0edff;
+  color: #6650d4;
+  border: 1px solid #e2dcff;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .02em;
+  white-space: nowrap;
+}
+.landing-home .landing-activity-content { gap: 9px; min-height: 27px; }
+.landing-home .landing-activity-symbol {
+  width: 25px;
+  height: 25px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  color: #5f52df;
+  border-radius: 7px;
+  background: #f1efff;
+}
+.landing-home .landing-activity-symbol .fa-icon { font-size: 12px; }
+.landing-home .landing-activity-detail {
+  color: #29375b;
+  font-size: 12px;
+  font-weight: 620;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.landing-home .landing-activity-bottom { justify-content: space-between; gap: 11px; }
+.landing-home .landing-activity-disclosure {
+  min-width: 0;
+  color: #818ca7;
+  font-size: 9px;
+  line-height: 1.4;
+}
+.landing-home .landing-activity-controls { flex: none; gap: 4px; }
+.landing-home .landing-activity-position { display: flex; gap: 4px; margin-right: 5px; }
+.landing-home .landing-activity-position i {
+  display: block;
+  width: 4px;
+  height: 4px;
+  border-radius: 6px;
+  background: #d6ddef;
+  transition: width .2s ease, background .2s ease;
+}
+.landing-home .landing-activity-position i.is-active { width: 12px; background: #7c5df1; }
+.landing-home .landing-activity-controls button {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 25px;
+  height: 25px;
+  padding: 0;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #7a86a3;
+  cursor: pointer;
+}
+.landing-home .landing-activity-controls button:hover,
+.landing-home .landing-activity-controls button:focus-visible {
+  border-color: #e4e0fd;
+  background: #f2efff;
+  color: #6045da;
+}
+.landing-home .landing-activity-controls .fa-icon { font-size: 11px; }
+.landing-home .landing-activity-restore {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  padding: 7px 10px;
+  width: fit-content;
+  margin-top: 15px;
+  border: 1px dashed #d9d4fa;
+  border-radius: 9px;
+  background: rgba(255,255,255,.9);
+  color: #6d59d7;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 650;
+}
+.landing-home .landing-activity-restore .fa-icon { font-size: 11px; }
+.landing-home .landing-activity-restore:hover { background: #f3efff; }
+html.dark .landing-home .landing-activity,
+html.dark .landing-home .landing-activity-restore {
+  background: #182441;
+  border-color: #374565;
+}
+html.dark .landing-home .landing-activity-heading,
+html.dark .landing-home .landing-activity-detail { color: #eef1ff; }
+html.dark .landing-home .landing-activity-disclosure { color: #aab8d2; }
+html.dark .landing-home .landing-activity-demo-badge {
+  color: #d7caff;
+  background: #2d295b;
+  border-color: #51457f;
+}
+html.dark .landing-home .landing-activity-symbol { color: #cfbfff; background: #302d5c; }
+html.dark .landing-home .landing-activity-restore { color: #d3c6ff; }
+html.dark .landing-home .landing-activity-controls button { color: #b4c0dd; }
+html.dark .landing-home .landing-activity-controls button:hover { color: #fff; background: #2f2b61; }
+@media(max-width:860px) {
+  .landing-home .landing-activity { margin: 21px auto 0; }
+  .landing-home .landing-activity-restore { margin: 15px auto 0; }
+}
+@media(max-width:600px) {
+  .landing-home .landing-activity { width: 100%; margin-top: 17px; padding: 10px 11px; }
+  .landing-home .landing-activity-detail { font-size: 11px; }
+  .landing-home .landing-activity-disclosure { font-size: 9px; }
+  .landing-home .landing-activity-bottom { align-items: flex-end; }
+  .landing-home .landing-activity-heading { font-size: 10px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .landing-home .landing-activity-position i { transition: none; }
+}
