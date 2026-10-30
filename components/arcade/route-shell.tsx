@@ -305,7 +305,7 @@ export function ArcadeFooter({catalog, locale, dashboard = false, landing = fals
         </footer>
       )}
 
-            <MobileBottomNavigation catalog={catalog} locale={locale} dashboard={dashboard} /></>
+            {!landing && <MobileBottomNavigation catalog={catalog} locale={locale} dashboard={dashboard} />}</>
 }
 export function ExtensionStrip({catalog}: {catalog: WebsiteCatalog}) {
   return (
