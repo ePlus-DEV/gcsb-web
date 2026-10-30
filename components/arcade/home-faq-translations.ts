@@ -142,3 +142,20 @@ export const LANDING_FAQ: Partial<Record<WebsiteLocale, Faq>> = {
     ],
   },
 }
+
+
+export const LANDING_HEADLINES: Partial<Record<WebsiteLocale, {
+  eyebrow: string; heroFirst: string; heroAccent: string; heroLast: string
+}>> = {
+  ja: { eyebrow:"Google Cloud 学習者向けの無料ツール",heroFirst:"進捗を追跡・分析",heroAccent:"Google Cloud Arcade",heroLast:"もっとかんたんに" },
+  ko: { eyebrow:"Google Cloud 학습자를 위한 무료 도구",heroFirst:"진행 상황을 추적하고 분석하세요",heroAccent:"Google Cloud Arcade",heroLast:"한곳에서 간편하게" },
+  zh_CN: { eyebrow:"面向 Google Cloud 学习者的免费工具",heroFirst:"轻松跟踪与分析",heroAccent:"Google Cloud Arcade",heroLast:"学习进度一目了然" },
+  fr: { eyebrow:"Outil gratuit pour les apprenants Google Cloud",heroFirst:"Suivez et analysez",heroAccent:"Google Cloud Arcade",heroLast:"plus facilement" },
+  de: { eyebrow:"Kostenloses Tool für Google Cloud Lernende",heroFirst:"Fortschritt verfolgen und analysieren",heroAccent:"Google Cloud Arcade",heroLast:"einfacher als je zuvor" },
+  es: { eyebrow:"Herramienta gratuita para estudiantes de Google Cloud",heroFirst:"Sigue y analiza",heroAccent:"Google Cloud Arcade",heroLast:"de forma más sencilla" },
+  pt_BR: { eyebrow:"Ferramenta gratuita para estudantes do Google Cloud",heroFirst:"Acompanhe e analise",heroAccent:"Google Cloud Arcade",heroLast:"com mais facilidade" },
+  it: { eyebrow:"Strumento gratuito per chi studia Google Cloud",heroFirst:"Monitora e analizza",heroAccent:"Google Cloud Arcade",heroLast:"con più facilità" },
+  ru: { eyebrow:"Бесплатный инструмент для изучающих Google Cloud",heroFirst:"Следите за прогрессом",heroAccent:"Google Cloud Arcade",heroLast:"легко и удобно" },
+  ar: { eyebrow:"أداة مجانية لمتعلمي Google Cloud",heroFirst:"تابع وحلّل تقدمك في",heroAccent:"Google Cloud Arcade",heroLast:"بكل سهولة" },
+  hi: { eyebrow:"Google Cloud सीखने वालों के लिए मुफ़्त टूल",heroFirst:"आसानी से ट्रैक और विश्लेषण करें",heroAccent:"Google Cloud Arcade",heroLast:"सब कुछ एक ही जगह" },
+}
