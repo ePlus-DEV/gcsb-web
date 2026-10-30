@@ -1283,3 +1283,13 @@ html.light .landing-home .landing-activity-controls button {
     border-color: var(--home-border);
   }
 }
+
+
+/* The exact Dashboard snapshot follows <html>'s selected theme immediately.
+ * It does not depend on React hydration or a duplicated Home theme state.
+ * Hidden snapshots do not enter the accessibility tree. */
+.landing-home .landing-dashboard-shot-image.is-dark { display: none; }
+html.dark .landing-home .landing-dashboard-shot-image.is-light { display: none; }
+html.dark .landing-home .landing-dashboard-shot-image.is-dark { display: block; }
+html.light .landing-home .landing-dashboard-shot-image.is-light { display: block; }
+html.light .landing-home .landing-dashboard-shot-image.is-dark { display: none; }
