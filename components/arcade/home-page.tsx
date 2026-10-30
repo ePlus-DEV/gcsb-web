@@ -47,6 +47,7 @@ type LandingCopy = {
   programDescriptions: [string, string, string]
   programLink: string
   programsAll: string
+  programTags: [string, string, string]
   faqTitle: string
   faqDescription: string
   questions: [string, string, string, string, string, string]
@@ -102,6 +103,7 @@ const EN: LandingCopy = {
   ],
   programLink: "View details",
   programsAll: "View all programs",
+  programTags: ["Arcade 2026", "Bonus milestones", "Reward updates"],
   faqTitle: "Frequently asked questions",
   faqDescription: "Answers to common questions about ePlus Arcade and Google Cloud Arcade.",
   questions: [
@@ -171,6 +173,7 @@ const VI: LandingCopy = {
   ],
   programLink: "Xem chi tiết",
   programsAll: "Xem tất cả chương trình",
+  programTags: ["Arcade 2026", "Mốc điểm thưởng", "Quà tặng"],
   faqTitle: "Câu hỏi thường gặp",
   faqDescription: "Một số câu hỏi phổ biến về Google Cloud Arcade và ePlus Arcade.",
   questions: [
@@ -227,6 +230,7 @@ function landingCopy(locale: WebsiteLocale, m: WebsiteCatalog["messages"]): Land
     programDescriptions: [m.guestHeroDescription, m.facilitatorMilestones, m.tierNote],
     programLink: m.guide,
     programsAll: m.facilitatorProgram,
+    programTags: ["Arcade 2026", "Facilitator", "Rewards"],
     faqTitle: m.guide,
     faqDescription: m.checkPoints,
     ctaTitle: m.startUsing,
@@ -306,7 +310,7 @@ export default function HomePage({catalog, locale}: {catalog: WebsiteCatalog; lo
   // Once a visitor explicitly switches the Home theme, honor that Home choice.
   useEffect(() => {
     let saved: string | null = null
-    try { saved = window.localStorage.getItem("arcade-home-theme-v1") } catch { /* optional storage */ }
+    try { saved = window.localStorage.getItem("arcade-home-theme-v2") } catch { /* optional storage */ }
     setTheme(saved === "dark" ? "dark" : "light")
   }, [setTheme])
   useEffect(() => {
@@ -397,8 +401,11 @@ export default function HomePage({catalog, locale}: {catalog: WebsiteCatalog; lo
         <p className="landing-section-lead">{c.programsDesc}</p>
         <div className="landing-program-grid">
           {PROGRAM_ICONS.map((Icon,i) => (
-            <Link key={i} href={programLinks[i]} className="landing-program-card" onClick={i === 1 ? revealProgramDeadlines : undefined}>
-              <Icon className={"landing-program-icon icon-" + i} aria-hidden="true"/>
+            <Link key={i} href={programLinks[i]} className={"landing-program-card landing-program-card-" + i} onClick={i === 1 ? revealProgramDeadlines : undefined}>
+              <div className="landing-program-card-top">
+                <Icon className={"landing-program-icon icon-" + i} aria-hidden="true"/>
+                <small className={"landing-program-tag landing-program-tag-" + i}>{c.programTags[i]}</small>
+              </div>
               <strong>{c.programTitles[i]}</strong>
               <p>{c.programDescriptions[i]}</p>
               <span>{c.programLink}<ArrowRight aria-hidden="true"/></span>
@@ -424,7 +431,7 @@ export default function HomePage({catalog, locale}: {catalog: WebsiteCatalog; lo
       </section>
 
       <section id="extension" className="landing-last-cta" aria-labelledby="landing-cta-title">
-        <span className="landing-cta-trophy"><Trophy aria-hidden="true"/></span>
+        <span className="landing-cta-trophy"><Trophy aria-hidden="true"/></span><span className="landing-cta-stars" aria-hidden="true">✦</span>
         <div><h2 id="landing-cta-title">{c.ctaTitle}</h2><p>{c.ctaDescription}</p></div>
         <div className="landing-last-actions">
           <Link className="landing-button is-primary" href={dashboardHref}>{c.dashboard}<ArrowRight aria-hidden="true"/></Link>
