@@ -134,6 +134,11 @@ try {
   assert.equal(await page.locator(".landing-activity-demo-badge").count(),1,label+": missing demo badge")
   assert.equal(await page.locator(".landing-activity-disclosure").count(),1,label+": missing demo disclosure")
   assert.ok((await page.locator(".landing-activity-detail").innerText()).includes("112"),label+": synthetic 112-point fixture missing on first item")
+  assert.ok((await page.locator(".landing-activity-heading").innerText()).length>6,label+": simulated activity heading missing")
+  assert.equal((await page.locator(".landing-activity-symbol").innerText()).trim(),"A",label+": simulated actor marker missing")
+  if(locale==="vi"){
+    assert.match(await page.locator(".landing-activity-detail").innerText(),/Người dùng mẫu A vừa kiểm tra/,label+": activity not following approved fake-check scenario")
+  }
   if (locale==="vi" && theme==="light" && width===390) {
     const controls=page.locator(".landing-activity-controls button")
     assert.equal(await controls.count(),2,"Demo must have pause and hide controls")
