@@ -96,6 +96,29 @@ try {
   }
   await page.screenshot({path:path.join(output,label+".png"),fullPage:true,animations:"disabled"})
   await fs.writeFile(path.join(output,label+".json"),JSON.stringify(m,null,2))
+  // Demonstration only: never imply an actual visitor just checked a score.
+  const activity=page.locator('.landing-activity[data-activity-mode="demo"]')
+  assert.equal(await activity.count(),1,label+": missing demo activity")
+  assert.equal(await page.locator(".landing-activity-demo-badge").count(),1,label+": missing demo badge")
+  assert.equal(await page.locator(".landing-activity-disclosure").count(),1,label+": missing demo disclosure")
+  assert.ok((await page.locator(".landing-activity-detail").innerText()).includes("112"),label+": synthetic 112-point fixture missing on first item")
+  if (locale==="vi" && theme==="light" && width===390) {
+    const controls=page.locator(".landing-activity-controls button")
+    assert.equal(await controls.count(),2,"Demo must have pause and hide controls")
+    await controls.nth(0).click()
+    assert.equal(await controls.nth(0).getAttribute("aria-pressed"),"true","Pause should persist in control state")
+    await controls.nth(1).click()
+    assert.equal(await page.locator(".landing-activity").count(),0,"Hide must remove activity from view")
+    assert.equal(await page.locator(".landing-activity-restore").count(),1,"Restore action is missing")
+    await page.reload({waitUntil:"domcontentloaded"})
+    await page.locator(".landing-activity-restore").waitFor({state:"visible"})
+    await page.locator(".landing-activity-restore").click()
+    await page.locator('.landing-activity[data-activity-mode="demo"]').waitFor({state:"visible"})
+  }
+  if (locale==="en" && theme==="light" && width===1440) {
+    const initial=await activity.getAttribute("data-activity-index")
+    await page.waitForFunction(initial=>document.querySelector(".landing-activity")?.getAttribute("data-activity-index")!==initial,initial,{timeout:12000})
+  }
   await context.close()
  }
  // New Home routes should show the approved light design even when a visitor's
