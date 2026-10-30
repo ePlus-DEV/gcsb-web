@@ -5,7 +5,7 @@ import { useTheme } from "next-themes"
 import Link from "next/link"
 import {
   ArrowRight, Award, BadgeCheck, CalendarDays, ChartNoAxesCombined, Chrome,
-  ChevronDown, Cloud, Gift, Globe2, Link2, Medal, Puzzle,
+  ChevronDown, Cloud, Gift, Gamepad2, Globe2, Link2, Medal, Puzzle,
   ShieldCheck, Sparkles, Target, Trophy, Users,
 } from "lucide-react"
 import { ArcadeHeader, ArcadeFooter } from "./route-shell"
@@ -282,6 +282,8 @@ function DashboardPreview({ copy: c }: { copy: LandingCopy }) {
         </div>
       </div>
       <span className="landing-demo-disclaimer">{c.sample}</span>
+      <span className="landing-demo-floating-controller" aria-hidden="true"><Gamepad2 /></span>
+      <span className="landing-demo-sparkle" aria-hidden="true">✦</span>
     </div>
   )
 }
