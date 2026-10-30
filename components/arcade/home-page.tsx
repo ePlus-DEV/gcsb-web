@@ -240,54 +240,33 @@ function landingCopy(locale: WebsiteLocale, m: WebsiteCatalog["messages"]): Land
   }
 }
 
-function DashboardPreview({ copy: c }: { copy: LandingCopy }) {
+const DASHBOARD_PREVIEW_BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? ""
+
+function DashboardPreview({copy: c, locale}: {copy: LandingCopy; locale: WebsiteLocale}) {
+  // Captured from the REAL ePlus Dashboard summary components using the
+  // repository's existing synthetic demo profile. Never show invented cards
+  // or visitor-specific points in the public Home hero.
+  const image = locale === "vi" ? "dashboard-hero-vi.png" : "dashboard-hero-en.png"
   return (
-    <div className="landing-demo" aria-label={c.sample}>
-      <div className="landing-demo-top">
-        <div className="landing-demo-brand"><span>✦</span> ePlus Arcade</div>
-        <span className="landing-demo-tab is-current">Dashboard</span>
-        <span className="landing-demo-tab">Badges</span>
-        <span className="landing-demo-tab">Programs</span>
-        <span className="landing-demo-sample">DEMO</span>
+    <div className="landing-demo landing-dashboard-real" aria-label={c.sample} data-hero-source="real-dashboard">
+      <div className="landing-dashboard-shot-head">
+        <span className="landing-dashboard-shot-brand"><Gamepad2 aria-hidden="true" /> ePlus Arcade</span>
+        <span className="landing-dashboard-shot-title">Dashboard</span>
+        <span className="landing-dashboard-shot-badge">DEMO</span>
       </div>
-      <div className="landing-demo-body">
-        <div className="landing-demo-profile">
-          <div className="landing-demo-identity"><span className="landing-demo-avatar">AP</span><div><strong>{c.demoProfile}</strong><small>Google Skills</small></div></div>
-          <small>{c.demoScore}</small>
-          <strong className="landing-demo-points">128 <em>PTS</em></strong>
-          <div className="landing-demo-gauge"><span>72%</span></div>
-          <div className="landing-demo-stat"><strong>6</strong><span>Game</span><strong>12</strong><span>Skill</span></div>
-        </div>
-        <div className="landing-demo-content">
-          <div className="landing-demo-chips"><span><Trophy /> Arcade</span><span><Users /> Facilitator</span><span><Award /> Leaderboard</span></div>
-          <div className="landing-demo-card">
-            <div className="landing-demo-heading"><strong>{c.demoBreakdown}</strong><span>•••</span></div>
-            <div className="landing-demo-bar"><span style={{width:"82%"}} /></div>
-            <div className="landing-demo-line"><i/><span>Arcade games</span><b>82</b></div>
-            <div className="landing-demo-line"><i/><span>Skill badges</span><b>36</b></div>
-            <div className="landing-demo-line"><i/><span>Bonus</span><b>10</b></div>
-          </div>
-          <div className="landing-demo-card landing-demo-bottom">
-            <div className="landing-demo-heading"><strong>{c.demoProgress}</strong><span>2026</span></div>
-            <div className="landing-demo-bar is-blue"><span style={{width:"72%"}}/></div>
-            <small>72% progress</small>
-          </div>
-        </div>
-        <div className="landing-demo-right">
-          <div className="landing-demo-card">
-            <div className="landing-demo-heading"><strong>{c.demoHistory}</strong><span>2026</span></div>
-            <svg viewBox="0 0 260 135" role="presentation" aria-hidden="true">
-              <path d="M0 112H260M0 74H260M0 36H260" fill="none" stroke="#e6eaf7" strokeWidth="1"/>
-              <path d="M7 112 L42 95 L78 98 L114 74 L149 66 L185 90 L223 49 L253 16" fill="none" stroke="#5975ff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-              {[ [7,112], [42,95], [78,98], [114,74], [149,66], [185,90], [223,49], [253,16] ].map(([x,y]) => <circle key={x} cx={x} cy={y} r="4" fill="#5975ff" stroke="#fff" strokeWidth="2"/>)}
-            </svg>
-          </div>
-          <div className="landing-demo-notice"><BadgeCheck /><span>{c.demoScore} · 2026</span></div>
-        </div>
+      <div className="landing-dashboard-shot-content">
+        <img
+          className="landing-dashboard-shot-image"
+          src={DASHBOARD_PREVIEW_BASE + "/images/" + image}
+          alt={c.sample + " — Google Cloud Arcade Dashboard"}
+          width={1280}
+          height={720}
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
+        />
       </div>
-      <span className="landing-demo-disclaimer">{c.sample}</span>
-      <span className="landing-demo-floating-controller" aria-hidden="true"><Gamepad2 /></span>
-      <span className="landing-demo-sparkle" aria-hidden="true">✦</span>
+      <div className="landing-dashboard-shot-caption"><BadgeCheck aria-hidden="true" /> {c.sample}</div>
     </div>
   )
 }
@@ -355,7 +334,7 @@ export default function HomePage({catalog, locale}: {catalog: WebsiteCatalog; lo
             <span><Globe2/>{c.trust[2]}</span>
           </div>
         </div>
-        <DashboardPreview copy={c}/>
+        <DashboardPreview copy={c} locale={language.locale}/>
       </section>
 
       <section id="features" className="landing-section landing-features" aria-labelledby="landing-features-title">
