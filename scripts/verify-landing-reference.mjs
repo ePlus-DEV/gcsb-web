@@ -21,7 +21,7 @@ try {
   const context=await browser.newContext({viewport:{width,height:900},deviceScaleFactor:1})
   await context.addInitScript((theme)=>{
    localStorage.setItem("arcade-theme",theme)
-   localStorage.setItem("arcade-home-theme-v1",theme)
+   localStorage.setItem("arcade-home-theme-v2",theme)
    localStorage.setItem("arcade-seasonal-theme","off")
   },theme)
   const page=await context.newPage()
@@ -82,7 +82,7 @@ try {
  const migrated=await browser.newContext({viewport:{width:1440,height:900}})
  await migrated.addInitScript(()=>{
   localStorage.setItem("arcade-theme","dark")
-  localStorage.removeItem("arcade-home-theme-v1")
+  localStorage.removeItem("arcade-home-theme-v2")
   localStorage.setItem("arcade-seasonal-theme","off")
  })
  const migratedPage=await migrated.newPage()
