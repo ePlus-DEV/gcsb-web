@@ -9,6 +9,7 @@ import {
   ShieldCheck, Sparkles, Target, Trophy, Users,
 } from "lucide-react"
 import { ArcadeHeader, ArcadeFooter } from "./route-shell"
+import HomeActivityDemo from "./home-activity-demo"
 import { LANDING_FAQ, LANDING_HEADLINES } from "./home-faq-translations"
 import {
   getWebsiteLocale, getWebsiteLocaleFromPathname, getWebsiteLocaleHref,
@@ -328,6 +329,7 @@ export default function HomePage({catalog, locale}: {catalog: WebsiteCatalog; lo
             <Link className="landing-button is-primary" href={dashboardHref}>{c.dashboard}<ArrowRight aria-hidden="true"/></Link>
             <a className="landing-button is-secondary" href="#extension"><Chrome aria-hidden="true"/>{c.extension}</a>
           </div>
+          <HomeActivityDemo locale={language.locale} />
           <div className="landing-trust">
             <span><BadgeCheck/>{c.trust[0]}</span>
             <span><ShieldCheck/>{c.trust[1]}</span>
