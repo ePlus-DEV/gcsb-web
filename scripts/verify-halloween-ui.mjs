@@ -62,6 +62,19 @@ try {
     await page.locator(".landing-actions .landing-button.is-primary").waitFor({ state: "visible" })
     assert.equal(await page.locator(".profile-analyzer-card, .home-profile-summary, .guest-dashboard").count(), 0)
     assert.equal(await page.locator(".landing-step-card").count(), 3)
+    // The approved mock is a real landing composition, never a second Dashboard.
+    assert.equal(await page.locator(".landing-demo").count(), 1, "hero contains an illustrative Dashboard preview")
+    assert.equal(await page.locator(".landing-feature-card").count(), 6, "six core feature cards")
+    assert.equal(await page.locator(".landing-program-card").count(), 3, "three program cards")
+    assert.equal(await page.locator(".landing-faq-item").count(), 6, "six FAQs")
+    assert.equal(await page.locator(".landing-last-cta").count(), 1, "final CTA")
+    const order = await page.locator(".landing-home > section").evaluateAll(nodes =>
+      nodes.map(node => node.id).filter(Boolean))
+    assert.deepEqual(order, ["top", "features", "how-it-works", "programs", "faq", "extension"])
+    const featureColumns = await page.locator(".landing-feature-grid").evaluate(node =>
+      getComputedStyle(node).gridTemplateColumns.split(/\s+/).filter(Boolean).length)
+    assert.equal(featureColumns, width <= 390 ? 1 : 3, "desktop 3-column vs mobile single-column features")
+
     assert.equal(await page.locator(".mobile-bottom-nav a[href=\"#calculator\"]").count(), 0)
     assert.equal(await page.locator(".landing-demo").count(), 1)
     const geometry = await page.evaluate(() => ({
