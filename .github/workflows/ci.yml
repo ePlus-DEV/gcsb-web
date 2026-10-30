@@ -69,3 +69,55 @@ jobs:
           node scripts/verify-google-analytics-html.mjs \
             out/index.html \
             G-SJNYKL2864
+
+
+  capture-real-dashboard:
+    name: Capture the real Dashboard hero once
+    needs: validate
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout feature branch for image commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          persist-credentials: true
+      - name: Check whether the snapshot already exists
+        id: existing
+        run: |
+          if [ -s public/images/dashboard-hero-en.png ] && [ -s public/images/dashboard-hero-vi.png ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Setup Node.js
+        if: steps.existing.outputs.exists == 'false'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: yarn
+      - name: Install dependencies
+        if: steps.existing.outputs.exists == 'false'
+        run: yarn install --frozen-lockfile --non-interactive
+      - name: Build exact Dashboard UI
+        if: steps.existing.outputs.exists == 'false'
+        env:
+          NEXT_STATIC_EXPORT: "true"
+          NEXT_PUBLIC_BASE_PATH: ""
+        run: yarn build
+      - name: Capture real summary cards (synthetic profile only)
+        if: steps.existing.outputs.exists == 'false'
+        run: |
+          yarn playwright install --with-deps chromium
+          node scripts/capture-dashboard-hero.mjs public/images
+      - name: Commit two reference snapshots to PR branch only
+        if: steps.existing.outputs.exists == 'false'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/images/dashboard-hero-en.png public/images/dashboard-hero-vi.png
+          git diff --cached --quiet && exit 0
+          git commit -m "assets(home): snapshot real Dashboard panels for Hero"
+          git push origin "HEAD:${{ github.event.pull_request.head.ref }}"
