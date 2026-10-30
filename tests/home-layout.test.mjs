@@ -35,8 +35,8 @@ test("all locales mount the English homepage block sequence", () => {
 test("Home introduces the tool while Dashboard hosts live data", () => {
   const dashboardPage = readRepoFile("components/arcade/dashboard-page.tsx")
   assert.doesNotMatch(homeClient, /<GuestDashboard|<ProfileAnalyzer|<HomeProfileSummary|useArcadeMilestones|useTierSlotHistory/)
-  assert.match(homeClient, /className="arcade-hero home-intro-hero"/)
-  assert.match(homeClient, /home-intro-journey/)
+  assert.match(homeClient, /className="arcade-hero home-intro-hero landing-hero"/)
+  assert.match(homeClient, /landing-step-grid/)
   assert.match(guestDashboard, /id="monthly-games"/)
   assert.match(dashboardPage, /<MonthlyGamesPanelGate/)
   assert.match(dashboardPage, /<SwagDropsPreview/)
@@ -81,7 +81,7 @@ test("Tiers sidebar stays sticky only in desktop profile layout", () => {
 test("portal targets cannot depend on translated labels or mutation timing", () => {
   assert.match(homeClient, /data-home-order="program-countdown"/)
   assert.ok(homeClient.indexOf('data-home-order="hero"') < homeClient.indexOf('data-home-order="program-countdown"'))
-  assert.ok(homeClient.indexOf('data-home-order="program-countdown"') < homeClient.indexOf("<ExtensionStrip"))
+  assert.ok(homeClient.indexOf('data-home-order="program-countdown"') < homeClient.indexOf('id="extension"'))
   assert.ok(monthlyGate.includes('page?.querySelector<HTMLElement>(`#${HOST_ID}.${HOST_CLASS_NAME}`)'))
   assert.doesNotMatch(monthlyGate, /\[aria-label=/)
   assert.doesNotMatch(monthlyGate, /insertAdjacentElement|document\.createElement/)
