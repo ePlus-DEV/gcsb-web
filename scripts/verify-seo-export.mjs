@@ -18,7 +18,7 @@ for (const id of ["features", "how-it-works", "programs", "faq", "extension"]) {
 assert.match(home, /How it works/)
 assert.match(home, /landing-feature-card/)
 assert.match(home, /landing-faq-item/)
-assert.match(home, /data-arcade-swag-nav="true"/)
+assert.match(home, /href="\/swag-drops\/"[ >]/)
 assert.ok(home.match(/<h1[^>]*>([\s\S]*?)<\/h1>/)?.[1].includes("Google Cloud Arcade"), "English landing heading is not prerendered")
 assert.match(home, /rel="canonical" href="https:\/\/arcade\.eplus\.dev\/"/)
 assert.doesNotMatch(home, /name="robots" content="noindex/i)
@@ -32,7 +32,7 @@ for (const [route, lang] of routes) {
   }
   assert.ok(page.includes('href="/guide/"'), route + ": missing guide link")
   assert.ok(page.includes('href="/swag-drops/2026/"'), route + ": missing rewards link")
-  assert.ok(page.includes('data-arcade-swag-nav="true"'), route + ": missing native menu link")
+  assert.ok(page.includes('href="/swag-drops/"'), route + ": missing static swag archive link")
   assert.doesNotMatch(page, /name="robots" content="noindex/i)
 }
 for (const [route, heading] of [
