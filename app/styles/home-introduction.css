@@ -61,6 +61,14 @@ html.light[data-season="halloween"] .arcade-dashboard-page.landing-home {
   color: white;
   box-shadow: 0 7px 17px rgba(102, 74, 237, .16);
 }
+/* Light theme's old arcade branding selector has higher specificity. */
+html.light .landing-home .arcade-brand-mark,
+html.dark .landing-home .arcade-brand-mark {
+  color:#fff;
+  background:linear-gradient(135deg,#8358fa,#5547ef);
+  border-color:transparent;
+  box-shadow:0 7px 17px rgba(102,74,237,.17);
+}
 .landing-home .arcade-brand-mark .fa-icon { font-size: 22px; color: white; }
 .landing-home .arcade-brand-copy {
   display: flex;
