@@ -31,11 +31,21 @@ try {
   assert.equal(await page.locator(".landing-demo-card").count(),0,"No invented dashboard card markup may appear in the Hero")
   await page.waitForFunction(theme=>document.documentElement.classList.contains(theme),theme)
   const expectedImage = "dashboard-hero-"+(locale==="vi"?"vi":"en")+(theme==="dark"?"-dark":"")+".png"
-  await page.waitForFunction(expected=>{
-    const image=document.querySelector(".landing-dashboard-shot-image")
-    return image instanceof HTMLImageElement &&
-      image.src.includes(expected) && image.complete && image.naturalWidth>400
-  },expectedImage,{timeout:15000})
+  await fs.access(path.join(process.cwd(),"out","images",expectedImage))
+  try {
+    await page.waitForFunction(expected=>{
+      const image=document.querySelector(".landing-dashboard-shot-image")
+      return image instanceof HTMLImageElement &&
+        image.src.includes(expected) && image.complete && image.naturalWidth>400
+    },expectedImage,{timeout:15000})
+  } catch(error) {
+    const diagnostics=await page.locator(".landing-dashboard-shot-image").evaluate(img=>({
+      src:img.getAttribute("src"),complete:img.complete,naturalWidth:img.naturalWidth,
+      theme:document.documentElement.className,
+      alt:img.getAttribute("alt")
+    }))
+    throw new Error("Hero image failed to match "+expectedImage+": "+JSON.stringify(diagnostics),{cause:error})
+  }
   const source=await page.locator(".landing-dashboard-shot-image").getAttribute("src")
   assert.ok(source?.includes(expectedImage),"Theme- and locale-matched Dashboard screenshot missing")
   await page.evaluate(()=>document.fonts.ready)
