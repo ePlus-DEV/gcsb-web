@@ -28,11 +28,13 @@ test("program countdown is mounted on default and localized homepages", () => {
 
 
 test("program countdown keeps a deterministic home position for every locale", () => {
-  assert.match(calculator, /className="program-countdown-host" data-home-order="program-countdown"/)
+  assert.match(calculator, /className=\{"program-countdown-host"/)
+  assert.match(calculator, /data-home-order="program-countdown"/)
+  assert.match(calculator, /aria-hidden=\{!showDeadlines\}/)
   assert.ok(
     calculator.indexOf('id="programs"') <
-      calculator.indexOf('className="program-countdown-host"') &&
-      calculator.indexOf('className="program-countdown-host"') <
+      calculator.indexOf('data-home-order="program-countdown"') &&
+      calculator.indexOf('data-home-order="program-countdown"') <
       calculator.indexOf('id="faq"'),
   )
 })
