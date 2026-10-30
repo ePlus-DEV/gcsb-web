@@ -50,7 +50,6 @@ try {
       localStorage.setItem("eplus-arcade-dashboard-v1",JSON.stringify(record))
     },{profileUrl,result,checkedAt:"2026-09-30T08:00:00Z"})
     const page=await context.newPage()
-    await page.route(/https:\/\/(?!127\.0\.0\.1)/,route=>route.abort())
     const route=locale==="vi"?"vi/dashboard/":"dashboard/"
     await page.goto(server.url+route,{waitUntil:"domcontentloaded"})
     const summary=page.locator(".dashboard-summary-grid")
