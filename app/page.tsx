@@ -1,6 +1,5 @@
 import type { Metadata } from "next"
 import ProgramCountdown from "@/components/arcade/program-countdown"
-import HomeSearchGuide from "@/components/seo/home-search-guide"
 import englishCatalog from "@/public/i18n/locales/en.json"
 import SeoContent from "@/components/seo/seo-content"
 import {
@@ -24,7 +23,7 @@ export const metadata: Metadata = {
 export default function Page() {
   return (
     <>
-      <HomePage catalog={englishCatalog} locale="en"><HomeSearchGuide catalog={englishCatalog} /></HomePage>
+      <HomePage catalog={englishCatalog} locale="en" />
       <ProgramCountdown />
       <SeoContent />
     </>
