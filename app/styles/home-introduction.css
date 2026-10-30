@@ -949,3 +949,291 @@ html.dark .landing-home .landing-activity-controls button:hover { color: #fff; b
 @media(prefers-reduced-motion:reduce) {
   .landing-home .landing-activity-position i { transition: none; }
 }
+
+
+/* Dashboard palette sync (shared Arcade theme tokens, no Home-only theme).
+ * Match colors from redesign-dashboard.css and theme-modes.css.
+ * Keep Hero, sections, Activity and footer on the same theme as /dashboard/. */
+.landing-home {
+  --home-text: var(--arcade-text);
+  --home-muted: var(--arcade-muted);
+  --home-link: var(--arcade-purple);
+  --home-brand: var(--arcade-purple);
+  --home-border: var(--arcade-border);
+  --home-card: var(--arcade-panel-strong);
+  --home-soft: var(--arcade-panel-soft);
+  --home-shadow: 0 16px 34px rgba(0, 0, 0, .11);
+  --home-panel-bg: linear-gradient(145deg, rgba(12,23,48,.92), rgba(7,14,31,.94));
+  --home-page-bg: radial-gradient(circle at 78% 8%,rgba(68,55,201,.2),transparent 28rem),
+    radial-gradient(circle at 10% 24%,rgba(24,91,205,.14),transparent 32rem),
+    linear-gradient(180deg,#050918 0%,#071125 46%,#050918 100%);
+  --home-header-bg: rgba(5,9,24,.84);
+  --home-heading: var(--arcade-text);
+  --home-nav: #c1cbe0;
+  --home-subtle: var(--arcade-muted);
+  --home-hero-wash: radial-gradient(ellipse at 78% 18%,rgba(68,55,201,.21),transparent 38%),
+    radial-gradient(ellipse at 20% 80%,rgba(24,91,205,.15),transparent 45%);
+  --home-tint: rgba(139,92,246,.12);
+  --home-tint-border: rgba(139,92,246,.34);
+  --home-tint-text: #d8c9ff;
+  --home-step-bg: rgba(10,19,40,.8);
+  --home-faq-bg: rgba(10,19,40,.92);
+  --home-cta-bg: linear-gradient(120deg,#162752,#17133d 60%,#1d315b);
+  --home-accent-gradient: linear-gradient(90deg,#a86cff 0%,#7c5cff 42%,#35c8ff 100%);
+  background: var(--home-page-bg);
+  color: var(--home-text);
+}
+html.light .landing-home {
+  --home-shadow: 0 12px 30px rgba(51,65,85,.075);
+  --home-panel-bg: linear-gradient(145deg,rgba(255,255,255,.96),rgba(246,248,255,.94));
+  --home-page-bg: radial-gradient(circle at 78% 8%,rgba(99,102,241,.14),transparent 28rem),
+    radial-gradient(circle at 10% 24%,rgba(14,165,233,.1),transparent 32rem),
+    linear-gradient(180deg,#f8faff 0%,#eef3ff 46%,#f8faff 100%);
+  --home-header-bg: rgba(248,250,255,.88);
+  --home-heading: var(--arcade-text);
+  --home-nav: #64748b;
+  --home-subtle: #64748b;
+  --home-hero-wash: radial-gradient(ellipse at 80% 25%,rgba(99,102,241,.14),transparent 37%),
+    radial-gradient(ellipse at 18% 75%,rgba(14,165,233,.11),transparent 47%);
+  --home-tint: rgba(124,58,237,.08);
+  --home-tint-border: rgba(79,70,229,.18);
+  --home-tint-text: #6d28d9;
+  --home-step-bg: rgba(255,255,255,.86);
+  --home-faq-bg: rgba(255,255,255,.95);
+  --home-cta-bg: linear-gradient(120deg,#4338ca,#4f46e5 65%,#2563eb);
+  --home-accent-gradient: linear-gradient(90deg,#7c3aed 0%,#4f46e5 42%,#0284c7 100%);
+  background: var(--home-page-bg);
+}
+html.dark .landing-home,
+html.dark[data-season="halloween"] .arcade-dashboard-page.landing-home,
+html.light .landing-home,
+html.light[data-season="halloween"] .arcade-dashboard-page.landing-home {
+  background: var(--home-page-bg);
+  color: var(--home-text);
+}
+html.dark .landing-home .arcade-header,
+html.light .landing-home .arcade-header {
+  background: var(--home-header-bg);
+  border-bottom-color: var(--arcade-border-soft);
+  box-shadow: 0 3px 24px rgba(0,0,0,.055);
+}
+.landing-home .arcade-brand-copy strong,
+.landing-home .landing-hero h1,
+.landing-home .landing-section h2,
+.landing-home .landing-feature-card>strong,
+.landing-home .landing-step-card strong,
+.landing-home .landing-program-card>strong,
+.landing-home .landing-footer-links strong,
+.landing-home .landing-faq-item summary {
+  color: var(--home-heading);
+}
+html.dark .landing-home .arcade-brand-copy strong,
+html.dark .landing-home .landing-hero h1,
+html.dark .landing-home .landing-section h2,
+html.dark .landing-home .landing-feature-card>strong,
+html.dark .landing-home .landing-step-card strong,
+html.dark .landing-home .landing-program-card>strong,
+html.dark .landing-home .landing-footer-links strong,
+html.dark .landing-home .landing-faq-item summary {
+  color: var(--home-heading);
+}
+html.light .landing-home .arcade-brand-copy strong,
+html.light .landing-home .landing-hero h1,
+html.light .landing-home .landing-section h2,
+html.light .landing-home .landing-feature-card>strong,
+html.light .landing-home .landing-step-card strong,
+html.light .landing-home .landing-program-card>strong,
+html.light .landing-home .landing-footer-links strong,
+html.light .landing-home .landing-faq-item summary {
+  color: var(--home-heading);
+}
+.landing-home .arcade-brand-copy b,
+.landing-home .landing-hero-copy>p,
+.landing-home .landing-section-lead,
+.landing-home .landing-feature-card>p,
+.landing-home .landing-step-card p,
+.landing-home .landing-program-card>p,
+.landing-home .landing-footer-about p,
+.landing-home .landing-faq-item>p,
+.landing-home .landing-footer .landing-footer-links a,
+.landing-home .landing-trust span {
+  color: var(--home-muted);
+}
+html.dark .landing-home .landing-hero-copy>p,
+html.dark .landing-home .landing-section-lead,
+html.dark .landing-home .landing-feature-card>p,
+html.dark .landing-home .landing-step-card p,
+html.dark .landing-home .landing-program-card>p,
+html.dark .landing-home .landing-footer-about p,
+html.dark .landing-home .landing-faq-item>p,
+html.dark .landing-home .landing-trust span,
+html.light .landing-home .landing-hero-copy>p,
+html.light .landing-home .landing-section-lead,
+html.light .landing-home .landing-feature-card>p,
+html.light .landing-home .landing-step-card p,
+html.light .landing-home .landing-program-card>p,
+html.light .landing-home .landing-footer-about p,
+html.light .landing-home .landing-faq-item>p,
+html.light .landing-home .landing-trust span {
+  color: var(--home-muted);
+}
+html.dark .landing-home .landing-hero::before,
+html.light .landing-home .landing-hero::before {
+  background: var(--home-hero-wash);
+  box-shadow: none;
+}
+.landing-home .landing-hero h1 span {
+  color: transparent;
+  background: var(--home-accent-gradient);
+  background-clip: text;
+  -webkit-background-clip: text;
+}
+html.dark .landing-home .landing-button.is-primary,
+html.light .landing-home .landing-button.is-primary,
+html.dark .landing-home .landing-header-dashboard,
+html.light .landing-home .landing-header-dashboard {
+  background: linear-gradient(135deg,var(--arcade-purple),var(--arcade-violet));
+  color: #fff;
+  border-color: var(--home-tint-border);
+  box-shadow: 0 10px 25px rgba(124,58,237,.19);
+}
+html.dark .landing-home .landing-button.is-secondary,
+html.light .landing-home .landing-button.is-secondary,
+html.dark .landing-home .landing-programs-view-all,
+html.light .landing-home .landing-programs-view-all {
+  background: var(--home-tint);
+  border: 1px solid var(--home-tint-border);
+  color: var(--home-tint-text);
+}
+html.dark .landing-home .landing-kicker,
+html.dark .landing-home .landing-section-kicker,
+html.light .landing-home .landing-kicker,
+html.light .landing-home .landing-section-kicker,
+html.dark .landing-home .landing-program-tag,
+html.light .landing-home .landing-program-tag {
+  background: var(--home-tint);
+  border-color: var(--home-tint-border);
+  color: var(--home-tint-text);
+}
+html.dark .landing-home .arcade-nav a,
+html.light .landing-home .arcade-nav a {
+  color: var(--home-nav);
+}
+html.dark .landing-home .arcade-nav a.active,
+html.dark .landing-home .arcade-nav a:hover,
+html.light .landing-home .arcade-nav a.active,
+html.light .landing-home .arcade-nav a:hover {
+  background: var(--home-tint);
+  color: var(--home-tint-text);
+}
+html.dark .landing-home .website-theme-toggle.is-header-control,
+html.dark .landing-home .website-language-trigger,
+html.dark .landing-home .mobile-menu-toggle,
+html.light .landing-home .website-theme-toggle.is-header-control,
+html.light .landing-home .website-language-trigger,
+html.light .landing-home .mobile-menu-toggle {
+  background: var(--home-panel-bg);
+  color: var(--home-text);
+  border-color: var(--home-border);
+}
+html.dark .landing-home .website-language-current-label,
+html.light .landing-home .website-language-current-label { color: var(--home-muted); }
+html.dark .landing-home .landing-feature-card,
+html.dark .landing-home .landing-step-card,
+html.dark .landing-home .landing-program-card,
+html.dark .landing-home .landing-faq-item,
+html.light .landing-home .landing-feature-card,
+html.light .landing-home .landing-step-card,
+html.light .landing-home .landing-program-card,
+html.light .landing-home .landing-faq-item {
+  background: var(--home-panel-bg);
+  color: var(--home-text);
+  border-color: var(--home-border);
+  box-shadow: var(--home-shadow);
+}
+html.dark .landing-home .landing-how,
+html.light .landing-home .landing-how { background: var(--home-hero-wash); }
+html.dark .landing-home .landing-feature-icon,
+html.light .landing-home .landing-feature-icon,
+html.dark .landing-home .landing-program-card-top .landing-program-icon,
+html.light .landing-home .landing-program-card-top .landing-program-icon {
+  border-color: var(--home-tint-border);
+}
+html.dark .landing-home .landing-card-arrow,
+html.light .landing-home .landing-card-arrow {
+  background: var(--home-tint);
+  color: var(--home-tint-text);
+  border-color: var(--home-tint-border);
+}
+html.dark .landing-home .landing-faq-item summary .fa-icon,
+html.light .landing-home .landing-faq-item summary .fa-icon {
+  color: var(--home-muted);
+}
+html.dark .landing-home .landing-last-cta,
+html.light .landing-home .landing-last-cta {
+  background: var(--home-cta-bg);
+  border: 1px solid var(--home-tint-border);
+}
+html.dark .landing-home .landing-footer,
+html.light .landing-home .landing-footer,
+html.dark .landing-home .landing-footer-bottom,
+html.light .landing-home .landing-footer-bottom {
+  border-color: var(--home-border);
+}
+html.dark .landing-home .landing-footer .landing-footer-links a,
+html.light .landing-home .landing-footer .landing-footer-links a,
+html.dark .landing-home .landing-footer-bottom,
+html.light .landing-home .landing-footer-bottom { color: var(--home-muted); }
+html.dark .landing-home .landing-activity,
+html.light .landing-home .landing-activity,
+html.dark .landing-home .landing-activity-restore,
+html.light .landing-home .landing-activity-restore {
+  background: var(--home-panel-bg);
+  color: var(--home-text);
+  border-color: var(--home-border);
+  box-shadow: var(--home-shadow);
+}
+html.dark .landing-home .landing-activity-heading,
+html.dark .landing-home .landing-activity-detail,
+html.light .landing-home .landing-activity-heading,
+html.light .landing-home .landing-activity-detail {
+  color: var(--home-text);
+}
+html.dark .landing-home .landing-activity-disclosure,
+html.light .landing-home .landing-activity-disclosure {
+  color: var(--home-muted);
+}
+html.dark .landing-home .landing-activity-demo-badge,
+html.light .landing-home .landing-activity-demo-badge,
+html.dark .landing-home .landing-activity-symbol,
+html.light .landing-home .landing-activity-symbol {
+  background: var(--home-tint);
+  color: var(--home-tint-text);
+  border-color: var(--home-tint-border);
+}
+html.dark .landing-home .landing-activity-status,
+html.light .landing-home .landing-activity-status {
+  background: var(--arcade-cyan);
+  box-shadow: 0 0 0 3px var(--home-tint);
+}
+html.dark .landing-home .landing-activity-position i.is-active,
+html.light .landing-home .landing-activity-position i.is-active {
+  background: var(--arcade-purple);
+}
+html.dark .landing-home .landing-activity-restore,
+html.light .landing-home .landing-activity-restore,
+html.dark .landing-home .landing-activity-controls button:hover,
+html.light .landing-home .landing-activity-controls button:hover {
+  color: var(--home-tint-text);
+}
+html.dark .landing-home .landing-activity-controls button,
+html.light .landing-home .landing-activity-controls button {
+  color: var(--home-muted);
+}
+@media (max-width: 1100px) {
+  html.dark .landing-home .arcade-nav.is-open,
+  html.light .landing-home .arcade-nav.is-open {
+    background: var(--home-panel-bg);
+    border-color: var(--home-border);
+  }
+}
