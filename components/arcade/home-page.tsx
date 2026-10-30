@@ -8,6 +8,7 @@ import {
   ShieldCheck, Sparkles, Target, Trophy, Users, Zap,
 } from "lucide-react"
 import { ArcadeHeader, ArcadeFooter } from "./route-shell"
+import { LANDING_FAQ, LANDING_HEADLINES } from "./home-faq-translations"
 import {
   getWebsiteLocale, getWebsiteLocaleFromPathname, getWebsiteLocaleHref,
   loadWebsiteCatalog, type WebsiteCatalog, type WebsiteLocale,
@@ -198,6 +199,10 @@ function landingCopy(locale: WebsiteLocale, m: WebsiteCatalog["messages"]): Land
   if (locale === "en") return EN
   return {
     ...EN,
+    featuresKicker: m.aboutArcade,
+    featuresDesc: m.heroDescription,
+    stepsKicker: m.stepGuide,
+    programsKicker: m.facilitatorProgram,
     heroFirst: m.heroTitleTop,
     heroAccent: m.heroTitleBottom,
     heroLast: m.aboutArcade,
@@ -221,6 +226,8 @@ function landingCopy(locale: WebsiteLocale, m: WebsiteCatalog["messages"]): Land
     faqDescription: m.checkPoints,
     ctaTitle: m.startUsing,
     ctaDescription: m.heroDescription,
+    ...LANDING_FAQ[locale],
+    ...LANDING_HEADLINES[locale],
   }
 }
 
