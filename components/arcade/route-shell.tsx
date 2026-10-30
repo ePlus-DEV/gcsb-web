@@ -6,8 +6,8 @@ import { getWebsiteLocaleHref, type WebsiteCatalog, type WebsiteLocale } from "@
 import { CURRENT_SWAG_SEASON, swagSeasonPath } from "./swag-seasons"
 const CHROME_EXTENSION_URL = "https://chromewebstore.google.com/detail/google-cloud-skills-boost/lmbhjioadhcoebhgapaidogodllonbgg"
 const FIREFOX_EXTENSION_URL = "https://addons.mozilla.org/addon/cloud-skills-boost-helper"
-type Props = { catalog: WebsiteCatalog; locale: WebsiteLocale; dashboard?: boolean }
-export function ArcadeHeader({catalog, locale, dashboard = false}: Props) {
+type Props = { catalog: WebsiteCatalog; locale: WebsiteLocale; dashboard?: boolean; landing?: boolean }
+export function ArcadeHeader({catalog, locale, dashboard = false, landing = false}: Props) {
  const homeHref = getWebsiteLocaleHref(locale)
  const dashboardHref = `${homeHref}dashboard/`
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -57,11 +57,19 @@ export function ArcadeHeader({catalog, locale, dashboard = false}: Props) {
  return (<header ref={headerRef} className="arcade-header">
         <Link className="arcade-brand" href={homeHref} aria-label={catalog.messages.backToCalculator}>
           <span className="arcade-brand-mark"><Gamepad2 /></span>
-          <span className="arcade-brand-copy"><strong>ARCADE</strong><b>POINTS</b></span>
-          <em>PRO</em>
+          <span className="arcade-brand-copy">{landing ? <><strong>ePlus Arcade</strong><b>Track · Plan · Score · Get Rewards</b></> : <><strong>ARCADE</strong><b>POINTS</b></>}</span>
+          {!landing && <em>PRO</em>}
         </Link>
 
         <nav id="arcade-primary-navigation" className={mobileMenuOpen ? "arcade-nav is-open" : "arcade-nav"}>
+          {landing ? (<>
+            <Link className="active" aria-current="page" href={homeHref} onClick={() => setMobileMenuOpen(false)}>{catalog.messages.homeNav}</Link>
+            <Link href={dashboardHref} onClick={() => setMobileMenuOpen(false)}>{catalog.messages.dashboardNav}</Link>
+            <a href="#programs" onClick={() => setMobileMenuOpen(false)}>{catalog.messages.facilitatorProgram}</a>
+            <Link href="/guide/" onClick={() => setMobileMenuOpen(false)}>{catalog.messages.guide}</Link>
+            <a href="#extension" onClick={() => setMobileMenuOpen(false)}>{catalog.messages.extension}</a>
+          </>) : (<>
+
           <Link className={!dashboard ? "active" : ""} aria-current={!dashboard ? "page" : undefined} href={homeHref} onClick={() => setMobileMenuOpen(false)}>{catalog.messages.homeNav}</Link>
           <Link className={dashboard ? "active" : ""} aria-current={dashboard ? "page" : undefined} href={dashboardHref} onClick={() => setMobileMenuOpen(false)}>{catalog.messages.dashboardNav}</Link>
           <Link href={`${dashboardHref}#calculator`} onClick={() => setMobileMenuOpen(false)}>{catalog.messages.calculator}</Link>
@@ -74,9 +82,12 @@ export function ArcadeHeader({catalog, locale, dashboard = false}: Props) {
             onClick={() => setMobileMenuOpen(false)}
           >{catalog.additional["Swag Drops"]}</Link>
           <Link href={`${dashboardHref}#monthly-games`} onClick={() => setMobileMenuOpen(false)}>{catalog.messages.guestLabsLabel}</Link>
+        
+          </>)}
         </nav>
 
         <div className="arcade-header-actions">
+          {landing && <Link className="landing-header-dashboard" href={dashboardHref}>{catalog.messages.dashboardNav} <Search aria-hidden="true"/></Link>}
           <a
             className="header-store-link is-chrome"
             href={CHROME_EXTENSION_URL}
@@ -240,12 +251,12 @@ function MobileBottomNavigation({ catalog, locale, dashboard }: Props) {
   )
 }
 
-export function ArcadeFooter({catalog, locale, dashboard = false}: Props) {
+export function ArcadeFooter({catalog, locale, dashboard = false, landing = false}: Props) {
  const homeHref = getWebsiteLocaleHref(locale)
  return <>      <footer className="arcade-footer" data-home-order="footer">
         <div className="arcade-brand footer-brand">
           <span className="arcade-brand-mark"><Gamepad2 /></span>
-          <span className="arcade-brand-copy"><strong>ARCADE</strong><b>POINTS</b></span>
+          <span className="arcade-brand-copy">{landing ? <><strong>ePlus Arcade</strong><b>Track · Plan · Score · Get Rewards</b></> : <><strong>ARCADE</strong><b>POINTS</b></>}</span>
         </div>
         <p>{catalog.messages.unofficial}</p>
         <nav className="footer-route-links" aria-label={catalog.messages.about}>
