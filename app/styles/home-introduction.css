@@ -62,7 +62,14 @@ html.light[data-season="halloween"] .arcade-dashboard-page.landing-home {
   box-shadow: 0 7px 17px rgba(102, 74, 237, .16);
 }
 .landing-home .arcade-brand-mark .fa-icon { font-size: 22px; color: white; }
-.landing-home .arcade-brand-copy { line-height: 1.2; letter-spacing: -.03em; }
+.landing-home .arcade-brand-copy {
+  display: flex;
+  flex-direction: column;
+  font-family: Inter, system-ui, sans-serif;
+  line-height: 1.2;
+  letter-spacing: -.03em;
+  white-space: nowrap;
+}
 .landing-home .arcade-brand-copy strong {
   display: block; color: #172044;
   font-size: 15px; font-weight: 800;
@@ -607,6 +614,39 @@ html.dark .landing-home .landing-footer-bottom{border-color:#2c3955;color:#a4b1c
 html.dark .landing-home .landing-demo{border-color:#6674a0;}
 html.dark .landing-home .landing-last-cta{background:linear-gradient(120deg,#253d89,#222860 58%,#39368d);}
 
+/* The underlying Arcade header hides its nav at 1100px. Preserve that
+ * responsive behavior with Home-scoped selectors (the desktop rule is more
+ * specific than the old breakpoint and otherwise leaves the nav visible). */
+@media (max-width: 1100px) {
+  .landing-home .mobile-menu-toggle { display: inline-flex; }
+  .landing-home .arcade-nav:not(.is-open) { display: none !important; }
+  .landing-home .arcade-nav.is-open {
+    display: flex !important;
+    position: absolute;
+    z-index: 100;
+    top: 100%;
+    left: 0;
+    right: 0;
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 4px;
+    padding: 12px max(18px, env(safe-area-inset-left));
+    background: var(--home-card);
+    border: 1px solid var(--home-border);
+    border-radius: 0 0 14px 14px;
+    box-shadow: 0 16px 30px rgba(40, 51, 97, .12);
+  }
+  .landing-home .arcade-nav.is-open a {
+    display: block;
+    padding: 12px 14px;
+    font-size: 13px;
+    border-radius: 9px;
+    color: var(--home-text);
+  }
+  .landing-home .arcade-nav.is-open a.active { color: var(--home-link); }
+}
 /* Tablet and phone: keep genuine mobile hierarchy instead of shrinking desktop cards. */
 @media(max-width:1180px){
   .landing-home .arcade-header{padding-inline:22px;gap:12px;}
