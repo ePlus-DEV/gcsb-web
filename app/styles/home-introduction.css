@@ -422,7 +422,7 @@ html.dark .landing-home .landing-footer{border-color:var(--landing-border);}
  .landing-footer-about{grid-column:1/-1;}
 }
 @media(max-width:600px){
- .landing-home .landing-footer{width:calc(100% - 30px);grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 15px;padding:23px 0 100px;}
+ .landing-home .landing-footer{width:calc(100% - 30px);grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 15px;padding:23px 0 32px;}
  .landing-footer-about{grid-column:1/-1;}
  .landing-footer-bottom{flex-direction:column;align-items:flex-start;gap:6px;}
  .landing-footer-links{gap:9px;}
