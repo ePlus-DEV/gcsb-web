@@ -245,111 +245,89 @@ html.dark .landing-home .arcade-brand-mark {
 .landing-trust span {display:inline-flex;align-items:center;gap:6px;color:#75829c;font-size:11px;font-weight:550;}
 .landing-trust .fa-icon {font-size:12px;color:#5486fd;}
 
-/* Dashboard Preview: a legible product example rather than a tiny banner. */
+/* The Hero displays an actual screen capture of the product Dashboard.
+ * Do not recreate summary cards / graphs using unrelated marketing markup.
+ * Screenshot and live Dashboard share the same React component implementation. */
 .landing-home .landing-demo {
-  position:relative;
-  min-width:0;
-  min-height:316px;
-  background:white;
-  border:1px solid #e2e6f4;
-  border-radius:16px;
-  box-shadow:0 25px 60px rgba(73,78,151,.14),0 7px 22px rgba(75,83,148,.05);
-  overflow:visible;
-  transform:rotate(.8deg);
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  background: #fff;
+  border: 1px solid #e2e7f4;
+  border-radius: 16px;
+  box-shadow: 0 27px 65px rgba(61,77,151,.14), 0 8px 23px rgba(57,65,121,.065);
+  overflow: hidden;
+  transform: rotate(-.7deg);
+  isolation: isolate;
 }
-.landing-demo::before {
-  content:"";position:absolute;z-index:-1;
-  inset:-20px -18px -23px;
-  background:radial-gradient(ellipse,rgba(124,130,255,.14),transparent 67%);
-  filter:blur(16px);border-radius:50%;
+.landing-home .landing-demo::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -18px;
+  background: radial-gradient(ellipse,rgba(111,116,244,.12),transparent 75%);
 }
-.landing-demo-top {
-  height:43px;
-  display:flex;align-items:center;gap:13px;
-  padding:0 15px;
-  border-bottom:1px solid #edf0f8;
-  overflow:hidden;white-space:nowrap;
+.landing-dashboard-shot-head {
+  min-height: 42px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid #edf0f8;
+  background: #fff;
 }
-.landing-demo-brand {margin-right:auto;font-size:10px;font-weight:850;color:#5949ed;}
-.landing-demo-brand span {
-  display:inline-grid;place-items:center;
-  width:20px;height:20px;
-  border-radius:5px;color:#fff;background:#7451f4;margin-right:4px;
+.landing-dashboard-shot-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-right: auto;
+  color: #5c4feb;
+  font-size: 11px;
+  font-weight: 850;
+  white-space: nowrap;
 }
-.landing-demo-tab {font-size:9px;font-weight:550;color:#8390ad;}
-.landing-demo-tab.is-current{color:#6748ee;font-weight:800;}
-.landing-demo-sample {font-size:9px;font-weight:750;border-radius:6px;padding:4px 6px;background:#f0f4ff;color:#5874bf;}
-.landing-demo-body {
-  display:grid;
-  grid-template-columns:minmax(0,.77fr) minmax(0,1.18fr) minmax(0,.88fr);
-  gap:10px;
-  min-height:263px;
-  padding:13px 12px 19px;
-  background:#f9fbff;
-  border-radius:0 0 15px 15px;
+.landing-dashboard-shot-brand .fa-icon { font-size: 13px; }
+.landing-dashboard-shot-title {
+  color: #77829c;
+  font-size: 10px;
+  font-weight: 650;
 }
-.landing-demo-profile,.landing-demo-card {
-  background:#fff;
-  border:1px solid #e7ebf6;
-  border-radius:9px;
-  min-width:0;
-  box-shadow:0 2px 7px rgba(44,61,111,.025);
+.landing-dashboard-shot-badge {
+  border: 1px solid #dce3ff;
+  border-radius: 5px;
+  background: #eef2ff;
+  color: #6252df;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  padding: 4px 6px;
 }
-.landing-demo-profile {
-  padding:12px;
-  display:flex;flex-direction:column;gap:11px;
+.landing-dashboard-shot-content {
+  padding: 10px 10px 7px;
+  background: #f6f8fd;
+  overflow: hidden;
 }
-.landing-demo-identity{display:flex;align-items:center;gap:8px;}
-.landing-demo-avatar{
-  display:grid;place-items:center;flex:none;
-  height:34px;width:34px;border-radius:9px;
-  background:linear-gradient(145deg,#8661ff,#c0a0ff);
-  color:white;font-size:11px;font-weight:850;
+.landing-dashboard-shot-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 220px;
+  border: 1px solid #e3e9f5;
+  border-radius: 9px;
+  object-fit: contain;
+  background: #f9fbff;
 }
-.landing-demo-identity div{display:flex;flex-direction:column;min-width:0;gap:3px;}
-.landing-demo-identity strong{font-size:9px;color:#25314e;font-weight:750;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.landing-demo-identity small,.landing-demo-profile>small{color:#8795ae;font-size:8px;}
-.landing-demo-points{font-size:33px;letter-spacing:-.055em;color:#6347ef;line-height:1.05;}
-.landing-demo-points em{font-size:9px;letter-spacing:0;font-style:normal;color:#099a81;background:#e5fbf3;border-radius:4px;padding:4px 5px;vertical-align:middle;}
-.landing-demo-gauge{
-  width:74px;height:74px;flex:none;align-self:center;
-  display:grid;place-items:center;
-  border-radius:50%;
-  background:conic-gradient(#6751f3 0% 72%,#e8edfa 72% 100%);
-  position:relative;margin:2px 0;
+.landing-dashboard-shot-caption {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  padding: 8px 12px;
+  color: #73809a;
+  background: #fff;
+  font-size: 10px;
+  line-height: 1.4;
 }
-.landing-demo-gauge::before{content:"";inset:10px;position:absolute;background:#fff;border-radius:50%;}
-.landing-demo-gauge span{position:relative;color:#384a72;font-size:13px;font-weight:850;}
-.landing-demo-stat{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:6px;margin-top:auto;font-size:8px;color:#7988a5;}
-.landing-demo-stat strong{color:#6d52e8;font-size:10px;}
-.landing-demo-content,.landing-demo-right{display:flex;flex-direction:column;gap:9px;min-width:0;}
-.landing-demo-chips{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;}
-.landing-demo-chips span{display:flex;align-items:center;gap:3px;overflow:hidden;white-space:nowrap;padding:7px 5px;border-radius:6px;background:#f1f4fc;color:#67799e;font-size:7px;font-weight:750;}
-.landing-demo-chips .fa-icon{font-size:9px;color:#6651ed;}
-.landing-demo-card{padding:10px;}
-.landing-demo-heading{display:flex;align-items:center;justify-content:space-between;gap:5px;color:#2b3860;font-size:9px;}
-.landing-demo-heading span{color:#8c9ab2;font-size:8px;}
-.landing-demo-bar{margin:13px 0 10px;height:8px;background:#edf1fa;border-radius:8px;overflow:hidden;}
-.landing-demo-bar span{display:block;height:100%;background:linear-gradient(90deg,#62d9a5,#51bdb5);border-radius:8px;}
-.landing-demo-bar.is-blue span{background:linear-gradient(90deg,#648dff,#9576fa);}
-.landing-demo-line{display:flex;align-items:center;gap:6px;padding:6px 0;border-bottom:1px solid #f0f2f8;color:#7888a1;font-size:8px;}
-.landing-demo-line i{width:5px;height:5px;border-radius:50%;background:#50caa1;}
-.landing-demo-line span{flex:1;}.landing-demo-line b{color:#39518a;font-weight:800;}
-.landing-demo-bottom{flex:1;}
-.landing-demo-bottom small{font-size:8px;color:#8a99af;}
-.landing-demo-right svg{display:block;width:100%;height:auto;margin-top:15px;}
-.landing-demo-notice{display:flex;align-items:center;gap:6px;padding:10px 7px;border-radius:7px;background:#e8f9f5;color:#459c88;font-size:8px;}
-.landing-demo-notice .fa-icon{font-size:12px;}
-.landing-demo-disclaimer{position:absolute;bottom:5px;right:13px;color:#a0aac0;font-size:7px;}
-.landing-demo-floating-controller{
-  position:absolute;left:-22px;bottom:35px;display:grid;place-items:center;
-  width:56px;height:56px;border-radius:17px;
-  transform:rotate(-15deg);
-  background:linear-gradient(130deg,#8666ff,#427dff);
-  color:#fff;box-shadow:0 14px 25px rgba(86,91,225,.24);
-}
-.landing-demo-floating-controller .fa-icon{font-size:28px;}
-.landing-demo-sparkle{position:absolute;left:-32px;top:32px;font-size:23px;color:#f5c85c;}
+.landing-dashboard-shot-caption .fa-icon { color: #3aaf88; font-size: 12px; }
 
 /* Shared section scale and cards. */
 .landing-home .landing-section {
@@ -715,34 +693,20 @@ html.dark .landing-home .landing-last-cta{background:linear-gradient(120deg,#253
   .landing-home .landing-button{width:100%;min-height:43px;font-size:12px;}
   .landing-trust{display:flex;flex-direction:column;align-items:flex-start;gap:10px;max-width:270px;margin:20px auto 0;}
   .landing-trust span{font-size:11px;}
-  .landing-home .landing-demo{min-height:220px;border-radius:12px;box-shadow:0 14px 36px rgba(56,65,130,.14);}
-  .landing-demo-top{height:32px;padding-inline:9px;gap:7px;}
-  .landing-demo-brand{font-size:8px;}
-  .landing-demo-brand span{width:16px;height:16px;font-size:10px;}
-  .landing-demo-tab{font-size:7px;}
-  .landing-demo-sample{font-size:7px;}
-  .landing-demo-body{grid-template-columns:minmax(0,.78fr) minmax(0,1.22fr);min-height:187px;gap:6px;padding:7px 7px 16px;}
-  .landing-demo-right{display:none;}
-  .landing-demo-profile{padding:8px;gap:7px;}
-  .landing-demo-avatar{width:25px;height:25px;font-size:8px;border-radius:6px;}
-  .landing-demo-identity{gap:5px;}
-  .landing-demo-identity strong{font-size:7px;}
-  .landing-demo-identity small,.landing-demo-profile>small{font-size:7px;}
-  .landing-demo-points{font-size:24px;}
-  .landing-demo-points em{font-size:7px;}
-  .landing-demo-gauge{width:52px;height:52px;}
-  .landing-demo-gauge::before{inset:8px;}
-  .landing-demo-gauge span{font-size:10px;}
-  .landing-demo-stat{font-size:7px;gap:4px;}
-  .landing-demo-card{padding:7px;}
-  .landing-demo-heading{font-size:7px;}
-  .landing-demo-line{padding:4px 0;font-size:7px;}
-  .landing-demo-chips span{padding:5px 3px;font-size:6px;}
-  .landing-demo-chips .fa-icon{font-size:7px;}
-  .landing-demo-disclaimer{right:7px;left:7px;font-size:6px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;}
-  .landing-demo-floating-controller{left:-6px;bottom:20px;width:32px;height:32px;border-radius:10px;}
-  .landing-demo-floating-controller .fa-icon{font-size:17px;}
-  .landing-demo-sparkle{display:none;}
+  .landing-home .landing-demo {
+    min-height: 0;
+    transform: none;
+    border-radius: 12px;
+    box-shadow: 0 14px 36px rgba(56,65,130,.12);
+  }
+  .landing-dashboard-shot-head { min-height: 34px; padding-inline: 9px; gap: 7px; }
+  .landing-dashboard-shot-brand { font-size: 9px; }
+  .landing-dashboard-shot-brand .fa-icon { font-size: 10px; }
+  .landing-dashboard-shot-title { font-size: 8px; }
+  .landing-dashboard-shot-badge { font-size: 7px; padding: 3px 5px; }
+  .landing-dashboard-shot-content { padding: 5px; }
+  .landing-dashboard-shot-image { min-height: 0; border-radius: 6px; }
+  .landing-dashboard-shot-caption { padding: 7px 9px; font-size: 9px; }
   .landing-home .landing-section{width:calc(100% - 28px);padding:35px 0 42px;}
   .landing-home .landing-section h2{font-size:25px;line-height:1.2;margin:11px 0 6px;}
   .landing-home .landing-section-lead{font-size:12px;margin-bottom:20px;}
