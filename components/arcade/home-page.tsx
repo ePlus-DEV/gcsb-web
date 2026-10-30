@@ -3,9 +3,9 @@
 import { useEffect, useState, type ReactNode } from "react"
 import Link from "next/link"
 import {
-  ArrowRight, Award, BadgeCheck, CalendarDays, ChartNoAxesCombined,
+  ArrowRight, Award, BadgeCheck, CalendarDays, ChartNoAxesCombined, Chrome,
   ChevronDown, Cloud, Gift, Globe2, Link2, Medal, Puzzle,
-  ShieldCheck, Sparkles, Target, Trophy, Users, Zap,
+  ShieldCheck, Sparkles, Target, Trophy, Users,
 } from "lucide-react"
 import { ArcadeHeader, ArcadeFooter } from "./route-shell"
 import { LANDING_FAQ, LANDING_HEADLINES } from "./home-faq-translations"
@@ -321,7 +321,7 @@ export default function HomePage({catalog, locale}: {catalog: WebsiteCatalog; lo
           <p>{c.description}</p>
           <div className="landing-actions">
             <Link className="landing-button is-primary" href={dashboardHref}>{c.dashboard}<ArrowRight aria-hidden="true"/></Link>
-            <a className="landing-button is-secondary" href="#extension"><Zap aria-hidden="true"/>{c.extension}</a>
+            <a className="landing-button is-secondary" href="#extension"><Chrome aria-hidden="true"/>{c.extension}</a>
           </div>
           <div className="landing-trust">
             <span><BadgeCheck/>{c.trust[0]}</span>
@@ -402,7 +402,7 @@ export default function HomePage({catalog, locale}: {catalog: WebsiteCatalog; lo
         <div><h2 id="landing-cta-title">{c.ctaTitle}</h2><p>{c.ctaDescription}</p></div>
         <div className="landing-last-actions">
           <Link className="landing-button is-primary" href={dashboardHref}>{c.dashboard}<ArrowRight aria-hidden="true"/></Link>
-          <a className="landing-button is-secondary" href="https://chromewebstore.google.com/detail/google-cloud-skills-boost/lmbhjioadhcoebhgapaidogodllonbgg" target="_blank" rel="noopener noreferrer">{c.extension}</a>
+          <a className="landing-button is-secondary" href="https://chromewebstore.google.com/detail/google-cloud-skills-boost/lmbhjioadhcoebhgapaidogodllonbgg" target="_blank" rel="noopener noreferrer"><Chrome aria-hidden="true"/>{c.extension}</a>
         </div>
       </section>
       <ArcadeFooter catalog={language.catalog} locale={language.locale} landing />
