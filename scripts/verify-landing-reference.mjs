@@ -65,10 +65,10 @@ try {
       homeBackground:home.backgroundImage,
     }
   })
-  assert.equal(sharedPalette.homeText,sharedPalette.panelColor,label+": Activity text differs from Dashboard palette")
-  assert.equal(sharedPalette.homeText,sharedPalette.featureColor,label+": feature card text differs from Dashboard palette")
-  assert.ok(sharedPalette.homeBackground.includes("radial-gradient"),label+": missing Dashboard radial background")
-  assert.equal(sharedPalette.accent,theme==="dark"?"#8b5cf6":"#7c3aed",label+": does not use Dashboard accent")
+  assert.equal(sharedPalette.homeText,sharedPalette.panelColor,locale+"-"+theme+"-"+width+": Activity text differs from Dashboard palette")
+  assert.equal(sharedPalette.homeText,sharedPalette.featureColor,locale+"-"+theme+"-"+width+": feature card text differs from Dashboard palette")
+  assert.ok(sharedPalette.homeBackground.includes("radial-gradient"),locale+"-"+theme+"-"+width+": missing Dashboard radial background")
+  assert.equal(sharedPalette.accent,theme==="dark"?"#8b5cf6":"#7c3aed",locale+"-"+theme+"-"+width+": does not use Dashboard accent")
   const m=await page.evaluate(()=>{
    const q=(s)=>document.querySelector(s)
    const r=(s)=>q(s).getBoundingClientRect()
