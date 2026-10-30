@@ -63,10 +63,33 @@ try {
    assert.ok(m.previewWidth>470,label+": preview too small")
    assert.ok(m.titleWidth>450,label+": hero text too narrow")
   }
+  // Keep the cookie consent visible in one separate audit image, then dismiss
+  // it so the design screenshot itself can be compared with the approved mock.
+  const cookie=page.locator(".cookie-consent-button")
+  if(await cookie.count() && await cookie.isVisible()){
+   if(locale==="vi" && theme==="light" && width===1440){
+    await page.screenshot({path:path.join(output,label+"-cookie-visible.png"),fullPage:true,animations:"disabled"})
+   }
+   await cookie.click()
+   await cookie.waitFor({state:"hidden"})
+  }
   await page.screenshot({path:path.join(output,label+".png"),fullPage:true,animations:"disabled"})
   await fs.writeFile(path.join(output,label+".json"),JSON.stringify(m,null,2))
   await context.close()
  }
+ // New Home routes should show the approved light design even when a visitor's
+ // older global Dashboard preference is dark. Respect later explicit Home changes.
+ const migrated=await browser.newContext({viewport:{width:1440,height:900}})
+ await migrated.addInitScript(()=>{
+  localStorage.setItem("arcade-theme","dark")
+  localStorage.removeItem("arcade-home-theme-v1")
+  localStorage.setItem("arcade-seasonal-theme","off")
+ })
+ const migratedPage=await migrated.newPage()
+ await migratedPage.goto(server.url,{waitUntil:"domcontentloaded"})
+ await migratedPage.waitForFunction(()=>document.documentElement.classList.contains("light"))
+ assert.equal(await migratedPage.locator(".landing-demo").isVisible(),true)
+ await migrated.close()
  console.log("Landing visual QA: 6 screenshots and responsive geometry passed.")
 }finally{
  await browser?.close()
