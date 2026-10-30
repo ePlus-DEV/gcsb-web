@@ -32,8 +32,9 @@ test("seasonal UI copy is catalog-owned and complete in every supported locale",
   const home = readRepoFile("components/arcade/home-page.tsx")
   const dashboard = readRepoFile("app/redesign-calculator.tsx")
   const styles = readRepoFile("app/styles/halloween-season.css")
-  assert.match(home, /messages\.halloweenEdition|m\.halloweenEdition/)
-  assert.match(home, /className="halloween-edition"/)
+  assert.doesNotMatch(home, /messages\.halloweenEdition|m\.halloweenEdition/)
+  assert.match(home, /landing-kicker/);
+  assert.doesNotMatch(home, /className="halloween-edition"/)
   assert.doesNotMatch(dashboard, /className="halloween-edition"/)
   assert.doesNotMatch(dashboard, /\.halloweenEdition/)
   assert.doesNotMatch(home, /Halloween [Ee]dition/)
