@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useState, type ReactNode } from "react"
-import { useTheme } from "next-themes"
 import Link from "next/link"
 import {
   ArrowRight, BadgeCheck, CalendarDays, ChartNoAxesCombined, Chrome,
@@ -283,16 +282,8 @@ const PROGRAM_ICONS = [Cloud, Users, Gift] as const
 export default function HomePage({catalog, locale}: {catalog: WebsiteCatalog; locale: WebsiteLocale; children?: ReactNode}) {
   const [language, setLanguage] = useState({catalog, locale})
   const [showDeadlines, setShowDeadlines] = useState(false)
-  const {setTheme} = useTheme()
-
-  // A new landing has its own visual default. Existing site-wide Dashboard dark
-  // preferences must not silently turn the approved light mockup into a dark page.
-  // Once a visitor explicitly switches the Home theme, honor that Home choice.
-  useEffect(() => {
-    let saved: string | null = null
-    try { saved = window.localStorage.getItem("arcade-home-theme-v2") } catch { /* optional storage */ }
-    setTheme(saved === "dark" ? "dark" : "light")
-  }, [setTheme])
+  // Inherit the site-wide theme from ThemeProvider, exactly like Dashboard.
+  // Never force Home to light or dark on navigation.
   useEffect(() => {
     let active = true
     const sync = async () => {
