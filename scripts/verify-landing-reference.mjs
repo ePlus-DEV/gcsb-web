@@ -50,6 +50,25 @@ try {
    await hamburger.click()
    assert.equal(await nav.isVisible(),false,"Mobile hamburger does not close navigation")
   }
+  const sharedPalette=await page.evaluate(()=>{
+    const home=getComputedStyle(document.querySelector(".landing-home"))
+    const panel=getComputedStyle(document.querySelector(".landing-activity"))
+    const features=getComputedStyle(document.querySelector(".landing-feature-card"))
+    const root=getComputedStyle(document.documentElement)
+    return {
+      homeText:home.color,
+      tokenText:home.getPropertyValue("--arcade-text").trim(),
+      tokenBg:root.getPropertyValue("--arcade-bg").trim(),
+      accent:home.getPropertyValue("--arcade-purple").trim(),
+      panelColor:panel.color,
+      featureColor:features.color,
+      homeBackground:home.backgroundImage,
+    }
+  })
+  assert.equal(sharedPalette.homeText,sharedPalette.panelColor,label+": Activity text differs from Dashboard palette")
+  assert.equal(sharedPalette.homeText,sharedPalette.featureColor,label+": feature card text differs from Dashboard palette")
+  assert.ok(sharedPalette.homeBackground.includes("radial-gradient"),label+": missing Dashboard radial background")
+  assert.equal(sharedPalette.accent,theme==="dark"?"#8b5cf6":"#7c3aed",label+": does not use Dashboard accent")
   const m=await page.evaluate(()=>{
    const q=(s)=>document.querySelector(s)
    const r=(s)=>q(s).getBoundingClientRect()
@@ -121,19 +140,21 @@ try {
   }
   await context.close()
  }
- // New Home routes should show the approved light design even when a visitor's
- // older global Dashboard preference is dark. Respect later explicit Home changes.
+ // Home now uses Dashboard's one persisted site theme. A previously saved
+ // Dashboard dark preference stays dark when navigating between the routes.
  const migrated=await browser.newContext({viewport:{width:1440,height:900}})
  await migrated.addInitScript(()=>{
   localStorage.setItem("arcade-theme","dark")
-  localStorage.setItem("arcade-home-theme-v1","dark")
-  localStorage.removeItem("arcade-home-theme-v2")
+  localStorage.setItem("arcade-home-theme-v1","light")
+  localStorage.setItem("arcade-home-theme-v2","light")
   localStorage.setItem("arcade-seasonal-theme","off")
  })
  const migratedPage=await migrated.newPage()
  await migratedPage.goto(server.url,{waitUntil:"domcontentloaded"})
- await migratedPage.waitForFunction(()=>document.documentElement.classList.contains("light"))
+ await migratedPage.waitForFunction(()=>document.documentElement.classList.contains("dark"))
  assert.equal(await migratedPage.locator(".landing-demo").isVisible(),true)
+ await migratedPage.goto(server.url+"dashboard/",{waitUntil:"domcontentloaded"})
+ await migratedPage.waitForFunction(()=>document.documentElement.classList.contains("dark"))
  await migrated.close()
  console.log("Landing visual QA: 6 screenshots and responsive geometry passed.")
 }finally{
