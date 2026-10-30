@@ -120,4 +120,6 @@ jobs:
           git add public/images/dashboard-hero-en.png public/images/dashboard-hero-vi.png
           git diff --cached --quiet && exit 0
           git commit -m "assets(home): snapshot real Dashboard panels for Hero"
+          git fetch origin "${{ github.event.pull_request.head.ref }}"
+          git rebase "origin/${{ github.event.pull_request.head.ref }}"
           git push origin "HEAD:${{ github.event.pull_request.head.ref }}"
