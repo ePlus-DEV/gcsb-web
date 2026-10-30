@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState, type ReactNode } from "react"
+import { useTheme } from "next-themes"
 import Link from "next/link"
 import {
   ArrowRight, Award, BadgeCheck, CalendarDays, ChartNoAxesCombined, Chrome,
@@ -45,6 +46,7 @@ type LandingCopy = {
   programTitles: [string, string, string]
   programDescriptions: [string, string, string]
   programLink: string
+  programsAll: string
   faqTitle: string
   faqDescription: string
   questions: [string, string, string, string, string, string]
@@ -99,6 +101,7 @@ const EN: LandingCopy = {
     "Browse Arcade swag and special reward announcements.",
   ],
   programLink: "View details",
+  programsAll: "View all programs",
   faqTitle: "Frequently asked questions",
   faqDescription: "Answers to common questions about ePlus Arcade and Google Cloud Arcade.",
   questions: [
@@ -167,6 +170,7 @@ const VI: LandingCopy = {
     "Các sự kiện đặc biệt và quà tặng giới hạn dành cho cộng đồng.",
   ],
   programLink: "Xem chi tiết",
+  programsAll: "Xem tất cả chương trình",
   faqTitle: "Câu hỏi thường gặp",
   faqDescription: "Một số câu hỏi phổ biến về Google Cloud Arcade và ePlus Arcade.",
   questions: [
@@ -222,6 +226,7 @@ function landingCopy(locale: WebsiteLocale, m: WebsiteCatalog["messages"]): Land
     programTitles: [m.arcadeTiers, m.facilitatorProgram, m.tiers],
     programDescriptions: [m.guestHeroDescription, m.facilitatorMilestones, m.tierNote],
     programLink: m.guide,
+    programsAll: m.facilitatorProgram,
     faqTitle: m.guide,
     faqDescription: m.checkPoints,
     ctaTitle: m.startUsing,
@@ -291,6 +296,17 @@ const PROGRAM_ICONS = [Cloud, Users, Gift] as const
  * All displayed dashboard preview values are explicitly labeled illustrations. */
 export default function HomePage({catalog, locale}: {catalog: WebsiteCatalog; locale: WebsiteLocale; children?: ReactNode}) {
   const [language, setLanguage] = useState({catalog, locale})
+  const [showDeadlines, setShowDeadlines] = useState(false)
+  const {setTheme} = useTheme()
+
+  // A new landing has its own visual default. Existing site-wide Dashboard dark
+  // preferences must not silently turn the approved light mockup into a dark page.
+  // Once a visitor explicitly switches the Home theme, honor that Home choice.
+  useEffect(() => {
+    let saved: string | null = null
+    try { saved = window.localStorage.getItem("arcade-home-theme-v1") } catch { /* optional storage */ }
+    setTheme(saved === "dark" ? "dark" : "light")
+  }, [setTheme])
   useEffect(() => {
     let active = true
     const sync = async () => {
@@ -310,6 +326,10 @@ export default function HomePage({catalog, locale}: {catalog: WebsiteCatalog; lo
   const dashboardHref = homeHref + "dashboard/"
   const links = [dashboardHref + "#calculator", dashboardHref + "#tiers", dashboardHref + "#badges", "#programs", "#extension", "/about/"]
   const programLinks = [dashboardHref + "#monthly-games", "#program-countdown", "/swag-drops/2026/"]
+  const revealProgramDeadlines = () => {
+    setShowDeadlines(true)
+    requestAnimationFrame(() => document.getElementById("program-countdown")?.scrollIntoView({behavior:"smooth", block:"start"}))
+  }
 
   return (
     <main className="arcade-dashboard-page arcade-dashboard-v2 arcade-ui-refresh arcade-home-route landing-home" data-dashboard-view="guest">
@@ -368,11 +388,14 @@ export default function HomePage({catalog, locale}: {catalog: WebsiteCatalog; lo
 
       <section id="programs" className="landing-section landing-programs" aria-labelledby="landing-programs-title">
         <span className="landing-section-kicker">{c.programsKicker}</span>
-        <h2 id="landing-programs-title">{c.programsTitle}</h2>
+        <div className="landing-programs-heading">
+          <h2 id="landing-programs-title">{c.programsTitle}</h2>
+          <button className="landing-programs-view-all" type="button" onClick={revealProgramDeadlines} aria-expanded={showDeadlines} aria-controls="program-countdown">{c.programsAll}<ArrowRight aria-hidden="true"/></button>
+        </div>
         <p className="landing-section-lead">{c.programsDesc}</p>
         <div className="landing-program-grid">
           {PROGRAM_ICONS.map((Icon,i) => (
-            <Link key={i} href={programLinks[i]} className="landing-program-card">
+            <Link key={i} href={programLinks[i]} className="landing-program-card" onClick={i === 1 ? revealProgramDeadlines : undefined}>
               <Icon className={"landing-program-icon icon-" + i} aria-hidden="true"/>
               <strong>{c.programTitles[i]}</strong>
               <p>{c.programDescriptions[i]}</p>
@@ -380,7 +403,7 @@ export default function HomePage({catalog, locale}: {catalog: WebsiteCatalog; lo
             </Link>
           ))}
         </div>
-        <div id="program-countdown" className="program-countdown-host" data-home-order="program-countdown"/>
+        <div id="program-countdown" className={"program-countdown-host" + (showDeadlines ? " is-visible" : "")} data-home-order="program-countdown" aria-hidden={!showDeadlines}/>
       </section>
 
       <section id="faq" className="landing-section landing-faq" aria-labelledby="landing-faq-title">
@@ -395,6 +418,7 @@ export default function HomePage({catalog, locale}: {catalog: WebsiteCatalog; lo
             </details>
           ))}
         </div>
+        <div className="landing-faq-art" aria-hidden="true"><span className="landing-faq-art-small">•••</span><span className="landing-faq-art-large">?</span></div>
       </section>
 
       <section id="extension" className="landing-last-cta" aria-labelledby="landing-cta-title">
