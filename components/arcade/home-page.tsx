@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useState, type ReactNode } from "react"
-import { useTheme } from "next-themes"
 import Link from "next/link"
 import {
   ArrowRight, BadgeCheck, CalendarDays, ChartNoAxesCombined, Chrome,
@@ -247,8 +246,7 @@ function DashboardPreview({copy: c, locale}: {copy: LandingCopy; locale: Website
   // Captured from the REAL ePlus Dashboard summary components using the
   // repository's existing synthetic demo profile. Never show invented cards
   // or visitor-specific points in the public Home hero.
-  const {resolvedTheme} = useTheme()
-  const image = "dashboard-hero-" + (locale === "vi" ? "vi" : "en") + (resolvedTheme === "dark" ? "-dark" : "") + ".png"
+  const imageBase = DASHBOARD_PREVIEW_BASE + "/images/dashboard-hero-" + (locale === "vi" ? "vi" : "en")
   return (
     <div className="landing-demo landing-dashboard-real" aria-label={c.sample} data-hero-source="real-dashboard">
       <div className="landing-dashboard-shot-head">
@@ -258,13 +256,22 @@ function DashboardPreview({copy: c, locale}: {copy: LandingCopy; locale: Website
       </div>
       <div className="landing-dashboard-shot-content">
         <img
-          className="landing-dashboard-shot-image"
-          src={DASHBOARD_PREVIEW_BASE + "/images/" + image}
+          className="landing-dashboard-shot-image is-light"
+          src={imageBase + ".png"}
           alt={c.sample + " — Google Cloud Arcade Dashboard"}
           width={866}
           height={441}
           loading="eager"
           fetchPriority="high"
+          decoding="async"
+        />
+        <img
+          className="landing-dashboard-shot-image is-dark"
+          src={imageBase + "-dark.png"}
+          alt={c.sample + " — Google Cloud Arcade Dashboard"}
+          width={866}
+          height={441}
+          loading="lazy"
           decoding="async"
         />
       </div>
