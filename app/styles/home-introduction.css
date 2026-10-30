@@ -556,6 +556,7 @@ html.dark .landing-home .landing-faq-art-large{box-shadow:0 20px 35px rgba(39,29
   .landing-home .landing-hero{width:calc(100% - 30px);padding-block:34px 43px;gap:22px;}
   .landing-home .landing-hero::before{top:-10px;bottom:0;width:100vw;border-radius:0;}
   .landing-home .landing-hero h1{font-size:clamp(27px,7.7vw,37px);}
+  .landing-home .landing-step-arrow{display:none!important;}
   .landing-demo-floating-controller{width:32px;height:32px;left:-6px;bottom:24px;border-radius:9px;}
   .landing-demo-floating-controller .fa-icon{font-size:18px!important;}
   .landing-demo-sparkle{display:none;}
