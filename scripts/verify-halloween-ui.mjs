@@ -414,8 +414,11 @@ try {
     await page.goto(base + path)
     const nav = page.locator(".mobile-bottom-nav")
     if (path === "") {
-      assert.equal(await nav.locator('a[aria-current="page"]').count(), 1)
-      await nav.locator('a[href$="dashboard/"]').click()
+      assert.equal(await nav.count(), 0, "Marketing Home has no fixed bottom tab bar")
+      await page.locator(".mobile-menu-toggle").click()
+      const dashboardLink = page.locator('#arcade-primary-navigation a[href$="dashboard/"]')
+      await dashboardLink.waitFor({state:"visible"})
+      await dashboardLink.click()
       await page.waitForURL("**/dashboard/")
       await page.locator(".profile-analyzer-card").waitFor({ state: "visible" })
     } else {
