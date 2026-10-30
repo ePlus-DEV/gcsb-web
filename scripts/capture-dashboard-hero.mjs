@@ -35,6 +35,7 @@ const result = {
   beta:{scoreComplete:true,unknownBadgeCount:0,unknownBadges:[],profileBadgeCount:9,eligibleBadgeCount:9,tier:"Arcade Champion"},
 }
 const output = path.resolve(process.argv[2] ?? "public/images")
+const theme = process.argv[3] === "dark" ? "dark" : "light"
 await fs.mkdir(output,{recursive:true})
 const server = await startStaticServer({directory:"out"})
 const browser = await chromium.launch({
@@ -43,12 +44,12 @@ const browser = await chromium.launch({
 try {
   for(const locale of ["en","vi"]){
     const context=await browser.newContext({viewport:{width:1440,height:1000},deviceScaleFactor:1})
-    await context.addInitScript(record => {
-      localStorage.setItem("arcade-theme","light")
+    await context.addInitScript(({record, theme}) => {
+      localStorage.setItem("arcade-theme",theme)
       localStorage.setItem("arcade-seasonal-theme","off")
       localStorage.setItem("arcade-cookie-notice-v1","acknowledged")
       localStorage.setItem("eplus-arcade-dashboard-v1",JSON.stringify(record))
-    },{profileUrl,result,checkedAt:"2026-09-30T08:00:00Z"})
+    },{record:{profileUrl,result,checkedAt:"2026-09-30T08:00:00Z"},theme})
     const page=await context.newPage()
     const route=locale==="vi"?"vi/dashboard/":"dashboard/"
     await page.goto(server.url+route,{waitUntil:"domcontentloaded"})
@@ -58,13 +59,14 @@ try {
       document.querySelector(".arcade-dashboard-page")?.getAttribute("data-dashboard-view")==="profile" &&
       document.querySelector(".dashboard-summary-grid .points-total")
     )
+    await page.waitForFunction(theme => document.documentElement.classList.contains(theme),theme)
     await page.evaluate(async()=>{await document.fonts.ready})
     const width=await summary.evaluate(el=>Math.round(el.getBoundingClientRect().width))
     assert.ok(width>650,"actual Dashboard summary must be readable")
-    await summary.screenshot({path:path.join(output,"dashboard-hero-"+locale+".png"),animations:"disabled"})
+    await summary.screenshot({path:path.join(output,"dashboard-hero-"+locale+(theme === "dark" ? "-dark" : "")+".png"),animations:"disabled"})
     await context.close()
   }
-  console.log("Captured the original ePlus Dashboard's real summary panels in English and Vietnamese.")
+  console.log("Captured the original ePlus Dashboard panels in "+theme+" theme, English and Vietnamese.")
 } finally {
   await browser.close()
   await server.close()
