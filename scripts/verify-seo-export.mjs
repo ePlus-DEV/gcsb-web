@@ -4,7 +4,6 @@ import path from "node:path"
 
 const html = (part) => readFileSync(path.join(process.cwd(), "out", part, "index.html"), "utf8")
 const home = html("")
-const guestHeading = (locale) => JSON.parse(readFileSync(path.join(process.cwd(), "public/i18n/locales", `${locale}.json`), "utf8")).messages.heroTitleTop
 const routes = [
   ["vi", "vi"], ["ja", "ja"], ["ko", "ko"], ["zh-cn", "zh-CN"],
   ["fr", "fr"], ["de", "de"], ["es", "es"], ["pt-br", "pt-BR"],
@@ -13,30 +12,23 @@ const routes = [
 for (const href of ["/guide/", "/about/", "/swag-drops/2026/", "/swag-drops/"]) {
   assert.ok(home.includes('href="' + href + '"'), "Homepage missing static link " + href)
 }
-assert.match(home, /id="arcade-seo-guide"/)
-assert.match(home, /Step-by-step guide/)
-for (const id of ["guide", "rewards", "accuracy"]) {
-  assert.ok(
-    home.includes('data-home-discovery-card="' + id + '"'),
-    "Homepage missing compact discovery card: " + id,
-  )
+for (const id of ["features", "how-it-works", "programs", "faq", "extension"]) {
+  assert.ok(home.includes('id="' + id + '"'), "Homepage missing landing section: " + id)
 }
+assert.match(home, /How it works/)
+assert.match(home, /landing-feature-card/)
+assert.match(home, /landing-faq-item/)
 assert.match(home, /data-arcade-swag-nav="true"/)
-assert.ok(home.match(/<h1[^>]*>([\s\S]*?)<\/h1>/)?.[1].includes(guestHeading("en")), "Guest heading is not prerendered")
+assert.ok(home.match(/<h1[^>]*>([\s\S]*?)<\/h1>/)?.[1].includes("Google Cloud Arcade"), "English landing heading is not prerendered")
 assert.match(home, /rel="canonical" href="https:\/\/arcade\.eplus\.dev\/"/)
 assert.doesNotMatch(home, /name="robots" content="noindex/i)
 for (const [route, lang] of routes) {
   const page = html(route)
   assert.ok(page.includes('lang="' + lang + '"'), route + ": wrong language")
-  const locale = route === "zh-cn" ? "zh_CN" : route === "pt-br" ? "pt_BR" : route
-  assert.ok(page.match(/<h1[^>]*>([\s\S]*?)<\/h1>/)?.[1].includes(guestHeading(locale)), route + ": guest heading is not prerendered")
+  assert.ok(page.match(/<h1[^>]*>([\s\S]*?)<\/h1>/)?.[1].includes("Google Cloud Arcade"), route + ": landing heading is not prerendered")
   assert.ok(page.includes('rel="canonical" href="https://arcade.eplus.dev/' + route + '/"'), route + ": canonical")
-  assert.ok(page.includes('id="arcade-seo-guide"'), route + ": missing guide")
-  for (const id of ["guide", "rewards", "accuracy"]) {
-    assert.ok(
-      page.includes('data-home-discovery-card="' + id + '"'),
-      route + ": missing discovery card " + id,
-    )
+  for (const id of ["features", "how-it-works", "programs", "faq", "extension"]) {
+    assert.ok(page.includes('id="' + id + '"'), route + ": missing landing section " + id)
   }
   assert.ok(page.includes('href="/guide/"'), route + ": missing guide link")
   assert.ok(page.includes('href="/swag-drops/2026/"'), route + ": missing rewards link")
@@ -64,6 +56,6 @@ const termsHtml = html("terms")
 assert.ok(termsHtml.includes("Acceptable use"), "Terms acceptable use missing")
 assert.ok(termsHtml.includes("support@eplus.dev"), "Terms contact missing")
 const vietnamese = html("vi")
-assert.ok(vietnamese.includes(guestHeading("vi")), "Vietnamese heading is not prerendered")
-assert.ok(vietnamese.includes("Hướng dẫn từng bước"), "Vietnamese guide is not prerendered")
-console.log("SEO export verified: home + " + routes.length + " localized pages; static links, headings and canonicals.")
+assert.ok(vietnamese.includes("Theo dõi, phân tích"), "Vietnamese landing heading is not prerendered")
+assert.ok(vietnamese.includes("Cách thức hoạt động"), "Vietnamese steps are not prerendered")
+console.log("SEO export verified: landing Home + " + routes.length + " localized pages; static links, heading, sections and canonicals.")
