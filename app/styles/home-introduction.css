@@ -24,7 +24,7 @@
   position: sticky; top: 0; z-index: 60;
   width: 100%; max-width: none; min-height: 66px;
   display: flex; justify-content: space-between; align-items: center;
-  padding: 0 max(24px, calc((100vw - 1200px) / 2));
+  padding: 0 max(24px, calc((100vw - 1620px) / 2));
   gap: 20px; border-bottom: 1px solid #e8edf8;
   background: rgba(255,255,255,.91); box-shadow: 0 2px 18px rgba(39,58,103,.03);
   backdrop-filter: blur(18px);
@@ -67,7 +67,7 @@
 .landing-home .mobile-menu-toggle {color:#272e53;background:#f6f7ff;border-color:#e4e8f2;}
 .landing-home .landing-hero {
   position: relative; z-index: 1;
-  width: min(1200px, calc(100% - 48px));
+  width: min(1620px, calc(100% - 64px));
   display: grid; grid-template-columns: minmax(0, 1.02fr) minmax(0, 1.17fr);
   gap: clamp(28px, 4vw, 72px); align-items: center;
   padding: 66px 0 74px; text-align: left; margin: 0 auto;
@@ -189,7 +189,7 @@
 /* Section rhythm matches the reference design; one visual hierarchy. */
 .landing-home .landing-section {
   position:relative;z-index:1;
-  width:min(1120px,calc(100% - 48px));margin:0 auto;padding:28px 0 64px;
+  width:min(1540px,calc(100% - 64px));margin:0 auto;padding:28px 0 64px;
 }
 .landing-home .landing-section h2 {
   margin:13px 0 6px;color:var(--landing-ink);
@@ -220,8 +220,8 @@
 .landing-feature-card>p{margin:7px 25px 0 0;color:var(--landing-muted);font-size:12px;line-height:1.6;}
 .landing-card-arrow {position:absolute;right:16px;bottom:18px;display:grid;place-items:center;width:26px;height:26px;border:1px solid #e4e8f2;border-radius:50%;color:#566886;}
 .landing-card-arrow :is(svg,.fa-icon){width:13px;height:13px;}
-.landing-home .landing-how {width:100%;max-width:none;padding:61px max(24px,calc((100vw - 1120px)/2)) 69px;background:linear-gradient(90deg,#f1f7ff,#f9fbff 48%,#f0fbff);}
-.landing-home .landing-how h2,.landing-home .landing-how .landing-section-lead {max-width:1120px;}
+.landing-home .landing-how {width:100%;max-width:none;padding:61px max(32px,calc((100vw - 1540px)/2)) 69px;background:linear-gradient(90deg,#f1f7ff,#f9fbff 48%,#f0fbff);}
+.landing-home .landing-how h2,.landing-home .landing-how .landing-section-lead {max-width:1540px;}
 .landing-step-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:42px;}
 .landing-step-wrap{position:relative;min-width:0;}
 .landing-step-card {
@@ -257,7 +257,7 @@
 .landing-faq-item>p{margin:0;padding:0 18px 16px;color:#66728d;font-size:12px;line-height:1.65;}
 .landing-home .landing-last-cta {
   position:relative;z-index:2;display:flex;align-items:center;gap:22px;
-  width:min(1200px,calc(100% - 48px));margin:0 auto 36px;padding:27px 30px;
+  width:min(1620px,calc(100% - 64px));margin:0 auto 36px;padding:27px 30px;
   border-radius:13px;background:linear-gradient(120deg,#172a65,#151a44 65%,#293477);
   color:#fff;overflow:hidden;
 }
@@ -268,7 +268,7 @@
 .landing-last-cta p{margin:0;color:#ced8f5;font-size:12px;line-height:1.5;}
 .landing-last-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
 .landing-home .landing-last-cta .landing-button{font-size:11px;min-height:40px;padding:8px 13px;}
-.landing-home .arcade-footer {width:min(1120px,calc(100% - 48px));border-top:1px solid #e8edf5;padding-top:24px;padding-bottom:38px;color:#68758e;}
+.landing-home .arcade-footer {width:min(1540px,calc(100% - 64px));border-top:1px solid #e8edf5;padding-top:24px;padding-bottom:38px;color:#68758e;}
 .landing-home .arcade-footer :is(a,p){color:#68758e;}
 .landing-home .arcade-footer .arcade-brand-copy strong{color:#192347;}
 .landing-home .arcade-footer .arcade-brand-copy b{color:#6f7e99;}
@@ -426,4 +426,156 @@ html.dark .landing-home .landing-footer{border-color:var(--landing-border);}
  .landing-footer-about{grid-column:1/-1;}
  .landing-footer-bottom{flex-direction:column;align-items:flex-start;gap:6px;}
  .landing-footer-links{gap:9px;}
+}
+
+
+/* === Approved reference parity fixes (30 Oct). Single Home-only scope. === */
+/* This reference deliberately has no seasonal pumpkin/moon, even in October.
+   The seasonal logic and themed Dashboard remain untouched. */
+html[data-season="halloween"] .arcade-dashboard-page.landing-home,
+html.light[data-season="halloween"] .arcade-dashboard-page.landing-home {
+  background:
+    radial-gradient(ellipse at 10% 3%, rgba(233,227,255,.85) 0, transparent 29%),
+    radial-gradient(ellipse at 89% 8%, rgba(221,243,255,.9) 0, transparent 30%),
+    linear-gradient(180deg,#fafbff 0%,#fff 58%,#fafcff 100%);
+}
+html.dark[data-season="halloween"] .arcade-dashboard-page.landing-home {
+  background:radial-gradient(ellipse at 10% 3%,#17143f 0,transparent 29%),linear-gradient(180deg,#080e20,#0b142b);
+}
+.landing-home .halloween-season-decor{display:none!important;}
+.landing-home .landing-hero {
+  isolation:isolate;
+  gap:clamp(34px,5vw,92px);
+  padding-block:78px 84px;
+}
+.landing-home .landing-hero::before{
+  content:"";position:absolute;z-index:-1;pointer-events:none;
+  inset:15px calc((min(1620px,100vw - 64px) - 100vw + 20px)/2) 0;
+  border-radius:24px;
+  background:
+    radial-gradient(ellipse at 74% 40%,rgba(195,231,255,.43),transparent 33%),
+    radial-gradient(ellipse at 15% 62%,rgba(222,208,255,.35),transparent 40%),
+    linear-gradient(110deg,rgba(252,249,255,.7),rgba(246,251,255,.65));
+}
+.landing-home .landing-hero h1{
+  max-width:none;letter-spacing:-.05em;
+  font-size:clamp(37px,3.2vw,58px);line-height:1.11;
+}
+.landing-home .landing-demo{transform:rotate(1deg);max-width:100%;}
+.landing-demo-floating-controller{
+  position:absolute;left:-25px;bottom:42px;
+  display:grid;place-items:center;width:61px;height:61px;
+  border:1px solid #ddd9ff;border-radius:17px;
+  transform:rotate(-20deg);
+  background:linear-gradient(140deg,#8165ff,#3974f7);
+  box-shadow:0 13px 34px rgba(97,75,235,.27);color:#fff;font-size:31px;
+}
+.landing-demo-floating-controller .fa-icon{width:auto!important;height:auto!important;font-size:31px!important;}
+.landing-demo-sparkle{
+  position:absolute;top:32px;left:-36px;font-size:23px;
+  color:#f3c75a;text-shadow:0 8px 16px rgba(240,199,90,.25);
+}
+.landing-home .landing-section{padding-top:46px;padding-bottom:72px;}
+.landing-home .landing-section h2{font-size:clamp(28px,2.3vw,38px);}
+.landing-feature-grid,.landing-program-grid{gap:18px;}
+.landing-feature-card{min-height:206px;padding:25px;}
+.landing-feature-card>strong{font-size:16px;}
+.landing-feature-card>p{font-size:13px;line-height:1.55;}
+.landing-home .landing-how{padding-top:74px;padding-bottom:81px;}
+.landing-home .landing-how .landing-section-lead{max-width:1540px;}
+.landing-step-card{height:187px;}
+.landing-step-card>strong{font-size:16px;}
+.landing-step-card p{font-size:13px;}
+.landing-home .landing-programs{padding-top:76px;padding-bottom:48px;}
+.landing-programs-heading{display:flex;align-items:center;justify-content:space-between;gap:20px;}
+.landing-programs-view-all{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  border:1px solid #b9adff;border-radius:999px;background:#fff;
+  color:#6a4df0;font:750 12px/1.2 Inter,system-ui,sans-serif;
+  padding:10px 16px;min-height:36px;cursor:pointer;white-space:nowrap;
+}
+.landing-programs-view-all:hover{background:#f2eeff;}
+.landing-programs-view-all .fa-icon{font-size:12px;}
+.landing-program-card{min-height:200px;padding:24px;}
+.landing-program-card>strong{font-size:16px;}
+.landing-program-card>p{font-size:13px;}
+.landing-home .program-countdown-host:not(.is-visible){display:none!important;}
+.landing-home .program-countdown-host.is-visible{margin:20px 0 0;scroll-margin-top:92px;}
+.landing-home .landing-faq{padding-bottom:79px;isolation:isolate;}
+.landing-faq-grid{width:70%;gap:13px 16px;}
+/* Explicit closed-state style avoids global theme rules exposing every answer. */
+.landing-faq-item:not([open])>p{display:none!important;}
+.landing-faq-item summary{min-height:53px;font-size:13px;}
+.landing-faq-art{position:absolute;right:5.5%;top:37%;width:220px;height:200px;pointer-events:none;}
+.landing-faq-art-large{
+  display:grid;place-items:center;position:absolute;right:9px;top:1px;
+  width:128px;height:116px;border-radius:26px 26px 26px 8px;
+  transform:rotate(-10deg);
+  background:linear-gradient(125deg,#ac99ff,#5845ee);
+  box-shadow:0 22px 35px rgba(98,81,237,.23),inset 0 2px 3px rgba(255,255,255,.35);
+  color:#fff;font-size:86px;line-height:1;font-weight:900;
+}
+.landing-faq-art-small{
+  display:grid;place-items:center;position:absolute;left:8px;bottom:28px;
+  width:81px;height:55px;border-radius:18px 18px 6px 18px;
+  background:linear-gradient(135deg,#e0edff,#9ccaff);box-shadow:0 11px 25px rgba(71,126,209,.18);
+  color:#5f87df;font-size:29px;letter-spacing:3px;
+}
+.landing-faq-art::before,.landing-faq-art::after{
+  content:"✦";position:absolute;color:#ffc84e;font-size:26px;
+}
+.landing-faq-art::before{right:-12px;top:-6px;}
+.landing-faq-art::after{left:-8px;bottom:1px;}
+.landing-home .landing-last-cta{
+  min-height:115px;padding:30px 38px;
+  box-shadow:0 10px 28px rgba(33,37,91,.08);
+}
+.landing-last-cta h2{font-size:20px;}
+.landing-home .landing-footer{padding-top:34px;}
+html.dark .landing-home .landing-hero::before{background:transparent;}
+html.dark .landing-home .landing-programs-view-all{background:#222347;border-color:#5f52a0;color:#eeeaff;}
+html.dark .landing-home .landing-faq-art-large{box-shadow:0 20px 35px rgba(39,29,112,.35);}
+@media(max-width:1100px){
+  .landing-home .landing-hero{gap:28px;padding-block:60px 68px;}
+  .landing-home .landing-hero h1{font-size:clamp(32px,3.9vw,48px);}
+  .landing-feature-card{padding:20px;min-height:188px;}
+  .landing-faq-art{right:0;transform:scale(.76);transform-origin:top right;}
+}
+@media(max-width:860px){
+  .landing-home .landing-hero{gap:26px;padding-block:43px 50px;}
+  .landing-home .landing-hero::before{inset:0 -20px 0;}
+  .landing-home .landing-hero h1{font-size:clamp(31px,5.8vw,43px);}
+  .landing-demo-floating-controller{left:-15px;bottom:25px;width:45px;height:45px;font-size:23px;}
+  .landing-demo-floating-controller .fa-icon{font-size:24px!important;}
+  .landing-home .landing-section{padding-top:29px;padding-bottom:54px;}
+  .landing-faq-grid{width:100%;}
+  .landing-faq-art{display:none;}
+}
+@media(max-width:600px){
+  .landing-home .landing-hero{width:calc(100% - 30px);padding-block:34px 43px;gap:22px;}
+  .landing-home .landing-hero::before{inset:-10px -15px 0;border-radius:0;}
+  .landing-home .landing-hero h1{font-size:clamp(27px,7.7vw,37px);}
+  .landing-demo-floating-controller{width:32px;height:32px;left:-6px;bottom:24px;border-radius:9px;}
+  .landing-demo-floating-controller .fa-icon{font-size:18px!important;}
+  .landing-demo-sparkle{display:none;}
+  .landing-home .landing-section{width:calc(100% - 30px);padding-top:22px;padding-bottom:42px;}
+  .landing-home .landing-section h2{font-size:25px;}
+  .landing-feature-grid,.landing-program-grid{gap:10px;}
+  .landing-feature-card{min-height:0;padding:13px;}
+  .landing-feature-card>strong{font-size:12px;}
+  .landing-feature-card>p{font-size:10px;}
+  .landing-home .landing-how{padding:42px 15px 48px;}
+  .landing-step-card{min-height:84px;height:auto;}
+  .landing-step-card>strong{font-size:12px;}
+  .landing-step-card p{font-size:10px;}
+  .landing-home .landing-programs{padding-top:30px;padding-bottom:38px;}
+  .landing-programs-heading{align-items:flex-start;gap:8px;}
+  .landing-programs-view-all{padding:7px 9px;min-height:32px;font-size:9px;max-width:125px;white-space:normal;}
+  .landing-program-card{min-height:0;padding:14px;}
+  .landing-program-card>strong{font-size:13px;}
+  .landing-program-card>p{font-size:10px;}
+  .landing-home .landing-faq{padding-bottom:43px;}
+  .landing-faq-item summary{min-height:47px;font-size:12px;}
+  .landing-home .landing-last-cta{min-height:0;padding:17px;}
+  .landing-last-cta h2{font-size:13px;}
 }
