@@ -58,7 +58,7 @@ try {
     const context = await browser.newContext({ viewport: { width, height: 900 } })
     await context.addInitScript(theme => {
       localStorage.setItem("arcade-theme", theme)
-      localStorage.setItem("arcade-home-theme-v1", theme)
+      localStorage.setItem("arcade-home-theme-v2", theme)
     }, theme)
     const page = await context.newPage()
     await page.route("https://**/*", r => r.abort())
@@ -164,7 +164,7 @@ try {
           const context = await browser.newContext({ viewport: { width, height: 900 }, locale })
           await context.addInitScript(({ theme, locale, state, result, profileUrl }) => {
             localStorage.setItem("arcade-theme", theme)
-            localStorage.setItem("arcade-home-theme-v1", theme)
+            localStorage.setItem("arcade-home-theme-v2", theme)
             localStorage.setItem("arcade-points-locale", locale)
             localStorage.setItem("arcade-seasonal-theme", "halloween")
             localStorage.setItem("eplus-arcade-dashboard-view-mode-v1", state === "empty" ? "guest" : "profile")
