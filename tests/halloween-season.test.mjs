@@ -8,7 +8,7 @@ const { isHalloweenSeason, shouldEnableHalloween } = evaluateTypeScript(
 const { WEBSITE_LOCALES } = evaluateTypeScript(readRepoFile("lib/website-i18n.ts"))
 
 test("Halloween includes both boundary days and excludes the rest of the year", () => {
-  for (const [month, day, expected] of [[8, 30, false], [9, 1, true], [9, 31, true], [10, 1, true], [10, 2, true], [10, 3, false], [0, 1, false]]) {
+  for (const [month, day, expected] of [[8, 30, false], [9, 1, true], [9, 31, true], [10, 1, false], [10, 2, false], [10, 3, false], [0, 1, false]]) {
     assert.equal(isHalloweenSeason(new Date(2026, month, day, 12)), expected)
   }
 })
@@ -18,6 +18,8 @@ test("Halloween preferences work outside the season, but never affect localized 
   const october = new Date(2026, 9, 14)
   assert.equal(shouldEnableHalloween("/", null, summer), false)
   assert.equal(shouldEnableHalloween("/", "halloween", summer), true)
+  assert.equal(shouldEnableHalloween("/", null, new Date(2026, 10, 1, 12)), false)
+  assert.equal(shouldEnableHalloween("/", "halloween", new Date(2026, 10, 1, 12)), true)
   assert.equal(shouldEnableHalloween("/", "off", october), false)
   assert.equal(shouldEnableHalloween("/guide/", null, october), true)
   for (const { path } of WEBSITE_LOCALES) {
