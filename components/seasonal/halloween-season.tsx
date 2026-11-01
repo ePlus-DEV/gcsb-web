@@ -38,7 +38,7 @@ export default function HalloweenSeason() {
     syncSeason()
     window.addEventListener("storage", onStorage)
     window.addEventListener("focus", syncSeason)
-    // Also expire the skin if a tab stays open beyond November 2.
+    // Re-check the local date so a tab left open expires after October 31.
     const timer = window.setInterval(syncSeason, 60_000)
 
     return () => {
