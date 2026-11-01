@@ -17,13 +17,19 @@ test("mobile brand keeps icon and pixel wordmark vertically aligned", () => {
   assert.match(calculator, /className="arcade-brand"/)
 })
 
-test("mobile Analyze CTA is compact but meets touch-target minimum and retains submit behavior", () => {
+test("mobile Analyze CTA stays full-width, lowers height to 44px, and keeps submit behavior", () => {
   const rule = ui.match(/\.arcade-dashboard-page \.profile-analyzer-card form \.analyze-button \{([^}]*)\}/)?.[1]
   assert.ok(rule, "compact mobile button rule missing")
-  assert.match(rule, /width: min\(100%, 228px\)/)
+  assert.match(rule, /width: 100%;/)
+  assert.match(rule, /max-width: 100%;/)
+  assert.doesNotMatch(rule, /228px/)
   assert.match(rule, /min-height: 44px/)
   assert.match(rule, /height: 44px/)
-  assert.match(rule, /justify-self: center/)
+  assert.match(rule, /justify-self: stretch/)
+  const iconRule = ui.match(/\.arcade-dashboard-page \.profile-analyzer-card form \.analyze-button \.fa-icon \{([^}]*)\}/)?.[1]
+  assert.ok(iconRule, "Font Awesome Analyze icon rule missing")
+  assert.match(iconRule, /width: 17px;/)
+  assert.match(iconRule, /font-size: 17px;/)
   assert.match(analyzer, /<button className="analyze-button" type="submit" disabled=\{loading\}>/)
   assert.match(layout, /import "\.\/styles\/arcade-ui\.css"/)
 })
