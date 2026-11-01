@@ -128,24 +128,27 @@
     white-space: nowrap;
   }
 
-  /* A primary action still needs a 44px touch target, but not a full-width,
-     54px-tall banner below the input. */
+  /* Keep the mobile CTA full width like the profile input, but reduce only
+     its height to a comfortable 44px touch target. */
   .arcade-dashboard-page .profile-analyzer-card form .analyze-button {
-    width: min(100%, 228px);
+    width: 100%;
     max-width: 100%;
     min-height: 44px;
     height: 44px;
     padding: 0 16px;
-    justify-self: center;
+    justify-self: stretch;
     gap: 8px;
     border-radius: 9px;
     font-size: 0.8rem;
     box-shadow: 0 5px 16px rgba(124, 58, 237, 0.2);
   }
 
-  .arcade-dashboard-page .profile-analyzer-card form .analyze-button svg {
+  /* The application's icon adapter renders Font Awesome <i>, not SVG. */
+  .arcade-dashboard-page .profile-analyzer-card form .analyze-button .fa-icon {
     width: 17px;
+    min-width: 17px;
     height: 17px;
+    font-size: 17px;
   }
 }
 
