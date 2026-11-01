@@ -1,6 +1,6 @@
 "use client"
 
-import ArcadeBrandGamepad from "@/components/arcade/arcade-brand-gamepad"
+import ArcadePointsLogo from "@/components/arcade/arcade-points-logo"
 import Link from "next/link"
 import ProfileAnalyzer from "@/components/arcade/profile-analyzer"
 import { DashboardPanel, SectionTitle as PanelTitle, MetricStat as Stat } from "@/components/arcade/ui/dashboard-kit"
@@ -723,8 +723,7 @@ export default function RedesignCalculator({
 
       <header ref={headerRef} className="arcade-header">
         <a className="arcade-brand" href="#top" aria-label={scoreCatalog.messages.backToCalculator}>
-          <span className="arcade-brand-mark"><ArcadeBrandGamepad /></span>
-          <span className="arcade-brand-copy"><strong>ARCADE</strong><b>POINTS</b></span>
+          <ArcadePointsLogo />
           <em>PRO</em>
         </a>
 
@@ -1103,8 +1102,7 @@ export default function RedesignCalculator({
 
       <footer className="arcade-footer" data-home-order="footer">
         <div className="arcade-brand footer-brand">
-          <span className="arcade-brand-mark"><ArcadeBrandGamepad /></span>
-          <span className="arcade-brand-copy"><strong>ARCADE</strong><b>POINTS</b></span>
+          <ArcadePointsLogo />
         </div>
         <p>{scoreCatalog.messages.unofficial}</p>
         <nav className="footer-route-links" aria-label="Site information">
