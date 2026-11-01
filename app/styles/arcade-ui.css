@@ -93,10 +93,22 @@
     align-self: center;
   }
 
-  .arcade-dashboard-page .arcade-header .arcade-brand-mark svg {
-    display: block;
-    width: 22px;
-    height: 22px;
+  /* Gamepad2 is aliased to Font Awesome <i>, not an SVG.
+   * Give the naturally wide gamepad glyph room inside a smaller centered box.
+   * At 18px its glyph no longer overflows the 34px brand mark on iPhone. */
+  .arcade-dashboard-page .arcade-header .arcade-brand-mark .fa-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 24px;
+    width: 24px;
+    min-width: 24px;
+    height: 24px;
+    margin: 0;
+    padding: 0;
+    font-size: 18px;
+    line-height: 1;
+    vertical-align: middle;
   }
 
   .arcade-dashboard-page .arcade-header .arcade-brand-copy {
