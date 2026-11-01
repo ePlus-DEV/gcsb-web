@@ -28,7 +28,6 @@ import {
   Globe2,
   GraduationCap,
   Menu,
-  Search,
   ShieldCheck,
   Sparkles,
   Star,
