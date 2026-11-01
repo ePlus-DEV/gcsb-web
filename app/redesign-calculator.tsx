@@ -8,6 +8,7 @@ import ReleasedPointsPanel from "@/components/arcade/released-points-panel"
 import DashboardTiers from "@/components/arcade/dashboard-tiers"
 import GuestDashboard from "@/components/arcade/guest-dashboard"
 import PreviewModeToolbar from "@/components/arcade/preview-mode-toolbar"
+import MobileBottomNav from "@/components/arcade/mobile-bottom-nav"
 import { readStoredDashboard, type DashboardViewMode } from "@/components/arcade/dashboard-state"
 import { useTierSlotHistory } from "@/components/arcade/tier-slot-history"
 import {
@@ -1115,12 +1116,12 @@ export default function RedesignCalculator({
         </nav>
       </footer>
 
-      <nav className="mobile-bottom-nav" aria-label={scoreCatalog.messages.mobileNavigation}>
-        <a href="#calculator"><Search /><span>{scoreCatalog.messages.calculator}</span></a>
-        <a href="#tiers"><Trophy /><span>{scoreCatalog.messages.tiers}</span></a>
-        <a href={viewMode === "guest" ? "#monthly-games" : "#badges"}>{viewMode === "guest" ? <Gamepad2 /> : <BadgeCheck />}<span>{viewMode === "guest" ? activeHistoryLanguage.catalog.messages.guestLabsLabel : activeHistoryLanguage.catalog.messages.badges}</span></a>
-        <a href="#extension"><Chrome /><span>{scoreCatalog.messages.extension}</span></a>
-      </nav>
+      <MobileBottomNav
+        catalog={scoreCatalog}
+        viewMode={viewMode}
+        hasResult={showProfileDashboard}
+        monthlyLabsLabel={activeHistoryLanguage.catalog.messages.guestLabsLabel}
+      />
     </main>
   )
 }
