@@ -48,6 +48,14 @@ html.light .back-to-top {
   }
 }
 
+/* Keep the scroll-to-top control separate from the right-side Facilitator launcher. */
+@media (max-width: 600px) {
+  .back-to-top {
+    left: 14px;
+    right: auto;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .back-to-top {
     transition: none;
