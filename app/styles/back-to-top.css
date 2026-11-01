@@ -48,6 +48,21 @@ html.light .back-to-top {
   }
 }
 
+/* Stack Back to top above the right-side Facilitator launcher on mobile.
+ * The offset is measured only when a visible launcher is present; otherwise
+ * the button stays above the mobile bottom navigation.
+ */
+@media (max-width: 600px) {
+  .back-to-top {
+    left: auto;
+    right: 14px;
+    bottom: calc(
+      82px + env(safe-area-inset-bottom) +
+      var(--mobile-facilitator-clearance, 0px)
+    );
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .back-to-top {
     transition: none;
