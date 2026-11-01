@@ -6,6 +6,7 @@ const ui = readRepoFile("app/styles/arcade-ui.css")
 const layout = readRepoFile("app/layout.tsx")
 const calculator = readRepoFile("app/redesign-calculator.tsx")
 const analyzer = readRepoFile("components/arcade/profile-analyzer.tsx")
+const iconAdapter = readRepoFile("components/fontawesome-icon-adapter.tsx")
 
 test("mobile brand keeps icon and pixel wordmark vertically aligned", () => {
   assert.match(ui, /@media \(max-width: 600px\)/)
@@ -25,4 +26,17 @@ test("mobile Analyze CTA is compact but meets touch-target minimum and retains s
   assert.match(rule, /justify-self: center/)
   assert.match(analyzer, /<button className="analyze-button" type="submit" disabled=\{loading\}>/)
   assert.match(layout, /import "\.\/styles\/arcade-ui\.css"/)
+})
+
+
+test("logo uses a centered Font Awesome gamepad rather than an ineffective SVG rule", () => {
+  assert.match(iconAdapter, /Gamepad2 = createFontAwesomeIcon\("Gamepad2", "fa-solid fa-gamepad"\)/)
+  const rule = ui.match(/\.arcade-dashboard-page \.arcade-header \.arcade-brand-mark \.fa-icon \{([^}]*)\}/)?.[1]
+  assert.ok(rule, "actual Font Awesome gamepad centering rule missing")
+  assert.match(rule, /align-items: center;/)
+  assert.match(rule, /justify-content: center;/)
+  assert.match(rule, /font-size: 18px;/)
+  assert.match(rule, /width: 24px;/)
+  assert.match(rule, /height: 24px;/)
+  assert.doesNotMatch(ui, /\.arcade-dashboard-page \.arcade-header \.arcade-brand-mark svg \{/)
 })
