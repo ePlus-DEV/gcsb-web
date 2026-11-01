@@ -1,6 +1,6 @@
 "use client"
 
-import ArcadeBrandGamepad from "@/components/arcade/arcade-brand-gamepad"
+import ArcadePointsLogo from "@/components/arcade/arcade-points-logo"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
@@ -154,8 +154,7 @@ export default function NotFoundRedirect() {
           href={homeHref}
           aria-label="Arcade Points home"
         >
-          <span className="arcade-brand-mark"><ArcadeBrandGamepad /></span>
-          <span className="arcade-brand-copy"><strong>ARCADE</strong><b>POINTS</b></span>
+          <ArcadePointsLogo />
           <em>PRO</em>
         </Link>
 
