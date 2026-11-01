@@ -383,8 +383,10 @@ html.light .analyzer-facilitator-switch::after {
   .facilitator-launcher {
     top: auto;
     right: 12px;
-    bottom: 78px;
+    bottom: calc(82px + env(safe-area-inset-bottom));
     min-width: 180px;
+    /* Reserve 40px for the left Back to top button and a touch-safe gap. */
+    max-width: calc(100vw - 88px);
     padding: 9px 10px;
     border-left-width: 1px;
     transform: none;
