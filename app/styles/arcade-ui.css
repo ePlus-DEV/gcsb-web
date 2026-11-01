@@ -66,3 +66,79 @@
   .shared-tier-panel .arcade-ui-surface { padding: 14px 12px; }
   .shared-tier-panel .tier-slot-count b { font-size: 1.2rem; }
 }
+
+
+/* Mobile header brand and compact profile CTA.
+ * Keep the icon and stacked pixel wordmark optically centered without changing
+ * desktop branding or the page's existing light/dark color tokens.
+ */
+@media (max-width: 600px) {
+  .arcade-dashboard-page .arcade-header .arcade-brand {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    min-width: 0;
+    min-height: 40px;
+    vertical-align: middle;
+  }
+
+  .arcade-dashboard-page .arcade-header .arcade-brand-mark {
+    display: grid;
+    place-items: center;
+    flex: 0 0 34px;
+    width: 34px;
+    height: 34px;
+    margin: 0;
+    align-self: center;
+  }
+
+  .arcade-dashboard-page .arcade-header .arcade-brand-mark svg {
+    display: block;
+    width: 22px;
+    height: 22px;
+  }
+
+  .arcade-dashboard-page .arcade-header .arcade-brand-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 2px;
+    min-width: 0;
+    line-height: 1.2;
+    text-align: left;
+  }
+
+  .arcade-dashboard-page .arcade-header .arcade-brand-copy :is(strong, b) {
+    display: block;
+    line-height: inherit;
+    white-space: nowrap;
+  }
+
+  /* A primary action still needs a 44px touch target, but not a full-width,
+     54px-tall banner below the input. */
+  .arcade-dashboard-page .profile-analyzer-card form .analyze-button {
+    width: min(100%, 228px);
+    max-width: 100%;
+    min-height: 44px;
+    height: 44px;
+    padding: 0 16px;
+    justify-self: center;
+    gap: 8px;
+    border-radius: 9px;
+    font-size: 0.8rem;
+    box-shadow: 0 5px 16px rgba(124, 58, 237, 0.2);
+  }
+
+  .arcade-dashboard-page .profile-analyzer-card form .analyze-button svg {
+    width: 17px;
+    height: 17px;
+  }
+}
+
+@media (max-width: 360px) {
+  .arcade-dashboard-page .arcade-header .arcade-brand-copy {
+    font-size: 0.56rem;
+  }
+}
