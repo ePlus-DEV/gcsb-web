@@ -68,6 +68,41 @@
 }
 
 
+/* Shared Arcade Points brand icon: same original gamepad silhouette, with a
+ * predictable SVG viewport rather than an overflowing Font Awesome font glyph.
+ * Applies to home header/footer, internal routes and shared-profile pages.
+ */
+.arcade-brand-mark {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.arcade-brand-mark > svg.arcade-brand-gamepad {
+  display: block;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  min-width: 0;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  transform: none;
+  vertical-align: middle;
+}
+
+.footer-brand .arcade-brand-mark > svg.arcade-brand-gamepad {
+  width: 26px;
+  height: 26px;
+}
+
+@media (max-width: 600px) {
+  .arcade-brand-mark > svg.arcade-brand-gamepad {
+    width: 26px;
+    height: 26px;
+  }
+}
+
 /* Mobile header brand and compact profile CTA.
  * Keep the icon and stacked pixel wordmark optically centered without changing
  * desktop branding or the page's existing light/dark color tokens.
@@ -93,22 +128,9 @@
     align-self: center;
   }
 
-  /* Gamepad2 is aliased to Font Awesome <i>, not an SVG.
-   * Give the naturally wide gamepad glyph room inside a smaller centered box.
-   * At 18px its glyph no longer overflows the 34px brand mark on iPhone. */
-  .arcade-dashboard-page .arcade-header .arcade-brand-mark .fa-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 24px;
-    width: 24px;
-    min-width: 24px;
-    height: 24px;
-    margin: 0;
-    padding: 0;
-    font-size: 18px;
-    line-height: 1;
-    vertical-align: middle;
+  .arcade-dashboard-page .arcade-header .arcade-brand-mark > .arcade-brand-gamepad {
+    width: 26px;
+    height: 26px;
   }
 
   .arcade-dashboard-page .arcade-header .arcade-brand-copy {
