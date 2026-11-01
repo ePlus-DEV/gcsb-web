@@ -7,26 +7,46 @@ const facilitatorCss = readRepoFile("app/styles/facilitator-participation.css")
 const backToTop = readRepoFile("components/back-to-top.tsx")
 const facilitator = readRepoFile("components/arcade/facilitator-panel.tsx")
 
-test("mobile Back to top uses the left edge, opposite the right Facilitator launcher", () => {
-  const mobileBackToTop = backToTopCss.slice(backToTopCss.indexOf("/* Keep the scroll-to-top control separate"))
-  assert.match(mobileBackToTop, /@media \(max-width: 600px\)\s*\{\s*\.back-to-top\s*\{\s*left: 14px;\s*right: auto;/)
-  assert.match(backToTopCss, /bottom: calc\(82px \+ env\(safe-area-inset-bottom\)\);/)
-  assert.match(facilitatorCss, /@media \(max-width: 600px\)\s*\{\s*\.facilitator-launcher\s*\{[\s\S]*?right: 12px;/)
-  assert.match(facilitatorCss, /bottom: calc\(82px \+ env\(safe-area-inset-bottom\)\);/)
-  assert.match(facilitatorCss, /max-width: calc\(100vw - 88px\);/)
+test("mobile Back to top sits on the right above the Facilitator launcher", () => {
+  const rule = backToTopCss.slice(backToTopCss.indexOf("/* Stack Back to top above"))
+  assert.match(rule, /@media \(max-width: 600px\)\s*\{\s*\.back-to-top\s*\{\s*left: auto;\s*right: 14px;/)
+  assert.match(rule, /bottom: calc\([\s\S]*82px \+ env\(safe-area-inset-bottom\) \+[\s\S]*var\(--mobile-facilitator-clearance, 0px\)/)
+  assert.doesNotMatch(rule, /left: 14px;/)
+
+  const mobileFacilitator = facilitatorCss.slice(facilitatorCss.indexOf("@media (max-width: 600px)"))
+  assert.match(mobileFacilitator, /\.facilitator-launcher\s*\{[\s\S]*?right: 12px;/)
+  assert.match(mobileFacilitator, /bottom: calc\(82px \+ env\(safe-area-inset-bottom\)\);/)
+  assert.match(mobileFacilitator, /max-width: calc\(100vw - 24px\);/)
 })
 
-test("floating mobile controls have horizontal clearance at common phone widths", () => {
-  // Back to top: x=14..54; Facilitator: right 12, max-width viewport-88 => left >=76.
-  for (const width of [320, 360, 375, 390, 430, 600]) {
-    const backRight = 14 + 40
-    const launcherLeft = width - 12 - (width - 88)
-    assert.ok(launcherLeft - backRight >= 22, `${width}px leaves a tappable gap`)
+test("Back to top repositions as the Facilitator mounts, hides or resizes", () => {
+  assert.match(backToTop, /useRef<HTMLButtonElement>\(null\)/)
+  assert.match(backToTop, /document\.querySelector<HTMLElement>\("\.facilitator-launcher"\)/)
+  assert.match(backToTop, /!launcher\.hidden/)
+  assert.match(backToTop, /launcher\.getClientRects\(\)\.length > 0/)
+  assert.match(backToTop, /Math\.ceil\(launcher\.getBoundingClientRect\(\)\.height\) \+ 12/)
+  assert.match(backToTop, /"--mobile-facilitator-clearance"/)
+  assert.match(backToTop, /new ResizeObserver/)
+  assert.match(backToTop, /new MutationObserver/)
+  assert.match(backToTop, /window\.visualViewport\?\.addEventListener\("resize", scheduleUpdate\)/)
+  assert.match(backToTop, /resizeObserver\.disconnect\(\)/)
+  assert.match(backToTop, /observer\.disconnect\(\)/)
+})
+
+test("mobile floating button gap remains at least 12px for varying card heights", () => {
+  const navOffset = 82
+  for (const viewportWidth of [320, 360, 375, 390, 430, 600]) {
+    for (const launcherHeight of [44, 56, 72, 100, 140]) {
+      const launcherTopFromBottom = navOffset + launcherHeight
+      const backButtonBottomFromBottom = navOffset + Math.ceil(launcherHeight) + 12
+      assert.ok(backButtonBottomFromBottom - launcherTopFromBottom >= 12, viewportWidth + "px, " + launcherHeight + "px")
+    }
   }
 })
 
-test("existing Back to top action and Facilitator drawer remain operable", () => {
+test("Back to top remains above mobile navigation if Facilitator is hidden", () => {
+  assert.match(backToTop, /const clearance = isLauncherVisible[\s\S]*:\s*0/)
+  assert.match(backToTopCss, /var\(--mobile-facilitator-clearance, 0px\)/)
   assert.match(backToTop, /window\.scrollTo\(\{ top: 0, behavior: "smooth" \}\)/)
-  assert.match(facilitator, /className=\{launcherClassName\}/)
   assert.match(facilitator, /onClick=\{\(\) => setOpen\(true\)\}/)
 })
