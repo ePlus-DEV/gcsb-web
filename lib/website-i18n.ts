@@ -22,6 +22,7 @@ export type WebsiteCatalog = {
   dynamic: {
     memberSince: string
     badgesInView: string
+    showingBadges: string
     viewAllBadges: string
     needReview: string
     pointsToTrooper: string
