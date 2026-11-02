@@ -214,7 +214,8 @@ export default function RedesignCalculator({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [filter, setFilter] = useState<BadgeFilter>("all")
-  const [showAllBadges, setShowAllBadges] = useState(false)
+  const [badgeSearch, setBadgeSearch] = useState("")
+  const [visibleBadgeCount, setVisibleBadgeCount] = useState(BADGE_PREVIEW_LIMIT)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const menuToggleRef = useRef<HTMLButtonElement>(null)
   const headerRef = useRef<HTMLElement>(null)
@@ -481,12 +482,21 @@ export default function RedesignCalculator({
       special: [...(result.special ?? []), ...(result.completion ?? [])],
     }
 
-    return groups[filter]
+    return sortBadgesNewestFirst(groups[filter])
   }, [badges, filter, result])
 
-  const displayedBadges = showAllBadges
-    ? filteredBadges
-    : filteredBadges.slice(0, BADGE_PREVIEW_LIMIT)
+  const matchingBadges = useMemo(() => {
+    const normalize = (value: string) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase()
+    const query = normalize(badgeSearch.trim())
+    return query ? filteredBadges.filter((badge) => normalize(badge.title).includes(query)) : filteredBadges
+  }, [badgeSearch, filteredBadges])
+  const displayedBadges = matchingBadges.slice(0, visibleBadgeCount)
+  const remainingBadgeCount = Math.max(0, matchingBadges.length - displayedBadges.length)
+
+  useEffect(() => {
+    setBadgeSearch("")
+    setVisibleBadgeCount(BADGE_PREVIEW_LIMIT)
+  }, [result])
 
   const facilitatorParticipating =
     facilitatorParticipation.profileUrl === committedProfileUrl &&
@@ -616,7 +626,7 @@ export default function RedesignCalculator({
       setUsingPreviewFakeProfile(false)
       setViewMode("profile")
       setFilter("all")
-      setShowAllBadges(false)
+      setVisibleBadgeCount(BADGE_PREVIEW_LIMIT)
     } catch (caught) {
       if (abortControllerRef.current !== controller) return
 
@@ -650,7 +660,7 @@ export default function RedesignCalculator({
     setGuestProfileUrl("")
     setError("")
     setFilter("all")
-    setShowAllBadges(false)
+    setVisibleBadgeCount(BADGE_PREVIEW_LIMIT)
 
     try {
       window.localStorage.removeItem(DASHBOARD_STORAGE_KEY)
@@ -957,13 +967,44 @@ export default function RedesignCalculator({
                         aria-pressed={filter === item.value}
                         onClick={() => {
                           setFilter(item.value)
-                          setShowAllBadges(false)
+                          setVisibleBadgeCount(BADGE_PREVIEW_LIMIT)
                         }}
                       >
                         {scoreCatalog.messages[item.value]}
                       </button>
                     ))}
                   </div>
+                </div>
+
+                <div className="badge-search-row">
+                  <div className="badge-search-field" role="search">
+                    <Search aria-hidden="true" />
+                    <input
+                      className="badge-search-input"
+                      type="search"
+                      value={badgeSearch}
+                      placeholder={scoreCatalog.messages.searchBadges}
+                      aria-label={scoreCatalog.messages.searchBadges}
+                      onChange={(event) => {
+                        setBadgeSearch(event.target.value)
+                        setVisibleBadgeCount(BADGE_PREVIEW_LIMIT)
+                      }}
+                    />
+                    {badgeSearch && (
+                      <button className="clear-badge-search" type="button" aria-label={scoreCatalog.messages.clearBadgeSearch}
+                        onClick={() => {
+                          setBadgeSearch("")
+                          setVisibleBadgeCount(BADGE_PREVIEW_LIMIT)
+                        }}>
+                        <X aria-hidden="true" />
+                      </button>
+                    )}
+                  </div>
+                  <span className="badge-visible-count" aria-live="polite">
+                    {scoreCatalog.dynamic.showingBadges
+                      .replace("{shown}", scoreNumber(displayedBadges.length))
+                      .replace("{total}", scoreNumber(matchingBadges.length))}
+                  </span>
                 </div>
 
                 {displayedBadges.length > 0 ? (
@@ -997,14 +1038,16 @@ export default function RedesignCalculator({
                 ) : (
                   <div className="empty-badge-state">
                     <BadgeCheck />
-                    <strong>{scoreCatalog.messages.noBadges}</strong>
-                    <span>{scoreCatalog.messages.chooseFilter}</span>
+                    <strong>{badgeSearch.trim() ? scoreCatalog.messages.noMatchingBadges : scoreCatalog.messages.noBadges}</strong>
+                    <span>{badgeSearch.trim() ? scoreCatalog.messages.searchHint : scoreCatalog.messages.chooseFilter}</span>
                   </div>
                 )}
 
-                {filteredBadges.length > BADGE_PREVIEW_LIMIT && (
-                  <button className="show-all-badges" type="button" onClick={() => setShowAllBadges((open) => !open)}>
-                    {showAllBadges ? scoreCatalog.messages.showFewer : scoreCatalog.dynamic.viewAllBadges.replace("{count}", scoreNumber(filteredBadges.length))}
+                {remainingBadgeCount > 0 && (
+                  <button className="show-all-badges" type="button"
+                    onClick={() => setVisibleBadgeCount((count) => Math.min(count + BADGE_PREVIEW_LIMIT, matchingBadges.length))}>
+                    {scoreCatalog.messages.loadMoreBadges}
+                    <span aria-hidden="true"> +{scoreNumber(Math.min(remainingBadgeCount, BADGE_PREVIEW_LIMIT))}</span>
                   </button>
                 )}
               </article>

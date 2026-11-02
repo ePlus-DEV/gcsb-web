@@ -97,8 +97,8 @@ try {
     }
   }
 
-  // Profile regression: "View all badges" must keep the Tiers sidebar
-  // visible on desktop, but must not create a sticky panel on phones.
+  // Progressive badge loading and search must keep Tiers visible on desktop
+  // without making it sticky on phones.
   for (const width of [390, 1024, 1440]) {
     const viewportHeight = 720
     const context = await browser.newContext({ viewport: { width, height: viewportHeight } })
@@ -117,9 +117,24 @@ try {
     const page = await context.newPage()
     await page.route("https://**/*", (route) => route.abort())
     await page.goto(base)
-    await page.locator(".show-all-badges").waitFor({ state: "visible" })
-    await page.locator(".show-all-badges").click()
-    assert.equal(await page.locator(".earned-badge").count(), 64, `${width}: expanded badge count`)
+    const loadMore = page.locator(".show-all-badges")
+    await loadMore.waitFor({ state: "visible" })
+    assert.equal(await page.locator(".earned-badge").count(), 8, `${width}: initial badge count`)
+    await loadMore.click()
+    assert.equal(await page.locator(".earned-badge").count(), 16, `${width}: first load more`)
+    const search = page.locator(".badge-search-input")
+    await search.fill("Regression badge 64")
+    assert.equal(await page.locator(".earned-badge").count(), 1, `${width}: search includes offscreen badges`)
+    assert.equal(await loadMore.count(), 0, `${width}: load more hidden for one match`)
+    await search.fill("Badge not in this profile")
+    assert.equal(await page.locator(".earned-badge").count(), 0, `${width}: empty search result`)
+    await page.locator(".clear-badge-search").click()
+    assert.equal(await page.locator(".earned-badge").count(), 8, `${width}: clear resets preview`)
+    for (let count = 16; count <= 64; count += 8) {
+      await loadMore.click()
+      assert.equal(await page.locator(".earned-badge").count(), count, `${width}: progressive count ${count}`)
+    }
+    assert.equal(await loadMore.count(), 0, `${width}: all badges loaded`)
 
     await page.evaluate(() => {
       const grid = document.querySelector(".dashboard-content-grid")
