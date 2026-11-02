@@ -1,5 +1,15 @@
 # Repository Instructions
 
+## Logo and brand artwork — locked; explicit owner approval required
+
+**Do not modify, replace, regenerate, restyle, resize, reposition, or otherwise affect the existing Arcade Points logo without the repository owner's explicit approval for that specific change.** This rule applies to manual work, AI agents, automated refactors, scheduled tasks, and PRs.
+
+- Preserve the current logo artwork, icon/symbol, ARCADE POINTS wordmark, colors, proportions, spacing, alignment, and rendering across desktop and mobile. Do not create or propose alternate logos or fresh artwork by default.
+- Do not edit logo assets/components, their SVG paths, branding styles, or CSS selectors affecting the logo. This also covers indirect changes to shared header/footer layout, fonts, icon systems, responsive breakpoints, theming, build tooling, or dependencies if they could alter its appearance.
+- For unrelated UI changes, explicitly ensure that the existing logo renders unchanged on desktop and mobile, including light/dark modes and every page that reuses it. Avoid incidental logo diffs in screenshots or visual regression baselines.
+- If a requested change could affect the logo, **leave it untouched and request explicit owner approval before making any change**. A general UI improvement, a reported alignment issue, a previous approval, or an automated task is **not** permission to redesign or modify the logo.
+- Never silently bypass this rule or automatically merge a logo-related PR. Do not treat code-only/CSS-only edits as exempt: the visible logo must remain identical unless expressly approved.
+
 ## Internationalization — mandatory merge gate
 
 This website is **always multilingual**. Internationalization is not optional and is not a follow-up task.
