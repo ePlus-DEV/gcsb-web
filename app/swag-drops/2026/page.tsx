@@ -171,7 +171,7 @@ function TierRewardRow({ tier }: { tier: ArcadeSwagTier }) {
                 <Link
                   key={drop.id}
                   href={swagProductPath(season, drop.id)}
-                  className="group flex min-w-[240px] flex-1 items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50/70 p-2.5 transition hover:border-emerald-300 dark:border-emerald-300/15 dark:bg-emerald-300/[0.04]"
+                  className="swag-reward-card group flex min-w-[240px] flex-1 items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50/70 p-2.5 transition hover:border-emerald-300 dark:border-emerald-300/15 dark:bg-emerald-300/[0.04]"
                 >
                   <span className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white dark:bg-black/20">
                     <SwagArtwork
@@ -294,7 +294,7 @@ function TierRewardRow({ tier }: { tier: ArcadeSwagTier }) {
 
           <Link
             href={swagTierPath(season, tier)}
-            className="inline-flex min-h-9 items-center justify-center gap-1 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-cyan-700 transition hover:border-cyan-300 hover:bg-cyan-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-cyan-300 dark:hover:bg-cyan-300/[0.05]"
+            className="swag-action-outline inline-flex min-h-9 items-center justify-center gap-1 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-cyan-700 transition hover:border-cyan-300 hover:bg-cyan-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-cyan-300 dark:hover:bg-cyan-300/[0.05]"
           >
             Details <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
           </Link>
@@ -339,7 +339,7 @@ export default function SwagDrops2026Page() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }}
       />
 
-      <div className="not-prose space-y-8">
+      <div className="not-prose swag-season-page space-y-8">
         {latest ? (
           <section className="grid overflow-hidden rounded-3xl border border-cyan-300/20 bg-gradient-to-br from-cyan-50 via-white to-violet-50 shadow-md dark:from-cyan-950/20 dark:via-slate-950/80 dark:to-violet-950/20 lg:grid-cols-[0.8fr_1.2fr]">
             <div className="flex min-h-48 items-center justify-center bg-white/50 p-4 dark:bg-black/10">
@@ -364,14 +364,14 @@ export default function SwagDrops2026Page() {
                   <Link
                     key={tier}
                     href={swagTierPath(season, tier)}
-                    className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold capitalize text-slate-700 hover:border-cyan-300 dark:border-white/10 dark:bg-white/5 dark:text-slate-200"
+                    className="swag-action-chip rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold capitalize text-slate-700 hover:border-cyan-300 dark:border-white/10 dark:bg-white/5 dark:text-slate-200"
                   >
                     Arcade {tier}
                   </Link>
                 ))}
                 <Link
                   href={swagProductPath(season, latest.id)}
-                  className="ml-0 inline-flex items-center gap-1.5 rounded-full bg-slate-950 px-3 py-1.5 text-xs font-semibold text-white dark:bg-cyan-300 dark:text-slate-950 sm:ml-2"
+                  className="swag-action-primary ml-0 inline-flex items-center gap-1.5 rounded-full bg-slate-950 px-3 py-1.5 text-xs font-semibold text-white dark:bg-cyan-300 dark:text-slate-950 sm:ml-2"
                 >
                   Reward details <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
                 </Link>
@@ -379,7 +379,7 @@ export default function SwagDrops2026Page() {
                   href={latest.sourceUrl}
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="inline-flex items-center gap-1.5 px-2 py-1.5 text-xs font-semibold text-cyan-700 hover:underline dark:text-cyan-300"
+                  className="swag-action-text inline-flex items-center gap-1.5 px-2 py-1.5 text-xs font-semibold text-cyan-700 hover:underline dark:text-cyan-300"
                 >
                   Official announcement <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
                 </a>
