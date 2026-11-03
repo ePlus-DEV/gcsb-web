@@ -4,17 +4,38 @@ import { IS_PR_PREVIEW, PREVIEW_DEBUG_PROFILE_RESULT, PREVIEW_DEBUG_PROFILE_URL 
 export type DashboardViewMode = "guest" | "profile"
 export type StoredDashboard = { profileUrl: string; result: ArcadeApiResponse }
 
+export const DASHBOARD_CHANGE_EVENT = "arcade-dashboard-change"
+
+// Share the last parsed value while the underlying localStorage snapshot is unchanged.
+let lastRawDashboard: string | null | undefined
+let lastParsedDashboard: StoredDashboard | null = null
+
+export function notifyDashboardChanged(): void {
+  window.dispatchEvent(new Event(DASHBOARD_CHANGE_EVENT))
+}
+
+const previewDashboard: StoredDashboard = {
+  profileUrl: PREVIEW_DEBUG_PROFILE_URL,
+  result: PREVIEW_DEBUG_PROFILE_RESULT,
+}
+
 /** Storage is optional; reject malformed records before restoring a profile. */
 export function readStoredDashboard(): StoredDashboard | null {
   try {
     const raw = window.localStorage.getItem(DASHBOARD_STORAGE_KEY)
+    if (raw === lastRawDashboard) return lastParsedDashboard
+    lastRawDashboard = raw
+    lastParsedDashboard = null
     if (!raw) return null
     const parsed: unknown = JSON.parse(raw)
     if (!parsed || typeof parsed !== "object") return null
     const { profileUrl, result } = parsed as Record<string, unknown>
     if (typeof profileUrl !== "string" || !result || typeof result !== "object" || Array.isArray(result)) return null
-    return { profileUrl, result: result as ArcadeApiResponse }
+    lastParsedDashboard = { profileUrl, result: result as ArcadeApiResponse }
+    return lastParsedDashboard
   } catch {
+    lastRawDashboard = undefined
+    lastParsedDashboard = null
     return null
   }
 }
@@ -24,7 +45,7 @@ export function readActiveDashboard(): StoredDashboard | null {
   const page = document.querySelector<HTMLElement>(".arcade-dashboard-page")
   if (page?.dataset.dashboardView === "guest") return null
   if (IS_PR_PREVIEW && page?.dataset.dashboardDebugFake === "true") {
-    return { profileUrl: PREVIEW_DEBUG_PROFILE_URL, result: PREVIEW_DEBUG_PROFILE_RESULT }
+    return previewDashboard
   }
   return readStoredDashboard()
 }
