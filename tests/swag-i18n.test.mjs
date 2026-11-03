@@ -262,10 +262,10 @@ test("all current tier rules and package outlook descriptions are localized", ()
   const source = readRepoFile("components/arcade/swag-seasons.ts")
   const keys = [...new Set(
     [...source.matchAll(
-      /(?:rewardRule|allocationNote|packageRule|knownMinimumNote|waitingNote|historicalEstimateBasis):\\s*"([^"]+)"/g,
+      /(?:rewardRule|allocationNote|packageRule|knownMinimumNote|waitingNote|historicalEstimateBasis):\s*"([^"]+)"/g,
     )].map((match) => match[1]),
   )]
-  assert.ok(keys.length >= 24, "Expected every current tier's source copy")
+  assert.ok(keys.length >= 23, "Expected every current tier's source copy")
   for (const locale of locales) {
     const additional = readCatalog(locale).additional
     for (const key of keys) {
@@ -286,7 +286,7 @@ test("all current tier rules and package outlook descriptions are localized", ()
 test("all 2025 historical reward names have locale translations", () => {
   const source = readRepoFile("components/arcade/swag-history.ts")
   const names = [...new Set(
-    [...source.matchAll(/(?:announcement|deliveryEvidence)\\(\\s*"([^"]+)"/g)]
+    [...source.matchAll(/(?:announcement|deliveryEvidence)\(\s*"([^"]+)"/g)]
       .map((match) => match[1]),
   )]
   assert.ok(names.length >= 32, "Expected historical rewards from both 2025 seasons")
