@@ -46,6 +46,9 @@ try {
           }
           const expectedBg = colorValue("--ds-primary")
           const expectedText = colorValue("--ds-on-primary")
+          const expectedSecondaryBg = colorValue("--ds-surface")
+          const expectedSecondaryText = colorValue("--ds-text")
+          const expectedLink = colorValue("--ds-link")
           const selectors = [selector]
           if (document.querySelector(".cookie-consent-button")) selectors.push(".cookie-consent-button")
           const components = selectors.map((sel) => {
@@ -58,12 +61,32 @@ try {
               contrast: ratio(style.color, style.backgroundColor),
             }
           })
-          return { expectedBg, expectedText, components }
+          const neutralSelectors = selector.includes("analyze-button")
+            ? [".cookie-consent-detail-button"]
+            : [".swag-season-page .swag-action-outline", ".swag-season-page .swag-action-chip"]
+          const secondary = neutralSelectors.flatMap((sel) => {
+            const el = document.querySelector(sel)
+            if (!el) return []
+            const style = getComputedStyle(el)
+            return [{ name: sel, background: style.backgroundColor, text: style.color }]
+          })
+          const crumb = document.querySelector(".internal-breadcrumb-link")
+          return {
+            expectedBg, expectedText, expectedSecondaryBg, expectedSecondaryText, expectedLink,
+            components, secondary, breadcrumb: crumb ? getComputedStyle(crumb).color : null,
+          }
         }, route.primary)
         for (const component of result.components) {
           assert.equal(component.background, result.expectedBg, `${route.path}: ${component.name} not primary in ${theme}`)
           assert.equal(component.text, result.expectedText, `${route.path}: ${component.name} text inconsistent in ${theme}`)
           assert.ok(component.contrast >= 4.5, `${route.path}: ${component.name} contrast ${component.contrast.toFixed(2)}`)
+        }
+        for (const item of result.secondary) {
+          assert.equal(item.background, result.expectedSecondaryBg, `${route.path}: ${item.name} secondary surface in ${theme}`)
+          assert.equal(item.text, result.expectedSecondaryText, `${route.path}: ${item.name} secondary text in ${theme}`)
+        }
+        if (result.breadcrumb) {
+          assert.equal(result.breadcrumb, result.expectedLink, `${route.path}: breadcrumbs must use secondary link color in ${theme}`)
         }
         checks++
       }
