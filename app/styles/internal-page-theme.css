@@ -1,4 +1,54 @@
-/* Theme-specific colors for About, Guide, Privacy and Terms pages. */
+/* Theme-specific colors for internal pages, including Swag Drops. */
+/* Shared internal breadcrumbs: predictable contrast regardless of Tailwind utility order. */
+html.dark .internal-breadcrumbs {
+  color: #a8b8d0;
+}
+
+html.dark .internal-breadcrumb-link {
+  color: #cbd5e1;
+}
+
+html.dark .internal-breadcrumb-link:hover,
+html.dark .internal-breadcrumb-link:focus-visible {
+  color: #67e8f9;
+}
+
+html.dark .internal-breadcrumb-current {
+  color: #f8fafc;
+}
+
+html.dark .internal-breadcrumb-separator {
+  color: #8090ad;
+}
+
+html.light .internal-breadcrumbs {
+  color: #52637c;
+}
+
+html.light .internal-breadcrumb-link {
+  color: #475569;
+}
+
+html.light .internal-breadcrumb-link:hover,
+html.light .internal-breadcrumb-link:focus-visible {
+  color: #6d28d9;
+}
+
+html.light .internal-breadcrumb-current {
+  color: #172033;
+}
+
+html.light .internal-breadcrumb-separator {
+  color: #64748b;
+}
+
+.internal-breadcrumb-link:focus-visible,
+.internal-back-link:focus-visible {
+  outline: 2px solid #a78bfa;
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
 html.light .internal-page-hero {
   border-bottom-color: rgba(100, 116, 139, 0.16);
 }
@@ -45,54 +95,54 @@ html.light .internal-prose {
   color: #475569;
 }
 
-html.light .internal-prose :where(h1, h2, h3, h4, strong) {
+html.light .internal-prose :where(h1, h2, h3, h4, strong):not(:where(.not-prose *)) {
   color: #172033;
 }
 
-html.light .internal-prose :where(p, li) {
+html.light .internal-prose :where(p, li):not(:where(.not-prose *)) {
   color: #475569;
 }
 
-html.light .internal-prose a {
+html.light .internal-prose a:not(:where(.not-prose *)) {
   color: #6d28d9;
 }
 
-html.light .internal-prose a:hover {
+html.light .internal-prose a:not(:where(.not-prose *)):hover {
   color: #581c87;
 }
 
-html.light .internal-prose code {
+html.light .internal-prose code:not(:where(.not-prose *)) {
   border-radius: 5px;
   background: #f5f3ff;
   color: #6d28d9;
 }
 
-html.light .internal-prose pre {
+html.light .internal-prose pre:not(:where(.not-prose *)) {
   border: 1px solid rgba(100, 116, 139, 0.18);
   background: #172033;
   color: #f8fafc;
   box-shadow: 0 12px 30px rgba(51, 65, 85, 0.12);
 }
 
-html.light .internal-prose pre code {
+html.light .internal-prose pre code:not(:where(.not-prose *)) {
   background: transparent;
   color: inherit;
 }
 
-html.light .internal-prose blockquote {
+html.light .internal-prose blockquote:not(:where(.not-prose *)) {
   border-left-color: #a78bfa;
   color: #52637c;
 }
 
-html.light .internal-prose hr {
+html.light .internal-prose hr:not(:where(.not-prose *)) {
   border-color: #dbe3f2;
 }
 
-html.light .internal-prose :where(th, td) {
+html.light .internal-prose :where(th, td):not(:where(.not-prose *)) {
   border-color: #dbe3f2;
 }
 
-html.light .internal-prose th {
+html.light .internal-prose th:not(:where(.not-prose *)) {
   color: #26324a;
 }
 

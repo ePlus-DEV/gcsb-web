@@ -133,7 +133,7 @@ function TierPage({ tier }: { tier: ArcadeSwagTier }) {
     >
       <BreadcrumbJsonLd label={`Arcade ${meta.label}`} path={path} />
 
-      <div className="not-prose space-y-8">
+      <div className="not-prose swag-season-page space-y-8">
         <section className="overflow-hidden rounded-3xl border border-cyan-300/20 bg-gradient-to-br from-cyan-50 via-white to-violet-50 shadow-sm dark:from-cyan-950/20 dark:via-slate-950/80 dark:to-violet-950/20">
           <div className="grid gap-6 p-5 sm:p-7 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
             <div>
@@ -201,7 +201,7 @@ function TierPage({ tier }: { tier: ArcadeSwagTier }) {
             </div>
             <Link
               href={swagSeasonPath(season)}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-cyan-700 hover:underline dark:text-cyan-300"
+              className="swag-action-text inline-flex items-center gap-1.5 text-xs font-semibold text-cyan-700 hover:underline dark:text-cyan-300"
             >
               Compare all tiers <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
             </Link>
@@ -359,7 +359,7 @@ function ProductPage({ slug }: { slug: string }) {
     >
       <BreadcrumbJsonLd label={drop.shortName} path={path} />
 
-      <div className="not-prose space-y-8">
+      <div className="not-prose swag-season-page space-y-8">
         <section className="grid overflow-hidden rounded-3xl border border-cyan-300/20 bg-gradient-to-br from-cyan-50 via-white to-violet-50 dark:from-cyan-950/20 dark:via-slate-950/80 dark:to-violet-950/20 lg:grid-cols-[0.85fr_1.15fr]">
           <div className="flex min-h-72 items-center justify-center bg-white/50 p-6 dark:bg-black/10">
             <SwagArtwork src={drop.imageUrl} alt={drop.name} className="h-72 w-full object-contain" />
@@ -449,11 +449,11 @@ function ProductPage({ slug }: { slug: string }) {
             href={drop.sourceUrl}
             target="_blank"
             rel="noreferrer noopener"
-            className="inline-flex items-center gap-2 rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white dark:bg-cyan-300 dark:text-slate-950"
+            className="swag-action-primary inline-flex items-center gap-2 rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white dark:bg-cyan-300 dark:text-slate-950"
           >
             Official Google reveal <ExternalLink className="h-4 w-4" aria-hidden="true" />
           </a>
-          <Link href={swagSeasonPath(season)} className="inline-flex items-center gap-2 px-2 py-2.5 text-sm font-semibold text-cyan-700 hover:underline dark:text-cyan-300">
+          <Link href={swagSeasonPath(season)} className="swag-action-text inline-flex items-center gap-2 px-2 py-2.5 text-sm font-semibold text-cyan-700 hover:underline dark:text-cyan-300">
             {`All ${season} rewards`} <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </Link>
         </div>

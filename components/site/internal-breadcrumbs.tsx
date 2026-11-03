@@ -65,7 +65,7 @@ export default function InternalBreadcrumbs() {
 
   if (!crumbs) {
     return (
-      <Link href="/" className="internal-back-link mb-8 inline-flex items-center text-sm text-slate-400 hover:text-white">
+      <Link href="/" className="internal-back-link mb-8 inline-flex items-center text-sm text-slate-600 transition hover:text-violet-700 dark:text-slate-300 dark:hover:text-cyan-300">
         <ArrowLeft className="mr-2 h-4 w-4" /> Back to calculator
       </Link>
     )
@@ -74,23 +74,23 @@ export default function InternalBreadcrumbs() {
   return (
     <nav
       aria-label="Breadcrumb"
-      className="mb-8 flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-2 text-sm text-slate-400"
+      className="internal-breadcrumbs mb-8 flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-2 text-sm text-slate-600 dark:text-slate-400"
     >
-      <Link href="/" className="transition hover:text-white">
+      <Link href="/" className="internal-breadcrumb-link transition hover:text-violet-700 dark:hover:text-cyan-300">
         Calculator
       </Link>
       {crumbs.map((item, index) => {
         const isCurrent = index === crumbs.length - 1
         return (
           <span key={`${item.label}-${index}`} className="flex min-w-0 items-center gap-1.5">
-            <ChevronRight className="h-3.5 w-3.5 shrink-0 text-slate-600" aria-hidden="true" />
+            <ChevronRight className="internal-breadcrumb-separator h-3.5 w-3.5 shrink-0 text-slate-400 dark:text-slate-600" aria-hidden="true" />
             {item.href && !isCurrent ? (
-              <Link href={item.href} className="truncate transition hover:text-white">
+              <Link href={item.href} className="internal-breadcrumb-link truncate transition hover:text-violet-700 dark:hover:text-cyan-300">
                 {item.label}
               </Link>
             ) : (
               <span
-                className={isCurrent ? "truncate font-medium text-slate-200" : "truncate"}
+                className={isCurrent ? "internal-breadcrumb-current truncate font-semibold text-slate-900 dark:text-slate-100" : "truncate"}
                 aria-current={isCurrent ? "page" : undefined}
               >
                 {item.label}
