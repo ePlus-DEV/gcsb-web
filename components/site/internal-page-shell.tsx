@@ -1,6 +1,7 @@
 import Link from "next/link"
+import ArcadeBrandGamepad from "@/components/arcade/arcade-brand-gamepad"
 import type { ReactNode } from "react"
-import { Gamepad2, Sparkles } from "lucide-react"
+import { Sparkles } from "lucide-react"
 import InternalBreadcrumbs from "@/components/site/internal-breadcrumbs"
 
 export default function InternalPageShell({
@@ -22,7 +23,7 @@ export default function InternalPageShell({
 
       <header className="arcade-header">
         <Link className="arcade-brand" href="/" aria-label="Arcade Points home">
-          <span className="arcade-brand-mark"><Gamepad2 /></span>
+          <span className="arcade-brand-mark"><ArcadeBrandGamepad /></span>
           <span className="arcade-brand-copy"><strong>ARCADE</strong><b>POINTS</b></span>
           <em>PRO</em>
         </Link>

@@ -10,9 +10,8 @@ import {
   readFacilitatorParticipation,
   type FacilitatorParticipationDetail,
 } from "./facilitator-participation"
-import { readActiveDashboard, observeDashboardMode } from "./dashboard-state"
-
-const DASHBOARD_SYNC_INTERVAL_MS = 1_000
+import { DASHBOARD_CHANGE_EVENT, readActiveDashboard, observeDashboardMode } from "./dashboard-state"
+import { DASHBOARD_STORAGE_KEY } from "./model"
 
 function readStoredProfileUrl(): string {
   return readActiveDashboard()?.profileUrl ?? ""
@@ -27,17 +26,20 @@ export default function FacilitatorPanelGate() {
   useEffect(() => {
     const syncProfile = () => setProfileUrl(readStoredProfileUrl())
 
+    const onStorage = (event: StorageEvent) => {
+      if (event.key === DASHBOARD_STORAGE_KEY || event.key === null) syncProfile()
+    }
     syncProfile()
     const stopObserving = observeDashboardMode(syncProfile)
-    const timer = window.setInterval(syncProfile, DASHBOARD_SYNC_INTERVAL_MS)
+    window.addEventListener(DASHBOARD_CHANGE_EVENT, syncProfile)
     window.addEventListener("focus", syncProfile)
-    window.addEventListener("storage", syncProfile)
+    window.addEventListener("storage", onStorage)
 
     return () => {
       stopObserving()
-      window.clearInterval(timer)
+      window.removeEventListener(DASHBOARD_CHANGE_EVENT, syncProfile)
       window.removeEventListener("focus", syncProfile)
-      window.removeEventListener("storage", syncProfile)
+      window.removeEventListener("storage", onStorage)
     }
   }, [])
 
@@ -60,7 +62,6 @@ export default function FacilitatorPanelGate() {
     }
 
     syncParticipation()
-    const timer = window.setInterval(syncParticipation, 750)
     window.addEventListener("focus", syncParticipation)
     window.addEventListener("storage", syncParticipation)
     window.addEventListener(
@@ -69,7 +70,6 @@ export default function FacilitatorPanelGate() {
     )
 
     return () => {
-      window.clearInterval(timer)
       window.removeEventListener("focus", syncParticipation)
       window.removeEventListener("storage", syncParticipation)
       window.removeEventListener(

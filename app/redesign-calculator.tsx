@@ -6,10 +6,12 @@ import ProfileAnalyzer from "@/components/arcade/profile-analyzer"
 import { DashboardPanel, SectionTitle as PanelTitle } from "@/components/arcade/ui/dashboard-kit"
 import { profilePointSummary } from "@/components/arcade/profile-point-summary"
 import ReleasedPointsPanel from "@/components/arcade/released-points-panel"
+import TierPredictionPanel from "@/components/arcade/tier-prediction-panel"
+import type { ScoreCheck } from "@/components/arcade/tier-prediction"
 import DashboardTiers from "@/components/arcade/dashboard-tiers"
 import GuestDashboard from "@/components/arcade/guest-dashboard"
 import PreviewModeToolbar from "@/components/arcade/preview-mode-toolbar"
-import { readStoredDashboard, type DashboardViewMode } from "@/components/arcade/dashboard-state"
+import { notifyDashboardChanged, readStoredDashboard, type DashboardViewMode } from "@/components/arcade/dashboard-state"
 import { useTierSlotHistory } from "@/components/arcade/tier-slot-history"
 import {
   getWebsiteLocale,
@@ -25,6 +27,8 @@ import {
   Gamepad2,
   GraduationCap,
   ShieldCheck,
+  Search,
+  X,
   Star,
   Trophy,
   Users,
@@ -37,7 +41,7 @@ import {
   PREVIEW_DEBUG_PROFILE_RESULT,
   PREVIEW_DEBUG_PROFILE_URL,
 } from "@/components/arcade/preview-debug-profile"
-import { readFacilitatorParticipation } from "@/components/arcade/facilitator-participation"
+import { FACILITATOR_PARTICIPATION_EVENT, readFacilitatorParticipation } from "@/components/arcade/facilitator-participation"
 import {
   API_URL,
   DASHBOARD_STORAGE_KEY,
@@ -193,10 +197,12 @@ export default function RedesignCalculator({
   const [viewMode, setViewMode] = useState<DashboardViewMode>("guest")
   const [usingPreviewFakeProfile, setUsingPreviewFakeProfile] = useState(false)
   const [viewModeRestored, setViewModeRestored] = useState(false)
+  const [predictionCheck, setPredictionCheck] = useState<ScoreCheck | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [filter, setFilter] = useState<BadgeFilter>("all")
-  const [showAllBadges, setShowAllBadges] = useState(false)
+  const [badgeSearch, setBadgeSearch] = useState("")
+  const [visibleBadgeCount, setVisibleBadgeCount] = useState(BADGE_PREVIEW_LIMIT)
   const [facilitatorParticipation, setFacilitatorParticipation] =
     useState<FacilitatorParticipationState>({
       profileUrl: "",
@@ -274,6 +280,7 @@ export default function RedesignCalculator({
         DASHBOARD_STORAGE_KEY,
         JSON.stringify({ profileUrl: committedProfileUrl, result, checkedAt }),
       )
+      notifyDashboardChanged()
     } catch {
       // Storage is optional. The calculator still works without persistence.
     }
@@ -289,14 +296,14 @@ export default function RedesignCalculator({
     }
 
     syncParticipation()
-    const timer = window.setInterval(syncParticipation, 750)
     window.addEventListener("focus", syncParticipation)
     window.addEventListener("storage", syncParticipation)
+    window.addEventListener(FACILITATOR_PARTICIPATION_EVENT, syncParticipation)
 
     return () => {
-      window.clearInterval(timer)
       window.removeEventListener("focus", syncParticipation)
       window.removeEventListener("storage", syncParticipation)
+      window.removeEventListener(FACILITATOR_PARTICIPATION_EVENT, syncParticipation)
     }
   }, [committedProfileUrl])
 
@@ -326,12 +333,21 @@ export default function RedesignCalculator({
       special: [...(result.special ?? []), ...(result.completion ?? [])],
     }
 
-    return groups[filter]
+    return sortBadgesNewestFirst(groups[filter])
   }, [badges, filter, result])
 
-  const displayedBadges = showAllBadges
-    ? filteredBadges
-    : filteredBadges.slice(0, BADGE_PREVIEW_LIMIT)
+  const matchingBadges = useMemo(() => {
+    const normalize = (value: string) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase()
+    const query = normalize(badgeSearch.trim())
+    return query ? filteredBadges.filter((badge) => normalize(badge.title).includes(query)) : filteredBadges
+  }, [badgeSearch, filteredBadges])
+  const displayedBadges = matchingBadges.slice(0, visibleBadgeCount)
+  const remainingBadgeCount = Math.max(0, matchingBadges.length - displayedBadges.length)
+
+  useEffect(() => {
+    setBadgeSearch("")
+    setVisibleBadgeCount(BADGE_PREVIEW_LIMIT)
+  }, [result])
 
   const facilitatorParticipating =
     facilitatorParticipation.profileUrl === committedProfileUrl &&
@@ -462,11 +478,12 @@ export default function RedesignCalculator({
       setProfileUrl(normalized)
       setCommittedProfileUrl(normalized)
       setResult(payload)
+      setPredictionCheck({ at: new Date().toISOString(), points: Number(payload.arcadePoints?.totalPoints), complete: payload.beta?.scoreComplete === true })
       setCheckedAt(new Date().toISOString())
       setUsingPreviewFakeProfile(false)
       setViewMode("profile")
       setFilter("all")
-      setShowAllBadges(false)
+      setVisibleBadgeCount(BADGE_PREVIEW_LIMIT)
     } catch (caught) {
       if (abortControllerRef.current !== controller) return
 
@@ -535,16 +552,18 @@ export default function RedesignCalculator({
     setProfileUrl("")
     setCommittedProfileUrl("")
     setResult(null)
+    setPredictionCheck(null)
     setCheckedAt(undefined)
     setUsingPreviewFakeProfile(false)
     setViewMode("guest")
     setGuestProfileUrl("")
     setError("")
     setFilter("all")
-    setShowAllBadges(false)
+    setVisibleBadgeCount(BADGE_PREVIEW_LIMIT)
 
     try {
       window.localStorage.removeItem(DASHBOARD_STORAGE_KEY)
+      notifyDashboardChanged()
     } catch {
       // Reset in-memory state even if storage is unavailable.
     }
@@ -762,13 +781,44 @@ export default function RedesignCalculator({
                         aria-pressed={filter === item.value}
                         onClick={() => {
                           setFilter(item.value)
-                          setShowAllBadges(false)
+                          setVisibleBadgeCount(BADGE_PREVIEW_LIMIT)
                         }}
                       >
                         {scoreCatalog.messages[item.value]}
                       </button>
                     ))}
                   </div>
+                </div>
+
+                <div className="badge-search-row">
+                  <div className="badge-search-field" role="search">
+                    <Search aria-hidden="true" />
+                    <input
+                      className="badge-search-input"
+                      type="search"
+                      value={badgeSearch}
+                      placeholder={scoreCatalog.messages.searchBadges}
+                      aria-label={scoreCatalog.messages.searchBadges}
+                      onChange={(event) => {
+                        setBadgeSearch(event.target.value)
+                        setVisibleBadgeCount(BADGE_PREVIEW_LIMIT)
+                      }}
+                    />
+                    {badgeSearch && (
+                      <button className="clear-badge-search" type="button" aria-label={scoreCatalog.messages.clearBadgeSearch}
+                        onClick={() => {
+                          setBadgeSearch("")
+                          setVisibleBadgeCount(BADGE_PREVIEW_LIMIT)
+                        }}>
+                        <X aria-hidden="true" />
+                      </button>
+                    )}
+                  </div>
+                  <span className="badge-visible-count" aria-live="polite">
+                    {scoreCatalog.dynamic.showingBadges
+                      .replace("{shown}", scoreNumber(displayedBadges.length))
+                      .replace("{total}", scoreNumber(matchingBadges.length))}
+                  </span>
                 </div>
 
                 {displayedBadges.length > 0 ? (
@@ -802,14 +852,16 @@ export default function RedesignCalculator({
                 ) : (
                   <div className="empty-badge-state">
                     <BadgeCheck />
-                    <strong>{scoreCatalog.messages.noBadges}</strong>
-                    <span>{scoreCatalog.messages.chooseFilter}</span>
+                    <strong>{badgeSearch.trim() ? scoreCatalog.messages.noMatchingBadges : scoreCatalog.messages.noBadges}</strong>
+                    <span>{badgeSearch.trim() ? scoreCatalog.messages.searchHint : scoreCatalog.messages.chooseFilter}</span>
                   </div>
                 )}
 
-                {filteredBadges.length > BADGE_PREVIEW_LIMIT && (
-                  <button className="show-all-badges" type="button" onClick={() => setShowAllBadges((open) => !open)}>
-                    {showAllBadges ? scoreCatalog.messages.showFewer : scoreCatalog.dynamic.viewAllBadges.replace("{count}", scoreNumber(filteredBadges.length))}
+                {remainingBadgeCount > 0 && (
+                  <button className="show-all-badges" type="button"
+                    onClick={() => setVisibleBadgeCount((count) => Math.min(count + BADGE_PREVIEW_LIMIT, matchingBadges.length))}>
+                    {scoreCatalog.messages.loadMoreBadges}
+                    <span aria-hidden="true"> +{scoreNumber(Math.min(remainingBadgeCount, BADGE_PREVIEW_LIMIT))}</span>
                   </button>
                 )}
               </article>
@@ -884,6 +936,7 @@ export default function RedesignCalculator({
               catalog={activeHistoryLanguage.catalog}
               locale={activeHistoryLanguage.locale}
               activeTierPoints={qualifiedMilestone?.points}
+              prediction={<TierPredictionPanel profileUrl={committedProfileUrl} check={usingPreviewFakeProfile ? null : predictionCheck} feed={slotHistory.feed} catalog={activeHistoryLanguage.catalog} locale={activeHistoryLanguage.locale} estimatedBonus={points !== basePoints} />}
             />
           </div>
 

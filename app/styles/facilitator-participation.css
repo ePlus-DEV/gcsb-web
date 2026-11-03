@@ -383,8 +383,10 @@ html.light .analyzer-facilitator-switch::after {
   .facilitator-launcher {
     top: auto;
     right: 12px;
-    bottom: 78px;
+    bottom: calc(82px + env(safe-area-inset-bottom));
     min-width: 180px;
+    /* The Back to top button is stacked vertically, not beside this card. */
+    max-width: calc(100vw - 24px);
     padding: 9px 10px;
     border-left-width: 1px;
     transform: none;

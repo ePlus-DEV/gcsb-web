@@ -28,8 +28,8 @@ import {
   normalizeFacilitatorBadgeTitle,
   type FacilitatorTrack,
 } from "./facilitator-syllabus"
-import { formatNumber, numeric } from "./model"
-import { readActiveDashboard, observeDashboardMode, type StoredDashboard } from "./dashboard-state"
+import { DASHBOARD_STORAGE_KEY, formatNumber, numeric } from "./model"
+import { DASHBOARD_CHANGE_EVENT, readActiveDashboard, observeDashboardMode, type StoredDashboard } from "./dashboard-state"
 import {
   FACILITATOR_PARTICIPATION_EVENT,
   normalizeFacilitatorProfileUrl,
@@ -38,7 +38,6 @@ import {
   type FacilitatorParticipationDetail,
 } from "./facilitator-participation"
 
-const SYNC_INTERVAL_MS = 1_500
 const BONUS_MILESTONE_POINTS = 10
 const BONUS_GUIDE_URL =
   "https://rsvp.withgoogle.com/events/arcade-facilitator/bonus-milestone"
@@ -191,28 +190,29 @@ export default function FacilitatorPanel() {
   const closeRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
-    let previous: string | undefined
+    let previous: StoredDashboard | null | undefined
 
     const sync = () => {
-      const dashboard = readActiveDashboard()
-      const raw = JSON.stringify(dashboard)
-      if (raw === previous) return
-
-      previous = raw
-      setDashboard(dashboard)
+      const next = readActiveDashboard()
+      if (next === previous) return
+      previous = next
+      setDashboard(next)
+    }
+    const onStorage = (event: StorageEvent) => {
+      if (event.key === DASHBOARD_STORAGE_KEY || event.key === null) sync()
     }
 
     sync()
     const stopObserving = observeDashboardMode(sync)
-    const timer = window.setInterval(sync, SYNC_INTERVAL_MS)
+    window.addEventListener(DASHBOARD_CHANGE_EVENT, sync)
     window.addEventListener("focus", sync)
-    window.addEventListener("storage", sync)
+    window.addEventListener("storage", onStorage)
 
     return () => {
       stopObserving()
-      window.clearInterval(timer)
+      window.removeEventListener(DASHBOARD_CHANGE_EVENT, sync)
       window.removeEventListener("focus", sync)
-      window.removeEventListener("storage", sync)
+      window.removeEventListener("storage", onStorage)
     }
   }, [])
 
