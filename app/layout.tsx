@@ -35,6 +35,7 @@ import "./styles/halloween-season.css"
 import "./styles/guest-discovery.css"
 import "./styles/arcade-ui.css"
 import "./styles/interface-refresh.css"
+import "./styles/design-tokens.css"
 import "./styles/facilitator-bonus-milestone.css"
 import "./styles/swag-theme.css"
 

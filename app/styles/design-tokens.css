@@ -1,0 +1,41 @@
+/* Arcade Points semantic design tokens.
+ * Reference: docs/ui/DESIGN_SYSTEM.md.
+ * Tokens only: this stylesheet does not alter any existing visual selector.
+ * The Arcade Points logo is locked; no logo styling belongs here.
+ */
+:root,
+html.dark {
+  --ds-primary: #6d28d9;
+  --ds-primary-hover: #5b21b6;
+  --ds-on-primary: #ffffff;
+  --ds-link: #67e8f9;
+  --ds-bg: #050918;
+  --ds-surface: #0a1328;
+  --ds-surface-subtle: #0d1931;
+  --ds-text: #f7f9ff;
+  --ds-text-muted: #94a3b8;
+  --ds-border: #273657;
+  --ds-success: #43dc8b;
+  --ds-warning: #fbbf24;
+  --ds-danger: #fb7185;
+  --ds-focus: #a78bfa;
+  --ds-brand-gold: #ffd43b;
+}
+
+html.light {
+  --ds-primary: #6d28d9;
+  --ds-primary-hover: #5b21b6;
+  --ds-on-primary: #ffffff;
+  --ds-link: #0e7490;
+  --ds-bg: #f4f7ff;
+  --ds-surface: #ffffff;
+  --ds-surface-subtle: #eef2ff;
+  --ds-text: #172033;
+  --ds-text-muted: #475569;
+  --ds-border: #dbe3f2;
+  --ds-success: #15803d;
+  --ds-warning: #b45309;
+  --ds-danger: #be123c;
+  --ds-focus: #6d28d9;
+  --ds-brand-gold: #ffd43b;
+}

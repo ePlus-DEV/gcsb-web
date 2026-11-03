@@ -32,3 +32,13 @@ This website is **always multilingual**. Internationalization is not optional an
 - Files generated at `public/i18n/<locale>.json` are build/runtime output. Do not edit or commit them; edit `public/i18n/locales/<locale>.json` instead.
 - Before completing a UI PR, run the i18n generator/tests and verify at least English plus one non-English locale in the affected UI.
 - Tests must fail when a locale source file is missing, required shared UI copy is missing, placeholders are dropped, or compressed/multi-locale translation sources are introduced.
+
+## Design-system colors and light/dark mode — mandatory merge gate
+
+The canonical palette and UI rules are in **[docs/ui/DESIGN_SYSTEM.md](docs/ui/DESIGN_SYSTEM.md)**, implemented as semantic tokens in `app/styles/design-tokens.css`.
+
+- **Violet is the only primary interaction color** for new UI. Cyan/teal is secondary; green/amber/rose are status colors only; tier/chart colors remain categorical. Gold in the **locked Arcade logo** is not permission to modify or reinterpret logo artwork.
+- New UI colors **MUST** use `var(--ds-...)` tokens. No new raw HEX/RGB/HSL color values or raw Tailwind palette utilities in UI source without a same-line `design-color-exception: reason` annotation, documented in the PR. The incremental CI guard rejects violations; unchanged legacy colors are grandfathered.
+- Every visible UI change **MUST** be verified in both `html.light` and `html.dark`, including button hover/active, breadcrumbs, inputs, cards, overlays, icons and responsive states. Minimum contrast targets: WCAG AA 4.5:1 normal text, 3:1 large text and essential UI indicators.
+- Do not replace primary violet with unrelated cyan/green/blue CTAs, even if contrast passes. Do not make a theme change that affects the locked logo.
+- Include light/dark desktop/mobile screenshots in UI PRs, and check `node scripts/design-color-guard.mjs --base origin/main` plus unit/browser tests. Do not batch-rewrite legacy colors as part of unrelated changes.
