@@ -30,6 +30,7 @@ import {
   GraduationCap,
   Menu,
   ShieldCheck,
+  Search,
   Sparkles,
   Star,
   Trophy,
