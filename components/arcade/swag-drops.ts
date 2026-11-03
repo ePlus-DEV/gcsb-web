@@ -30,6 +30,29 @@ export type ArcadeSwagDrop = {
  */
 export const ARCADE_SWAG_DROPS: readonly ArcadeSwagDrop[] = [
   {
+    id: "arcade-lumisnap-magnetic-fill-light",
+    season: 2026,
+    dropNumber: 6,
+    name: "The Arcade LumiSnap Magnetic Fill Light",
+    shortName: "Arcade LumiSnap Magnetic Fill Light",
+    revealedOn: "November 3, 2026",
+    revealedOnIso: "2026-11-03",
+    tiers: ["champion", "legend"],
+    imageUrl:
+      "https://d2yds90mtvelsl.cloudfront.net/original/4X/e/9/1/e9120cb45a31b91d976db2cdc4cadb946ea675a0.gif",
+    sourceUrl:
+      "https://discuss.google.dev/t/swag-drop-the-arcade-lumisnap-magnetic-fill-light/410531",
+    summary:
+      "A pocket-sized magnetic fill light with adjustable color temperature and a folding phone stand, confirmed for the Arcade Champion and Legend tiers.",
+    features: [
+      "Three color temperatures (warm, neutral, and cool) with adjustable brightness",
+      "MagSafe-ready mounting, plus an adhesive magnetic ring for other phones",
+      "360° rotating hinge and 45 mm extendable arm for front or rear cameras",
+      "Integrated framing mirror and fold-out desk stand",
+      "Rechargeable 800 mAh battery with USB-C to USB-C charging cable",
+    ],
+  },
+  {
     id: "arcade-magic-mug",
     season: 2026,
     dropNumber: 5,

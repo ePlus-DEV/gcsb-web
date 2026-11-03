@@ -10,6 +10,7 @@ const routes = [
   "swag-drops/2026/",
   "swag-drops/2026/legend/",
   "swag-drops/2026/arcade-magic-mug/",
+  "swag-drops/2026/arcade-lumisnap-magnetic-fill-light/",
 ]
 let scenarios = 0
 

@@ -33,14 +33,14 @@ export const SWAG_TIER_META: Record<
     pointsLabel: "50–74 points",
     slots: 6000,
     rewardRule:
-      "Trooper is the foundational reward tier. The Arcade Travel Bottle is its first confirmed 2026 item; the remaining core-pack contents and final item count are unrevealed.",
+      "Trooper is the foundational reward tier. The Arcade Travel Bottle and Arcade Magic Mug are confirmed; the remaining core-pack contents and final item count are unrevealed.",
     allocationNote:
       "Trooper is the broadest 2026 prize pool. Waterfall can move eligible participants into this pool when higher-tier capacity is exhausted.",
     packageRule: "Core Trooper swag pack · historical estimate ≈5 items",
-    knownMinimumItems: "1+",
+    knownMinimumItems: "2+",
     knownMinimumNote:
-      "Official minimum: 1 confirmed Trooper item — the Arcade Travel Bottle. Historical estimate: about 5 items, based on the final 2025 Season 2 Trooper package.",
-    waitingNote: "The Arcade Travel Bottle is confirmed for Trooper; the remaining core-pack items have not been revealed yet.",
+      "Official minimum: 2 confirmed Trooper items — the Arcade Travel Bottle and Arcade Magic Mug. Historical estimate: about 5 items, based on the final 2025 Season 2 Trooper package.",
+    waitingNote: "The Arcade Travel Bottle and Arcade Magic Mug are confirmed for Trooper; the remaining core-pack items have not been revealed yet.",
     historicalEstimateItems: 5,
     historicalEstimateLabel: "≈5 items",
     historicalEstimateBasis:
@@ -62,14 +62,14 @@ export const SWAG_TIER_META: Record<
     pointsLabel: "75–94 points",
     slots: 4000,
     rewardRule:
-      "Ranger receives the Trooper core pack, including the Arcade Travel Bottle, plus the exclusive Ranger bonus reward, the Arcade Backpack.",
+      "Ranger receives the Trooper core pack, including the Arcade Travel Bottle and Arcade Magic Mug, plus the exclusive Ranger bonus reward, the Arcade Backpack.",
     allocationNote:
       "Ranger has its own prize-slot pool. Waterfall allocation is separate from the reward bundle inheritance between Ranger and Trooper.",
     packageRule: "Trooper pack + 1 Ranger bonus · historical estimate ≈6 items",
-    knownMinimumItems: "2+",
+    knownMinimumItems: "3+",
     knownMinimumNote:
-      "Official minimum: 2 confirmed Ranger items — the Arcade Travel Bottle from Trooper and the Ranger-exclusive Arcade Backpack. Historical estimate: about 6 items.",
-    waitingNote: "The Arcade Travel Bottle and Arcade Backpack are confirmed for Ranger; other Trooper-family items have not yet been revealed.",
+      "Official minimum: 3 confirmed Ranger items — the Arcade Travel Bottle and Arcade Magic Mug from Trooper, plus the Ranger-exclusive Arcade Backpack. Historical estimate: about 6 items.",
+    waitingNote: "The Arcade Travel Bottle, Arcade Magic Mug, and Arcade Backpack are confirmed for Ranger; other Trooper-family items have not yet been revealed.",
     historicalEstimateItems: 6,
     historicalEstimateLabel: "≈6 items",
     historicalEstimateBasis:
@@ -91,14 +91,14 @@ export const SWAG_TIER_META: Record<
     pointsLabel: "95–119 points",
     slots: 3000,
     rewardRule:
-      "Champion collection — the Weather-Shield Jacket and Arcade PopUp Pro are confirmed; further items are unrevealed.",
+      "Champion collection — the Weather-Shield Jacket, Arcade PopUp Pro, and LumiSnap Magnetic Fill Light are confirmed; further items are unrevealed.",
     allocationNote:
       "Champion has 3,000 prize slots. If a higher-tier pool fills, Waterfall determines how eligible participants roll into the next prize pool.",
     packageRule: "High-tier Champion collection · historical estimate ≈6 items",
-    knownMinimumItems: "2+",
+    knownMinimumItems: "3+",
     knownMinimumNote:
-      "Official minimum: 2 confirmed rewards — the Weather-Shield Jacket and Arcade PopUp Pro. Historical estimate: about 6 items, based on the final 2025 Champion package.",
-    waitingNote: "Champion collection — the Weather-Shield Jacket and Arcade PopUp Pro are confirmed; further items are unrevealed.",
+      "Official minimum: 3 confirmed Champion rewards — the Weather-Shield Jacket, Arcade PopUp Pro, and LumiSnap Magnetic Fill Light. Historical estimate: about 6 items, based on the final 2025 Champion package.",
+    waitingNote: "Champion collection — the Weather-Shield Jacket, Arcade PopUp Pro, and LumiSnap Magnetic Fill Light are confirmed; further items are unrevealed.",
     historicalEstimateItems: 6,
     historicalEstimateLabel: "≈6 items",
     historicalEstimateBasis:
@@ -125,9 +125,9 @@ export const SWAG_TIER_META: Record<
     allocationNote:
       "Legend is the highest 2026 prize tier with 2,500 slots. Waterfall applies to prize-slot allocation, not to which swag belongs to a tier.",
     packageRule: "Champion pack + 1 Legend exclusive · historical estimate ≈7 items",
-    knownMinimumItems: "3+",
+    knownMinimumItems: "4+",
     knownMinimumNote:
-      "Official minimum: 3 items — the two confirmed Champion rewards plus one promised Legend-exclusive reward. Historical estimate: about 7 items, based on the final 2025 Legend package.",
+      "Official minimum: 4 items — the three confirmed Champion rewards plus one promised Legend-exclusive reward. Historical estimate: about 7 items, based on the final 2025 Legend package.",
     waitingNote: "Legend-only reward — item name and details have not been revealed yet.",
     historicalEstimateItems: 7,
     historicalEstimateLabel: "≈7 items",

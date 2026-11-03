@@ -1,6 +1,7 @@
 import assert from "node:assert/strict"
 import { readFileSync } from "node:fs"
 import test from "node:test"
+import { evaluateTypeScript, readRepoFile } from "./helpers/typescript-source.mjs"
 
 const locales = [
   "en",
@@ -218,6 +219,114 @@ test("Arcade Travel Bottle announcement and tier details are translated in every
         `${locale} missing Arcade Travel Bottle translation: ${source}`)
       assert.ok(catalog.additional[source].trim().length > 0,
         `${locale} has empty Arcade Travel Bottle translation: ${source}`)
+    }
+  }
+})
+
+
+/**
+ * Prevent new or updated swag drops from silently falling back to English.
+ * The strings come from the actual source registries, not manually maintained
+ * test lists, so new gifts automatically become part of this merge gate.
+ */
+test("all 2026 swag product details are translated in every website locale", () => {
+  const { ARCADE_SWAG_DROPS } = evaluateTypeScript(
+    readRepoFile("components/arcade/swag-drops.ts"),
+    "swag-drops.ts",
+  )
+  for (const locale of locales) {
+    const additional = readCatalog(locale).additional
+    for (const drop of ARCADE_SWAG_DROPS) {
+      const visible = [
+        drop.name, drop.shortName, drop.revealedOn, drop.summary, ...drop.features,
+      ]
+      for (const source of visible) {
+        assert.ok(
+          typeof additional[source] === "string" && additional[source].trim(),
+          `${locale} missing ${drop.id}: ${source}`,
+        )
+      }
+      if (locale !== "en") {
+        for (const source of [drop.revealedOn, drop.summary, ...drop.features]) {
+          assert.notEqual(
+            additional[source], source,
+            `${locale} has untranslated ${drop.id} text: ${source}`,
+          )
+        }
+      }
+    }
+  }
+})
+
+test("all current tier rules and package outlook descriptions are localized", () => {
+  const source = readRepoFile("components/arcade/swag-seasons.ts")
+  const keys = [...new Set(
+    [...source.matchAll(
+      /(?:rewardRule|allocationNote|packageRule|knownMinimumNote|waitingNote|historicalEstimateBasis):\s*"([^"]+)"/g,
+    )].map((match) => match[1]),
+  )]
+  assert.ok(keys.length >= 23, "Expected every current tier's source copy")
+  for (const locale of locales) {
+    const additional = readCatalog(locale).additional
+    for (const key of keys) {
+      assert.ok(
+        typeof additional[key] === "string" && additional[key].trim(),
+        `${locale} missing current tier copy: ${key}`,
+      )
+      if (locale !== "en") {
+        assert.notEqual(
+          additional[key], key,
+          `${locale} retained English for current tier: ${key}`,
+        )
+      }
+    }
+  }
+})
+
+test("all 2025 historical reward names have locale translations", () => {
+  const source = readRepoFile("components/arcade/swag-history.ts")
+  const names = [...new Set(
+    [...source.matchAll(/(?:announcement|deliveryEvidence)\(\s*"([^"]+)"/g)]
+      .map((match) => match[1]),
+  )]
+  assert.ok(names.length >= 32, "Expected historical rewards from both 2025 seasons")
+  for (const locale of locales) {
+    const additional = readCatalog(locale).additional
+    for (const sourceName of names) {
+      assert.ok(
+        typeof additional[sourceName] === "string" && additional[sourceName].trim(),
+        `${locale} missing 2025 reward name: ${sourceName}`,
+      )
+      if (locale !== "en") {
+        assert.notEqual(
+          additional[sourceName], sourceName,
+          `${locale} has untranslated 2025 reward name: ${sourceName}`,
+        )
+      }
+    }
+  }
+})
+
+
+test("2025 archive season labels and reward distribution rules are localized", () => {
+  const source = readRepoFile("components/arcade/swag-history.ts")
+  const labels = [...source.matchAll(
+    /(?:label|periodLabel|distributionRule):\s*"([^"]+)"/g,
+  )].map((match) => match[1])
+  assert.equal(labels.length, 6)
+  for (const locale of locales) {
+    const additional = readCatalog(locale).additional
+    for (const label of labels) {
+      assert.ok(
+        typeof additional[label] === "string" && additional[label].trim(),
+        `${locale} missing 2025 archive text: ${label}`,
+      )
+      if (locale !== "en") {
+        assert.notEqual(
+          additional[label], label,
+          `${locale} has untranslated 2025 archive text: ${label}`,
+        )
+      }
     }
   }
 })
