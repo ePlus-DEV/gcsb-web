@@ -635,7 +635,17 @@
     "__prediction:crawlLag": "The crawler snapshot is {duration} older than the score check. Slot availability may have changed in between.",
     "__prediction:evidenceLag": "The supporting historical snapshot preceded that score check by {duration}; this is a clue, not a secured slot.",
     "__prediction:staleSnapshot": "The crawler snapshot is {duration} older than the check (over 48 hours). It cannot support a current fallback.",
-    "__prediction:noOpenSlots": "Every score-eligible tier shows zero slots in this snapshot. Any earlier allocation remains unknown."
+    "__prediction:noOpenSlots": "Every score-eligible tier shows zero slots in this snapshot. Any earlier allocation remains unknown.",
+    "The Arcade Magic Mug": "The Arcade Magic Mug",
+    "Arcade Magic Mug": "Arcade Magic Mug",
+    "October 23, 2026": "October 23, 2026",
+    "A heat-reactive white mug that reveals a hidden Arcade design when filled with a hot drink, confirmed for Trooper and Ranger tiers.": "A heat-reactive white mug that reveals a hidden Arcade design when filled with a hot drink, confirmed for Trooper and Ranger tiers.",
+    "Minimal white appearance when cool": "Minimal white appearance when cool",
+    "Hidden Arcade artwork appears when heated by coffee or tea": "Hidden Arcade artwork appears when heated by coffee or tea",
+    "Solid, comfortable feel for everyday use": "Solid, comfortable feel for everyday use",
+    "Described as eco-friendly in the official announcement": "Described as eco-friendly in the official announcement",
+    "The Arcade Weather-Shield Jacket": "The Arcade Weather-Shield Jacket",
+    "Weather-Shield Jacket": "Weather-Shield Jacket"
   },
   "dynamic": {
     "memberSince": "Member since {value}",
