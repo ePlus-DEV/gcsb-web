@@ -1,0 +1,147 @@
+/* Phase 1: apply the approved Arcade Points semantic palette to common UI.
+ * Source of truth: docs/ui/DESIGN_SYSTEM.md and design-tokens.css.
+ * This stylesheet intentionally leaves the locked logo, tier identities,
+ * charts, earned badges, provider art, and status colors untouched.
+ * It loads last so the older dark/light overrides cannot recolor CTAs.
+ */
+
+/* One violet primary action across Dashboard, cookie notice, Facilitator and Swag. */
+.arcade-dashboard-page .analyze-button,
+.cookie-consent-button,
+.facilitator-empty button,
+html:is(.light, .dark) .swag-season-page .swag-action-primary,
+html:is(.light, .dark) .facilitator-drawer
+  .bonus-milestone-confirmation-button:not(.is-completed):not(.is-secondary) {
+  border-color: var(--ds-primary);
+  background: var(--ds-primary);
+  color: var(--ds-on-primary);
+}
+
+.arcade-dashboard-page .analyze-button:hover:not(:disabled),
+.cookie-consent-button:hover,
+.facilitator-empty button:hover:not(:disabled),
+html:is(.light, .dark) .swag-season-page .swag-action-primary:hover,
+html:is(.light, .dark) .facilitator-drawer
+  .bonus-milestone-confirmation-button:not(.is-completed):not(.is-secondary):hover:not(:disabled) {
+  border-color: var(--ds-primary-hover);
+  background: var(--ds-primary-hover);
+  color: var(--ds-on-primary);
+}
+
+/* Secondary actions are neutral: they must not look like additional CTAs. */
+.cookie-consent-detail-button,
+html:is(.light, .dark) .swag-season-page .swag-action-outline,
+html:is(.light, .dark) .swag-season-page .swag-action-chip,
+.arcade-dashboard-page .show-all-badges {
+  border-color: var(--ds-border);
+  background: var(--ds-surface);
+  color: var(--ds-text);
+}
+
+.cookie-consent-detail-button:hover,
+html:is(.light, .dark) .swag-season-page .swag-action-outline:hover,
+html:is(.light, .dark) .swag-season-page .swag-action-chip:hover,
+.arcade-dashboard-page .show-all-badges:hover {
+  border-color: var(--ds-focus);
+  background: var(--ds-surface-subtle);
+  color: var(--ds-text);
+}
+
+.cookie-consent-detail-button[aria-expanded="true"] {
+  border-color: var(--ds-focus);
+  color: var(--ds-text);
+}
+
+/* Navigation and controls use violet selection, not competing cyan gradients. */
+.arcade-dashboard-page .arcade-nav a.active::after,
+.arcade-dashboard-page .arcade-nav a:hover::after {
+  background: var(--ds-primary);
+  box-shadow: none;
+}
+
+html.light .arcade-dashboard-page .arcade-nav a.active {
+  color: var(--ds-primary);
+}
+
+html.dark .arcade-dashboard-page .arcade-nav a.active {
+  color: var(--ds-text);
+}
+
+.arcade-dashboard-page .badge-filters button.active {
+  border-color: var(--ds-primary);
+  background: var(--ds-primary);
+  color: var(--ds-on-primary);
+}
+
+.arcade-dashboard-page .badge-filters button:not(.active):hover {
+  border-color: var(--ds-focus);
+  color: var(--ds-text);
+}
+
+.arcade-dashboard-page .mobile-bottom-nav a.is-active {
+  color: var(--ds-focus);
+}
+
+.arcade-dashboard-page .profile-input:focus-within,
+.arcade-dashboard-page .badge-search-field:focus-within {
+  border-color: var(--ds-focus);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--ds-focus) 20%, transparent);
+}
+
+.arcade-dashboard-page :where(a, button, input, summary):focus-visible,
+.cookie-consent-button:focus-visible,
+.cookie-consent-detail-button:focus-visible,
+.website-theme-toggle:focus-visible,
+html:is(.light, .dark) .swag-season-page :is(a, button):focus-visible {
+  outline: 2px solid var(--ds-focus);
+  outline-offset: 3px;
+}
+
+/* Breadcrumbs and informational links stay secondary rather than CTA violet. */
+html:is(.light, .dark) .internal-breadcrumb-link,
+html:is(.light, .dark) .internal-back-link,
+html:is(.light, .dark) .swag-season-page .swag-action-text,
+.arcade-dashboard-page .tier-prediction a {
+  color: var(--ds-link);
+}
+
+html:is(.light, .dark) .internal-breadcrumb-link:hover,
+html:is(.light, .dark) .internal-back-link:hover,
+html:is(.light, .dark) .swag-season-page .swag-action-text:hover,
+.arcade-dashboard-page .tier-prediction a:hover {
+  color: var(--ds-link);
+  text-decoration: underline;
+}
+
+html:is(.light, .dark) .internal-breadcrumb-current {
+  color: var(--ds-text);
+}
+
+/* Facilitator is a secondary app surface, not a competing cyan brand. */
+html:is(.light, .dark) .facilitator-launcher {
+  border-color: var(--ds-border);
+  background: var(--ds-surface);
+  color: var(--ds-text);
+}
+
+html:is(.light, .dark) .facilitator-launcher:hover {
+  border-color: var(--ds-focus);
+}
+
+html:is(.light, .dark) .facilitator-launcher > svg:first-child {
+  color: var(--ds-focus);
+}
+
+html:is(.light, .dark) .facilitator-launcher small {
+  color: var(--ds-text-muted);
+}
+
+/* Preserve green completed-state badges and tier/status-specific colors. */
+html:is(.light, .dark) .facilitator-drawer .facilitator-syllabus-toolbar > div button.is-active,
+html:is(.light, .dark) .facilitator-drawer .facilitator-track-filters button.is-active {
+  border-color: var(--ds-focus);
+  background: var(--ds-surface-subtle);
+  color: var(--ds-text);
+}
+
+/* Reduced-motion and disabled behavior come from the existing components. */
