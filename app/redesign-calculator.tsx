@@ -1,6 +1,9 @@
 "use client"
 
+import ArcadeBrandGamepad from "@/components/arcade/arcade-brand-gamepad"
 import Link from "next/link"
+import ProfileAnalyzer from "@/components/arcade/profile-analyzer"
+import { DashboardPanel, SectionTitle as PanelTitle, MetricStat as Stat } from "@/components/arcade/ui/dashboard-kit"
 import { profilePointSummary } from "@/components/arcade/profile-point-summary"
 import ReleasedPointsPanel from "@/components/arcade/released-points-panel"
 import TierPredictionPanel from "@/components/arcade/tier-prediction-panel"
@@ -8,7 +11,8 @@ import type { ScoreCheck } from "@/components/arcade/tier-prediction"
 import DashboardTiers from "@/components/arcade/dashboard-tiers"
 import GuestDashboard from "@/components/arcade/guest-dashboard"
 import PreviewModeToolbar from "@/components/arcade/preview-mode-toolbar"
-import { readStoredDashboard, type DashboardViewMode } from "@/components/arcade/dashboard-state"
+import MobileBottomNav from "@/components/arcade/mobile-bottom-nav"
+import { notifyDashboardChanged, readStoredDashboard, type DashboardViewMode } from "@/components/arcade/dashboard-state"
 import { useTierSlotHistory } from "@/components/arcade/tier-slot-history"
 import {
   getWebsiteLocale,
@@ -26,11 +30,9 @@ import {
   Gamepad2,
   Globe2,
   GraduationCap,
-  LoaderCircle,
   Menu,
-  RefreshCcw,
-  Search,
   ShieldCheck,
+  Search,
   Sparkles,
   Star,
   Trophy,
@@ -46,7 +48,7 @@ import {
   PREVIEW_DEBUG_PROFILE_RESULT,
   PREVIEW_DEBUG_PROFILE_URL,
 } from "@/components/arcade/preview-debug-profile"
-import { readFacilitatorParticipation } from "@/components/arcade/facilitator-participation"
+import { FACILITATOR_PARTICIPATION_EVENT, readFacilitatorParticipation } from "@/components/arcade/facilitator-participation"
 import {
   API_URL,
   ARCADE_MILESTONES_URL,
@@ -216,8 +218,51 @@ export default function RedesignCalculator({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [filter, setFilter] = useState<BadgeFilter>("all")
-  const [showAllBadges, setShowAllBadges] = useState(false)
+  const [badgeSearch, setBadgeSearch] = useState("")
+  const [visibleBadgeCount, setVisibleBadgeCount] = useState(BADGE_PREVIEW_LIMIT)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const menuToggleRef = useRef<HTMLButtonElement>(null)
+  const headerRef = useRef<HTMLElement>(null)
+  // Header height can grow when navigation or translations wrap at tablet widths.
+  // Keep sticky Tiers below its actual size rather than a fixed 72px assumption.
+  useEffect(() => {
+    const header = headerRef.current
+    const dashboard = header?.closest<HTMLElement>(".arcade-dashboard-page")
+    if (!header || !dashboard) return
+
+    const syncHeaderHeight = () => {
+      dashboard.style.setProperty(
+        "--arcade-sticky-header-height",
+        `${Math.ceil(header.getBoundingClientRect().height)}px`,
+      )
+    }
+    syncHeaderHeight()
+    const observer = typeof ResizeObserver !== "undefined"
+      ? new ResizeObserver(syncHeaderHeight)
+      : null
+    observer?.observe(header)
+    window.addEventListener("resize", syncHeaderHeight)
+    return () => {
+      observer?.disconnect()
+      window.removeEventListener("resize", syncHeaderHeight)
+      dashboard.style.removeProperty("--arcade-sticky-header-height")
+    }
+  }, [])
+  useEffect(() => {
+    if (!mobileMenuOpen) return
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return
+      setMobileMenuOpen(false)
+      menuToggleRef.current?.focus()
+    }
+    const onResize = () => { if (window.innerWidth > 1100) setMobileMenuOpen(false) }
+    window.addEventListener("keydown", onKey)
+    window.addEventListener("resize", onResize)
+    return () => {
+      window.removeEventListener("keydown", onKey)
+      window.removeEventListener("resize", onResize)
+    }
+  }, [mobileMenuOpen])
   const [facilitatorParticipation, setFacilitatorParticipation] =
     useState<FacilitatorParticipationState>({
       profileUrl: "",
@@ -318,6 +363,7 @@ export default function RedesignCalculator({
         DASHBOARD_STORAGE_KEY,
         JSON.stringify({ profileUrl: committedProfileUrl, result }),
       )
+      notifyDashboardChanged()
     } catch {
       // Storage is optional. The calculator still works without persistence.
     }
@@ -333,14 +379,14 @@ export default function RedesignCalculator({
     }
 
     syncParticipation()
-    const timer = window.setInterval(syncParticipation, 750)
     window.addEventListener("focus", syncParticipation)
     window.addEventListener("storage", syncParticipation)
+    window.addEventListener(FACILITATOR_PARTICIPATION_EVENT, syncParticipation)
 
     return () => {
-      window.clearInterval(timer)
       window.removeEventListener("focus", syncParticipation)
       window.removeEventListener("storage", syncParticipation)
+      window.removeEventListener(FACILITATOR_PARTICIPATION_EVENT, syncParticipation)
     }
   }, [committedProfileUrl])
 
@@ -441,12 +487,21 @@ export default function RedesignCalculator({
       special: [...(result.special ?? []), ...(result.completion ?? [])],
     }
 
-    return groups[filter]
+    return sortBadgesNewestFirst(groups[filter])
   }, [badges, filter, result])
 
-  const displayedBadges = showAllBadges
-    ? filteredBadges
-    : filteredBadges.slice(0, BADGE_PREVIEW_LIMIT)
+  const matchingBadges = useMemo(() => {
+    const normalize = (value: string) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase()
+    const query = normalize(badgeSearch.trim())
+    return query ? filteredBadges.filter((badge) => normalize(badge.title).includes(query)) : filteredBadges
+  }, [badgeSearch, filteredBadges])
+  const displayedBadges = matchingBadges.slice(0, visibleBadgeCount)
+  const remainingBadgeCount = Math.max(0, matchingBadges.length - displayedBadges.length)
+
+  useEffect(() => {
+    setBadgeSearch("")
+    setVisibleBadgeCount(BADGE_PREVIEW_LIMIT)
+  }, [result])
 
   const facilitatorParticipating =
     facilitatorParticipation.profileUrl === committedProfileUrl &&
@@ -577,7 +632,7 @@ export default function RedesignCalculator({
       setUsingPreviewFakeProfile(false)
       setViewMode("profile")
       setFilter("all")
-      setShowAllBadges(false)
+      setVisibleBadgeCount(BADGE_PREVIEW_LIMIT)
     } catch (caught) {
       if (abortControllerRef.current !== controller) return
 
@@ -612,10 +667,11 @@ export default function RedesignCalculator({
     setGuestProfileUrl("")
     setError("")
     setFilter("all")
-    setShowAllBadges(false)
+    setVisibleBadgeCount(BADGE_PREVIEW_LIMIT)
 
     try {
       window.localStorage.removeItem(DASHBOARD_STORAGE_KEY)
+      notifyDashboardChanged()
     } catch {
       // Reset in-memory state even if storage is unavailable.
     }
@@ -677,30 +733,30 @@ export default function RedesignCalculator({
 
   return (
     <main
-      className="arcade-dashboard-page arcade-dashboard-v2"
+      className="arcade-dashboard-page arcade-dashboard-v2 arcade-ui-refresh"
       data-dashboard-view={viewMode}
       data-dashboard-debug-fake={usingPreviewFakeProfile ? "true" : undefined}
     >
       <div className="arcade-stars" aria-hidden="true" />
 
-      <header className="arcade-header">
-        <a className="arcade-brand" href="#top" aria-label="Arcade Points home">
-          <span className="arcade-brand-mark"><Gamepad2 /></span>
+      <header ref={headerRef} className="arcade-header">
+        <a className="arcade-brand" href="#top" aria-label={scoreCatalog.messages.backToCalculator}>
+          <span className="arcade-brand-mark"><ArcadeBrandGamepad /></span>
           <span className="arcade-brand-copy"><strong>ARCADE</strong><b>POINTS</b></span>
           <em>PRO</em>
         </a>
 
-        <nav className={mobileMenuOpen ? "arcade-nav is-open" : "arcade-nav"}>
-          <a className="active" href="#calculator" onClick={() => setMobileMenuOpen(false)}>Calculator</a>
-          <a href="#tiers" onClick={() => setMobileMenuOpen(false)}>Tiers</a>
-          {viewMode === "profile" && <a href="#badges" onClick={() => setMobileMenuOpen(false)}>Badges</a>}
-          <a href="#extension" onClick={() => setMobileMenuOpen(false)}>Extension</a>
+        <nav id="arcade-primary-navigation" className={mobileMenuOpen ? "arcade-nav is-open" : "arcade-nav"}>
+          <a className="active" href="#calculator" onClick={() => setMobileMenuOpen(false)}>{scoreCatalog.messages.calculator}</a>
+          <a href="#tiers" onClick={() => setMobileMenuOpen(false)}>{scoreCatalog.messages.tiers}</a>
+          {viewMode === "profile" && <a href="#badges" onClick={() => setMobileMenuOpen(false)}>{scoreCatalog.messages.badges}</a>}
+          <a href="#extension" onClick={() => setMobileMenuOpen(false)}>{scoreCatalog.messages.extension}</a>
           <Link
             data-arcade-swag-nav="true"
             href={swagSeasonPath(CURRENT_SWAG_SEASON)}
             onClick={() => setMobileMenuOpen(false)}
-          >Swag Drops</Link>
-          <a href="#monthly-games" onClick={() => setMobileMenuOpen(false)}>Monthly labs</a>
+          >{scoreCatalog.additional["Swag Drops"]}</Link>
+          <a href="#monthly-games" onClick={() => setMobileMenuOpen(false)}>{scoreCatalog.messages.guestLabsLabel}</a>
         </nav>
 
         <div className="arcade-header-actions">
@@ -709,7 +765,7 @@ export default function RedesignCalculator({
             href={CHROME_EXTENSION_URL}
             target="_blank"
             rel="noreferrer noopener"
-            aria-label="Install the extension from Chrome Web Store"
+            aria-label={scoreCatalog.messages.installChrome}
           >
             <Chrome /> <span>Chrome</span>
           </a>
@@ -718,15 +774,17 @@ export default function RedesignCalculator({
             href={FIREFOX_EXTENSION_URL}
             target="_blank"
             rel="noreferrer noopener"
-            aria-label="Install the extension from Firefox Add-ons"
+            aria-label={scoreCatalog.messages.installFirefox}
           >
             <Globe2 /> <span>Firefox</span>
           </a>
           <button
             className="mobile-menu-toggle"
+            ref={menuToggleRef}
             type="button"
             aria-expanded={mobileMenuOpen}
-            aria-label={mobileMenuOpen ? "Close navigation" : "Open navigation"}
+            aria-controls="arcade-primary-navigation"
+            aria-label={mobileMenuOpen ? scoreCatalog.messages.closeNavigation : scoreCatalog.messages.openNavigation}
             onClick={() => setMobileMenuOpen((open) => !open)}
           >
             {mobileMenuOpen ? <X /> : <Menu />}
@@ -754,46 +812,21 @@ export default function RedesignCalculator({
             {heroCopy?.description ?? activeHistoryLanguage.catalog.messages.heroDescription}
           </p>
           <div className="trust-pills">
-            <span><ShieldCheck /> Public profile data only</span>
-            <span><BadgeCheck /> No Google sign-in required</span>
+            <span><ShieldCheck />{scoreCatalog.messages.publicDataOnly}</span>
+            <span><BadgeCheck />{scoreCatalog.messages.noSignIn}</span>
           </div>
         </div>
 
-        <div id="calculator" className="profile-analyzer-card">
-          <div className="analyzer-title"><span>1</span> Paste your public profile URL</div>
-          <form onSubmit={analyzeProfile} noValidate>
-            <label className={error ? "profile-input has-error" : "profile-input"}>
-              <Search />
-              <input
-                type="url"
-                inputMode="url"
-                autoComplete="url"
-                value={viewMode === "guest" ? guestProfileUrl : profileUrl}
-                onChange={(event) => viewMode === "guest" ? setGuestProfileUrl(event.target.value) : setProfileUrl(event.target.value)}
-                placeholder="https://www.skills.google/my_account/profile/..."
-                aria-label="Google Skills public profile URL"
-              />
-              {(viewMode === "guest" ? guestProfileUrl : profileUrl) && (
-                <button type="button" aria-label="Clear profile URL" onClick={() => viewMode === "guest" ? setGuestProfileUrl("") : setProfileUrl("")}>
-                  <X />
-                </button>
-              )}
-            </label>
-            <button className="analyze-button" type="submit" disabled={loading}>
-              {loading ? <LoaderCircle className="spin" /> : <Trophy />}
-              {loading ? "Analyzing..." : "Analyze profile"}
-            </button>
-          </form>
-          {error && <p className="analyzer-error" role="alert">{error}</p>}
-          <div className="analyzer-help-row">
-            <a href="https://www.skills.google/my_account/profile" target="_blank" rel="noreferrer">
-              <CircleHelp /> How to find your public profile <ExternalLink />
-            </a>
-            {result && viewMode === "profile" && (
-              <button type="button" onClick={resetResult}><RefreshCcw /> Reset result</button>
-            )}
-          </div>
-        </div>
+        <ProfileAnalyzer
+          catalog={activeHistoryLanguage.catalog}
+          value={viewMode === "guest" ? guestProfileUrl : profileUrl}
+          onChange={value => viewMode === "guest" ? setGuestProfileUrl(value) : setProfileUrl(value)}
+          onSubmit={analyzeProfile}
+          onReset={resetResult}
+          loading={loading}
+          error={error}
+          hasResult={Boolean(result) && viewMode === "profile"}
+        />
       </section>
 
       {/* Stable portal anchor: keeps countdown placement identical for every locale. */}
@@ -806,7 +839,7 @@ export default function RedesignCalculator({
       {showProfileDashboard ? (
         <section className="dashboard-shell" aria-label="Arcade profile results" data-home-order="dashboard-results">
           <div className="dashboard-summary-grid" data-home-order="dashboard-summary">
-            <article className="dashboard-panel profile-panel">
+            <DashboardPanel className="profile-panel">
               <PanelTitle>{scoreCatalog.messages.profileSummary}</PanelTitle>
               <div className="profile-overview">
                 <div className="profile-photo">
@@ -826,9 +859,9 @@ export default function RedesignCalculator({
                 <Stat value={scoreNumber(points)} label={scoreCatalog.messages.arcadePoints} icon={<Sparkles />} />
                 <Stat value={qualifiedMilestone?.league.replace("Arcade ", "") ?? "—"} label={scoreCatalog.messages.scoreTier} icon={<Trophy />} />
               </div>
-            </article>
+            </DashboardPanel>
 
-            <article className="dashboard-panel breakdown-panel">
+            <DashboardPanel className="breakdown-panel">
               <PanelTitle>{scoreCatalog.messages.pointBreakdown}</PanelTitle>
               <div className="points-total"><strong>{formatNumber(points)}</strong><span>{scoreCatalog.messages.totalArcadePoints}</span></div>
               <div
@@ -881,7 +914,7 @@ export default function RedesignCalculator({
                     : scoreCatalog.dynamic.needReview.replace("{count}", scoreNumber(unknownBadgeCount))}
               </p>
 
-            </article>
+            </DashboardPanel>
 
             <article className="dashboard-panel tier-status-panel">
               <div className="panel-title-row">
@@ -926,72 +959,169 @@ export default function RedesignCalculator({
           </div>
 
           <div className="dashboard-content-grid">
-            <article id="badges" className="dashboard-panel badges-panel">
-              <div className="badge-heading-row">
-                <div>
-                  <PanelTitle>{scoreCatalog.messages.earnedBadges}</PanelTitle>
-                  <p>{scoreCatalog.dynamic.badgesInView.replace("{count}", scoreNumber(filteredBadges.length))}</p>
-                </div>
-                <div className="badge-filters" role="group" aria-label={scoreCatalog.messages.filterBadges}>
-                  {FILTERS.map((item) => (
-                    <button
-                      type="button"
-                      key={item.value}
-                      className={filter === item.value ? "active" : ""}
-                      aria-pressed={filter === item.value}
-                      onClick={() => {
-                        setFilter(item.value)
-                        setShowAllBadges(false)
-                      }}
-                    >
-                      {scoreCatalog.messages[item.value]}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {displayedBadges.length > 0 ? (
-                <div className="earned-badge-grid">
-                  {displayedBadges.map((badge, index) => (
-                    <article className="earned-badge" key={`${badge.title}-${index}`}>
-                      <div className="earned-badge-art">
-                        <SafeRemoteImage
-                          src={badge.imageURL}
-                          alt=""
-                          loading="lazy"
-                          fallback={<BadgeCheck />}
-                        />
-                      </div>
-                      <h3>{badge.title}</h3>
-                      <p>
-                        {badge.points === "-*"
-                          ? scoreCatalog.messages.specialScoring
-                          : scoreCatalog.dynamic.points.replace("{count}", scoreNumber(numeric(badge.points)))}
-                      </p>
-                      <time>{safeDateLabel(badge.dateEarned, scoreLocale)}</time>
-                      <SafeExternalLink
-                        href={badge.badgeURL}
-                        ariaLabel={scoreCatalog.dynamic.open.replace("{value}", badge.title)}
+            <div className="dashboard-primary-column">
+              <article id="badges" className="dashboard-panel badges-panel">
+                <div className="badge-heading-row">
+                  <div>
+                    <PanelTitle>{scoreCatalog.messages.earnedBadges}</PanelTitle>
+                    <p>{scoreCatalog.dynamic.badgesInView.replace("{count}", scoreNumber(filteredBadges.length))}</p>
+                  </div>
+                  <div className="badge-filters" role="group" aria-label={scoreCatalog.messages.filterBadges}>
+                    {FILTERS.map((item) => (
+                      <button
+                        type="button"
+                        key={item.value}
+                        className={filter === item.value ? "active" : ""}
+                        aria-pressed={filter === item.value}
+                        onClick={() => {
+                          setFilter(item.value)
+                          setVisibleBadgeCount(BADGE_PREVIEW_LIMIT)
+                        }}
                       >
-                        <ExternalLink />
-                      </SafeExternalLink>
-                    </article>
-                  ))}
+                        {scoreCatalog.messages[item.value]}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              ) : (
-                <div className="empty-badge-state">
-                  <BadgeCheck />
-                  <strong>{scoreCatalog.messages.noBadges}</strong>
-                  <span>{scoreCatalog.messages.chooseFilter}</span>
-                </div>
-              )}
 
-              {filteredBadges.length > BADGE_PREVIEW_LIMIT && (
-                <button className="show-all-badges" type="button" onClick={() => setShowAllBadges((open) => !open)}>
-                  {showAllBadges ? scoreCatalog.messages.showFewer : scoreCatalog.dynamic.viewAllBadges.replace("{count}", scoreNumber(filteredBadges.length))}
-                </button>
-              )}
-            </article>
+                <div className="badge-search-row">
+                  <div className="badge-search-field" role="search">
+                    <Search aria-hidden="true" />
+                    <input
+                      className="badge-search-input"
+                      type="search"
+                      value={badgeSearch}
+                      placeholder={scoreCatalog.messages.searchBadges}
+                      aria-label={scoreCatalog.messages.searchBadges}
+                      onChange={(event) => {
+                        setBadgeSearch(event.target.value)
+                        setVisibleBadgeCount(BADGE_PREVIEW_LIMIT)
+                      }}
+                    />
+                    {badgeSearch && (
+                      <button className="clear-badge-search" type="button" aria-label={scoreCatalog.messages.clearBadgeSearch}
+                        onClick={() => {
+                          setBadgeSearch("")
+                          setVisibleBadgeCount(BADGE_PREVIEW_LIMIT)
+                        }}>
+                        <X aria-hidden="true" />
+                      </button>
+                    )}
+                  </div>
+                  <span className="badge-visible-count" aria-live="polite">
+                    {scoreCatalog.dynamic.showingBadges
+                      .replace("{shown}", scoreNumber(displayedBadges.length))
+                      .replace("{total}", scoreNumber(matchingBadges.length))}
+                  </span>
+                </div>
+
+                {displayedBadges.length > 0 ? (
+                  <div className="earned-badge-grid">
+                    {displayedBadges.map((badge, index) => (
+                      <article className="earned-badge" key={`${badge.title}-${index}`}>
+                        <div className="earned-badge-art">
+                          <SafeRemoteImage
+                            src={badge.imageURL}
+                            alt=""
+                            loading="lazy"
+                            fallback={<BadgeCheck />}
+                          />
+                        </div>
+                        <h3>{badge.title}</h3>
+                        <p>
+                          {badge.points === "-*"
+                            ? scoreCatalog.messages.specialScoring
+                            : scoreCatalog.dynamic.points.replace("{count}", scoreNumber(numeric(badge.points)))}
+                        </p>
+                        <time>{safeDateLabel(badge.dateEarned, scoreLocale)}</time>
+                        <SafeExternalLink
+                          href={badge.badgeURL}
+                          ariaLabel={scoreCatalog.dynamic.open.replace("{value}", badge.title)}
+                        >
+                          <ExternalLink />
+                        </SafeExternalLink>
+                      </article>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="empty-badge-state">
+                    <BadgeCheck />
+                    <strong>{badgeSearch.trim() ? scoreCatalog.messages.noMatchingBadges : scoreCatalog.messages.noBadges}</strong>
+                    <span>{badgeSearch.trim() ? scoreCatalog.messages.searchHint : scoreCatalog.messages.chooseFilter}</span>
+                  </div>
+                )}
+
+                {remainingBadgeCount > 0 && (
+                  <button className="show-all-badges" type="button"
+                    onClick={() => setVisibleBadgeCount((count) => Math.min(count + BADGE_PREVIEW_LIMIT, matchingBadges.length))}>
+                    {scoreCatalog.messages.loadMoreBadges}
+                    <span aria-hidden="true"> +{scoreNumber(Math.min(remainingBadgeCount, BADGE_PREVIEW_LIMIT))}</span>
+                  </button>
+                )}
+              </article>
+
+              <div className="dashboard-bottom-grid" data-home-order="dashboard-bottom">
+                <article className="dashboard-panel compact-panel">
+                  <div className="compact-heading"><PanelTitle>{scoreCatalog.messages.recentlyEarned}</PanelTitle><span>{recentBadges.length || "—"}</span></div>
+                  {recentBadges.length > 0 ? (
+                    <div className="compact-list">
+                      {recentBadges.map((badge, index) => (
+                        <div key={`${badge.title}-recent-${index}`}>
+                          <span className="compact-icon">
+                            <SafeRemoteImage
+                              src={badge.imageURL}
+                              alt=""
+                              loading="lazy"
+                              fallback={<BadgeCheck />}
+                            />
+                          </span>
+                          <strong>{badge.title}</strong>
+                          <b>{scoreCatalog.dynamic.points.replace("{count}", scoreNumber(numeric(badge.points)))}</b>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="compact-empty">{scoreCatalog.messages.noEarnedDates}</p>
+                  )}
+                </article>
+
+                <article className="dashboard-panel compact-panel">
+                  <div className="compact-heading"><PanelTitle>{scoreCatalog.messages.scoreConfidence}</PanelTitle><span>{scoreComplete ? scoreCatalog.messages.complete : scoreCatalog.messages.review}</span></div>
+                  <div className="confidence-summary">
+                    <span className={scoreComplete ? "confidence-ring is-complete" : "confidence-ring"}>
+                      {scoreComplete ? <ShieldCheck /> : <CircleHelp />}
+                    </span>
+                    <div>
+                      <strong>{scoreComplete ? scoreCatalog.messages.allKnownClassified : scoreCatalog.dynamic.unknownBadges.replace("{count}", scoreNumber(unknownBadgeCount))}</strong>
+                      <p>{scoreComplete ? scoreCatalog.messages.scoreComplete : scoreCatalog.messages.unknownShown}</p>
+                    </div>
+                  </div>
+                  {unknownBadges.length > 0 && (
+                    <ul className="unknown-badge-list">
+                      {unknownBadges.slice(0, 3).map((badge) => <li key={badge}>{badge}</li>)}
+                    </ul>
+                  )}
+                </article>
+
+                <article className="dashboard-panel compact-panel next-goal-panel">
+                  <div className="compact-heading"><PanelTitle>{scoreCatalog.messages.nextGoal}</PanelTitle><span>{nextMilestone.league.replace("Arcade ", "")}</span></div>
+                  <div className="next-goal-value">
+                    <strong>{hasReachedMaxTier ? scoreCatalog.messages.max : scoreNumber(pointsToNextTier)}</strong>
+                    <span>{hasReachedMaxTier ? scoreCatalog.messages.topTierReached : scoreCatalog.messages.morePointsNeeded}</span>
+                  </div>
+                  <div
+                    className="goal-progress"
+                    role="progressbar"
+                    aria-label={hasReachedMaxTier ? scoreCatalog.messages.topTierReached : scoreCatalog.dynamic.progressToward.replace("{value}", nextMilestone.league)}
+                    aria-valuemin={goalStartPoints}
+                    aria-valuemax={hasReachedMaxTier ? maxTierPoints : nextMilestone.points}
+                    aria-valuenow={hasReachedMaxTier ? maxTierPoints : Math.min(Math.max(points, goalStartPoints), nextMilestone.points)}
+                  >
+                    <span style={{ width: `${goalProgress}%` }} />
+                  </div>
+                </article>
+              </div>
+            </div>
 
             <DashboardTiers
               milestones={milestones}
@@ -1006,67 +1136,7 @@ export default function RedesignCalculator({
 
           <div id="monthly-games" className="monthly-games-host" data-home-order="monthly-labs" />
 
-          <div className="dashboard-bottom-grid" data-home-order="dashboard-bottom">
-            <article className="dashboard-panel compact-panel">
-              <div className="compact-heading"><PanelTitle>{scoreCatalog.messages.recentlyEarned}</PanelTitle><span>{recentBadges.length || "—"}</span></div>
-              {recentBadges.length > 0 ? (
-                <div className="compact-list">
-                  {recentBadges.map((badge, index) => (
-                    <div key={`${badge.title}-recent-${index}`}>
-                      <span className="compact-icon">
-                        <SafeRemoteImage
-                          src={badge.imageURL}
-                          alt=""
-                          loading="lazy"
-                          fallback={<BadgeCheck />}
-                        />
-                      </span>
-                      <strong>{badge.title}</strong>
-                      <b>{scoreCatalog.dynamic.points.replace("{count}", scoreNumber(numeric(badge.points)))}</b>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="compact-empty">{scoreCatalog.messages.noEarnedDates}</p>
-              )}
-            </article>
 
-            <article className="dashboard-panel compact-panel">
-              <div className="compact-heading"><PanelTitle>{scoreCatalog.messages.scoreConfidence}</PanelTitle><span>{scoreComplete ? scoreCatalog.messages.complete : scoreCatalog.messages.review}</span></div>
-              <div className="confidence-summary">
-                <span className={scoreComplete ? "confidence-ring is-complete" : "confidence-ring"}>
-                  {scoreComplete ? <ShieldCheck /> : <CircleHelp />}
-                </span>
-                <div>
-                  <strong>{scoreComplete ? scoreCatalog.messages.allKnownClassified : scoreCatalog.dynamic.unknownBadges.replace("{count}", scoreNumber(unknownBadgeCount))}</strong>
-                  <p>{scoreComplete ? scoreCatalog.messages.scoreComplete : scoreCatalog.messages.unknownShown}</p>
-                </div>
-              </div>
-              {unknownBadges.length > 0 && (
-                <ul className="unknown-badge-list">
-                  {unknownBadges.slice(0, 3).map((badge) => <li key={badge}>{badge}</li>)}
-                </ul>
-              )}
-            </article>
-
-            <article className="dashboard-panel compact-panel next-goal-panel">
-              <div className="compact-heading"><PanelTitle>{scoreCatalog.messages.nextGoal}</PanelTitle><span>{nextMilestone.league.replace("Arcade ", "")}</span></div>
-              <div className="next-goal-value">
-                <strong>{hasReachedMaxTier ? scoreCatalog.messages.max : scoreNumber(pointsToNextTier)}</strong>
-                <span>{hasReachedMaxTier ? scoreCatalog.messages.topTierReached : scoreCatalog.messages.morePointsNeeded}</span>
-              </div>
-              <div
-                className="goal-progress"
-                role="progressbar"
-                aria-label={hasReachedMaxTier ? scoreCatalog.messages.topTierReached : scoreCatalog.dynamic.progressToward.replace("{value}", nextMilestone.league)}
-                aria-valuemin={goalStartPoints}
-                aria-valuemax={hasReachedMaxTier ? maxTierPoints : nextMilestone.points}
-                aria-valuenow={hasReachedMaxTier ? maxTierPoints : Math.min(Math.max(points, goalStartPoints), nextMilestone.points)}
-              >
-                <span style={{ width: `${goalProgress}%` }} />
-              </div>
-            </article>
-          </div>
         </section>
       ) : (
         <GuestDashboard
@@ -1085,7 +1155,7 @@ export default function RedesignCalculator({
 
       <footer className="arcade-footer" data-home-order="footer">
         <div className="arcade-brand footer-brand">
-          <span className="arcade-brand-mark"><Gamepad2 /></span>
+          <span className="arcade-brand-mark"><ArcadeBrandGamepad /></span>
           <span className="arcade-brand-copy"><strong>ARCADE</strong><b>POINTS</b></span>
         </div>
         <p>{scoreCatalog.messages.unofficial}</p>
@@ -1098,58 +1168,12 @@ export default function RedesignCalculator({
         </nav>
       </footer>
 
-      <nav className="mobile-bottom-nav" aria-label={scoreCatalog.messages.mobileNavigation}>
-        <a href="#calculator"><Search /><span>{scoreCatalog.messages.calculator}</span></a>
-        <a href="#tiers"><Trophy /><span>{scoreCatalog.messages.tiers}</span></a>
-        <a href={viewMode === "guest" ? "#monthly-games" : "#badges"}>{viewMode === "guest" ? <Gamepad2 /> : <BadgeCheck />}<span>{viewMode === "guest" ? activeHistoryLanguage.catalog.messages.guestLabsLabel : activeHistoryLanguage.catalog.messages.badges}</span></a>
-        <a href="#extension"><Chrome /><span>{scoreCatalog.messages.extension}</span></a>
-      </nav>
+      <MobileBottomNav
+        catalog={scoreCatalog}
+        viewMode={viewMode}
+        hasResult={showProfileDashboard}
+        monthlyLabsLabel={activeHistoryLanguage.catalog.messages.guestLabsLabel}
+      />
     </main>
-  )
-}
-
-function PanelTitle({ children }: { children: ReactNode }) {
-  return <h2 className="panel-title">{children}</h2>
-}
-
-function Stat({
-  value,
-  label,
-  icon,
-}: {
-  value: string
-  label: string
-  icon?: ReactNode
-}) {
-  return (
-    <div>
-      {icon ? <span className="profile-stat-icon" aria-hidden="true">{icon}</span> : null}
-      <strong>{value}</strong>
-      <span>{label}</span>
-    </div>
-  )
-}
-
-function PointRow({
-  icon,
-  label,
-  value,
-  total,
-  tone,
-}: {
-  icon: ReactNode
-  label: string
-  value: number
-  total: number
-  tone: string
-}) {
-  const share = total > 0 ? Math.max(0, (value / total) * 100) : 0
-
-  return (
-    <div className={`point-breakdown-row point-tone-${tone}`}>
-      <span className="point-breakdown-source"><span className="point-breakdown-swatch" aria-hidden="true" />{icon}<span>{label}</span></span>
-      <strong>{formatNumber(value)} pts</strong>
-      <span className="point-breakdown-share">{share.toFixed(1)}%</span>
-    </div>
   )
 }

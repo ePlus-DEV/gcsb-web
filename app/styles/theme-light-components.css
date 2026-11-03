@@ -208,6 +208,47 @@ html.light .profile-photo {
   color: #4338ca;
 }
 
+/* On wide screens the profile metrics use dark tiles by default.
+   Light mode must override the tile surfaces, not only their text colors. */
+@media (min-width: 1081px) {
+  html.light .arcade-dashboard-page .profile-stat-grid > .ui-metric-stat {
+    border-color: rgba(79, 70, 229, 0.16);
+    background: linear-gradient(145deg, #f8faff, #eef2ff);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.94),
+      0 4px 12px rgba(71, 85, 105, 0.05);
+  }
+
+  html.light .arcade-dashboard-page .profile-stat-grid > .ui-metric-stat + .ui-metric-stat {
+    border-left-color: rgba(79, 70, 229, 0.16);
+  }
+
+  html.light .arcade-dashboard-page .profile-stat-grid > .ui-metric-stat strong {
+    color: #25304a;
+  }
+
+  html.light .arcade-dashboard-page .profile-stat-grid > .ui-metric-stat > span:not(.profile-stat-icon) {
+    color: #52637c;
+  }
+
+  html.light .arcade-dashboard-page .profile-stat-grid .profile-stat-icon {
+    border-color: rgba(109, 40, 217, 0.2);
+    background: #f3e8ff;
+    color: #6d28d9;
+  }
+
+  html.light .arcade-dashboard-page .profile-stat-grid > .ui-metric-stat:nth-child(2) .profile-stat-icon {
+    border-color: rgba(180, 83, 9, 0.2);
+    background: #fffbeb;
+    color: #a16207;
+  }
+
+  html.light .arcade-dashboard-page .profile-stat-grid > .ui-metric-stat:nth-child(3) .profile-stat-icon {
+    border-color: rgba(126, 34, 206, 0.2);
+    background: #faf5ff;
+    color: #7e22ce;
+  }
+}
+
 html.light .panel-link-note,
 html.light .compact-empty {
   color: #64748b;
@@ -373,7 +414,8 @@ html.light .tier-note a:hover {
     color: #64748b;
   }
 
-  html.light .mobile-bottom-nav a:first-child {
+  html.light .mobile-bottom-nav a[aria-current="location"] {
     color: #6d28d9;
+    background: rgba(124, 58, 237, 0.1);
   }
 }

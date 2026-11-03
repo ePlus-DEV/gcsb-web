@@ -1,9 +1,10 @@
 "use client"
 
+import ArcadeBrandGamepad from "@/components/arcade/arcade-brand-gamepad"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
-import { ArrowLeft, Clock, Gamepad2, Home, LoaderCircle } from "lucide-react"
+import { ArrowLeft, Clock, Home, LoaderCircle } from "lucide-react"
 import { WEBSITE_LOCALES } from "@/lib/website-i18n"
 
 const REDIRECT_DELAY_SECONDS = 5
@@ -153,7 +154,7 @@ export default function NotFoundRedirect() {
           href={homeHref}
           aria-label="Arcade Points home"
         >
-          <span className="arcade-brand-mark"><Gamepad2 /></span>
+          <span className="arcade-brand-mark"><ArcadeBrandGamepad /></span>
           <span className="arcade-brand-copy"><strong>ARCADE</strong><b>POINTS</b></span>
           <em>PRO</em>
         </Link>

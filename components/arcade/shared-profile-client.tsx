@@ -1,5 +1,6 @@
 "use client"
 
+import ArcadeBrandGamepad from "@/components/arcade/arcade-brand-gamepad"
 import {
   BadgeCheck,
   ExternalLink,
@@ -306,7 +307,7 @@ function SharedProfileContent() {
       <SharedProfileStyles />
       <div className="arcade-stars" aria-hidden="true" />
       <header className="arcade-header">
-        <a className="arcade-brand" href={getDashboardHref()} aria-label="Arcade Points home"><span className="arcade-brand-mark"><Gamepad2 /></span><span className="arcade-brand-copy"><strong>ARCADE</strong><b>POINTS</b></span><em>PRO</em></a>
+        <a className="arcade-brand" href={getDashboardHref()} aria-label="Arcade Points home"><span className="arcade-brand-mark"><ArcadeBrandGamepad /></span><span className="arcade-brand-copy"><strong>ARCADE</strong><b>POINTS</b></span><em>PRO</em></a>
         <nav className="arcade-nav"><a className="active" href="#profile">Profile</a><a href="#badges">Badges</a></nav>
         <div className="arcade-header-actions"><button className="header-store-link is-chrome" type="button" onClick={shareProfile}><Share /><span>{copied ? "Copied" : "Share"}</span></button></div>
       </header>

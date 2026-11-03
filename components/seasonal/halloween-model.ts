@@ -1,7 +1,7 @@
-/** The seasonal window follows the visitor's calendar, as it did originally. */
+/** Auto-enable for October 1–31 in the visitor's local calendar. */
 export function isHalloweenSeason(date: Date) {
   const month = date.getMonth()
-  return month === 9 || (month === 10 && date.getDate() <= 2)
+  return month === 9
 }
 
 export function isWidgetPath(pathname: string) {

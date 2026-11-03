@@ -1,0 +1,68 @@
+/* Keep the established Arcade presentation. Refactoring must not restyle it. */
+.arcade-ui-refresh .analyzer-title > span { flex: 0 0 23px; }
+.arcade-ui-refresh .analyzer-title { cursor: text; }
+.arcade-ui-refresh .profile-input button { flex-shrink: 0; }
+.arcade-ui-refresh[data-dashboard-view="guest"] [data-share-profile-action] { display: none; }
+
+/*
+ * Profile dashboard balance: keep badge content and contextual insight cards
+ * in one natural-height column beside the public tiers/sidebar. This avoids
+ * a large empty stretch inside the badge surface on wide displays.
+ * Guest tiers, shared palette, typography, and badge filtering are unchanged.
+ */
+.arcade-dashboard-page .dashboard-content-grid {
+  align-items: start;
+}
+.arcade-dashboard-page .dashboard-primary-column {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  min-width: 0;
+}
+.arcade-dashboard-page .dashboard-primary-column > .dashboard-bottom-grid {
+  margin-bottom: 0;
+}
+@media (min-width: 821px) and (max-width: 1080px) {
+  .arcade-dashboard-page .dashboard-primary-column > .dashboard-bottom-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .arcade-dashboard-page .dashboard-primary-column .next-goal-panel {
+    grid-column: 1 / -1;
+  }
+}
+
+/*
+ * The profile badge list grows incrementally when "Load more" is selected.
+ * Keep the tiers visible beside it without trapping content below the fold.
+ * This applies only to the profile's desktop two-column layout, never the
+ * guest tiers or the single-column mobile dashboard.
+ */
+@media (min-width: 821px) {
+  .arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-content-grid > .tier-list-panel {
+    position: sticky;
+    top: calc(var(--arcade-sticky-header-height, var(--arcade-anchor-offset, 76px)) + 10px);
+    align-self: start;
+    max-height: calc(100vh - var(--arcade-sticky-header-height, var(--arcade-anchor-offset, 76px)) - 24px);
+    max-height: calc(100dvh - var(--arcade-sticky-header-height, var(--arcade-anchor-offset, 76px)) - 24px);
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(139, 92, 246, 0.35) transparent;
+  }
+}
+
+/* Earned badge search: scoped to preserve the Dashboard theme, logo and cards. */
+.arcade-dashboard-page .badge-search-row { display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px; }
+.arcade-dashboard-page .badge-search-field { display:flex;align-items:center;gap:9px;width:min(100%,340px);min-width:0;min-height:36px;padding:0 11px;border:1px solid var(--arcade-border);border-radius:8px;background:rgba(8,18,37,.76);color:var(--arcade-muted); }
+.arcade-dashboard-page .badge-search-field:focus-within { border-color:var(--arcade-purple);box-shadow:0 0 0 2px rgba(139,92,246,.12); }
+.arcade-dashboard-page .badge-search-field > svg { width:15px;height:15px;flex:none; }
+.arcade-dashboard-page .badge-search-input { flex:1;width:100%;min-width:0;border:0;outline:0;background:transparent;color:var(--arcade-text);font:inherit;font-size:.72rem; }
+.arcade-dashboard-page .badge-search-input::placeholder { color:var(--arcade-muted); }
+.arcade-dashboard-page .clear-badge-search { display:grid;place-items:center;width:25px;height:25px;flex:none;border:0;border-radius:6px;background:transparent;color:var(--arcade-muted);cursor:pointer; }
+.arcade-dashboard-page .clear-badge-search:hover { background:rgba(139,92,246,.14);color:var(--arcade-text); }
+.arcade-dashboard-page .clear-badge-search:focus-visible,.arcade-dashboard-page .show-all-badges:focus-visible { outline:2px solid var(--arcade-purple);outline-offset:2px; }
+.arcade-dashboard-page .clear-badge-search svg { width:14px;height:14px; }
+.arcade-dashboard-page .badge-visible-count { color:var(--arcade-muted);font-size:.68rem;white-space:nowrap; }
+html.light .arcade-dashboard-page .badge-search-field { background:rgba(248,250,252,.88); }
+html.light .arcade-dashboard-page .badge-search-input { color:var(--arcade-text); }
+@media(max-width:600px) { .arcade-dashboard-page .badge-search-row { align-items:stretch;flex-direction:column;gap:7px; } .arcade-dashboard-page .badge-search-field { width:100%; } .arcade-dashboard-page .badge-visible-count { text-align:right; } }

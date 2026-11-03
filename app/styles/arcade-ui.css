@@ -67,6 +67,119 @@
   .shared-tier-panel .tier-slot-count b { font-size: 1.2rem; }
 }
 
+
+/* Shared Arcade Points brand icon: same original gamepad silhouette, with a
+ * predictable SVG viewport rather than an overflowing Font Awesome font glyph.
+ * Applies to home header/footer, internal routes and shared-profile pages.
+ */
+.arcade-brand-mark {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.arcade-brand-mark > svg.arcade-brand-gamepad {
+  display: block;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  min-width: 0;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  transform: none;
+  vertical-align: middle;
+}
+
+.footer-brand .arcade-brand-mark > svg.arcade-brand-gamepad {
+  width: 26px;
+  height: 26px;
+}
+
+@media (max-width: 600px) {
+  .arcade-brand-mark > svg.arcade-brand-gamepad {
+    width: 26px;
+    height: 26px;
+  }
+}
+
+/* Mobile header brand and compact profile CTA.
+ * Keep the icon and stacked pixel wordmark optically centered without changing
+ * desktop branding or the page's existing light/dark color tokens.
+ */
+@media (max-width: 600px) {
+  .arcade-dashboard-page .arcade-header .arcade-brand {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    min-width: 0;
+    min-height: 40px;
+    vertical-align: middle;
+  }
+
+  .arcade-dashboard-page .arcade-header .arcade-brand-mark {
+    display: grid;
+    place-items: center;
+    flex: 0 0 34px;
+    width: 34px;
+    height: 34px;
+    margin: 0;
+    align-self: center;
+  }
+
+  .arcade-dashboard-page .arcade-header .arcade-brand-mark > .arcade-brand-gamepad {
+    width: 26px;
+    height: 26px;
+  }
+
+  .arcade-dashboard-page .arcade-header .arcade-brand-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 2px;
+    min-width: 0;
+    line-height: 1.2;
+    text-align: left;
+  }
+
+  .arcade-dashboard-page .arcade-header .arcade-brand-copy :is(strong, b) {
+    display: block;
+    line-height: inherit;
+    white-space: nowrap;
+  }
+
+  /* Keep the mobile CTA full width like the profile input, but reduce only
+     its height to a comfortable 44px touch target. */
+  .arcade-dashboard-page .profile-analyzer-card form .analyze-button {
+    width: 100%;
+    max-width: 100%;
+    min-height: 44px;
+    height: 44px;
+    padding: 0 16px;
+    justify-self: stretch;
+    gap: 8px;
+    border-radius: 9px;
+    font-size: 0.8rem;
+    box-shadow: 0 5px 16px rgba(124, 58, 237, 0.2);
+  }
+
+  /* The application's icon adapter renders Font Awesome <i>, not SVG. */
+  .arcade-dashboard-page .profile-analyzer-card form .analyze-button .fa-icon {
+    width: 17px;
+    min-width: 17px;
+    height: 17px;
+    font-size: 17px;
+  }
+}
+
+@media (max-width: 360px) {
+  .arcade-dashboard-page .arcade-header .arcade-brand-copy {
+    font-size: 0.56rem;
+  }
+}
+
 .tier-prediction { margin-block: 16px; padding: 16px; border: 1px solid var(--arcade-border-soft); border-radius: 12px; color: var(--arcade-text); }
 .tier-prediction summary { cursor: pointer; font-size: .85rem; font-weight: 700; }
 .tier-prediction p { color: var(--arcade-muted); font-size: .78rem; line-height: 1.7; overflow-wrap: anywhere; }

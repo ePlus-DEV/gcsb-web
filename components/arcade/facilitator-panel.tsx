@@ -27,12 +27,11 @@ import {
   normalizeFacilitatorBadgeTitle,
   type FacilitatorTrack,
 } from "./facilitator-syllabus"
-import { formatNumber, numeric } from "./model"
-import { readActiveDashboard, observeDashboardMode, type StoredDashboard } from "./dashboard-state"
+import { DASHBOARD_STORAGE_KEY, formatNumber, numeric } from "./model"
+import { DASHBOARD_CHANGE_EVENT, readActiveDashboard, observeDashboardMode, type StoredDashboard } from "./dashboard-state"
+import { FACILITATOR_PARTICIPATION_EVENT, getFacilitatorParticipationStorageKey, readFacilitatorParticipation, writeFacilitatorParticipation } from "./facilitator-participation"
 
-const SYNC_INTERVAL_MS = 1_500
 const BONUS_MILESTONE_POINTS = 10
-const PARTICIPATION_STORAGE_PREFIX = "arcade-facilitator-participation-v1"
 const BONUS_GUIDE_URL =
   "https://rsvp.withgoogle.com/events/arcade-facilitator/bonus-milestone"
 const BONUS_FORM_URL = "https://forms.gle/MMfH5RKp83TfRtXj9"
@@ -106,11 +105,6 @@ type TrackFilter = "all" | FacilitatorTrack
 
 type EvaluatedSyllabus = ReturnType<typeof evaluateFacilitatorSyllabus>
 
-function getParticipationStorageKey(profileUrl?: string): string {
-  const profileKey = profileUrl?.trim() || "default-profile"
-  return `${PARTICIPATION_STORAGE_PREFIX}:${profileKey}`
-}
-
 function milestoneComplete(
   counts: Counts,
   target: (typeof MILESTONES)[number]["requirements"],
@@ -174,44 +168,51 @@ export default function FacilitatorPanel() {
   const closeRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
-    let previous: string | undefined
+    let previous: StoredDashboard | null | undefined
 
     const sync = () => {
-      const dashboard = readActiveDashboard()
-      const raw = JSON.stringify(dashboard)
-      if (raw === previous) return
-
-      previous = raw
-      setDashboard(dashboard)
+      const next = readActiveDashboard()
+      if (next === previous) return
+      previous = next
+      setDashboard(next)
+    }
+    const onStorage = (event: StorageEvent) => {
+      if (event.key === DASHBOARD_STORAGE_KEY || event.key === null) sync()
     }
 
     sync()
     const stopObserving = observeDashboardMode(sync)
-    const timer = window.setInterval(sync, SYNC_INTERVAL_MS)
+    window.addEventListener(DASHBOARD_CHANGE_EVENT, sync)
     window.addEventListener("focus", sync)
-    window.addEventListener("storage", sync)
+    window.addEventListener("storage", onStorage)
 
     return () => {
       stopObserving()
-      window.clearInterval(timer)
+      window.removeEventListener(DASHBOARD_CHANGE_EVENT, sync)
       window.removeEventListener("focus", sync)
-      window.removeEventListener("storage", sync)
+      window.removeEventListener("storage", onStorage)
     }
   }, [])
 
-  const participationStorageKey = getParticipationStorageKey(
+  const participationStorageKey = getFacilitatorParticipationStorageKey(
     dashboard?.profileUrl,
   )
 
   useEffect(() => {
-    try {
-      setIsParticipating(
-        window.localStorage.getItem(participationStorageKey) === "true",
-      )
-    } catch {
-      setIsParticipating(false)
+    const sync = () => setIsParticipating(readFacilitatorParticipation(dashboard?.profileUrl))
+    const onStorage = (event: StorageEvent) => {
+      if (event.key === participationStorageKey || event.key === null) sync()
     }
-  }, [participationStorageKey])
+    sync()
+    window.addEventListener(FACILITATOR_PARTICIPATION_EVENT, sync)
+    window.addEventListener("storage", onStorage)
+    window.addEventListener("focus", sync)
+    return () => {
+      window.removeEventListener(FACILITATOR_PARTICIPATION_EVENT, sync)
+      window.removeEventListener("storage", onStorage)
+      window.removeEventListener("focus", sync)
+    }
+  }, [dashboard?.profileUrl, participationStorageKey])
 
   useEffect(() => {
     if (!open) return
@@ -354,14 +355,7 @@ export default function FacilitatorPanel() {
   const updateParticipation = (participating: boolean) => {
     setIsParticipating(participating)
 
-    try {
-      window.localStorage.setItem(
-        participationStorageKey,
-        participating ? "true" : "false",
-      )
-    } catch {
-      // Keep the in-memory preference when storage is unavailable.
-    }
+    writeFacilitatorParticipation(dashboard?.profileUrl, participating)
   }
 
   const goToCalculator = () => {

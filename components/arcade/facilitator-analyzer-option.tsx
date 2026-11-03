@@ -13,9 +13,10 @@ import {
   type FacilitatorParticipationDetail,
 } from "./facilitator-participation"
 import { DASHBOARD_STORAGE_KEY, PROFILE_URL_PATTERN } from "./model"
+import { DASHBOARD_CHANGE_EVENT, readStoredDashboard } from "./dashboard-state"
 
 const ANALYZER_SELECTOR = ".profile-analyzer-card"
-const INPUT_SELECTOR = 'input[aria-label="Google Skills public profile URL"]'
+const INPUT_SELECTOR = 'input[data-arcade-profile-input="true"]'
 const HELP_ROW_SELECTOR = ".analyzer-help-row"
 const AUTO_FETCH_STORAGE_KEY = "gcsb-auto-fetch-latest-profile"
 const BADGE_DATE_SELECTOR = ".earned-badge time"
@@ -60,14 +61,7 @@ function getLocale(): string {
 }
 
 function readStoredProfileUrl(): string {
-  try {
-    const raw = window.localStorage.getItem(DASHBOARD_STORAGE_KEY)
-    if (!raw) return ""
-    const parsed = JSON.parse(raw) as { profileUrl?: unknown }
-    return typeof parsed.profileUrl === "string" ? parsed.profileUrl : ""
-  } catch {
-    return ""
-  }
+  return readStoredDashboard()?.profileUrl ?? ""
 }
 
 function validProfileUrl(value: string): string {
@@ -171,10 +165,22 @@ export default function FacilitatorAnalyzerOption() {
   }, [])
 
   useEffect(() => {
+    const root = document.querySelector<HTMLElement>(".arcade-dashboard-page")
+    if (!root) return
     const syncDates = () => localizeBadgeDates(locale)
     syncDates()
-    const observer = new MutationObserver(syncDates)
-    observer.observe(document.body, { childList: true, subtree: true })
+    const observer = new MutationObserver((records) => {
+      // Ignore unrelated DOM updates such as countdowns and charts.
+      const hasNewBadges = records.some((record) =>
+        Array.from(record.addedNodes).some((node) =>
+          node instanceof Element &&
+          (node.matches(".earned-badge, .earned-badge time") ||
+            Boolean(node.querySelector(".earned-badge time"))),
+        ),
+      )
+      if (hasNewBadges) syncDates()
+    })
+    observer.observe(root, { childList: true, subtree: true })
     return () => observer.disconnect()
   }, [locale])
 
@@ -201,8 +207,9 @@ export default function FacilitatorAnalyzerOption() {
       }
     }
     attach()
+    const dashboardRoot = document.querySelector<HTMLElement>(".arcade-dashboard-page")
     const observer = new MutationObserver(attach)
-    observer.observe(document.body, { childList: true, subtree: true })
+    if (dashboardRoot) observer.observe(dashboardRoot, { childList: true, subtree: true })
     return () => {
       observer.disconnect()
       currentInput?.removeEventListener("input", syncInputValue)
@@ -217,14 +224,17 @@ export default function FacilitatorAnalyzerOption() {
 
   useEffect(() => {
     const syncStoredProfile = () => setStoredProfileUrl(readStoredProfileUrl())
+    const onStorage = (event: StorageEvent) => {
+      if (event.key === DASHBOARD_STORAGE_KEY || event.key === null) syncStoredProfile()
+    }
     syncStoredProfile()
-    const timer = window.setInterval(syncStoredProfile, 1_000)
+    window.addEventListener(DASHBOARD_CHANGE_EVENT, syncStoredProfile)
     window.addEventListener("focus", syncStoredProfile)
-    window.addEventListener("storage", syncStoredProfile)
+    window.addEventListener("storage", onStorage)
     return () => {
-      window.clearInterval(timer)
+      window.removeEventListener(DASHBOARD_CHANGE_EVENT, syncStoredProfile)
       window.removeEventListener("focus", syncStoredProfile)
-      window.removeEventListener("storage", syncStoredProfile)
+      window.removeEventListener("storage", onStorage)
     }
   }, [])
 
@@ -261,12 +271,10 @@ export default function FacilitatorAnalyzerOption() {
       }
     }
     sync()
-    const timer = window.setInterval(sync, 1_000)
     window.addEventListener("focus", sync)
     window.addEventListener("storage", sync)
     window.addEventListener(FACILITATOR_PARTICIPATION_EVENT, onParticipationChange)
     return () => {
-      window.clearInterval(timer)
       window.removeEventListener("focus", sync)
       window.removeEventListener("storage", sync)
       window.removeEventListener(FACILITATOR_PARTICIPATION_EVENT, onParticipationChange)
