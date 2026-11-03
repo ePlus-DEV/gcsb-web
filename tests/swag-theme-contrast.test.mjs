@@ -59,7 +59,7 @@ test("Swag buttons and linked reward cards have explicit light/dark palettes", (
     }
   }
   for (const klass of ["primary", "text"]) assert.ok(detail.includes(`swag-action-${klass}`))
-  assert.match(swagCss, /\.swag-reward-card:focus-visible/)
+  assert.match(swagCss, /\.swag-reward-card\):focus-visible/)
 })
 
 test("breadcrumb colors are readable in light and dark themes", () => {
