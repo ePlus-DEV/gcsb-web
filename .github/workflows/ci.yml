@@ -58,6 +58,7 @@ jobs:
           node scripts/verify-halloween-ui.mjs
           node scripts/verify-guest-discovery.mjs
           node scripts/verify-swag-theme.mjs
+          node scripts/verify-semantic-ui.mjs
 
       - name: Verify default Google Analytics and cookie notice
         run: |
