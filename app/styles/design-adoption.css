@@ -29,7 +29,7 @@ html:is(.light, .dark) .facilitator-drawer
 }
 
 /* Secondary actions are neutral: they must not look like additional CTAs. */
-.cookie-consent-detail-button,
+html:is(.light, .dark) .cookie-consent-detail-button,
 html:is(.light, .dark) .swag-season-page .swag-action-outline,
 html:is(.light, .dark) .swag-season-page .swag-action-chip,
 .arcade-dashboard-page .show-all-badges {
@@ -38,7 +38,7 @@ html:is(.light, .dark) .swag-season-page .swag-action-chip,
   color: var(--ds-text);
 }
 
-.cookie-consent-detail-button:hover,
+html:is(.light, .dark) .cookie-consent-detail-button:hover,
 html:is(.light, .dark) .swag-season-page .swag-action-outline:hover,
 html:is(.light, .dark) .swag-season-page .swag-action-chip:hover,
 .arcade-dashboard-page .show-all-badges:hover {
@@ -47,7 +47,7 @@ html:is(.light, .dark) .swag-season-page .swag-action-chip:hover,
   color: var(--ds-text);
 }
 
-.cookie-consent-detail-button[aria-expanded="true"] {
+html:is(.light, .dark) .cookie-consent-detail-button[aria-expanded="true"] {
   border-color: var(--ds-focus);
   color: var(--ds-text);
 }
