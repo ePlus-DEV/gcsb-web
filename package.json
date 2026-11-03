@@ -12,7 +12,8 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "test:unit": "node --test tests/*.test.mjs"
+    "test:unit": "node --test tests/*.test.mjs",
+    "design:check": "node scripts/design-color-guard.mjs --base origin/main"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
