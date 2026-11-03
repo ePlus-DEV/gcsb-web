@@ -77,3 +77,15 @@ The implementation is at `app/styles/design-tokens.css`. New UI should use `var(
 5. Run `node scripts/design-color-guard.mjs --base origin/main` after fetching main, `yarn test:unit`, and relevant browser/CI checks.
 6. CI rejects newly introduced raw hex/RGB/HSL colors in UI source unless the exact new line includes a documented exception. Legacy unchanged colors are not blocked. The guard also flags new raw Tailwind palette classes so reviewers can request semantic classes/tokens.
 7. If a new reusable token is needed, add it to `design-tokens.css`, document its purpose here and review its contrast. **Do not introduce a new primary hue** without an explicit design-system decision.
+
+## Adoption progress (phase 1)
+
+The rollout is in `app/styles/design-adoption.css`, imported **after** legacy page-level styles. These are real runtime overrides, not merely design examples:
+
+- Violet primary: Analyze, cookie acknowledgement, Facilitator actions and Swag Drops main actions, including hover and accessible text.
+- Neutral secondary: cookie details, Swag outline/chip actions, and Earned Badges “Load more”.
+- Violet selected/focus: header active navigation, badge filters, mobile navigation and input focus rings.
+- Secondary teal/cyan: informational breadcrumbs, supporting text links and Swag source links.
+- Category and semantic exceptions: tier rank colors, chart legends, earned badge art, provider imagery, completion/success/warning/danger state colors.
+
+This is **not** a whole-site migration of legacy colors. Existing route-specific CSS may still include older hardcoded values. Subsequent PRs should progressively replace those literals with semantic tokens, use browser contrast checks, and avoid changing the locked logo. Run `node scripts/verify-semantic-ui.mjs` after building the static site for smoke verification.

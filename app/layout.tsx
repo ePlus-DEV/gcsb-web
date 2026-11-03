@@ -38,6 +38,7 @@ import "./styles/interface-refresh.css"
 import "./styles/design-tokens.css"
 import "./styles/facilitator-bonus-milestone.css"
 import "./styles/swag-theme.css"
+import "./styles/design-adoption.css"
 
 const arcadeRequestDedupeBootstrap = readFileSync(
   path.join(process.cwd(), "scripts", "arcade-request-dedupe.js"),
