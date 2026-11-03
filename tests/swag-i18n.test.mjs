@@ -306,3 +306,27 @@ test("all 2025 historical reward names have locale translations", () => {
     }
   }
 })
+
+
+test("2025 archive season labels and reward distribution rules are localized", () => {
+  const source = readRepoFile("components/arcade/swag-history.ts")
+  const labels = [...source.matchAll(
+    /(?:label|periodLabel|distributionRule):\s*"([^"]+)"/g,
+  )].map((match) => match[1])
+  assert.equal(labels.length, 6)
+  for (const locale of locales) {
+    const additional = readCatalog(locale).additional
+    for (const label of labels) {
+      assert.ok(
+        typeof additional[label] === "string" && additional[label].trim(),
+        `${locale} missing 2025 archive text: ${label}`,
+      )
+      if (locale !== "en") {
+        assert.notEqual(
+          additional[label], label,
+          `${locale} has untranslated 2025 archive text: ${label}`,
+        )
+      }
+    }
+  }
+})
