@@ -16,6 +16,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           persist-credentials: false
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -25,6 +26,11 @@ jobs:
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile --non-interactive
+
+      - name: Enforce new design colors
+        env:
+          DESIGN_COLOR_BASE: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || 'HEAD^' }}
+        run: node scripts/design-color-guard.mjs --base "$DESIGN_COLOR_BASE"
 
       - name: Unit tests
         run: yarn test:unit
