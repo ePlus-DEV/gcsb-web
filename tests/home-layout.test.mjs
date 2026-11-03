@@ -63,7 +63,7 @@ test("profile layout groups badges and insight cards without stretching against 
 
 test("Tiers sidebar stays sticky only in desktop profile layout", () => {
   const css = readRepoFile("app/styles/interface-refresh.css")
-  const stickyRule = css.slice(css.indexOf('The profile badge list can grow'))
+  const stickyRule = css.slice(css.indexOf('The profile badge list grows incrementally'))
   assert.match(stickyRule, /@media \(min-width: 821px\)/)
   assert.ok(stickyRule.includes('.arcade-dashboard-page[data-dashboard-view="profile"] .dashboard-content-grid > .tier-list-panel'))
   assert.match(stickyRule, /position:\s*sticky;/)
@@ -207,5 +207,5 @@ test("Arcade logo corrects the Font Awesome gamepad optical alignment", () => {
   const css = readRepoFile("app/styles/fontawesome-icons.css")
   const shell = readRepoFile("components/arcade/route-shell.tsx")
   assert.match(css, /\.arcade-brand-mark \.fa-icon\.fa-gamepad \{\s*transform: translateX\(-3px\);/)
-  assert.match(shell, /className="arcade-brand-mark"><Gamepad2\s*\/>/)
+  assert.match(shell, /className="arcade-brand-mark"><ArcadeBrandGamepad\s*\/>/)
 })

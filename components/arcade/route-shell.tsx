@@ -1,5 +1,6 @@
 "use client"
 import Link from "next/link"
+import ArcadeBrandGamepad from "./arcade-brand-gamepad"
 import { useEffect, useRef, useState } from "react"
 import { BadgeCheck, BookOpen, Chrome, Download, ExternalLink, Gamepad2, Globe2, Menu, Search, Trophy, X } from "lucide-react"
 import { getWebsiteLocaleHref, type WebsiteCatalog, type WebsiteLocale } from "@/lib/website-i18n"
@@ -56,7 +57,7 @@ export function ArcadeHeader({catalog, locale, dashboard = false, landing = fals
 
  return (<header ref={headerRef} className="arcade-header">
         <Link className="arcade-brand" href={homeHref} aria-label={catalog.messages.backToCalculator}>
-          <span className="arcade-brand-mark"><Gamepad2 /></span>
+          <span className="arcade-brand-mark"><ArcadeBrandGamepad /></span>
           <span className="arcade-brand-copy">{landing ? <><strong>ePlus Arcade</strong><b>Track · Plan · Score · Get Rewards</b></> : <><strong>ARCADE</strong><b>POINTS</b></>}</span>
           {!landing && <em>PRO</em>}
         </Link>
@@ -258,7 +259,7 @@ export function ArcadeFooter({catalog, locale, dashboard = false, landing = fals
         <footer className="arcade-footer landing-footer" data-home-order="footer">
           <div className="landing-footer-about">
             <Link className="arcade-brand footer-brand" href={homeHref}>
-              <span className="arcade-brand-mark"><Gamepad2/></span>
+              <span className="arcade-brand-mark"><ArcadeBrandGamepad /></span>
               <span className="arcade-brand-copy"><strong>ePlus Arcade</strong><b>Track · Plan · Score · Get Rewards</b></span>
             </Link>
             <p>{catalog.messages.unofficial}</p>
@@ -291,7 +292,7 @@ export function ArcadeFooter({catalog, locale, dashboard = false, landing = fals
       ) : (
         <footer className="arcade-footer" data-home-order="footer">
           <div className="arcade-brand footer-brand">
-            <span className="arcade-brand-mark"><Gamepad2 /></span>
+            <span className="arcade-brand-mark"><ArcadeBrandGamepad /></span>
             <span className="arcade-brand-copy"><strong>ARCADE</strong><b>POINTS</b></span>
           </div>
           <p>{catalog.messages.unofficial}</p>

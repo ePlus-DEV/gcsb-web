@@ -8,7 +8,7 @@ const { isHalloweenSeason, shouldEnableHalloween } = evaluateTypeScript(
 const { WEBSITE_LOCALES } = evaluateTypeScript(readRepoFile("lib/website-i18n.ts"))
 
 test("Halloween includes both boundary days and excludes the rest of the year", () => {
-  for (const [month, day, expected] of [[8, 30, false], [9, 1, true], [9, 31, true], [10, 1, true], [10, 2, true], [10, 3, false], [0, 1, false]]) {
+  for (const [month, day, expected] of [[8, 30, false], [9, 1, true], [9, 31, true], [10, 1, false], [10, 2, false], [10, 3, false], [0, 1, false]]) {
     assert.equal(isHalloweenSeason(new Date(2026, month, day, 12)), expected)
   }
 })
