@@ -20,3 +20,11 @@ For normal HTTPS pages embedding the HTTPS widget, this allows the parent page U
 The widget still supports `?source_url=` as the highest-priority explicit override.
 
 Without a referrer policy that exposes the path, browsers may apply `strict-origin-when-cross-origin`, in which case a cross-origin iframe can only see the parent origin rather than the full page path.
+
+## UI design system and color rules
+
+**Canonical guide:** [docs/ui/DESIGN_SYSTEM.md](docs/ui/DESIGN_SYSTEM.md). New styles must use semantic tokens defined in `app/styles/design-tokens.css`, with violet for primary actions and theme-aware surfaces/text. The existing Arcade Points logo is locked by [AGENTS.md](AGENTS.md).
+
+- `node scripts/design-color-guard.mjs --base origin/main` — reject newly added hardcoded colors or raw palette classes (fetch `origin/main` first).
+- `yarn test:unit` — run the color guard regression tests with the existing unit tests.
+- Visible UI PRs need light/dark screenshots and must pass the CI design-color gate; existing legacy colors are not automatically rewritten.
