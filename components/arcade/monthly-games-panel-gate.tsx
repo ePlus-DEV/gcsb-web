@@ -3,13 +3,13 @@
 import { createPortal } from "react-dom"
 import { useEffect, useState } from "react"
 import MonthlyGamesPanel from "./monthly-games-panel"
-import { readActiveDashboard, observeDashboardMode } from "./dashboard-state"
+import { DASHBOARD_CHANGE_EVENT, readActiveDashboard, observeDashboardMode } from "./dashboard-state"
 import {
+  DASHBOARD_STORAGE_KEY,
   type ArcadeApiResponse,
   type ArcadeBadge,
 } from "./model"
 
-const DASHBOARD_SYNC_INTERVAL_MS = 1_000
 const HOST_CLASS_NAME = "monthly-games-host"
 const HOST_ID = "monthly-games"
 
@@ -49,6 +49,7 @@ export default function MonthlyGamesPanelGate() {
   const [hasProfile, setHasProfile] = useState(false)
 
   useEffect(() => {
+    let previousResult: ArcadeApiResponse | null | undefined
     const sync = () => {
       const nextHost = findMonthlyGamesHost()
       setHost((current) => (current === nextHost ? current : nextHost))
@@ -56,31 +57,26 @@ export default function MonthlyGamesPanelGate() {
       const dashboard = readActiveDashboard()
       const result = dashboard?.result ?? null
       setHasProfile(Boolean(dashboard))
-      const nextBadges = parseStoredBadges(result)
-      setBadges((current) => JSON.stringify(current) === JSON.stringify(nextBadges) ? current : nextBadges)
+      if (result === previousResult) return
+      previousResult = result
+      setBadges(parseStoredBadges(result))
+    }
+
+    const onStorage = (event: StorageEvent) => {
+      if (event.key === DASHBOARD_STORAGE_KEY || event.key === null) sync()
     }
 
     sync()
     const stopObserving = observeDashboardMode(sync)
-    const timer = window.setInterval(sync, DASHBOARD_SYNC_INTERVAL_MS)
-    const observer = new MutationObserver((records) => {
-      const hasExternalMutation = records.some((record) => {
-        const target = record.target instanceof Element ? record.target : record.target.parentElement
-        return !target?.closest(`.${HOST_CLASS_NAME}`)
-      })
-
-      if (hasExternalMutation) sync()
-    })
-    observer.observe(document.body, { childList: true, subtree: true })
+    window.addEventListener(DASHBOARD_CHANGE_EVENT, sync)
     window.addEventListener("focus", sync)
-    window.addEventListener("storage", sync)
+    window.addEventListener("storage", onStorage)
 
     return () => {
       stopObserving()
-      window.clearInterval(timer)
-      observer.disconnect()
+      window.removeEventListener(DASHBOARD_CHANGE_EVENT, sync)
       window.removeEventListener("focus", sync)
-      window.removeEventListener("storage", sync)
+      window.removeEventListener("storage", onStorage)
     }
   }, [])
 

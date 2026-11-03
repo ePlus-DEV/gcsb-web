@@ -80,3 +80,38 @@ test("dashboard observers subscribe to both mode attributes and disconnect on cl
     })
   } finally { globalThis.MutationObserver = originalObserver }
 })
+
+test("reuses a parsed dashboard until the stored snapshot changes", () => {
+  const state = stateModule(false)
+  const oldWindow = globalThis.window
+  let raw = JSON.stringify(saved)
+  globalThis.window = { localStorage: { getItem: () => raw } }
+  try {
+    const first = state.readStoredDashboard()
+    assert.strictEqual(state.readStoredDashboard(), first)
+    raw = JSON.stringify({ ...saved, profileUrl: "another-profile" })
+    const changed = state.readStoredDashboard()
+    assert.notStrictEqual(changed, first)
+    assert.equal(changed.profileUrl, "another-profile")
+    raw = null
+    assert.equal(state.readStoredDashboard(), null)
+  } finally {
+    globalThis.window = oldWindow
+  }
+})
+
+test("profile consumers subscribe to the same-tab dashboard event without polling", () => {
+  const paths = [
+    "components/arcade/monthly-games-panel-gate.tsx",
+    "components/arcade/facilitator-panel-gate.tsx",
+    "components/arcade/facilitator-panel.tsx",
+    "components/arcade/facilitator-analyzer-option.tsx",
+  ]
+  for (const path of paths) {
+    const source = readRepoFile(path)
+    assert.match(source, /DASHBOARD_CHANGE_EVENT/, path)
+    assert.doesNotMatch(source, /setInterval\(/, path)
+  }
+  const calculator = readRepoFile("app/redesign-calculator.tsx")
+  assert.match(calculator, /notifyDashboardChanged\(\)/)
+})
