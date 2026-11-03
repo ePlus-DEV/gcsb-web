@@ -10,7 +10,7 @@ import DashboardTiers from "@/components/arcade/dashboard-tiers"
 import GuestDashboard from "@/components/arcade/guest-dashboard"
 import PreviewModeToolbar from "@/components/arcade/preview-mode-toolbar"
 import MobileBottomNav from "@/components/arcade/mobile-bottom-nav"
-import { readStoredDashboard, type DashboardViewMode } from "@/components/arcade/dashboard-state"
+import { notifyDashboardChanged, readStoredDashboard, type DashboardViewMode } from "@/components/arcade/dashboard-state"
 import { useTierSlotHistory } from "@/components/arcade/tier-slot-history"
 import {
   getWebsiteLocale,
@@ -45,7 +45,7 @@ import {
   PREVIEW_DEBUG_PROFILE_RESULT,
   PREVIEW_DEBUG_PROFILE_URL,
 } from "@/components/arcade/preview-debug-profile"
-import { readFacilitatorParticipation } from "@/components/arcade/facilitator-participation"
+import { FACILITATOR_PARTICIPATION_EVENT, readFacilitatorParticipation } from "@/components/arcade/facilitator-participation"
 import {
   API_URL,
   ARCADE_MILESTONES_URL,
@@ -359,6 +359,7 @@ export default function RedesignCalculator({
         DASHBOARD_STORAGE_KEY,
         JSON.stringify({ profileUrl: committedProfileUrl, result }),
       )
+      notifyDashboardChanged()
     } catch {
       // Storage is optional. The calculator still works without persistence.
     }
@@ -374,14 +375,14 @@ export default function RedesignCalculator({
     }
 
     syncParticipation()
-    const timer = window.setInterval(syncParticipation, 750)
     window.addEventListener("focus", syncParticipation)
     window.addEventListener("storage", syncParticipation)
+    window.addEventListener(FACILITATOR_PARTICIPATION_EVENT, syncParticipation)
 
     return () => {
-      window.clearInterval(timer)
       window.removeEventListener("focus", syncParticipation)
       window.removeEventListener("storage", syncParticipation)
+      window.removeEventListener(FACILITATOR_PARTICIPATION_EVENT, syncParticipation)
     }
   }, [committedProfileUrl])
 
@@ -664,6 +665,7 @@ export default function RedesignCalculator({
 
     try {
       window.localStorage.removeItem(DASHBOARD_STORAGE_KEY)
+      notifyDashboardChanged()
     } catch {
       // Reset in-memory state even if storage is unavailable.
     }
