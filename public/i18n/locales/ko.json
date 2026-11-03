@@ -664,7 +664,21 @@
     "Solid, comfortable feel for everyday use": "일상에서 쓰기 편한 견고한 촉감과 그립감",
     "Described as eco-friendly in the official announcement": "공식 발표에서 친환경 제품으로 소개",
     "The Arcade Weather-Shield Jacket": "Arcade Weather-Shield 재킷",
-    "Weather-Shield Jacket": "Weather-Shield 재킷"
+    "Weather-Shield Jacket": "Weather-Shield 재킷",
+    "Trooper is the foundational reward tier. The Arcade Travel Bottle and Arcade Magic Mug are confirmed; the remaining core-pack contents and final item count are unrevealed.": "Trooper는 기본 보상 등급입니다. Arcade Travel Bottle과 Arcade Magic Mug가 확인되었으며, 나머지 구성과 최종 수량은 아직 공개되지 않았습니다.",
+    "Official minimum: 2 confirmed Trooper items — the Arcade Travel Bottle and Arcade Magic Mug. Historical estimate: about 5 items, based on the final 2025 Season 2 Trooper package.": "Trooper에 확정된 보상은 최소 2개(Arcade Travel Bottle, Arcade Magic Mug)입니다. 2025년 시즌 2의 최종 구성에 기반한 과거 추정치는 약 5개입니다.",
+    "The Arcade Travel Bottle and Arcade Magic Mug are confirmed for Trooper; the remaining core-pack items have not been revealed yet.": "Trooper의 보틀과 매직 머그가 확인되었으며, 나머지 기본 팩 구성은 공개되지 않았습니다.",
+    "2025 Season 2 Trooper finished with 5 items; used as the closest same-tier baseline for the 2026 foundational Trooper pack. This is a historical estimate, not a confirmed 2026 total.": "2025년 시즌 2의 Trooper 구성은 총 5개였습니다. 이는 2026년 기본 팩의 비교 기준일 뿐, 확정된 2026년 수량이 아닙니다.",
+    "Ranger receives the Trooper core pack, including the Arcade Travel Bottle and Arcade Magic Mug, plus the exclusive Ranger bonus reward, the Arcade Backpack.": "Ranger는 Arcade Travel Bottle과 Arcade Magic Mug를 포함한 Trooper 기본 팩에 Ranger 전용 Arcade Backpack이 추가됩니다.",
+    "Official minimum: 3 confirmed Ranger items — the Arcade Travel Bottle and Arcade Magic Mug from Trooper, plus the Ranger-exclusive Arcade Backpack. Historical estimate: about 6 items.": "Ranger에 확정된 보상은 최소 3개(보틀, 머그, 전용 백팩)입니다. 과거 자료를 기준으로 약 6개로 추정됩니다.",
+    "The Arcade Travel Bottle, Arcade Magic Mug, and Arcade Backpack are confirmed for Ranger; other Trooper-family items have not yet been revealed.": "Ranger의 보틀, 매직 머그, 백팩은 확인되었지만 다른 Trooper 공통 구성품은 공개되지 않았습니다.",
+    "2026 officially defines Ranger as Trooper + 1. Using the 2025 Season 2 Trooper package of 5 items as the baseline gives an estimated 6-item Ranger package. This is not an official 2026 total.": "2026년의 공식 규칙은 Ranger = Trooper + 전용 보상 1개입니다. 2025년 Trooper 5개를 기준으로 약 6개로 추정하지만 공식 수량은 아닙니다.",
+    "Champion collection — the Weather-Shield Jacket, Arcade PopUp Pro, and LumiSnap Magnetic Fill Light are confirmed; further items are unrevealed.": "Champion에는 Weather-Shield 재킷, Arcade PopUp Pro, LumiSnap 자석 조명이 확정되었고 나머지는 미공개입니다.",
+    "Official minimum: 3 confirmed Champion rewards — the Weather-Shield Jacket, Arcade PopUp Pro, and LumiSnap Magnetic Fill Light. Historical estimate: about 6 items, based on the final 2025 Champion package.": "Champion 확정 보상은 최소 3개(재킷, PopUp Pro, LumiSnap)입니다. 2025년 최종 패키지를 기준으로 약 6개로 추정합니다.",
+    "The official 2025 Season 2 Champion package contained 6 items, so 6 is used as a historical estimate until Google completes the 2026 lineup. This is not an official 2026 total.": "2025년 시즌 2 Champion 최종 보상은 6개였습니다. 2026년 구성 전체가 공개되기 전의 참고 추정치이며 확정 수량이 아닙니다.",
+    "Official minimum: 4 items — the three confirmed Champion rewards plus one promised Legend-exclusive reward. Historical estimate: about 7 items, based on the final 2025 Legend package.": "Legend는 Champion의 확정 보상 3개와 이름이 공개되지 않은 Legend 전용 보상 1개를 포함해 최소 4개가 약속되었습니다. 과거 추정치는 약 7개입니다.",
+    "Legend-only reward — item name and details have not been revealed yet.": "Legend 전용 보상의 이름과 상세 정보는 아직 공개되지 않았습니다.",
+    "The official 2025 Season 2 Legend package contained 7 items. The 2026 rule again defines Legend as the Champion package + 1 exclusive reward, supporting a roughly 7-item historical estimate if Champion remains near 6. This is not an official 2026 total.": "2025년 시즌 2 Legend 최종 보상은 7개였습니다. 2026년에도 Champion + 전용 1개 규칙을 따르므로 Champion이 약 6개라면 Legend도 약 7개로 추정하지만 확정 수량은 아닙니다."
   },
   "dynamic": {
     "memberSince": "가입 시점 {value}",
