@@ -1,5 +1,6 @@
 "use client"
 
+import type { ReactNode } from "react"
 import { ArcadeSurface, ArcadeMetric } from "./ui/surface"
 import { Trophy } from "lucide-react"
 import type { WebsiteCatalog, WebsiteLocale } from "@/lib/website-i18n"
@@ -12,12 +13,13 @@ export type DashboardTiersProps = {
   slotHistory: SlotHistoryState
   catalog: WebsiteCatalog
   locale: WebsiteLocale
+  prediction?: ReactNode
   activeTierPoints?: number
 }
 
 /** Public tier data and appearance are identical in guest and profile views. */
 export default function DashboardTiers({
-  milestones, milestonesLive, slotHistory, catalog, locale, activeTierPoints,
+  milestones, milestonesLive, slotHistory, catalog, locale, activeTierPoints, prediction,
 }: DashboardTiersProps) {
   const viewMessages = catalog.messages
   return (
@@ -44,6 +46,7 @@ export default function DashboardTiers({
           )
         })}
       </div>
+      {prediction}
       <p className="tier-note">{viewMessages.tierNote}</p>
       <div data-home-order="tier-history">
         <TierSlotHistoryPanel {...slotHistory} milestones={milestones} catalog={catalog} locale={locale} />
