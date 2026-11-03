@@ -60,13 +60,6 @@ jobs:
       url: https://arcade.eplus.dev/pr-preview/pr-${{ github.event.number }}/
 
     steps:
-      - name: Checkout production source
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.base.ref }}
-          path: production-source
-          persist-credentials: false
-
       - name: Checkout pull request source
         if: github.event.action != 'closed'
         uses: actions/checkout@v4
@@ -80,28 +73,7 @@ jobs:
         with:
           node-version: "20"
           cache: yarn
-          cache-dependency-path: production-source/yarn.lock
-
-      - name: Build current production version
-        working-directory: production-source
-        env:
-          NEXT_PUBLIC_ENABLE_ANALYTICS: "true"
-          NEXT_PUBLIC_GA_ID: "G-SJNYKL2864"
-          NEXT_PUBLIC_GA_IDS: "G-SJNYKL2864"
-        shell: bash
-        run: |
-          set -euo pipefail
-          yarn install --frozen-lockfile --non-interactive
-          cat > next.config.mjs <<'CONFIG'
-          /** @type {import('next').NextConfig} */
-          const nextConfig = {
-            output: "export",
-            trailingSlash: true,
-            images: { unoptimized: true },
-          }
-          export default nextConfig
-          CONFIG
-          yarn build
+          cache-dependency-path: preview-source/yarn.lock
 
       - name: Build pull request preview
         if: github.event.action != 'closed'
@@ -182,15 +154,16 @@ jobs:
         run: |
           set -euo pipefail
           rm -rf published-site
-          if git ls-remote --exit-code --heads "https://github.com/${GITHUB_REPOSITORY}.git" gh-pages >/dev/null 2>&1; then
-            git clone --depth 1 --branch gh-pages "https://github.com/${GITHUB_REPOSITORY}.git" published-site
-            rm -rf published-site/.git
-          else
-            mkdir -p published-site
+          # Preview builds must never rebuild, replace or silently delete the
+          # already-published production site. The existing gh-pages snapshot
+          # remains authoritative until a dedicated main deployment updates it.
+          if ! git ls-remote --exit-code --heads "https://github.com/${GITHUB_REPOSITORY}.git" gh-pages >/dev/null 2>&1; then
+            echo "Cannot publish PR preview: gh-pages does not exist (production content must be retained)." >&2
+            exit 1
           fi
+          git clone --depth 1 --branch gh-pages "https://github.com/${GITHUB_REPOSITORY}.git" published-site
+          rm -rf published-site/.git
           mkdir -p published-site/pr-preview
-          find published-site -mindepth 1 -maxdepth 1 ! -name pr-preview -exec rm -rf {} +
-          cp -a production-source/out/. published-site/
           preview_dir="published-site/pr-preview/pr-${PR_NUMBER}"
           rm -rf "${preview_dir}"
           if [ "${PR_ACTION}" != "closed" ]; then
