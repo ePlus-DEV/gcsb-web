@@ -1,0 +1,133 @@
+/* Shared Swag Drops hub, tier and reward-detail theme tokens.
+   Scoped to Swag content so no global button/card styling can regress. */
+.swag-season-page {
+  color: #475569;
+}
+
+html.dark .swag-season-page {
+  color: #cbd5e1;
+}
+
+.swag-season-page :is(.swag-action-primary, .swag-action-outline, .swag-action-chip, .swag-action-text) {
+  text-decoration: none;
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+}
+
+html.light .swag-season-page .swag-action-primary {
+  border: 1px solid #0f172a;
+  background: #0f172a;
+  color: #ffffff;
+}
+
+html.light .swag-season-page .swag-action-primary:hover {
+  border-color: #334155;
+  background: #334155;
+  color: #ffffff;
+}
+
+html.dark .swag-season-page .swag-action-primary {
+  border: 1px solid #67e8f9;
+  background: #67e8f9;
+  color: #082f49;
+}
+
+html.dark .swag-season-page .swag-action-primary:hover {
+  border-color: #a5f3fc;
+  background: #a5f3fc;
+  color: #082f49;
+}
+
+html.light .swag-season-page .swag-action-outline {
+  border-color: #cbd5e1;
+  background: #ffffff;
+  color: #0e7490;
+}
+
+html.light .swag-season-page .swag-action-outline:hover {
+  border-color: #0891b2;
+  background: #ecfeff;
+  color: #155e75;
+}
+
+html.dark .swag-season-page .swag-action-outline {
+  border-color: #475569;
+  background: #1e293b;
+  color: #a5f3fc;
+}
+
+html.dark .swag-season-page .swag-action-outline:hover {
+  border-color: #67e8f9;
+  background: #164e63;
+  color: #ecfeff;
+}
+
+html.light .swag-season-page .swag-action-chip {
+  border-color: #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+}
+
+html.light .swag-season-page .swag-action-chip:hover {
+  border-color: #0891b2;
+  background: #ecfeff;
+  color: #155e75;
+}
+
+html.dark .swag-season-page .swag-action-chip {
+  border-color: #475569;
+  background: #1e293b;
+  color: #e2e8f0;
+}
+
+html.dark .swag-season-page .swag-action-chip:hover {
+  border-color: #67e8f9;
+  background: #164e63;
+  color: #ecfeff;
+}
+
+html.light .swag-season-page .swag-action-text {
+  color: #0e7490;
+}
+
+html.light .swag-season-page .swag-action-text:hover {
+  color: #155e75;
+  text-decoration: underline;
+}
+
+html.dark .swag-season-page .swag-action-text {
+  color: #67e8f9;
+}
+
+html.dark .swag-season-page .swag-action-text:hover {
+  color: #a5f3fc;
+  text-decoration: underline;
+}
+
+html.light .swag-season-page .swag-reward-card {
+  border-color: #a7f3d0;
+  background: #ecfdf5;
+}
+
+html.dark .swag-season-page .swag-reward-card {
+  border-color: rgba(52, 211, 153, .3);
+  background: rgba(6, 78, 59, .2);
+}
+
+html.light .swag-season-page .swag-reward-card:hover {
+  border-color: #10b981;
+}
+
+html.dark .swag-season-page .swag-reward-card:hover {
+  border-color: #34d399;
+}
+
+.swag-season-page :is(.swag-action-primary, .swag-action-outline, .swag-action-chip, .swag-action-text, .swag-reward-card):focus-visible {
+  outline: 2px solid #a78bfa;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .swag-season-page :is(.swag-action-primary, .swag-action-outline, .swag-action-chip, .swag-action-text) {
+    transition: none;
+  }
+}
