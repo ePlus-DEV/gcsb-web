@@ -172,6 +172,67 @@ jobs:
               )
               .waitFor({ state: 'attached' })
 
+            // Regression: the completed Bonus Milestone must remain readable
+            // when switching light/dark themes and desktop/mobile layouts.
+            const checkThemeContrast = async (theme, width) => {
+              await page.setViewportSize({ width, height: 932 })
+              const result = await page.evaluate((nextTheme) => {
+                const root = document.documentElement
+                root.classList.remove('light', 'dark')
+                root.classList.add(nextTheme)
+                const card = document.querySelector('.facilitator-drawer .bonus-milestone-confirmation-card.is-completed')
+                const title = card?.querySelector('.bonus-milestone-confirmation-copy strong')
+                const subtitle = card?.querySelector('.bonus-milestone-confirmation-copy small')
+                const button = card?.querySelector('.bonus-milestone-confirmation-button.is-completed')
+                if (!card || !title || !subtitle || !button) {
+                  throw new Error('Missing completed bonus card for contrast check')
+                }
+                const channels = (cssColor) => {
+                  const values = cssColor.match(/[\\d.]+/g)?.slice(0, 3).map(Number)
+                  if (!values || values.length !== 3) throw new Error('Invalid RGB color: ' + cssColor)
+                  return values
+                }
+                const luminance = (color) => {
+                  const rgb = channels(color).map(value => {
+                    const s = value / 255
+                    return s <= .04045 ? s / 12.92 : ((s + .055) / 1.055) ** 2.4
+                  })
+                  return rgb[0] * .2126 + rgb[1] * .7152 + rgb[2] * .0722
+                }
+                const contrast = (front, back) => {
+                  const a = luminance(front)
+                  const b = luminance(back)
+                  return (Math.max(a, b) + .05) / (Math.min(a, b) + .05)
+                }
+                const cardBackground = getComputedStyle(card).backgroundColor
+                const buttonStyle = getComputedStyle(button)
+                const ratios = nextTheme === 'light' ? {
+                  title: contrast(getComputedStyle(title).color, cardBackground),
+                  subtitle: contrast(getComputedStyle(subtitle).color, cardBackground),
+                  button: contrast(buttonStyle.color, buttonStyle.backgroundColor),
+                } : {}
+                return {
+                  ratios,
+                  titleColor: getComputedStyle(title).color,
+                  buttonColor: buttonStyle.color,
+                }
+              }, theme)
+              if (theme === 'light') {
+                for (const [label, ratio] of Object.entries(result.ratios)) {
+                  if (ratio < 4.5) {
+                    throw new Error(`Facilitator ${label} contrast ${ratio.toFixed(2)}:1 at ${width}px`)
+                  }
+                }
+              } else if (result.titleColor === 'rgb(23, 32, 51)') {
+                throw new Error('Dark mode inherited light-theme title colors')
+              }
+            }
+            for (const width of [430, 1440]) {
+              await checkThemeContrast('light', width)
+              await checkThemeContrast('dark', width)
+            }
+            await page.setViewportSize({ width: 430, height: 932 })
+
             await page.screenshot({
               path: 'screenshots/facilitator-mobile-vi-430x932.png',
               fullPage: true,
