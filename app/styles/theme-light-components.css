@@ -414,6 +414,7 @@ html.light .tier-note a:hover {
     color: #64748b;
   }
 
+  html.light .mobile-bottom-nav a.is-active,
   html.light .mobile-bottom-nav a[aria-current="location"] {
     color: #6d28d9;
     background: rgba(124, 58, 237, 0.1);

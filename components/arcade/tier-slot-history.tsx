@@ -106,19 +106,19 @@ export function SlotChangeBadge({
 const PERIODS: SlotPeriod[] = ["7d", "14d", "21d", "30d"]
 
 const DISPLAY_TIERS = [
-  { key: "trooper", name: "Trooper", points: 50, color: "#3ccfbd" },
-  { key: "ranger", name: "Ranger", points: 75, color: "#7fa1ff" },
-  { key: "champion", name: "Champion", points: 95, color: "#f5bd5b" },
-  { key: "legend", name: "Legend", points: 120, color: "#c391ff" },
+  { key: "trooper", name: "Trooper", points: 50, color: "#2f80ff" },
+  { key: "ranger", name: "Ranger", points: 75, color: "#2fd17d" },
+  { key: "champion", name: "Champion", points: 95, color: "#ff9f1c" },
+  { key: "legend", name: "Legend", points: 120, color: "#c054ff" },
 ] as const
 type TierKey = typeof DISPLAY_TIERS[number]["key"]
 const ALL_TIERS: TierKey[] = DISPLAY_TIERS.map((tier) => tier.key)
 
 const chartConfig = {
-  trooper: { label: "Trooper", color: "#3ccfbd" },
-  ranger: { label: "Ranger", color: "#7fa1ff" },
-  champion: { label: "Champion", color: "#f5bd5b" },
-  legend: { label: "Legend", color: "#c391ff" },
+  trooper: { label: "Trooper", color: "#2f80ff" },
+  ranger: { label: "Ranger", color: "#2fd17d" },
+  champion: { label: "Champion", color: "#ff9f1c" },
+  legend: { label: "Legend", color: "#c054ff" },
 } satisfies ChartConfig
 
 function shortDate(value: string, locale: WebsiteLocale): string {
@@ -234,7 +234,7 @@ function MultiTierHistoryChart({
           />
           <ChartTooltip
             isAnimationActive={false}
-            cursor={{ stroke: "#98a6cb", strokeWidth: 1.3, strokeDasharray: "4 4" }}
+            cursor={{ stroke: "var(--slot-history-muted)", strokeWidth: 1.3, strokeDasharray: "4 4" }}
             content={({ active, payload }) => {
               if (!active || !payload?.length) return null
               const item = payload[0].payload as (typeof series)[number]
@@ -253,7 +253,7 @@ function MultiTierHistoryChart({
                           <strong className="tabular-nums">
                             {t("tooltipValue", { count: numberFormat.format(item[tier.key]) })}
                             {capacity !== null ? (
-                              <span className="ml-1 font-medium text-slate-400">
+                              <span className="tier-trends-capacity ml-1 font-medium">
                                 / {numberFormat.format(capacity)}
                               </span>
                             ) : null}
@@ -321,8 +321,8 @@ function MultiTierHistoryChart({
             <Brush
               dataKey="ts"
               height={34}
-              stroke="#9887ff"
-              fill="#17213a"
+              stroke="var(--slot-history-accent)"
+              fill="var(--slot-history-raised)"
               travellerWidth={12}
               tickFormatter={(value: number) => shortDate(new Date(value).toISOString(), locale)}
               startIndex={startIndex}
@@ -395,7 +395,7 @@ export function TierSlotHistoryPanel({
 
       <DialogContent
         dir={locale === "ar" ? "rtl" : "ltr"}
-        className="tier-trends-dialog !w-[calc(100vw-20px)] !max-w-[900px] !gap-0 !rounded-2xl !p-0 max-h-[calc(100dvh-28px)] overflow-y-auto [&>button]:text-slate-400"
+        className="tier-trends-dialog !w-[calc(100vw-20px)] !max-w-[900px] !gap-0 !rounded-2xl !p-0 max-h-[calc(100dvh-28px)] overflow-y-auto"
         // The cookie banner is a separate high-z-index overlay. Interacting
         // with its buttons must not count as dismissal of this history modal.
         // Keep normal dialog close-button/Escape and unrelated outside clicks.
@@ -407,13 +407,13 @@ export function TierSlotHistoryPanel({
         }}
       >
         <DialogHeader className="tier-trends-header px-5 pb-5 pt-6 text-left sm:px-8 sm:pt-7">
-          <span className="text-[10px] font-bold uppercase tracking-[.16em] text-violet-300">
+          <span className="tier-trends-eyebrow text-[10px] font-bold uppercase tracking-[.16em]">
             ARCADE POINTS / {t("eyebrow")}
           </span>
           <DialogTitle className="!mt-2 text-[23px] font-extrabold tracking-tight sm:text-[27px]">
             {t("title")}
           </DialogTitle>
-          <DialogDescription className="!mt-2 max-w-lg !text-[13px] !leading-relaxed !text-slate-400">
+          <DialogDescription className="tier-trends-description !mt-2 max-w-lg !text-[13px] !leading-relaxed">
             {t("description")}
           </DialogDescription>
         </DialogHeader>
@@ -497,7 +497,7 @@ export function TierSlotHistoryPanel({
                         <strong className="mt-1 text-xl font-extrabold tabular-nums">
                           {count == null ? "—" : numberFormat.format(count)}
                           {capacity !== null ? (
-                            <span className="ml-1 text-sm font-semibold text-slate-400">
+                            <span className="tier-trends-capacity ml-1 text-sm font-semibold">
                               / {numberFormat.format(capacity)}
                             </span>
                           ) : null}
@@ -533,7 +533,7 @@ export function TierSlotHistoryPanel({
                 <div className="mb-4 flex flex-wrap items-start justify-between gap-2">
                   <div>
                     <h3 className="text-sm font-bold">{t("chartTitle")}</h3>
-                    <p className="mt-1 text-xs text-slate-400">
+                    <p className="tier-trends-muted mt-1 text-xs">
                       {t("chartSubtitle", { days: period.slice(0, -1) })}
                     </p>
                   </div>
@@ -559,7 +559,7 @@ export function TierSlotHistoryPanel({
                       : t("notEnoughData")}
                   </div>
                 )}
-                <p className="mt-3 text-[11px] leading-relaxed text-slate-500">
+                <p className="tier-trends-chart-note mt-3 text-[11px] leading-relaxed">
                   {t("chartNote")}
                   {latest ? " " + t("lastSaved", { date: longDate(latest.at, locale) }) : ""}
                 </p>

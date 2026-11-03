@@ -183,6 +183,7 @@ export default function ReleasedPointsPanel({ badges, hasProfile, catalog, local
               <button type="button" className="point-history-close" aria-label={catalog.additional["Close details"]}
                 onClick={() => setHistoryOpen(false)}><X aria-hidden="true" /></button>
             </header>
+            <div className="point-history-popover-body" tabIndex={0}>
             {failed ? <div role="status"><p>{text("error")}</p><button type="button" className="point-history-retry"
                 onClick={() => setAttempt((value) => value + 1)}>{text("retry")}</button></div>
               : !summary ? <p role="status">{text("loading")}</p>
@@ -190,19 +191,21 @@ export default function ReleasedPointsPanel({ badges, hasProfile, catalog, local
                 <dl className="point-comparison-stats">
                   <div><dt>{text("earned")}</dt><dd>{number(summary.achieved)}</dd></div>
                   <div><dt>{text("released")}</dt><dd>{number(summary.total)}</dd></div>
-                </dl>
-                <dl className="point-comparison-extra">
                   <div><dt>{text("available")}</dt><dd>{number(summary.available)}</dd></div>
                   <div><dt>{text("expired")}</dt><dd>{number(summary.expired)}</dd></div>
                 </dl>
                 <p className="point-history-coverage">{text("coverage", {
                   count: number(summary.months), total: number(month), unknown: number(summary.unknown),
                 })}</p>
-                <div className="point-history-notes">
-                  <p>{text("scope")}</p>
-                  <p>{text("skillCoverage")}</p>
-                </div>
+                <details className="point-history-explanation">
+                  <summary>{catalog.messages.pointBreakdown}</summary>
+                  <div className="point-history-notes">
+                    <p>{text("scope")}</p>
+                    <p>{text("skillCoverage")}</p>
+                  </div>
+                </details>
               </>}
+            </div>
           </section>
         </div>,
         document.body,

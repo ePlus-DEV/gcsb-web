@@ -468,3 +468,35 @@
     white-space: normal;
   }
 }
+
+
+/* The approved Home uses a clean marketing canvas. Keep the required cookie
+   disclosure, but use a smaller edge-aligned surface instead of covering its
+   central hero or feature cards. Dashboard keeps its established notice. */
+@media (min-width: 781px) {
+  body:has(.landing-home) .cookie-consent-layer {
+    justify-content: flex-end;
+    padding: 14px 24px;
+  }
+  body:has(.landing-home) .cookie-consent-card {
+    width: min(590px, calc(100vw - 48px));
+    border-radius: 13px;
+  }
+  body:has(.landing-home) .cookie-consent-main {
+    grid-template-areas: "icon copy close" "actions actions actions";
+    grid-template-columns: 35px minmax(0, 1fr) 28px;
+    gap: 7px 11px;
+    padding: 12px;
+  }
+  body:has(.landing-home) .cookie-consent-icon { width: 35px; height: 35px; }
+  body:has(.landing-home) .cookie-consent-actions { justify-content: flex-end; }
+}
+@media (max-width: 600px) {
+  body:has(.landing-home) .cookie-consent-layer {
+    bottom: 6px;
+    padding: 8px;
+  }
+  body:has(.landing-home) .cookie-consent-card {
+    width: min(100%, 430px);
+  }
+}

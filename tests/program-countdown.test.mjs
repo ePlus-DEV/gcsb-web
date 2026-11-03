@@ -12,7 +12,7 @@ const styles = readFileSync(
 )
 const layout = readFileSync(new URL("../app/layout.tsx", import.meta.url), "utf8")
 const nextConfig = readFileSync(new URL("../next.config.mjs", import.meta.url), "utf8")
-const calculator = readFileSync(new URL("../app/redesign-calculator.tsx", import.meta.url), "utf8")
+const calculator = readFileSync(new URL("../components/arcade/home-page.tsx", import.meta.url), "utf8")
 const page = readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8")
 const localizedPage = readFileSync(
   new URL("../app/[locale]/page.tsx", import.meta.url),
@@ -28,10 +28,14 @@ test("program countdown is mounted on default and localized homepages", () => {
 
 
 test("program countdown keeps a deterministic home position for every locale", () => {
-  assert.match(calculator, /className="program-countdown-host" data-home-order="program-countdown"/)
+  assert.match(calculator, /className=\{"program-countdown-host"/)
+  assert.match(calculator, /data-home-order="program-countdown"/)
+  assert.match(calculator, /aria-hidden=\{!showDeadlines\}/)
   assert.ok(
-    calculator.indexOf('className="program-countdown-host"') <
-      calculator.indexOf("{extensionStrip}"),
+    calculator.indexOf('id="programs"') <
+      calculator.indexOf('data-home-order="program-countdown"') &&
+      calculator.indexOf('data-home-order="program-countdown"') <
+      calculator.indexOf('id="faq"'),
   )
 })
 
@@ -98,7 +102,8 @@ test("ended programs switch from zero countdown boxes to an archive-style state"
   assert.match(countdown, /catalog\?\.messages\.unavailable/)
   assert.match(countdown, /catalog\?\.messages\.programTracker/)
   assert.match(countdown, /View program details/)
-  assert.match(countdown, /FACILITATOR_LAUNCHER_SELECTOR/)
+  assert.match(countdown, /onClick=\{onOpenDetails\}/)
+  assert.match(countdown, /FacilitatorProgramDetails/)
   assert.match(styles, /\.program-countdown-card\.is-ended/)
   assert.match(styles, /\.program-countdown-ended-action/)
 })
@@ -118,4 +123,21 @@ test("unconfigured Facilitator never shows a season-end timer and reports missin
   assert.match(deadline, /if \(program === "facilitator"\)/)
   assert.match(deadline, /source: "unconfigured"/)
   assert.match(deadline, /source: "season-fallback"/)
+})
+
+test("View program details opens a real, independent modal on Home", () => {
+  const details = readFileSync(new URL("../components/arcade/facilitator-program-details.tsx", import.meta.url), "utf8")
+  const points = readFileSync(new URL("../components/arcade/facilitator-points.ts", import.meta.url), "utf8")
+  assert.match(countdown, /onOpenDetails=\{\(\) => setDetailsOpen\(true\)\}/)
+  assert.match(countdown, /detailsOpen \? <FacilitatorProgramDetails/)
+  assert.match(countdown, /className="program-countdown-unconfigured"[\s\S]*?onClick=\{onOpenDetails\}/)
+  assert.doesNotMatch(countdown, /FACILITATOR_LAUNCHER_SELECTOR/)
+  assert.match(details, /FACILITATOR_MILESTONES\.map\(milestone =>/)
+  assert.match(points, /export const FACILITATOR_MILESTONES/)
+  assert.match(details, /role="dialog"/)
+  assert.match(details, /aria-modal="true"/)
+  assert.match(details, /href="dashboard\/"/)
+  assert.match(details, /event\.key === "Escape"/)
+  assert.match(details, /document\.body\.style\.overflow = "hidden"/)
+  assert.match(styles, /\.facilitator-program-details-dialog/)
 })

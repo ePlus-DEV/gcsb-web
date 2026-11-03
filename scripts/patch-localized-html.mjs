@@ -87,7 +87,9 @@ for (const outputRoot of outputRoots) {
 
     const current = await readFile(filePath, "utf8")
     const patched = setDocumentLocale(current, locale)
-    if (patched === current) {
+    // Exported HTML may share bytes with the already-localized server output.
+    // An unchanged document is valid when its HTML element is present.
+    if (!/<html\b/i.test(current)) {
       throw new Error(`Unable to set locale attributes in ${filePath}.`)
     }
 

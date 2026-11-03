@@ -35,6 +35,8 @@ import "./styles/halloween-season.css"
 import "./styles/guest-discovery.css"
 import "./styles/arcade-ui.css"
 import "./styles/interface-refresh.css"
+import "./styles/route-layout.css"
+import "./styles/home-introduction.css"
 
 const arcadeRequestDedupeBootstrap = readFileSync(
   path.join(process.cwd(), "scripts", "arcade-request-dedupe.js"),
@@ -236,7 +238,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body>
         <ThemeProvider
           attribute="class"
-          defaultTheme="dark"
+          defaultTheme="light"
           enableSystem={false}
           disableTransitionOnChange
           storageKey="arcade-theme"

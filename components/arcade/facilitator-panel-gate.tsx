@@ -80,28 +80,6 @@ export default function FacilitatorPanelGate() {
   }, [profileUrl])
 
   useEffect(() => {
-    const updateLauncherVisibility = () => {
-      const launcher =
-        document.querySelector<HTMLButtonElement>(".facilitator-launcher")
-      if (!launcher) return
-
-      launcher.hidden =
-        !participating || !launcher.classList.contains("is-participating")
-    }
-
-    updateLauncherVisibility()
-    const launcher = document.querySelector<HTMLButtonElement>(".facilitator-launcher")
-    if (!launcher) return
-    const observer = new MutationObserver(updateLauncherVisibility)
-    observer.observe(launcher, {
-      attributes: true,
-      attributeFilter: ["class"],
-    })
-
-    return () => observer.disconnect()
-  }, [profileUrl, participating])
-
-  useEffect(() => {
     const restoreFocusWhenDrawerCloses = () => {
       const drawerIsOpen = Boolean(
         document.querySelector(".facilitator-overlay"),
@@ -135,10 +113,7 @@ export default function FacilitatorPanelGate() {
           document.querySelector<HTMLButtonElement>(".facilitator-launcher")
         if (!launcher) return
 
-        const wasHidden = launcher.hidden
-        launcher.hidden = false
-        launcher.click()
-        launcher.hidden = wasHidden
+        if (!launcher.hidden) launcher.click()
       })
     }
 

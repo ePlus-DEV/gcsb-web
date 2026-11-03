@@ -3,15 +3,7 @@ import path from "node:path"
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { cache } from "react"
-import FacilitatorAnalyzerOption from "@/components/arcade/facilitator-analyzer-option"
-import FacilitatorPanelGate from "@/components/arcade/facilitator-panel-gate"
-import FreshScoreCheckEnhancer from "@/components/arcade/fresh-score-check-enhancer"
-import MonthlyGamesPanelGate from "@/components/arcade/monthly-games-panel-gate"
 import ProgramCountdown from "@/components/arcade/program-countdown"
-import ShareProfileEnhancer from "@/components/arcade/share-profile-enhancer"
-import SwagDropsPreview from "@/components/arcade/swag-drops-preview"
-import TierStatusIconEnhancer from "@/components/arcade/tier-status-icon-enhancer"
-import HomeSearchGuide from "@/components/seo/home-search-guide"
 import SeoContent from "@/components/seo/seo-content"
 import {
   getWebsiteCanonicalUrl,
@@ -21,7 +13,7 @@ import {
   type WebsiteCatalog,
   type WebsiteLocale,
 } from "@/lib/website-i18n"
-import RedesignCalculator from "../redesign-calculator"
+import HomePage from "@/components/arcade/home-page"
 
 export const dynamicParams = false
 
@@ -82,24 +74,8 @@ export default async function LocalizedPage({ params }: LocalizedPageProps) {
 
   return (
     <>
-      <RedesignCalculator
-        historyCatalog={catalog}
-        historyLocale={locale}
-        heroCopy={{
-          top: catalog.messages.heroTitleTop,
-          bottom: catalog.messages.heroTitleBottom,
-          description: catalog.messages.heroDescription,
-        }}
-        footerContent={<HomeSearchGuide catalog={catalog} />}
-      />
+      <HomePage catalog={catalog} locale={locale} />
       <ProgramCountdown />
-      <FreshScoreCheckEnhancer />
-      <TierStatusIconEnhancer />
-      <SwagDropsPreview />
-      <MonthlyGamesPanelGate />
-      <ShareProfileEnhancer />
-      <FacilitatorAnalyzerOption />
-      <FacilitatorPanelGate />
       <SeoContent locale={locale} title={title} description={description} />
     </>
   )

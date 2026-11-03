@@ -214,7 +214,8 @@ test("history opens in an accessible, responsive modal with source info tucked a
   assert.match(component, /<Accordion/)
   assert.match(component, /t\("aboutTitle"\)/)
   assert.match(component, /t\("chartSubtitle"/)
-  assert.match(css, /html\.light \.tier-trends-dialog/)
+  assert.match(css, /html\.light\s*\{[\s\S]*--slot-history-surface: #fff;/)
+  assert.match(css, /\.tier-trends-dialog\{background:var\(--slot-history-surface\)!important/)
 })
 
 test("history chart uses the existing shadcn, Radix, and Recharts components", () => {
@@ -328,7 +329,8 @@ test("slot-history trend chart has gradient series and navigable zoom without in
   assert.match(ui, /longDate\(item\.at, locale\)/)
   assert.match(ui, /isAnimationActive=\{false\}/)
   assert.match(css, /tier-trends-reset-zoom/)
-  assert.match(css, /html\.light \.tier-trends-observation-count/)
+  assert.match(css, /\.tier-trends-observation-count\{[^\n]*color:var\(--slot-history-muted\)/)
+  assert.match(css, /html\.light\s*\{[\s\S]*--slot-history-muted: #64748b;/)
   assert.match(css, /@media \(max-width:550px\)/)
 })
 
@@ -360,9 +362,9 @@ test("all public slot history strings use a passed catalog and locale", () => {
   assert.match(calc, /attributeFilter: \["data-locale"\]/)
   assert.match(calc, /getWebsiteLocaleFromPathname\(window.location.pathname\)/)
   assert.match(calc, /loadWebsiteCatalog\(selectedLocale\)/)
-  assert.ok(home.includes('historyCatalog={englishCatalog} historyLocale="en"'))
-  assert.ok(translated.includes("historyCatalog={catalog}"))
-  assert.ok(translated.includes("historyLocale={locale}"))
+  assert.ok(home.includes('catalog={englishCatalog} locale="en"'))
+  assert.ok(translated.includes("catalog={catalog}"))
+  assert.ok(translated.includes("locale={locale}"))
   assert.match(ui, /slotHistoryText\(catalog/)
   assert.match(ui, /getWebsiteLocaleInfo\(locale\)\.htmlLang/)
   assert.ok(ui.includes('dir={locale === "ar" ? "rtl" : "ltr"}'))

@@ -28,7 +28,9 @@ test("light profile metric tiles override desktop dark surfaces with readable co
   assert.match(labels, /color:\s*#52637c;/)
   assert.match(ruleBody("html.light .arcade-dashboard-page .profile-stat-grid .profile-stat-icon"), /color:\s*#6d28d9;/)
 
-  assert.match(dashboard, /className="profile-stat-grid"/)
+  assert.match(dashboard, /className="profile-panel"/)
+  assert.match(dashboard, /className="point-compact-list"/)
+  assert.match(readRepoFile("app/styles/route-layout.css"), /\.point-compact-item/)
   assert.match(layout, /import "\.\/styles\/redesign-results\.css"[\s\S]*import "\.\/styles\/theme-light-components\.css"/)
 })
 

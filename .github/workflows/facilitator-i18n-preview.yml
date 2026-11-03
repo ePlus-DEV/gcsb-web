@@ -4,6 +4,9 @@ on:
   pull_request:
     paths:
       - "app/layout.tsx"
+      - "app/redesign-calculator.tsx"
+      - "app/dashboard/**"
+      - "app/**/dashboard/**"
       - "components/arcade/**"
       - "components/i18n/**"
       - "lib/website-i18n.ts"
@@ -82,9 +85,11 @@ jobs:
               )
             })
 
-            await page.goto('http://127.0.0.1:3000/vi/', {
+            await page.goto('http://127.0.0.1:3000/vi/dashboard/', {
               waitUntil: 'domcontentloaded',
             })
+
+            await page.locator('.arcade-dashboard-page[data-dashboard-view="profile"]').waitFor()
 
             const facilitatorOption = page
               .locator('.analyzer-facilitator-option')
@@ -117,6 +122,11 @@ jobs:
             if (await page.getByText('Xem chi tiết chương trình', { exact: true }).count()) {
               throw new Error('Removed program details action is still rendered')
             }
+
+            // Acknowledge the first-visit notice before using the mobile launcher.
+            const cookieNotice = page.locator('.cookie-consent-button')
+            if (await cookieNotice.isVisible()) await cookieNotice.click()
+            await page.locator('.cookie-consent-layer').waitFor({ state: 'hidden' })
 
             const launcher = page.locator('.facilitator-launcher')
             await launcher.waitFor({ state: 'visible' })

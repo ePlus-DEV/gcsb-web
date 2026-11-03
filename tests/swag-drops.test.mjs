@@ -74,8 +74,7 @@ test("swag registry groups confirmed rewards by season and tier", () => {
 })
 
 test("homepage and sitemap expose the season-aware swag experience", () => {
-  assert.match(readRepoFile("app/page.tsx"), /<SwagDropsPreview \/>/)
-  assert.match(readRepoFile("app/[locale]/page.tsx"), /<SwagDropsPreview \/>/)
+  // Swag previews are displayed alongside live reward tiers in Dashboard,\n  // rather than duplicating score-oriented content on the introductory Home.\n  assert.match(readRepoFile("components/arcade/dashboard-page.tsx"), /<SwagDropsPreview \/>/)\n  assert.doesNotMatch(readRepoFile("app/page.tsx"), /<SwagDropsPreview \/>/)\n  assert.doesNotMatch(readRepoFile("app/[locale]/page.tsx"), /<SwagDropsPreview \/>/)
 
   const preview = readRepoFile("components/arcade/swag-drops-preview.tsx")
   assert.match(preview, /swagSeasonPath\(CURRENT_SWAG_SEASON\)/)

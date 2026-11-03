@@ -20,6 +20,7 @@ import type {
   ReactNode,
 } from "react"
 import { useEffect, useMemo, useRef, useState } from "react"
+import { createPortal } from "react-dom"
 import {
   evaluateFacilitatorSyllabus,
   FACILITATOR_SYLLABUS_2026,
@@ -29,7 +30,13 @@ import {
 } from "./facilitator-syllabus"
 import { DASHBOARD_STORAGE_KEY, formatNumber, numeric } from "./model"
 import { DASHBOARD_CHANGE_EVENT, readActiveDashboard, observeDashboardMode, type StoredDashboard } from "./dashboard-state"
-import { FACILITATOR_PARTICIPATION_EVENT, getFacilitatorParticipationStorageKey, readFacilitatorParticipation, writeFacilitatorParticipation } from "./facilitator-participation"
+import {
+  FACILITATOR_PARTICIPATION_EVENT,
+  normalizeFacilitatorProfileUrl,
+  readFacilitatorParticipation,
+  writeFacilitatorParticipation,
+  type FacilitatorParticipationDetail,
+} from "./facilitator-participation"
 
 const BONUS_MILESTONE_POINTS = 10
 const BONUS_GUIDE_URL =
@@ -157,6 +164,21 @@ function titleMatchesAliases(title: string, aliases: readonly string[]): boolean
 }
 
 export default function FacilitatorPanel() {
+  const [launcherTarget, setLauncherTarget] = useState<HTMLElement | null>(null)
+  useEffect(() => {
+    // Portal to the document body: fixed-position actions must not inherit
+    // dashboard/card layout, transforms, overflow or sticky sidebar rules.
+    const sync = () => {
+      const hasProfileDashboard = Boolean(
+        document.querySelector('.arcade-dashboard-page[data-dashboard-view="profile"] .profile-panel')
+      )
+      setLauncherTarget(hasProfileDashboard ? document.body : null)
+    }
+    sync()
+    const observer = new MutationObserver(sync)
+    observer.observe(document.body, { childList: true, subtree: true })
+    return () => observer.disconnect()
+  }, [])
   const [open, setOpen] = useState(false)
   const [dashboard, setDashboard] = useState<StoredDashboard | null>(null)
   const [isParticipating, setIsParticipating] = useState(false)
@@ -194,25 +216,26 @@ export default function FacilitatorPanel() {
     }
   }, [])
 
-  const participationStorageKey = getFacilitatorParticipationStorageKey(
-    dashboard?.profileUrl,
-  )
+  // Synchronize launcher, form and drawer without remounting on enrollment updates.
+  const currentProfileUrl = dashboard?.profileUrl
 
   useEffect(() => {
-    const sync = () => setIsParticipating(readFacilitatorParticipation(dashboard?.profileUrl))
-    const onStorage = (event: StorageEvent) => {
-      if (event.key === participationStorageKey || event.key === null) sync()
+    const sync = () => setIsParticipating(readFacilitatorParticipation(currentProfileUrl))
+    const onParticipationChange = (event: Event) => {
+      const detail = (event as CustomEvent<FacilitatorParticipationDetail>).detail
+      if (detail &&
+        normalizeFacilitatorProfileUrl(detail.profileUrl) ===
+        normalizeFacilitatorProfileUrl(currentProfileUrl)
+      ) setIsParticipating(detail.participating)
     }
     sync()
-    window.addEventListener(FACILITATOR_PARTICIPATION_EVENT, sync)
-    window.addEventListener("storage", onStorage)
-    window.addEventListener("focus", sync)
+    window.addEventListener(FACILITATOR_PARTICIPATION_EVENT, onParticipationChange)
+    window.addEventListener("storage", sync)
     return () => {
-      window.removeEventListener(FACILITATOR_PARTICIPATION_EVENT, sync)
-      window.removeEventListener("storage", onStorage)
-      window.removeEventListener("focus", sync)
+      window.removeEventListener(FACILITATOR_PARTICIPATION_EVENT, onParticipationChange)
+      window.removeEventListener("storage", sync)
     }
-  }, [dashboard?.profileUrl, participationStorageKey])
+  }, [currentProfileUrl])
 
   useEffect(() => {
     if (!open) return
@@ -354,8 +377,7 @@ export default function FacilitatorPanel() {
 
   const updateParticipation = (participating: boolean) => {
     setIsParticipating(participating)
-
-    writeFacilitatorParticipation(dashboard?.profileUrl, participating)
+    writeFacilitatorParticipation(currentProfileUrl, participating)
   }
 
   const goToCalculator = () => {
@@ -370,6 +392,7 @@ export default function FacilitatorPanel() {
 
   const launcherClassName = [
     "facilitator-launcher",
+    "is-floating",
     result
       ? isParticipating
         ? "is-participating"
@@ -379,8 +402,7 @@ export default function FacilitatorPanel() {
     .filter(Boolean)
     .join(" ")
 
-  return (
-    <>
+  const launcher = (
       <button
         ref={launcherRef}
         className={launcherClassName}
@@ -408,6 +430,11 @@ export default function FacilitatorPanel() {
         </span>
         <ChevronRight />
       </button>
+  )
+
+  return (
+    <>
+      {launcherTarget && result ? createPortal(launcher, launcherTarget) : null}
 
       {open ? (
         <div

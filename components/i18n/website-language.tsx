@@ -314,8 +314,9 @@ export default function WebsiteLanguage() {
     const pathLocale = getWebsiteLocaleFromPathname(pathname)
     const isHomepage = pathWithoutBase === "/"
 
-    if (isHomepage || pathLocale) {
-      window.location.assign(`${basePath}${getWebsiteLocaleHref(nextLocale)}`)
+    const isDashboard = /\/dashboard\/?$/.test(pathWithoutBase)
+    if (isHomepage || pathLocale || isDashboard) {
+      window.location.assign(`${basePath}${getWebsiteLocaleHref(nextLocale)}${isDashboard ? "dashboard/" : ""}${window.location.search}${window.location.hash}`)
       return
     }
 

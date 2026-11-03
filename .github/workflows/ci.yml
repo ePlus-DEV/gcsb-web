@@ -52,6 +52,18 @@ jobs:
           node scripts/verify-halloween-ui.mjs
           node scripts/verify-guest-discovery.mjs
 
+      - name: Validate approved Home design and capture PC/mobile screenshots
+        run: node scripts/verify-landing-reference.mjs
+
+      - name: Upload visual review evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: arcade-home-pc-mobile
+          path: artifacts/landing-reference/
+          if-no-files-found: ignore
+          retention-days: 14
+
       - name: Verify default Google Analytics and cookie notice
         run: |
           node scripts/verify-google-analytics-html.mjs \
