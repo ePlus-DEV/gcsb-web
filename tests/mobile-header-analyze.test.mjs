@@ -56,7 +56,7 @@ test("all Arcade Points logos use the shared original gamepad SVG without font m
   ]) {
     const logos = [...source.matchAll(/<span className="arcade-brand-mark"><ArcadeBrandGamepad \/><\/span>/g)]
     assert.equal(logos.length, count, path + " logo count")
-    assert.match(source, /import ArcadeBrandGamepad from "@\/components\/arcade\/arcade-brand-gamepad"/)
+    assert.match(source, /import ArcadeBrandGamepad from "(?:@\/components\/arcade\/|\.\/)arcade-brand-gamepad"/)
     assert.doesNotMatch(source, /<span className="arcade-brand-mark"><Gamepad2 \/><\/span>/)
   }
 })
