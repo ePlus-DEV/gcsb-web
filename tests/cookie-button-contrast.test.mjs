@@ -33,7 +33,7 @@ test("cookie acknowledgment follows approved violet CTA palette with accessible 
   assert.match(adoption, /\.cookie-consent-button:hover,[\s\S]*?background:\s*var\(--ds-primary-hover\);/)
   assert.match(adoption, /color:\s*var\(--ds-on-primary\);/)
   assert.ok(layout.indexOf('import "./styles/design-adoption.css"') > layout.indexOf('import "./styles/cookie-consent.css"'))
-  const readToken = (name) => tokens.match(new RegExp(`\\b${name}:\\s*(#[0-9a-f]{6});`, "i"))?.[1]
+  const readToken = (name) => tokens.match(new RegExp(`${name}:\\s*(#[0-9a-f]{6});`, "i"))?.[1]
   for (const key of ["--ds-primary", "--ds-primary-hover"]) {
     assert.ok(contrast(readToken("--ds-on-primary"), readToken(key)) >= 4.5, `${key} fails normal text contrast`)
   }
