@@ -57,6 +57,110 @@
   font-size: .75rem;
   line-height: 1.7;
 }
+/* The profile's 350px tier sidebar is a compact status list, not a grid of
+   full-size promotional cards. Scope this to the sidebar so the separate
+   multi-column Guest tiers retain their intended layout. */
+.arcade-dashboard-page .dashboard-content-grid > .shared-tier-panel {
+  padding: 16px;
+  border-radius: 14px;
+}
+
+.dashboard-content-grid > .shared-tier-panel .panel-title-row {
+  gap: 8px;
+}
+
+.dashboard-content-grid > .shared-tier-panel .tier-list {
+  gap: 8px;
+  margin-block: 12px;
+}
+
+.dashboard-content-grid > .shared-tier-panel .tier-list-row.arcade-ui-surface {
+  grid-template-columns: 28px minmax(0, 1fr) minmax(70px, auto);
+  gap: 8px;
+  min-height: 72px;
+  padding: 10px 12px;
+  border-radius: 11px;
+}
+
+.dashboard-content-grid > .shared-tier-panel .tier-list-icon {
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  border-radius: 8px;
+}
+
+.dashboard-content-grid > .shared-tier-panel .tier-list-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.dashboard-content-grid > .shared-tier-panel .tier-list-row > div:nth-child(2) {
+  gap: 2px;
+}
+
+.dashboard-content-grid > .shared-tier-panel .tier-list-row > div:nth-child(2) strong {
+  font-size: .75rem;
+  line-height: 1.25;
+  letter-spacing: .015em;
+}
+
+.dashboard-content-grid > .shared-tier-panel .tier-list-row > div:nth-child(2) span {
+  margin-top: 2px;
+  font-size: .68rem;
+  line-height: 1.3;
+}
+
+.dashboard-content-grid > .shared-tier-panel .tier-slot-count {
+  gap: 2px;
+  min-width: 0;
+}
+
+.dashboard-content-grid > .shared-tier-panel .tier-slot-count b {
+  font-size: 1.15rem;
+  line-height: 1.12;
+  letter-spacing: -.025em;
+}
+
+.dashboard-content-grid > .shared-tier-panel .tier-slot-count small {
+  margin-top: 1px;
+  font-size: .65rem;
+  line-height: 1.25;
+}
+
+.dashboard-content-grid > .shared-tier-panel .tier-slot-delta {
+  padding: 1px 4px;
+  font-size: .6rem;
+  line-height: 1.2;
+}
+
+.dashboard-content-grid > .shared-tier-panel .tier-note {
+  font-size: .7rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 600px) {
+  .arcade-dashboard-page .dashboard-content-grid > .shared-tier-panel {
+    padding: 13px;
+  }
+
+  .dashboard-content-grid > .shared-tier-panel .tier-list-row.arcade-ui-surface {
+    grid-template-columns: 26px minmax(0, 1fr) minmax(68px, auto);
+    gap: 7px;
+    min-height: 68px;
+    padding: 9px 10px;
+  }
+
+  .dashboard-content-grid > .shared-tier-panel .tier-list-icon {
+    width: 26px;
+    min-width: 26px;
+    height: 26px;
+  }
+
+  .dashboard-content-grid > .shared-tier-panel .tier-slot-count b {
+    font-size: 1.05rem;
+  }
+}
+
 .arcade-dashboard-page :where(a, button, input, summary):focus-visible {
   outline: 2px solid var(--ui-focus);
   outline-offset: 4px;
