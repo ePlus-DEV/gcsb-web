@@ -63,7 +63,7 @@ export default function SwagDropsArchivePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(itemList) }}
       />
 
-      <div className="not-prose grid items-stretch gap-5 md:grid-cols-2">
+      <div className="not-prose swag-season-page grid items-stretch gap-5 md:grid-cols-2">
         {ARCADE_SWAG_SEASONS.map((season) => {
           const drops = getSwagDropsForSeason(season)
           const latest = drops[0]
