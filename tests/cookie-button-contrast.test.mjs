@@ -25,19 +25,18 @@ function contrast(foreground, background) {
   return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05)
 }
 
-test("cookie acknowledgment uses a white label on an AA-compliant teal gradient", () => {
-  const normal = rule(".cookie-consent-button")
-  const hover = rule(".cookie-consent-button:hover")
-  assert.match(normal, /color:\s*#ffffff;/)
-  assert.match(hover, /color:\s*#ffffff;/)
-  for (const state of [normal, hover]) {
-    const gradient = state.match(/linear-gradient\(135deg,\s*(#[0-9a-f]{6}),\s*(#[0-9a-f]{6})\)/i)
-    assert.ok(gradient, "Expected two explicit gradient endpoints")
-    for (const endpoint of gradient.slice(1)) {
-      assert.ok(contrast("#ffffff", endpoint) >= 4.5, `White text on ${endpoint} fails WCAG AA`)
-    }
+test("cookie acknowledgment follows approved violet CTA palette with accessible contrast", () => {
+  const adoption = readRepoFile("app/styles/design-adoption.css")
+  const tokens = readRepoFile("app/styles/design-tokens.css")
+  const layout = readRepoFile("app/layout.tsx")
+  assert.match(adoption, /\.cookie-consent-button,[\s\S]*?background:\s*var\(--ds-primary\);/)
+  assert.match(adoption, /\.cookie-consent-button:hover,[\s\S]*?background:\s*var\(--ds-primary-hover\);/)
+  assert.match(adoption, /color:\s*var\(--ds-on-primary\);/)
+  assert.ok(layout.indexOf('import "./styles/design-adoption.css"') > layout.indexOf('import "./styles/cookie-consent.css"'))
+  const readToken = (name) => tokens.match(new RegExp(`\\b${name}:\\s*(#[0-9a-f]{6});`, "i"))?.[1]
+  for (const key of ["--ds-primary", "--ds-primary-hover"]) {
+    assert.ok(contrast(readToken("--ds-on-primary"), readToken(key)) >= 4.5, `${key} fails normal text contrast`)
   }
-  assert.doesNotMatch(normal, /color:\s*#07111f/)
 })
 
 test("cookie acknowledgment keeps keyboard focus, responsive sizing, and action", () => {
