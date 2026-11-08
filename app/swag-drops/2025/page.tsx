@@ -184,7 +184,7 @@ export default function SwagHistory2025Page() {
                   <p className="flex-1 text-xs leading-5 text-[color:var(--ds-text-muted)]">
                     {photo.description}
                   </p>
-                  <span className="inline-flex items-center gap-1.5 border-t border-[var(--ds-border)] pt-3 text-xs font-semibold text-cyan-700 ">
+                  <span className="inline-flex items-center gap-1.5 border-t border-[var(--ds-border)] pt-3 text-xs font-semibold text-[color:var(--ds-link)]">
                     Photo by {photo.author} · {photo.sourcePlatform}
                     <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
                   </span>
