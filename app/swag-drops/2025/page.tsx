@@ -178,7 +178,7 @@ export default function SwagHistory2025Page() {
                 </div>
                 <div className="flex flex-1 flex-col gap-2 p-4">
                   <span className="text-[10px] font-bold uppercase tracking-[.12em] text-cyan-700 dark:text-cyan-300">
-                    {`2025 Season \${photo.season} · \${photo.tier}\`}
+                    {"2025 Season " + photo.season + " · " + photo.tier}
                   </span>
                   <h3 className="text-sm font-bold text-slate-950 dark:text-white">{photo.title}</h3>
                   <p className="flex-1 text-xs leading-5 text-slate-600 dark:text-slate-300">
