@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { Calendar, ExternalLink, Trophy } from "lucide-react"
 import HistoricalSwagImage from "@/components/arcade/historical-swag-image"
+import { REAL_WORLD_2025_SWAG_PHOTOS } from "@/components/arcade/real-world-swag-photos"
 import {
   ARCADE_2025_SEASON_2_SNOWBALL_SOURCE_URL,
   ARCADE_2025_SWAG_HISTORY,
@@ -139,6 +140,62 @@ export default function SwagHistory2025Page() {
               </a>
             )
           })}
+        </section>
+
+        <section aria-labelledby="real-world-photos-heading">
+          <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h2 id="real-world-photos-heading" className="text-2xl font-bold text-slate-950 dark:text-white">
+                Real-world photos from Arcade winners
+              </h2>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
+                Actual 2025 rewards photographed by recipients, not official Google marketing renders.
+                Each photo links to the original public post with author attribution. A delivered kit
+                may differ from the final advertised package.
+              </p>
+            </div>
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+              Community photos · Seasons 1 &amp; 2
+            </span>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {REAL_WORLD_2025_SWAG_PHOTOS.map((photo) => (
+              <a
+                key={photo.id}
+                href={photo.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:border-cyan-300 hover:shadow-md dark:border-white/10 dark:bg-white/[0.035]"
+              >
+                <div className="flex h-52 items-center justify-center overflow-hidden bg-slate-100 dark:bg-black/20">
+                  <HistoricalSwagImage
+                    src={photo.imageUrl}
+                    alt={`${photo.title} — real photo by ${photo.author}`}
+                    className="h-full w-full object-contain transition duration-300 group-hover:scale-[1.03]"
+                    fallbackClassName="h-10 w-10 text-slate-300 dark:text-slate-600"
+                  />
+                </div>
+                <div className="flex flex-1 flex-col gap-2 p-4">
+                  <span className="text-[10px] font-bold uppercase tracking-[.12em] text-cyan-700 dark:text-cyan-300">
+                    {`2025 Season \${photo.season} · \${photo.tier}\`}
+                  </span>
+                  <h3 className="text-sm font-bold text-slate-950 dark:text-white">{photo.title}</h3>
+                  <p className="flex-1 text-xs leading-5 text-slate-600 dark:text-slate-300">
+                    {photo.description}
+                  </p>
+                  <span className="inline-flex items-center gap-1.5 border-t border-slate-100 pt-3 text-xs font-semibold text-cyan-700 dark:border-white/10 dark:text-cyan-300">
+                    Photo by {photo.author} · {photo.sourcePlatform}
+                    <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+                  </span>
+                </div>
+              </a>
+            ))}
+          </div>
+          <p className="mt-3 text-xs leading-5 text-slate-500 dark:text-slate-400">
+            Community photographs are linked from their original platforms; this site does not claim
+            ownership of the photos. Some external image previews may require visiting the original post.
+          </p>
         </section>
 
         {ARCADE_2025_SWAG_HISTORY.map((season) => {
