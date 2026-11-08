@@ -1,32 +1,48 @@
+import { readFileSync } from "node:fs"
 import assert from "node:assert/strict"
 import test from "node:test"
 import { readRepoFile } from "./helpers/typescript-source.mjs"
 
-test("2025 swag history uses sourced reveal imagery with graceful fallbacks", () => {
+test("2025 swag history self-hosts all 36 sourced images with valid file headers", () => {
   const images = readRepoFile("components/arcade/swag-history-images.ts")
   const imageComponent = readRepoFile("components/arcade/historical-swag-image.tsx")
   const page = readRepoFile("app/swag-drops/2025/page.tsx")
 
-  const sourcedImages = images.match(/https:\/\/[^\"\s]+\.(?:gif|png|jpg|jpeg)/g) ?? []
-  assert.ok(sourcedImages.length >= 30)
+  const localImages = [...images.matchAll(/"[^"]+": "(\/images\/swag\/2025\/season-([12])\/[^"]+\.(gif|png))"/g)]
+  assert.equal(localImages.length, 36, "all 24 Season 1 and 12 Season 2 artworks should be local")
+  assert.equal(localImages.filter((match) => match[2] === "1").length, 24)
+  assert.equal(localImages.filter((match) => match[2] === "2").length, 12)
+  assert.equal(new Set(localImages.map((match) => match[1])).size, 36)
+
+  for (const [, path, , extension] of localImages) {
+    const bytes = readFileSync(new URL("../public" + path, import.meta.url))
+    assert.ok(bytes.length > 100, path)
+    if (extension === "gif") {
+      assert.match(bytes.subarray(0, 6).toString("ascii"), /^GIF(?:87a|89a)$/, path)
+    } else {
+      assert.ok(
+        bytes.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])),
+        path + " must be a valid PNG",
+      )
+    }
+  }
 
   assert.match(images, /The Arcade Mug/)
   assert.match(images, /The Arcade Ranger Backpack/)
   assert.match(images, /The Arcade Sticker Sheet/)
-  assert.match(images, /uploads\/short-url\/vQRYo7ryrrdFqQMoAI97N9eW6ob\.gif/)
   assert.match(images, /The Arcade Ranger Vacuum Cleaner/)
-  assert.match(images, /uploads\/short-url\/AaLOkqdVnrduusTouPcsx7u62Oi\.gif/)
   assert.match(images, /The Arcade Champion Vacuum Cleaner/)
-  assert.match(images, /uploads\/short-url\/vKf11ZcXRMe5yuuX1ndX7vTWdyQ\.gif/)
   assert.match(images, /The Arcade Legend Vacuum Cleaner/)
-  assert.match(images, /uploads\/short-url\/q1F6OlahODKw1VsA3tWH0tixbT3\.gif/)
   assert.match(images, /The Arcade Pen Duo/)
   assert.match(images, /The Arcade Hoodie/)
   assert.match(images, /The Arcade Legend Backpack/)
   assert.doesNotMatch(images, /d3byx8b92xw3lq\.cloudfront\.net/)
+  assert.doesNotMatch(images, /https:\/\/d2yds90mtvelsl\.cloudfront\.net/)
 
   assert.match(imageComponent, /onError=\{\(\) => setFailed\(true\)\}/)
   assert.match(imageComponent, /if \(!src \|\| failed\)/)
+  assert.match(imageComponent, /NEXT_PUBLIC_BASE_PATH/)
+  assert.match(imageComponent, /basePath \+ src/)
   assert.match(imageComponent, /loading="lazy"/)
   assert.match(imageComponent, /decoding="async"/)
   assert.match(imageComponent, /Trophy/)
