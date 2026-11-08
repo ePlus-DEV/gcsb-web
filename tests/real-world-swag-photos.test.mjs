@@ -7,7 +7,7 @@ test("real 2025 swag gallery credits recipients and separates community photos f
   const page = readRepoFile("app/swag-drops/2025/page.tsx")
 
   const ids = [...data.matchAll(/id: "(s[12]-[^"]+)"/g)].map((match) => match[1])
-  assert.equal(ids.length, 5)
+  assert.equal(ids.length, 6)
   assert.equal(new Set(ids).size, ids.length)
   assert.match(data, /season: 1/)
   assert.match(data, /season: 2/)
