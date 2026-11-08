@@ -18,6 +18,7 @@ const allowedHosts = new Set([
   "d2yds90mtvelsl.cloudfront.net",
   "discuss.google.dev",
   "whitesquarein.com",
+  "piarcadecompass.vercel.app",
 ])
 const maxBytes = 30 * 1024 * 1024
 const minimumBytes = 100
