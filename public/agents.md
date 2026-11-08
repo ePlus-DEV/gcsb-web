@@ -19,6 +19,7 @@ Arcade Points is an independent community project for Google Skills Arcade parti
 - 2026 Ranger: https://arcade.eplus.dev/swag-drops/2026/ranger/
 - 2026 Champion: https://arcade.eplus.dev/swag-drops/2026/champion/
 - 2026 Legend: https://arcade.eplus.dev/swag-drops/2026/legend/
+- 2026 Arcade TechPack (Champion and Legend): https://arcade.eplus.dev/swag-drops/2026/arcade-techpack/
 - 2026 LumiSnap Magnetic Fill Light (Champion and Legend): https://arcade.eplus.dev/swag-drops/2026/arcade-lumisnap-magnetic-fill-light/
 - 2026 Arcade Magic Mug (Trooper and Ranger): https://arcade.eplus.dev/swag-drops/2026/arcade-magic-mug/
 - 2026 Weather-Shield Jacket: https://arcade.eplus.dev/swag-drops/2026/weather-shield-jacket/
