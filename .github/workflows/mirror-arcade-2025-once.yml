@@ -30,7 +30,7 @@ jobs:
           for (const name of ["Ranger Vacuum Cleaner", "Champion Vacuum Cleaner", "Legend Vacuum Cleaner", "Sticker Sheet"]) {
             const pos = html.indexOf(name)
             console.log("ITEM", name, "offset", pos)
-            if (pos > 0) console.log(html.slice(Math.max(0, pos - 900), pos + 300).replace(/[\n\r]+/g, " ").slice(0, 1400))
+            if (pos > 0) console.log("IMAGES:", (html.slice(pos, pos + 2000).match(/<img[^>]+>/ig) || []).slice(0, 2).map(tag => tag.slice(0, 1000)).join(" | "))
           }
           NODE
       - name: Download and verify 2025 Season 1 and Season 2 images
