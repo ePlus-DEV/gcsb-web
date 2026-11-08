@@ -166,9 +166,9 @@ export default function SwagHistory2025Page() {
                 href={photo.sourceUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex flex-col overflow-hidden rounded-2xl border border-[var(--ds-border)] bg-[var(--ds-surface)] shadow-sm transition hover:border-[var(--ds-link)] hover:shadow-md "
+                className="group flex flex-col overflow-hidden rounded-2xl border border-[color:var(--ds-border)] bg-[color:var(--ds-surface)] shadow-sm transition hover:border-[color:var(--ds-link)] hover:shadow-md "
               >
-                <div className="flex h-52 items-center justify-center overflow-hidden bg-[var(--ds-surface-subtle)]">
+                <div className="flex h-52 items-center justify-center overflow-hidden bg-[color:var(--ds-surface-subtle)]">
                   <HistoricalSwagImage
                     src={photo.imageUrl}
                     alt={`${photo.title} — real photo by ${photo.author}`}
@@ -184,7 +184,7 @@ export default function SwagHistory2025Page() {
                   <p className="flex-1 text-xs leading-5 text-[color:var(--ds-text-muted)]">
                     {photo.description}
                   </p>
-                  <span className="inline-flex items-center gap-1.5 border-t border-[var(--ds-border)] pt-3 text-xs font-semibold text-[color:var(--ds-link)]">
+                  <span className="inline-flex items-center gap-1.5 border-t border-[color:var(--ds-border)] pt-3 text-xs font-semibold text-[color:var(--ds-link)]">
                     Photo by {photo.author} · {photo.sourcePlatform}
                     <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
                   </span>
