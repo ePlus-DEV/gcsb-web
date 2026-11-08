@@ -9,8 +9,8 @@ test("2025 swag history self-hosts all 36 sourced images with valid file headers
   const page = readRepoFile("app/swag-drops/2025/page.tsx")
 
   const localImages = [...images.matchAll(/"[^"]+": "(\/images\/swag\/2025\/season-([12])\/[^"]+\.(gif|png))"/g)]
-  assert.equal(localImages.length, 36, "all 24 Season 1 and 12 Season 2 artworks should be local")
-  assert.equal(localImages.filter((match) => match[2] === "1").length, 24)
+  assert.equal(localImages.length, 35, "35 recoverable 2025 images are local; Google S1 sticker GIF returns HTTP 404")
+  assert.equal(localImages.filter((match) => match[2] === "1").length, 23)
   assert.equal(localImages.filter((match) => match[2] === "2").length, 12)
   assert.equal(new Set(localImages.map((match) => match[1])).size, 36)
 
@@ -30,6 +30,8 @@ test("2025 swag history self-hosts all 36 sourced images with valid file headers
   assert.match(images, /The Arcade Mug/)
   assert.match(images, /The Arcade Ranger Backpack/)
   assert.match(images, /The Arcade Sticker Sheet/)
+  assert.match(images, /vQRYo7ryrrdFqQMoAI97N9eW6ob\\.gif/)
+  assert.match(readRepoFile("components/arcade/real-world-swag-photos.ts"), /s1-stickers-aman-detail/)
   assert.match(images, /The Arcade Ranger Vacuum Cleaner/)
   assert.match(images, /The Arcade Champion Vacuum Cleaner/)
   assert.match(images, /The Arcade Legend Vacuum Cleaner/)
