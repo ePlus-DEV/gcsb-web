@@ -30,9 +30,15 @@ export default function SwagArtwork({
     )
   }
 
+  // Static PR previews have a basePath; public GIFs must resolve inside it.
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ""
+  const imageSrc = src.startsWith("/") && basePath && !src.startsWith(basePath + "/")
+    ? basePath + src
+    : src
+
   return (
     <img
-      src={src}
+      src={imageSrc}
       alt={alt}
       className={className}
       loading="lazy"
