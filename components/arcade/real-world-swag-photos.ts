@@ -40,6 +40,17 @@ export const REAL_WORLD_2025_SWAG_PHOTOS: readonly RealWorldArcadeSwagPhoto[] = 
     sourcePlatform: "LinkedIn",
   },
   {
+    id: "s1-stickers-aman-detail",
+    season: 1,
+    tier: "trooper",
+    title: "Arcade Sticker Sheet: close-up",
+    author: "Aman Patel",
+    description: "Close-up of the real Season 1 sticker sheet and Arcade badges, useful while the original Google sticker GIF is unavailable.",
+    imageUrl: "https://media.licdn.com/dms/image/v2/D4E22AQFC6vZd3L1foQ/feedshare-shrink_800/B4EZkuyvj0GcAg-/0/1757426678848?e=2147483647&t=lydpQDjplSNyfp3wLtVqqeXhiO5uD90NMe5co_9YSno&v=beta",
+    sourceUrl: "https://www.linkedin.com/posts/ubaman34_googlecloud-googlearcade-premiumswag-activity-7371181769120960512-TUAx",
+    sourcePlatform: "LinkedIn",
+  },
+  {
     id: "s1-novice-tanisha",
     season: 1,
     tier: "novice",
