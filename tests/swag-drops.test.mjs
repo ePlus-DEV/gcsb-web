@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs"
 import assert from "node:assert/strict"
 import test from "node:test"
 import {
@@ -26,7 +27,7 @@ test("2026 swag registry contains only currently confirmed drops", () => {
   assert.equal(techpack.revealedOnIso, "2026-11-08")
   assert.deepEqual(techpack.tiers, ["champion", "legend"])
   assert.match(techpack.sourceUrl, /swag-drop-the-arcade-techpack\/411969$/)
-  assert.match(techpack.imageUrl, /46bc2a799b8ad6f88d9a85dc67bc6719442e8f33\.gif$/)
+  assert.equal(techpack.imageUrl, "/images/swag/2026/arcade-techpack.gif")
   assert.equal(techpack.features.length, 7)
 
   const lumi = ARCADE_SWAG_DROPS[1]
@@ -35,7 +36,7 @@ test("2026 swag registry contains only currently confirmed drops", () => {
   assert.equal(lumi.revealedOnIso, "2026-11-03")
   assert.deepEqual(lumi.tiers, ["champion", "legend"])
   assert.match(lumi.sourceUrl, /swag-drop-the-arcade-lumisnap-magnetic-fill-light\/410531$/)
-  assert.match(lumi.imageUrl, /e9120cb45a31b91d976db2cdc4cadb946ea675a0\.gif$/)
+  assert.equal(lumi.imageUrl, "/images/swag/2026/arcade-lumisnap-magnetic-fill-light.gif")
   assert.equal(lumi.features.length, 5)
 
   const mug = ARCADE_SWAG_DROPS[2]
@@ -51,7 +52,7 @@ test("2026 swag registry contains only currently confirmed drops", () => {
   assert.equal(bottle.revealedOnIso, "2026-10-16")
   assert.deepEqual(bottle.tiers, ["trooper", "ranger"])
   assert.match(bottle.sourceUrl, /swag-drop-the-arcade-travel-bottle\/405316$/)
-  assert.match(bottle.imageUrl, /8b1605e269e35c0d327d7fdcb73b1ac6ff5f7a78\.gif$/)
+  assert.equal(bottle.imageUrl, "/images/swag/2026/arcade-travel-bottle.gif")
   assert.equal(bottle.features.length, 5)
 
   const popup = ARCADE_SWAG_DROPS[4]
@@ -60,7 +61,7 @@ test("2026 swag registry contains only currently confirmed drops", () => {
   assert.equal(popup.revealedOnIso, "2026-10-12")
   assert.deepEqual(popup.tiers, ["champion", "legend"])
   assert.match(popup.sourceUrl, /swag-drop-the-arcade-popup-pro\/403522$/)
-  assert.match(popup.imageUrl, /b9a415d139fc73264ef112d2daeedb1fddd718ce\.gif$/)
+  assert.equal(popup.imageUrl, "/images/swag/2026/arcade-popup-pro.gif")
   assert.equal(popup.features.length, 5)
 
   const backpack = ARCADE_SWAG_DROPS[5]
@@ -70,7 +71,7 @@ test("2026 swag registry contains only currently confirmed drops", () => {
   assert.equal(backpack.revealedOnIso, "2026-09-24")
   assert.deepEqual(backpack.tiers, ["ranger"])
   assert.match(backpack.sourceUrl, /swag-drop-the-arcade-backpack\/399232$/)
-  assert.match(backpack.imageUrl, /c48e27878cf37a9368b63e7f8ba5e28eae209f30\.gif$/)
+  assert.equal(backpack.imageUrl, "/images/swag/2026/arcade-backpack.gif")
   assert.equal(backpack.features.length, 5)
 
   const jacket = ARCADE_SWAG_DROPS[6]
@@ -81,6 +82,21 @@ test("2026 swag registry contains only currently confirmed drops", () => {
     ARCADE_SWAG_DROPS.some((drop) => drop.revealedOnIso.startsWith("2025-")),
     false,
   )
+})
+
+test("every 2026 swag image is locally hosted and preserves the GIF format", () => {
+  for (const drop of ARCADE_SWAG_DROPS) {
+    const expectedImageUrl = "/images/swag/2026/" + drop.id + ".gif"
+    assert.equal(drop.imageUrl, expectedImageUrl, drop.id + " must use a local asset")
+    const bytes = readFileSync(new URL("../public" + expectedImageUrl, import.meta.url))
+    assert.ok(bytes.length > 100, drop.id + " must have non-empty image bytes")
+    assert.match(bytes.subarray(0, 6).toString("ascii"), /^GIF(?:87a|89a)$/, drop.id)
+    assert.match(drop.sourceUrl, /^https:\/\/discuss\.google\.dev\//)
+  }
+
+  const artwork = readRepoFile("components/arcade/swag-artwork.tsx")
+  assert.match(artwork, /NEXT_PUBLIC_BASE_PATH/)
+  assert.match(artwork, /basePath \+ src/)
 })
 
 test("swag registry groups confirmed rewards by season and tier", () => {

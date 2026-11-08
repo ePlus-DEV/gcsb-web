@@ -39,7 +39,7 @@ export const ARCADE_SWAG_DROPS: readonly ArcadeSwagDrop[] = [
     revealedOnIso: "2026-11-08",
     tiers: ["champion", "legend"],
     imageUrl:
-      "https://d2yds90mtvelsl.cloudfront.net/original/4X/4/6/b/46bc2a799b8ad6f88d9a85dc67bc6719442e8f33.gif",
+      "/images/swag/2026/arcade-techpack.gif",
     sourceUrl:
       "https://discuss.google.dev/t/swag-drop-the-arcade-techpack/411969",
     summary:
@@ -64,7 +64,7 @@ export const ARCADE_SWAG_DROPS: readonly ArcadeSwagDrop[] = [
     revealedOnIso: "2026-11-03",
     tiers: ["champion", "legend"],
     imageUrl:
-      "https://d2yds90mtvelsl.cloudfront.net/original/4X/e/9/1/e9120cb45a31b91d976db2cdc4cadb946ea675a0.gif",
+      "/images/swag/2026/arcade-lumisnap-magnetic-fill-light.gif",
     sourceUrl:
       "https://discuss.google.dev/t/swag-drop-the-arcade-lumisnap-magnetic-fill-light/410531",
     summary:
@@ -87,7 +87,7 @@ export const ARCADE_SWAG_DROPS: readonly ArcadeSwagDrop[] = [
     revealedOnIso: "2026-10-23",
     tiers: ["trooper", "ranger"],
     imageUrl:
-      "https://d2yds90mtvelsl.cloudfront.net/original/4X/2/2/b/22b7a2ac687639f64d04814af4c83e172cfb2559.gif",
+      "/images/swag/2026/arcade-magic-mug.gif",
     sourceUrl:
       "https://discuss.google.dev/t/swag-drop-the-arcade-magic-mug/407455",
     summary:
@@ -109,7 +109,7 @@ export const ARCADE_SWAG_DROPS: readonly ArcadeSwagDrop[] = [
     revealedOnIso: "2026-10-16",
     tiers: ["trooper", "ranger"],
     imageUrl:
-      "https://d2yds90mtvelsl.cloudfront.net/original/4X/8/b/1/8b1605e269e35c0d327d7fdcb73b1ac6ff5f7a78.gif",
+      "/images/swag/2026/arcade-travel-bottle.gif",
     sourceUrl:
       "https://discuss.google.dev/t/swag-drop-the-arcade-travel-bottle/405316",
     summary:
@@ -132,7 +132,7 @@ export const ARCADE_SWAG_DROPS: readonly ArcadeSwagDrop[] = [
     revealedOnIso: "2026-10-12",
     tiers: ["champion", "legend"],
     imageUrl:
-      "https://d2yds90mtvelsl.cloudfront.net/original/4X/b/9/a/b9a415d139fc73264ef112d2daeedb1fddd718ce.gif",
+      "/images/swag/2026/arcade-popup-pro.gif",
     sourceUrl:
       "https://discuss.google.dev/t/swag-drop-the-arcade-popup-pro/403522",
     summary:
@@ -155,7 +155,7 @@ export const ARCADE_SWAG_DROPS: readonly ArcadeSwagDrop[] = [
     revealedOnIso: "2026-09-24",
     tiers: ["ranger"],
     imageUrl:
-      "https://d2yds90mtvelsl.cloudfront.net/original/4X/c/4/8/c48e27878cf37a9368b63e7f8ba5e28eae209f30.gif",
+      "/images/swag/2026/arcade-backpack.gif",
     sourceUrl:
       "https://discuss.google.dev/t/swag-drop-the-arcade-backpack/399232",
     summary:
@@ -178,7 +178,7 @@ export const ARCADE_SWAG_DROPS: readonly ArcadeSwagDrop[] = [
     revealedOnIso: "2026-09-15",
     tiers: ["champion", "legend"],
     imageUrl:
-      "https://d2yds90mtvelsl.cloudfront.net/original/4X/c/d/1/cd1f29603f7b53e485bede1ff9044751ae1ee722.gif",
+      "/images/swag/2026/weather-shield-jacket.gif",
     sourceUrl:
       "https://discuss.google.dev/t/swag-drop-the-arcade-weather-shield-jacket/397353",
     summary:
