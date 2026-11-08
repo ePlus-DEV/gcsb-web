@@ -27,9 +27,15 @@ export default function HistoricalSwagImage({
     return <Trophy className={fallbackClassName} aria-hidden="true" />
   }
 
+  // Local historical images also need the PR preview's static base path.
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ""
+  const imageSrc = src.startsWith("/") && basePath && !src.startsWith(basePath + "/")
+    ? basePath + src
+    : src
+
   return (
     <img
-      src={src}
+      src={imageSrc}
       alt={alt}
       loading="lazy"
       decoding="async"
