@@ -32,6 +32,32 @@ jobs:
             console.log("ITEM", name, "offset", pos)
             if (pos > 0) console.log("IMAGES:", (html.slice(pos, pos + 2000).match(/<img[^>]+>/ig) || []).slice(0, 2).map(tag => tag.slice(0, 1000)).join(" | "))
           }
+          const candidates = [
+            "/images/2025 C1/Sticker Sheet.png",
+            "/images/2025 C1/Arcade Sticker Sheet.png",
+            "/images/2025 C1/The Arcade Sticker Sheet.png",
+            "/images/2025 C1/Arcade Stickers.png",
+            "/images/2025 C1/Sticker sheet.png",
+            "/images/2025 C1/Arcade Sticker.png",
+            "/images/2025 C1/Google Cloud Sticker Sheet.png",
+            "/images/2025 C1/Sticker Sheet.gif",
+          ]
+          for (const path of candidates) {
+            const uri = new URL(path, url)
+            try {
+              const res = await fetch(uri, { method: "HEAD", signal: AbortSignal.timeout(4000) })
+              console.log("CHECK C1 STICKER", res.status, uri.href)
+            } catch (error) {
+              console.log("CHECK C1 STICKER FAILED", uri.href, error.message)
+            }
+          }
+          const discourseFallback = "https://d2yds90mtvelsl.cloudfront.net/original/3X/d/f/df3d6054e5f7f8834f276ca888dbd61bc23d79a3.gif"
+          try {
+            const response = await fetch(discourseFallback, { method: "HEAD", signal: AbortSignal.timeout(4000) })
+            console.log("CHECK DISCOURSE BASE62", response.status, discourseFallback)
+          } catch (error) {
+            console.log("CHECK DISCOURSE BASE62 FAILED", error.message)
+          }
           NODE
       - name: Download and verify 2025 Season 1 and Season 2 images
         continue-on-error: true
