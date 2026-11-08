@@ -30,7 +30,7 @@ test("2025 swag history self-hosts all 36 sourced images with valid file headers
   assert.match(images, /The Arcade Mug/)
   assert.match(images, /The Arcade Ranger Backpack/)
   assert.match(images, /The Arcade Sticker Sheet/)
-  assert.match(images, /vQRYo7ryrrdFqQMoAI97N9eW6ob\\.gif/)
+  assert.match(images, /vQRYo7ryrrdFqQMoAI97N9eW6ob\.gif/)
   assert.match(readRepoFile("components/arcade/real-world-swag-photos.ts"), /s1-stickers-aman-detail/)
   assert.match(images, /The Arcade Ranger Vacuum Cleaner/)
   assert.match(images, /The Arcade Champion Vacuum Cleaner/)
