@@ -3,7 +3,7 @@ import assert from "node:assert/strict"
 import test from "node:test"
 import { readRepoFile } from "./helpers/typescript-source.mjs"
 
-test("2025 swag history self-hosts all 36 sourced images with valid file headers", () => {
+test("2025 swag history self-hosts all 35 recoverable images with valid file headers", () => {
   const images = readRepoFile("components/arcade/swag-history-images.ts")
   const imageComponent = readRepoFile("components/arcade/historical-swag-image.tsx")
   const page = readRepoFile("app/swag-drops/2025/page.tsx")
@@ -12,7 +12,7 @@ test("2025 swag history self-hosts all 36 sourced images with valid file headers
   assert.equal(localImages.length, 35, "35 recoverable 2025 images are local; Google S1 sticker GIF returns HTTP 404")
   assert.equal(localImages.filter((match) => match[2] === "1").length, 23)
   assert.equal(localImages.filter((match) => match[2] === "2").length, 12)
-  assert.equal(new Set(localImages.map((match) => match[1])).size, 36)
+  assert.equal(new Set(localImages.map((match) => match[1])).size, 35)
 
   for (const [, path, , extension] of localImages) {
     const bytes = readFileSync(new URL("../public" + path, import.meta.url))
