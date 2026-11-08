@@ -30,6 +30,31 @@ export type ArcadeSwagDrop = {
  */
 export const ARCADE_SWAG_DROPS: readonly ArcadeSwagDrop[] = [
   {
+    id: "arcade-techpack",
+    season: 2026,
+    dropNumber: 7,
+    name: "The Arcade TechPack",
+    shortName: "Arcade TechPack",
+    revealedOn: "November 8, 2026",
+    revealedOnIso: "2026-11-08",
+    tiers: ["champion", "legend"],
+    imageUrl:
+      "https://d2yds90mtvelsl.cloudfront.net/original/4X/4/6/b/46bc2a799b8ad6f88d9a85dc67bc6719442e8f33.gif",
+    sourceUrl:
+      "https://discuss.google.dev/t/swag-drop-the-arcade-techpack/411969",
+    summary:
+      "A weather-resistant 21 L tech backpack with a 15.6-inch laptop compartment and 180° opening, confirmed for Arcade Champion and Legend.",
+    features: [
+      "Microfiber-lined padded compartment with dual elastic straps for laptops and tablets up to 15.6 inches",
+      "180° clamshell zip opening with a quick-release magnetic flap",
+      "Integrated slip pockets, pen loops, and a snap-tab key leash",
+      "Two expandable side pockets for a water bottle or umbrella",
+      "Weather-resistant matte shell with 21 L storage capacity",
+      "Breathable 3D honeycomb back, contoured shoulder straps, and a trolley sleeve",
+      "Embossed Google Cloud wordmark, front badge, and shoulder-strap silicone emblem",
+    ],
+  },
+  {
     id: "arcade-lumisnap-magnetic-fill-light",
     season: 2026,
     dropNumber: 6,
