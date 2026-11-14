@@ -30,6 +30,30 @@ export type ArcadeSwagDrop = {
  */
 export const ARCADE_SWAG_DROPS: readonly ArcadeSwagDrop[] = [
   {
+    id: "arcade-vacuum-tumbler",
+    season: 2026,
+    dropNumber: 8,
+    name: "The Arcade Vacuum Tumbler",
+    shortName: "Arcade Vacuum Tumbler",
+    revealedOn: "November 13, 2026",
+    revealedOnIso: "2026-11-13",
+    tiers: ["champion", "legend"],
+    imageUrl:
+      "https://d2yds90mtvelsl.cloudfront.net/original/4X/3/b/9/3b9a15d8be3062b9f8a248a07ff4c76cd2bce713.gif",
+    sourceUrl:
+      "https://discuss.google.dev/t/swag-drop-the-arcade-vacuum-tumbler/413540",
+    summary:
+      "A 680 ml (23 oz) matte-black insulated tumbler made from food-grade 304 stainless steel, confirmed for Arcade Champion and Legend.",
+    features: [
+      "680 ml (23 oz) capacity with official Google Cloud branding and a matte-black powder-coated finish",
+      "Food-grade 304 stainless steel, BPA-free construction",
+      "Double-wall vacuum insulation designed to keep drinks cold for up to 24 hours",
+      "Leak-resistant seal and convenient straw lid",
+      "Scratch-resistant exterior suited to daily travel",
+      "Detachable anti-slip rubber boot that protects desks and fits more car cup holders when removed",
+    ],
+  },
+  {
     id: "arcade-techpack",
     season: 2026,
     dropNumber: 7,
