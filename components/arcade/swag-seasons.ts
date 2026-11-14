@@ -91,14 +91,14 @@ export const SWAG_TIER_META: Record<
     pointsLabel: "95–119 points",
     slots: 3000,
     rewardRule:
-      "Champion collection — the Weather-Shield Jacket, Arcade PopUp Pro, LumiSnap Magnetic Fill Light, and Arcade TechPack are confirmed; further items are unrevealed.",
+      "Champion collection — the Weather-Shield Jacket, Arcade PopUp Pro, LumiSnap Magnetic Fill Light, Arcade TechPack, and Arcade Vacuum Tumbler are confirmed; further items are unrevealed.",
     allocationNote:
       "Champion has 3,000 prize slots. If a higher-tier pool fills, Waterfall determines how eligible participants roll into the next prize pool.",
     packageRule: "High-tier Champion collection · historical estimate ≈6 items",
-    knownMinimumItems: "4+",
+    knownMinimumItems: "5+",
     knownMinimumNote:
-      "Official minimum: 4 confirmed Champion rewards — the Weather-Shield Jacket, Arcade PopUp Pro, LumiSnap Magnetic Fill Light, and Arcade TechPack. Historical estimate: about 6 items, based on the final 2025 Champion package.",
-    waitingNote: "Champion collection — the Weather-Shield Jacket, Arcade PopUp Pro, LumiSnap Magnetic Fill Light, and Arcade TechPack are confirmed; further items are unrevealed.",
+      "Official minimum: 5 confirmed Champion rewards — the Weather-Shield Jacket, Arcade PopUp Pro, LumiSnap Magnetic Fill Light, Arcade TechPack, and Arcade Vacuum Tumbler. Historical estimate: about 6 items, based on the final 2025 Champion package.",
+    waitingNote: "Champion collection — the Weather-Shield Jacket, Arcade PopUp Pro, LumiSnap Magnetic Fill Light, Arcade TechPack, and Arcade Vacuum Tumbler are confirmed; further items are unrevealed.",
     historicalEstimateItems: 6,
     historicalEstimateLabel: "≈6 items",
     historicalEstimateBasis:
@@ -125,9 +125,9 @@ export const SWAG_TIER_META: Record<
     allocationNote:
       "Legend is the highest 2026 prize tier with 2,500 slots. Waterfall applies to prize-slot allocation, not to which swag belongs to a tier.",
     packageRule: "Champion pack + 1 Legend exclusive · historical estimate ≈7 items",
-    knownMinimumItems: "5+",
+    knownMinimumItems: "6+",
     knownMinimumNote:
-      "Official minimum: 5 items — the four confirmed Champion rewards (including Arcade TechPack) plus one promised Legend-exclusive reward. Historical estimate: about 7 items, based on the final 2025 Legend package.",
+      "Official minimum: 6 items — the five confirmed Champion rewards (including Arcade TechPack and Arcade Vacuum Tumbler) plus one promised Legend-exclusive reward. Historical estimate: about 7 items, based on the final 2025 Legend package.",
     waitingNote: "Legend-only reward — item name and details have not been revealed yet.",
     historicalEstimateItems: 7,
     historicalEstimateLabel: "≈7 items",

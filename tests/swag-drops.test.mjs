@@ -18,10 +18,19 @@ const {
 test("2026 swag registry contains only currently confirmed drops", () => {
   assert.deepEqual(ARCADE_SWAG_SEASONS, [2026])
   assert.deepEqual(ARCADE_SWAG_TIERS, ["trooper", "ranger", "champion", "legend"])
-  assert.equal(ARCADE_SWAG_DROPS.length, 7)
-  assert.equal(new Set(ARCADE_SWAG_DROPS.map((drop) => drop.id)).size, 7)
+  assert.equal(ARCADE_SWAG_DROPS.length, 8)
+  assert.equal(new Set(ARCADE_SWAG_DROPS.map((drop) => drop.id)).size, 8)
 
-  const techpack = ARCADE_SWAG_DROPS[0]
+  const tumbler = ARCADE_SWAG_DROPS[0]
+  assert.equal(tumbler.id, "arcade-vacuum-tumbler")
+  assert.equal(tumbler.dropNumber, 8)
+  assert.equal(tumbler.revealedOnIso, "2026-11-13")
+  assert.deepEqual(tumbler.tiers, ["champion", "legend"])
+  assert.match(tumbler.sourceUrl, /swag-drop-the-arcade-vacuum-tumbler\/413540$/)
+  assert.match(tumbler.imageUrl, /^https:\/\/d2yds90mtvelsl\.cloudfront\.net\/original\/.*\.gif$/)
+  assert.equal(tumbler.features.length, 6)
+
+  const techpack = ARCADE_SWAG_DROPS[1]
   assert.equal(techpack.id, "arcade-techpack")
   assert.equal(techpack.dropNumber, 7)
   assert.equal(techpack.revealedOnIso, "2026-11-08")
@@ -30,7 +39,7 @@ test("2026 swag registry contains only currently confirmed drops", () => {
   assert.equal(techpack.imageUrl, "/images/swag/2026/arcade-techpack.gif")
   assert.equal(techpack.features.length, 7)
 
-  const lumi = ARCADE_SWAG_DROPS[1]
+  const lumi = ARCADE_SWAG_DROPS[2]
   assert.equal(lumi.id, "arcade-lumisnap-magnetic-fill-light")
   assert.equal(lumi.dropNumber, 6)
   assert.equal(lumi.revealedOnIso, "2026-11-03")
@@ -39,14 +48,14 @@ test("2026 swag registry contains only currently confirmed drops", () => {
   assert.equal(lumi.imageUrl, "/images/swag/2026/arcade-lumisnap-magnetic-fill-light.gif")
   assert.equal(lumi.features.length, 5)
 
-  const mug = ARCADE_SWAG_DROPS[2]
+  const mug = ARCADE_SWAG_DROPS[3]
   assert.equal(mug.id, "arcade-magic-mug")
   assert.equal(mug.dropNumber, 5)
   assert.equal(mug.revealedOnIso, "2026-10-23")
   assert.deepEqual(mug.tiers, ["trooper", "ranger"])
   assert.match(mug.sourceUrl, /swag-drop-the-arcade-magic-mug\/407455$/)
 
-  const bottle = ARCADE_SWAG_DROPS[3]
+  const bottle = ARCADE_SWAG_DROPS[4]
   assert.equal(bottle.id, "arcade-travel-bottle")
   assert.equal(bottle.dropNumber, 4)
   assert.equal(bottle.revealedOnIso, "2026-10-16")
@@ -55,7 +64,7 @@ test("2026 swag registry contains only currently confirmed drops", () => {
   assert.equal(bottle.imageUrl, "/images/swag/2026/arcade-travel-bottle.gif")
   assert.equal(bottle.features.length, 5)
 
-  const popup = ARCADE_SWAG_DROPS[4]
+  const popup = ARCADE_SWAG_DROPS[5]
   assert.equal(popup.id, "arcade-popup-pro")
   assert.equal(popup.dropNumber, 3)
   assert.equal(popup.revealedOnIso, "2026-10-12")
@@ -64,7 +73,7 @@ test("2026 swag registry contains only currently confirmed drops", () => {
   assert.equal(popup.imageUrl, "/images/swag/2026/arcade-popup-pro.gif")
   assert.equal(popup.features.length, 5)
 
-  const backpack = ARCADE_SWAG_DROPS[5]
+  const backpack = ARCADE_SWAG_DROPS[6]
   assert.equal(backpack.id, "arcade-backpack")
   assert.equal(backpack.season, 2026)
   assert.equal(backpack.dropNumber, 2)
@@ -74,7 +83,7 @@ test("2026 swag registry contains only currently confirmed drops", () => {
   assert.equal(backpack.imageUrl, "/images/swag/2026/arcade-backpack.gif")
   assert.equal(backpack.features.length, 5)
 
-  const jacket = ARCADE_SWAG_DROPS[6]
+  const jacket = ARCADE_SWAG_DROPS[7]
   assert.equal(jacket.id, "weather-shield-jacket")
   assert.equal(jacket.dropNumber, 1)
   assert.deepEqual(jacket.tiers, ["champion", "legend"])
@@ -84,13 +93,21 @@ test("2026 swag registry contains only currently confirmed drops", () => {
   )
 })
 
-test("every 2026 swag image is locally hosted and preserves the GIF format", () => {
+test("every 2026 swag image has a verified local or pinned official GIF source", () => {
   for (const drop of ARCADE_SWAG_DROPS) {
-    const expectedImageUrl = "/images/swag/2026/" + drop.id + ".gif"
-    assert.equal(drop.imageUrl, expectedImageUrl, drop.id + " must use a local asset")
-    const bytes = readFileSync(new URL("../public" + expectedImageUrl, import.meta.url))
-    assert.ok(bytes.length > 100, drop.id + " must have non-empty image bytes")
-    assert.match(bytes.subarray(0, 6).toString("ascii"), /^GIF(?:87a|89a)$/, drop.id)
+    if (drop.id === "arcade-vacuum-tumbler") {
+      // The original official Google CDN GIF is used until the binary can be mirrored.
+      assert.equal(
+        drop.imageUrl,
+        "https://d2yds90mtvelsl.cloudfront.net/original/4X/3/b/9/3b9a15d8be3062b9f8a248a07ff4c76cd2bce713.gif",
+      )
+    } else {
+      const expectedImageUrl = "/images/swag/2026/" + drop.id + ".gif"
+      assert.equal(drop.imageUrl, expectedImageUrl, drop.id + " must use a local asset")
+      const bytes = readFileSync(new URL("../public" + expectedImageUrl, import.meta.url))
+      assert.ok(bytes.length > 100, drop.id + " must have non-empty image bytes")
+      assert.match(bytes.subarray(0, 6).toString("ascii"), /^GIF(?:87a|89a)$/, drop.id)
+    }
     assert.match(drop.sourceUrl, /^https:\/\/discuss\.google\.dev\//)
   }
 
@@ -100,12 +117,12 @@ test("every 2026 swag image is locally hosted and preserves the GIF format", () 
 })
 
 test("swag registry groups confirmed rewards by season and tier", () => {
-  assert.equal(getSwagDropsForSeason(2026).length, 7)
+  assert.equal(getSwagDropsForSeason(2026).length, 8)
   assert.equal(getSwagDropsForSeason(2025).length, 0)
   assert.deepEqual(getSwagDropsForTier("trooper", 2026).map((item) => item.id), ["arcade-magic-mug", "arcade-travel-bottle"])
   assert.deepEqual(getSwagDropsForTier("ranger", 2026).map((item) => item.id), ["arcade-magic-mug", "arcade-travel-bottle", "arcade-backpack"])
-  assert.deepEqual(getSwagDropsForTier("champion", 2026).map((item) => item.id), ["arcade-techpack", "arcade-lumisnap-magnetic-fill-light", "arcade-popup-pro", "weather-shield-jacket"])
-  assert.deepEqual(getSwagDropsForTier("legend", 2026).map((item) => item.id), ["arcade-techpack", "arcade-lumisnap-magnetic-fill-light", "arcade-popup-pro", "weather-shield-jacket"])
+  assert.deepEqual(getSwagDropsForTier("champion", 2026).map((item) => item.id), ["arcade-vacuum-tumbler", "arcade-techpack", "arcade-lumisnap-magnetic-fill-light", "arcade-popup-pro", "weather-shield-jacket"])
+  assert.deepEqual(getSwagDropsForTier("legend", 2026).map((item) => item.id), ["arcade-vacuum-tumbler", "arcade-techpack", "arcade-lumisnap-magnetic-fill-light", "arcade-popup-pro", "weather-shield-jacket"])
 })
 
 test("homepage and sitemap expose the season-aware swag experience", () => {
@@ -210,21 +227,21 @@ test("season hub exposes a balanced reward board without hiding tier rewards", (
 })
 
 
-test("2026 TechPack is the latest official drop for Champion and Legend", () => {
+test("2026 Vacuum Tumbler is the latest official drop for Champion and Legend", () => {
   const preview = readRepoFile("components/arcade/swag-drops-preview.tsx")
   const seasonPage = readRepoFile("app/swag-drops/2026/page.tsx")
   const detailPage = readRepoFile("app/swag-drops/2026/[slug]/page.tsx")
   const seasonMeta = readRepoFile("components/arcade/swag-seasons.ts")
-  assert.equal(getSwagDropsForSeason(2026)[0]?.id, "arcade-techpack")
+  assert.equal(getSwagDropsForSeason(2026)[0]?.id, "arcade-vacuum-tumbler")
   assert.equal(getSwagDropsForTier("ranger", 2026).length, 3)
-  assert.equal(getSwagDropsForTier("champion", 2026).length, 4)
-  assert.equal(getSwagDropsForTier("legend", 2026).length, 4)
+  assert.equal(getSwagDropsForTier("champion", 2026).length, 5)
+  assert.equal(getSwagDropsForTier("legend", 2026).length, 5)
   assert.match(preview, /latest\.tiers/)
   assert.doesNotMatch(preview, /Arcade Champion · Arcade Legend/)
   assert.match(seasonPage, /updated=\{latest\?\.revealedOn/)
   assert.match(detailPage, /getSwagDropsForSeason\(season\)\.map/)
   assert.match(seasonMeta, /the Arcade Travel Bottle and Arcade Magic Mug, plus the exclusive Ranger bonus reward/)
   assert.match(seasonMeta, /officialPendingRewards: \[\]/)
-  assert.match(seasonMeta, /Weather-Shield Jacket, Arcade PopUp Pro, LumiSnap Magnetic Fill Light, and Arcade TechPack are confirmed/)
-  assert.match(seasonMeta, /knownMinimumItems: "4\+"/)
+  assert.match(seasonMeta, /Weather-Shield Jacket, Arcade PopUp Pro, LumiSnap Magnetic Fill Light, Arcade TechPack, and Arcade Vacuum Tumbler are confirmed/)
+  assert.match(seasonMeta, /knownMinimumItems: "5\+"/)
 })
