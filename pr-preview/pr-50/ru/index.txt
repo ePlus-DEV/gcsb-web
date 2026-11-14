@@ -1,0 +1,287 @@
+1:"$Sreact.fragment"
+4:I[9304,["874","static/chunks/874-6636e32d520a8252.js","98","static/chunks/98-3d453edbdd7331db.js","177","static/chunks/app/layout-b1800ac7b4bbe00c.js"],"ThemeProvider"]
+5:I[8180,["874","static/chunks/874-6636e32d520a8252.js","98","static/chunks/98-3d453edbdd7331db.js","177","static/chunks/app/layout-b1800ac7b4bbe00c.js"],"default"]
+6:I[352,["874","static/chunks/874-6636e32d520a8252.js","98","static/chunks/98-3d453edbdd7331db.js","177","static/chunks/app/layout-b1800ac7b4bbe00c.js"],"default"]
+7:I[7555,[],""]
+8:I[1295,[],""]
+9:I[6195,["874","static/chunks/874-6636e32d520a8252.js","345","static/chunks/app/not-found-21a7e0501edcde19.js"],"default"]
+a:I[7098,["874","static/chunks/874-6636e32d520a8252.js","98","static/chunks/98-3d453edbdd7331db.js","177","static/chunks/app/layout-b1800ac7b4bbe00c.js"],"default"]
+d:I[9665,[],"OutletBoundary"]
+10:I[9665,[],"ViewportBoundary"]
+12:I[9665,[],"MetadataBoundary"]
+14:I[6614,[],""]
+:HL["/pr-preview/pr-50/_next/static/css/83cb28a0ee905a41.css","style"]
+:HL["/pr-preview/pr-50/_next/static/css/9fcac8c89f887fa6.css","style"]
+2:T15e0,(() => {
+  const installFlag = "__eplusArcadeRequestDeduperInstalled"
+  if (window[installFlag]) return
+
+  const originalFetch = window.fetch.bind(window)
+  const inFlight = new Map()
+  const recent = new Map()
+  const recentTtlMs = 5_000
+  const apiOrigin = "https://hub.eplus.dev"
+  const apiPaths = new Set(["/api/arcade-public", "/api/arcade-widget"])
+
+  function isRequest(input) {
+    return typeof Request !== "undefined" && input instanceof Request
+  }
+
+  function getRequestUrl(input) {
+    if (typeof input === "string") return input
+    if (input instanceof URL) return input.toString()
+    if (isRequest(input)) return input.url
+    return ""
+  }
+
+  function getRequestMethod(input, init) {
+    if (init?.method) return String(init.method).toUpperCase()
+    if (isRequest(input)) return input.method.toUpperCase()
+    return "GET"
+  }
+
+  function getConsumerSignal(input, init) {
+    if (init?.signal !== undefined) return init.signal
+    if (isRequest(input)) return input.signal
+    return null
+  }
+
+  function getEffectiveHeaders(input, init) {
+    if (typeof Headers === "undefined") return []
+    const headers =
+      init?.headers !== undefined
+        ? new Headers(init.headers)
+        : isRequest(input)
+          ? new Headers(input.headers)
+          : new Headers()
+
+    return [...headers.entries()].sort(([left], [right]) => left.localeCompare(right))
+  }
+
+  function getEffectiveOption(input, init, name, fallback) {
+    if (init?.[name] !== undefined) return init[name]
+    if (isRequest(input) && input[name] !== undefined) return input[name]
+    return fallback
+  }
+
+  function getRequestKey(url, input, init, body) {
+    return JSON.stringify({
+      url: `${url.origin}${url.pathname}${url.search}`,
+      body,
+      headers: getEffectiveHeaders(input, init),
+      credentials: getEffectiveOption(input, init, "credentials", "same-origin"),
+      mode: getEffectiveOption(input, init, "mode", "cors"),
+      cache: getEffectiveOption(input, init, "cache", "default"),
+      redirect: getEffectiveOption(input, init, "redirect", "follow"),
+      referrerPolicy: getEffectiveOption(input, init, "referrerPolicy", ""),
+    })
+  }
+
+  function createAbortError() {
+    try {
+      return new DOMException("The operation was aborted.", "AbortError")
+    } catch {
+      const error = new Error("The operation was aborted.")
+      error.name = "AbortError"
+      return error
+    }
+  }
+
+  function responseForConsumer(sharedRequest, signal) {
+    if (!signal) return sharedRequest.then((response) => response.clone())
+    if (signal.aborted) return Promise.reject(createAbortError())
+
+    return new Promise((resolve, reject) => {
+      let settled = false
+
+      const cleanup = () => signal.removeEventListener("abort", onAbort)
+      const onAbort = () => {
+        if (settled) return
+        settled = true
+        cleanup()
+        reject(createAbortError())
+      }
+
+      signal.addEventListener("abort", onAbort, { once: true })
+      sharedRequest.then(
+        (response) => {
+          if (settled) return
+          settled = true
+          cleanup()
+          resolve(response.clone())
+        },
+        (error) => {
+          if (settled) return
+          settled = true
+          cleanup()
+          reject(error)
+        },
+      )
+    })
+  }
+
+  function dedupeRequest(input, init, url, body, consumerSignal) {
+    if (consumerSignal?.aborted) return Promise.reject(createAbortError())
+
+    const key = getRequestKey(url, input, init, body)
+    const now = Date.now()
+    const cached = recent.get(key)
+
+    if (cached) {
+      if (cached.expiresAt > now) {
+        return Promise.resolve(cached.response.clone())
+      }
+      recent.delete(key)
+    }
+
+    const existing = inFlight.get(key)
+    if (existing) return responseForConsumer(existing, consumerSignal)
+
+    const sharedInit = isRequest(input)
+      ? { ...(init ?? {}), signal: null }
+      : init && "signal" in init
+        ? { ...init, signal: null }
+        : init
+
+    const sharedRequest = originalFetch(input, sharedInit)
+      .then((response) => {
+        if (response.ok) {
+          const entry = {
+            response: response.clone(),
+            expiresAt: Date.now() + recentTtlMs,
+          }
+          recent.set(key, entry)
+          window.setTimeout(() => {
+            if (recent.get(key) === entry) recent.delete(key)
+          }, recentTtlMs)
+        }
+        return response
+      })
+      .finally(() => {
+        if (inFlight.get(key) === sharedRequest) inFlight.delete(key)
+      })
+
+    inFlight.set(key, sharedRequest)
+    return responseForConsumer(sharedRequest, consumerSignal)
+  }
+
+  window.fetch = (input, init) => {
+    const rawUrl = getRequestUrl(input)
+    let url
+
+    try {
+      url = new URL(rawUrl, window.location?.href ?? "https://arcade.eplus.dev/")
+    } catch {
+      return originalFetch(input, init)
+    }
+
+    if (
+      getRequestMethod(input, init) !== "POST" ||
+      url.origin !== apiOrigin ||
+      !apiPaths.has(url.pathname)
+    ) {
+      return originalFetch(input, init)
+    }
+
+    const consumerSignal = getConsumerSignal(input, init)
+
+    if (init?.body !== undefined) {
+      if (typeof init.body !== "string") return originalFetch(input, init)
+      return dedupeRequest(input, init, url, init.body, consumerSignal)
+    }
+
+    if (!isRequest(input) || input.bodyUsed) return originalFetch(input, init)
+
+    return input
+      .clone()
+      .text()
+      .then(
+        (body) => dedupeRequest(input, init, url, body, consumerSignal),
+        () => originalFetch(input, init),
+      )
+  }
+
+  window[installFlag] = true
+})()
+3:T711,(() => {
+  const storagePrefix = "arcade-facilitator-participation-v1";
+  const originalFetch = window.fetch.bind(window);
+
+  window.fetch = (input, init) => {
+    const rawUrl =
+      typeof input === "string"
+        ? input
+        : input instanceof URL
+          ? input.toString()
+          : input instanceof Request
+            ? input.url
+            : "";
+
+    let url;
+    try {
+      url = new URL(rawUrl, window.location.href);
+    } catch {
+      return originalFetch(input, init);
+    }
+
+    const method = String(
+      init?.method ?? (input instanceof Request ? input.method : "GET"),
+    ).toUpperCase();
+
+    if (
+      method !== "POST" ||
+      !url.pathname.includes("/api/arcade") ||
+      typeof init?.body !== "string"
+    ) {
+      return originalFetch(input, init);
+    }
+
+    try {
+      const payload = JSON.parse(init.body);
+      if (
+        !payload ||
+        typeof payload !== "object" ||
+        Object.prototype.hasOwnProperty.call(payload, "facilitator")
+      ) {
+        return originalFetch(input, init);
+      }
+
+      const rawProfileUrl =
+        typeof payload.url === "string" ? payload.url.trim() : "";
+      const profileUrl = rawProfileUrl.endsWith("/")
+        ? rawProfileUrl.slice(0, -1)
+        : rawProfileUrl;
+
+      if (!profileUrl) {
+        return originalFetch(input, init);
+      }
+
+      let participating = false;
+      try {
+        participating =
+          window.localStorage.getItem(storagePrefix + ":" + profileUrl) === "true";
+      } catch {
+        // Local storage is optional. False matches the existing UI fallback.
+      }
+
+      return originalFetch(input, {
+        ...init,
+        body: JSON.stringify({ ...payload, facilitator: participating }),
+      });
+    } catch {
+      return originalFetch(input, init);
+    }
+  };
+})();0:{"P":null,"b":"DXIpkruYGYZ5Jmr5ldwnt","p":"/pr-preview/pr-50","c":["","ru",""],"i":false,"f":[[["",{"children":[["locale","ru","d"],{"children":["__PAGE__",{}]}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/pr-preview/pr-50/_next/static/css/83cb28a0ee905a41.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}],["$","link","1",{"rel":"stylesheet","href":"/pr-preview/pr-50/_next/static/css/9fcac8c89f887fa6.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"en","dir":"ltr","data-locale":"en","suppressHydrationWarning":true,"children":[["$","head",null,{"children":[["$","script",null,{"id":"arcade-request-dedupe","dangerouslySetInnerHTML":{"__html":"$2"}}],["$","script",null,{"id":"arcade-facilitator-participation","dangerouslySetInnerHTML":{"__html":"$3"}}],["$","script",null,{"id":"website-catalog-cache-buster","dangerouslySetInnerHTML":{"__html":"(() => {\n  const version = \"bfcdc3f623d456d1c165a2568d9ff35b31a270d5\";\n  const originalFetch = window.fetch.bind(window);\n\n  window.fetch = (input, init) => {\n    const rawUrl =\n      typeof input === \"string\"\n        ? input\n        : input instanceof URL\n          ? input.toString()\n          : input instanceof Request\n            ? input.url\n            : \"\";\n\n    let url;\n    try {\n      url = new URL(rawUrl, window.location.href);\n    } catch {\n      return originalFetch(input, init);\n    }\n\n    if (!url.pathname.includes(\"/i18n/\") || !url.pathname.endsWith(\".json\")) {\n      return originalFetch(input, init);\n    }\n\n    url.searchParams.set(\"v\", version);\n    return originalFetch(url.toString(), { ...init, cache: \"no-store\" });\n  };\n})();"}}],["$","link",null,{"rel":"preconnect","href":"https://fonts.googleapis.com"}],["$","link",null,{"rel":"preconnect","href":"https://fonts.gstatic.com","crossOrigin":"anonymous"}],["$","link",null,{"rel":"preconnect","href":"https://cdnjs.cloudflare.com"}],["$","link",null,{"rel":"stylesheet","href":"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Press+Start+2P&display=swap"}],["$","link",null,{"rel":"stylesheet","href":"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css","integrity":"sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==","crossOrigin":"anonymous","referrerPolicy":"no-referrer"}],["$","meta",null,{"name":"cookie-notice-preview","content":"true"}],null]}],["$","body",null,{"children":["$","$L4",null,{"attribute":"class","defaultTheme":"dark","enableSystem":false,"disableTransitionOnChange":true,"storageKey":"arcade-theme","children":[["$","$L5",null,{}],["$","$L6",null,{}],["$","$L7",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","$L9",null,{}],[]],"forbidden":"$undefined","unauthorized":"$undefined"}],["$","$La",null,{"analyticsEnabled":false,"previewMode":true}]]}]}]]}]]}],{"children":[["locale","ru","d"],["$","$1","c",{"children":[null,"$Lb"]}],{"children":["__PAGE__",["$","$1","c",{"children":["$Lc","$undefined",null,["$","$Ld",null,{"children":["$Le","$Lf",null]}]]}],{},null,false]},null,false]},null,false],["$","$1","h",{"children":[null,["$","$1","6HTVenkwzp_L7-NRcTLqJ",{"children":[["$","$L10",null,{"children":"$L11"}],null]}],["$","$L12",null,{"children":"$L13"}]]}],false]],"m":"$undefined","G":["$14","$undefined"],"s":false,"S":true}
+b:["$","div",null,{"lang":"ru","dir":"ltr","data-locale":"ru","children":["$","$L7",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]}]
+11:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","2",{"name":"color-scheme","content":"light dark"}]]
+e:null
+15:I[7259,["874","static/chunks/874-6636e32d520a8252.js","562","static/chunks/562-65f14011dc63d72a.js","465","static/chunks/app/%5Blocale%5D/page-0746c3a94c95d7ab.js"],"default"]
+16:I[5368,["874","static/chunks/874-6636e32d520a8252.js","562","static/chunks/562-65f14011dc63d72a.js","465","static/chunks/app/%5Blocale%5D/page-0746c3a94c95d7ab.js"],"default"]
+17:I[9284,["874","static/chunks/874-6636e32d520a8252.js","562","static/chunks/562-65f14011dc63d72a.js","465","static/chunks/app/%5Blocale%5D/page-0746c3a94c95d7ab.js"],"default"]
+18:I[2366,["874","static/chunks/874-6636e32d520a8252.js","562","static/chunks/562-65f14011dc63d72a.js","465","static/chunks/app/%5Blocale%5D/page-0746c3a94c95d7ab.js"],"default"]
+19:I[7723,["874","static/chunks/874-6636e32d520a8252.js","562","static/chunks/562-65f14011dc63d72a.js","465","static/chunks/app/%5Blocale%5D/page-0746c3a94c95d7ab.js"],"default"]
+1a:I[8734,["874","static/chunks/874-6636e32d520a8252.js","562","static/chunks/562-65f14011dc63d72a.js","465","static/chunks/app/%5Blocale%5D/page-0746c3a94c95d7ab.js"],"default"]
+1b:T9a8,{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://arcade.eplus.dev/ru/#website","url":"https://arcade.eplus.dev/ru/","name":"ПРОВЕРЬТЕ СЧЁТ ARCADE – Google Cloud Arcade 2026","description":"Проанализируйте публичный профиль, изучите полученные значки и проверьте уровень награды 2026 года.","publisher":{"@id":"https://eplus.dev/#organization"},"inLanguage":"ru"},{"@type":"WebPage","@id":"https://arcade.eplus.dev/ru/#webpage","url":"https://arcade.eplus.dev/ru/","name":"ПРОВЕРЬТЕ СЧЁТ ARCADE – Google Cloud Arcade 2026","description":"Проанализируйте публичный профиль, изучите полученные значки и проверьте уровень награды 2026 года.","isPartOf":{"@id":"https://arcade.eplus.dev/ru/#website"},"mainEntity":{"@id":"https://arcade.eplus.dev/ru/#application"},"about":{"@id":"https://arcade.eplus.dev/ru/#application"},"publisher":{"@id":"https://eplus.dev/#organization"},"inLanguage":"ru"},{"@type":"Organization","@id":"https://eplus.dev/#organization","name":"ePlus.DEV","url":"https://eplus.dev/"},{"@type":"WebApplication","@id":"https://arcade.eplus.dev/ru/#application","name":"ПРОВЕРЬТЕ СЧЁТ ARCADE – Google Cloud Arcade 2026","url":"https://arcade.eplus.dev/ru/","mainEntityOfPage":{"@id":"https://arcade.eplus.dev/ru/#webpage"},"isPartOf":{"@id":"https://arcade.eplus.dev/ru/#website"},"applicationCategory":"EducationalApplication","applicationSubCategory":"Google Cloud learning progress tracker","operatingSystem":"Any","browserRequirements":"Requires a modern web browser with JavaScript enabled","description":"Проанализируйте публичный профиль, изучите полученные значки и проверьте уровень награды 2026 года.","isAccessibleForFree":true,"offers":{"@type":"Offer","price":0,"priceCurrency":"USD"},"creator":{"@id":"https://eplus.dev/#organization"},"featureList":["Google Cloud Arcade point calculation with Facilitator milestone bonuses","Google Skills public profile analysis","Earned badge review and completion tracking","Current monthly Arcade games, access codes, deadlines, and completion tracking","Arcade reward tier and live remaining-slot comparison","Arcade Facilitator milestone and syllabus tracking"],"inLanguage":"ru"}]}c:[["$","section",null,{"className":"sr-only","lang":"ru","children":[["$","h1",null,{"children":"ПРОВЕРЬТЕ СЧЁТ ARCADE – Google Cloud Arcade 2026"}],["$","p",null,{"children":"Проанализируйте публичный профиль, изучите полученные значки и проверьте уровень награды 2026 года."}]]}],["$","$L15",null,{}],["$","$L16",null,{}],["$","$L17",null,{}],["$","$L18",null,{}],["$","$L19",null,{}],["$","$L1a",null,{}],["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"$1b"}}]]
+f:null
+13:[["$","title","0",{"children":"ПРОВЕРЬТЕ СЧЁТ ARCADE – Google Cloud Arcade 2026 | ePlus.DEV"}],["$","meta","1",{"name":"description","content":"Проанализируйте публичный профиль, изучите полученные значки и проверьте уровень награды 2026 года."}],["$","meta","2",{"name":"application-name","content":"Arcade Points by ePlus.DEV"}],["$","link","3",{"rel":"author","href":"https://eplus.dev"}],["$","meta","4",{"name":"author","content":"ePlus.DEV"}],["$","link","5",{"rel":"manifest","href":"/pr-preview/pr-50/manifest.json","crossOrigin":"$undefined"}],["$","meta","6",{"name":"generator","content":"Next.js"}],["$","meta","7",{"name":"keywords","content":"Google Cloud Arcade points calculator,Google Skills Arcade calculator,Google Cloud Skills Boost badges,Google Skills public profile tracker,Arcade Facilitator points,Google Cloud Arcade milestones,Arcade points 2026,Google Cloud Arcade rewards,Google Cloud Skills Boost Helper"}],["$","meta","8",{"name":"referrer","content":"origin-when-cross-origin"}],["$","meta","9",{"name":"creator","content":"ePlus.DEV"}],["$","meta","10",{"name":"publisher","content":"ePlus.DEV"}],["$","meta","11",{"name":"robots","content":"index, follow"}],["$","meta","12",{"name":"googlebot","content":"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1"}],["$","meta","13",{"name":"category","content":"technology"}],["$","link","14",{"rel":"canonical","href":"https://arcade.eplus.dev/ru/"}],["$","link","15",{"rel":"alternate","hrefLang":"en","href":"https://arcade.eplus.dev/"}],["$","link","16",{"rel":"alternate","hrefLang":"vi","href":"https://arcade.eplus.dev/vi/"}],["$","link","17",{"rel":"alternate","hrefLang":"ja","href":"https://arcade.eplus.dev/ja/"}],["$","link","18",{"rel":"alternate","hrefLang":"ko","href":"https://arcade.eplus.dev/ko/"}],["$","link","19",{"rel":"alternate","hrefLang":"zh-CN","href":"https://arcade.eplus.dev/zh-cn/"}],["$","link","20",{"rel":"alternate","hrefLang":"fr","href":"https://arcade.eplus.dev/fr/"}],["$","link","21",{"rel":"alternate","hrefLang":"de","href":"https://arcade.eplus.dev/de/"}],["$","link","22",{"rel":"alternate","hrefLang":"es","href":"https://arcade.eplus.dev/es/"}],["$","link","23",{"rel":"alternate","hrefLang":"pt-BR","href":"https://arcade.eplus.dev/pt-br/"}],["$","link","24",{"rel":"alternate","hrefLang":"it","href":"https://arcade.eplus.dev/it/"}],["$","link","25",{"rel":"alternate","hrefLang":"ru","href":"https://arcade.eplus.dev/ru/"}],["$","link","26",{"rel":"alternate","hrefLang":"ar","href":"https://arcade.eplus.dev/ar/"}],["$","link","27",{"rel":"alternate","hrefLang":"hi","href":"https://arcade.eplus.dev/hi/"}],["$","link","28",{"rel":"alternate","hrefLang":"x-default","href":"https://arcade.eplus.dev/"}],["$","meta","29",{"property":"og:title","content":"ПРОВЕРЬТЕ СЧЁТ ARCADE – Google Cloud Arcade 2026"}],["$","meta","30",{"property":"og:description","content":"Проанализируйте публичный профиль, изучите полученные значки и проверьте уровень награды 2026 года."}],["$","meta","31",{"property":"og:url","content":"https://arcade.eplus.dev/ru/"}],["$","meta","32",{"property":"og:locale","content":"ru"}],["$","meta","33",{"property":"og:locale:alternate","content":"en"}],["$","meta","34",{"property":"og:locale:alternate","content":"vi"}],["$","meta","35",{"property":"og:locale:alternate","content":"ja"}],["$","meta","36",{"property":"og:locale:alternate","content":"ko"}],["$","meta","37",{"property":"og:locale:alternate","content":"zh_CN"}],["$","meta","38",{"property":"og:locale:alternate","content":"fr"}],["$","meta","39",{"property":"og:locale:alternate","content":"de"}],["$","meta","40",{"property":"og:locale:alternate","content":"es"}],["$","meta","41",{"property":"og:locale:alternate","content":"pt_BR"}],["$","meta","42",{"property":"og:locale:alternate","content":"it"}],["$","meta","43",{"property":"og:locale:alternate","content":"ar"}],["$","meta","44",{"property":"og:locale:alternate","content":"hi"}],["$","meta","45",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","46",{"name":"twitter:title","content":"ПРОВЕРЬТЕ СЧЁТ ARCADE – Google Cloud Arcade 2026"}],["$","meta","47",{"name":"twitter:description","content":"Проанализируйте публичный профиль, изучите полученные значки и проверьте уровень награды 2026 года."}],["$","link","48",{"rel":"icon","href":"/pr-preview/pr-50/favicon.ico","type":"image/x-icon","sizes":"48x48"}],["$","link","49",{"rel":"icon","href":"/pr-preview/pr-50/icon0.svg?66a7cd687bde5efd","type":"image/svg+xml","sizes":"any"}],["$","link","50",{"rel":"icon","href":"/pr-preview/pr-50/icon1.png?52e5d01a77c5680f","type":"image/png","sizes":"96x96"}],["$","link","51",{"rel":"apple-touch-icon","href":"/pr-preview/pr-50/apple-icon.png?97901d54c640609b","type":"image/png","sizes":"180x180"}]]
