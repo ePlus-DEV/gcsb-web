@@ -33,14 +33,14 @@ export const SWAG_TIER_META: Record<
     pointsLabel: "50–74 points",
     slots: 6000,
     rewardRule:
-      "Trooper is the foundational reward tier. The Arcade Travel Bottle and Arcade Magic Mug are confirmed; the remaining core-pack contents and final item count are unrevealed.",
+      "Three Trooper rewards are confirmed: Arcade Travel Bottle, Arcade Magic Mug, and Arcade Polo T-Shirt. Further items remain unrevealed.",
     allocationNote:
       "Trooper is the broadest 2026 prize pool. Waterfall can move eligible participants into this pool when higher-tier capacity is exhausted.",
     packageRule: "Core Trooper swag pack · historical estimate ≈5 items",
-    knownMinimumItems: "2+",
+    knownMinimumItems: "3+",
     knownMinimumNote:
-      "Official minimum: 2 confirmed Trooper items — the Arcade Travel Bottle and Arcade Magic Mug. Historical estimate: about 5 items, based on the final 2025 Season 2 Trooper package.",
-    waitingNote: "The Arcade Travel Bottle and Arcade Magic Mug are confirmed for Trooper; the remaining core-pack items have not been revealed yet.",
+      "Official minimum: 3 confirmed Trooper rewards. Historical estimate: about 5 items.",
+    waitingNote: "Three Trooper rewards are confirmed: Arcade Travel Bottle, Arcade Magic Mug, and Arcade Polo T-Shirt. Further items remain unrevealed.",
     historicalEstimateItems: 5,
     historicalEstimateLabel: "≈5 items",
     historicalEstimateBasis:
@@ -62,14 +62,14 @@ export const SWAG_TIER_META: Record<
     pointsLabel: "75–94 points",
     slots: 4000,
     rewardRule:
-      "Ranger receives the Trooper core pack, including the Arcade Travel Bottle and Arcade Magic Mug, plus the exclusive Ranger bonus reward, the Arcade Backpack.",
+      "Ranger receives the three confirmed Trooper rewards plus the exclusive Arcade Backpack. Further items remain unrevealed.",
     allocationNote:
       "Ranger has its own prize-slot pool. Waterfall allocation is separate from the reward bundle inheritance between Ranger and Trooper.",
     packageRule: "Trooper pack + 1 Ranger bonus · historical estimate ≈6 items",
-    knownMinimumItems: "3+",
+    knownMinimumItems: "4+",
     knownMinimumNote:
-      "Official minimum: 3 confirmed Ranger items — the Arcade Travel Bottle and Arcade Magic Mug from Trooper, plus the Ranger-exclusive Arcade Backpack. Historical estimate: about 6 items.",
-    waitingNote: "The Arcade Travel Bottle, Arcade Magic Mug, and Arcade Backpack are confirmed for Ranger; other Trooper-family items have not yet been revealed.",
+      "Official minimum: 4 confirmed Ranger rewards. Historical estimate: about 6 items.",
+    waitingNote: "Ranger receives the three confirmed Trooper rewards plus the exclusive Arcade Backpack. Further items remain unrevealed.",
     historicalEstimateItems: 6,
     historicalEstimateLabel: "≈6 items",
     historicalEstimateBasis:
