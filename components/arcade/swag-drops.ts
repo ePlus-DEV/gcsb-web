@@ -30,6 +30,26 @@ export type ArcadeSwagDrop = {
  */
 export const ARCADE_SWAG_DROPS: readonly ArcadeSwagDrop[] = [
   {
+    id: "arcade-polo-t-shirt",
+    season: 2026,
+    dropNumber: 9,
+    name: "The Arcade Polo T-Shirt",
+    shortName: "Arcade Polo T-Shirt",
+    revealedOn: "November 26, 2026",
+    revealedOnIso: "2026-11-26",
+    tiers: ["trooper", "ranger"],
+    imageUrl:
+      "https://d2yds90mtvelsl.cloudfront.net/original/4X/6/7/d/67d9da482a5ba8269df4d7c490a3ac65241ff7cf.gif",
+    sourceUrl:
+      "https://discuss.google.dev/t/swag-drop-the-arcade-polo-t-shirt/417386",
+    summary:
+      "A classic black polo with Google Cloud branding, confirmed for Arcade Trooper and Ranger.",
+    features: [
+      "Soft, breathable fabric for long sessions",
+      "Classic black polo with the Google Cloud logo",
+    ],
+  },
+  {
     id: "arcade-vacuum-tumbler",
     season: 2026,
     dropNumber: 8,
