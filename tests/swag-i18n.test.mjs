@@ -265,7 +265,7 @@ test("all current tier rules and package outlook descriptions are localized", ()
       /(?:rewardRule|allocationNote|packageRule|knownMinimumNote|waitingNote|historicalEstimateBasis):\s*"([^"]+)"/g,
     )].map((match) => match[1]),
   )]
-  assert.ok(keys.length >= 23, "Expected every current tier's source copy")
+  assert.equal([...source.matchAll(/(?:rewardRule|allocationNote|packageRule|knownMinimumNote|waitingNote|historicalEstimateBasis):\s*"([^"]+)"/g)].length, 24, "Expected all six source fields for each tier")
   for (const locale of locales) {
     const additional = readCatalog(locale).additional
     for (const key of keys) {
