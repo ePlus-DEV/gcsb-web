@@ -6,12 +6,13 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: read
   contents: write
   pages: write
   id-token: write
 
 concurrency:
-  group: gcsb-pages-content-v3
+  group: gcsb-pages-content-v4
   cancel-in-progress: false
 
 jobs:
@@ -133,10 +134,35 @@ jobs:
             gh-pages
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5
         with:
           path: published-site
           include-hidden-files: true
+
+      # Upload completion can precede visibility in the Actions REST API.
+      # deploy-pages fails immediately when the named artifact is not visible.
+      - name: Wait for Pages artifact metadata
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 12); do
+            if count=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts?name=github-pages" --jq '[.artifacts[] | select(.name == "github-pages" and .expired == false)] | length'); then
+              if [[ "$count" == "1" ]]; then
+                echo "Pages artifact metadata is available."
+                exit 0
+              fi
+              if [[ "$count" -gt 1 ]]; then
+                echo "::error::Multiple active github-pages artifacts found; refusing ambiguous deployment."
+                exit 1
+              fi
+            fi
+            echo "Waiting for Pages artifact metadata (attempt ${attempt}/12)."
+            if [[ "$attempt" -lt 12 ]]; then sleep 5; fi
+          done
+          echo "::error::Pages artifact metadata did not become available; retry the workflow."
+          exit 1
 
       - name: Deploy GitHub Pages
         id: deployment
